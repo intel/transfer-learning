@@ -1,0 +1,10 @@
+.idea*
+*.pyc
+.DS_Store
+**.log
+.venv*
+**/**.whl
+.ipynb_checkpoints
+*.egg-info/
+dist/
+build/

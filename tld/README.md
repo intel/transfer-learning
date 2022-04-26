@@ -1,8 +1,4 @@
-# frameworks.ai.transfer-learning
-
-> Note that the `tld` (transfer learn and deploy) tool name is a placeholder until
-> we have the actual tool name picked out.
-
+# Transfer Learn and Deploy Tool
 
 ## Build and Install
 
