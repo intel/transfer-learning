@@ -18,13 +18,16 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-import click
+from tlk.utils.types import FrameworkType
+from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
 
 
-@click.group('cli')
-def cli_group():
-    pass
+def get_model(model_name: str, framework: FrameworkType):
+    if not isinstance(framework, FrameworkType):
+        framework = FrameworkType.from_str(framework)
 
+    if framework == FrameworkType.PYTORCH:
+        raise NotImplementedError("PyTorch support has not been implemented")
 
-if __name__ == '__main__':
-    cli_group()
+    # TODO: Support other model types and support passing extra configs
+    return TFHubImageClassificationModel(model_name)

@@ -17,3 +17,20 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
+
+import click
+
+from tlk.tools.cli.commands.list import list_group
+from tlk.tools.cli.commands.train import train
+
+
+@click.group('cli')
+def cli_group():
+    pass
+
+# Add top level commands
+cli_group.add_command(list_group)
+cli_group.add_command(train)
+
+if __name__ == '__main__':
+    cli_group()

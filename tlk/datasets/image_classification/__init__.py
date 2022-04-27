@@ -17,3 +17,6 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
+
+from tlk.datasets.image_classification import image_classification_dataset
+from tlk.datasets.image_classification import tf_image_classification_dataset

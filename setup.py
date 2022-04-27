@@ -35,8 +35,8 @@ EXTRA_PACKAGES = {
     }
 }
 
-setup(name="tld",
-      description="A transfer learning tool from Intel",
+setup(name="tlk",
+      description="A Transfer Learning Kit from Intel",
       version="0.0.1",
       packages=find_packages(),
       install_requires=COMMON_PACKAGES,
@@ -44,7 +44,7 @@ setup(name="tld",
       python_requires=">3.8",
       entry_points={
         "console_scripts": [
-            "tld = tld.tools.cli.main:cli_group"
+            "tlk = tlk.tools.cli.main:cli_group"
             ]
         },
       include_package_data=True

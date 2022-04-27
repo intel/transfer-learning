@@ -1,8 +1,4 @@
-# Transfer Learning Kit (TLK)
-
-> Note that the `tlk` (Transfer Learning Kit) tool name is a placeholder until
-> we have the actual tool name picked out.
-
+# Transfer Learning Kit (TLK
 
 ## Build and Install
 
