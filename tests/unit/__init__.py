@@ -17,18 +17,3 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-
-from tlk.utils.types import FrameworkType
-from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
-
-
-def get_model(model_name: str, framework: FrameworkType):
-    """A factory method for creating models."""
-    if not isinstance(framework, FrameworkType):
-        framework = FrameworkType.from_str(framework)
-
-    if framework == FrameworkType.PYTORCH:
-        raise NotImplementedError("PyTorch support has not been implemented")
-
-    # TODO: Support other model types and support passing extra configs
-    return TFHubImageClassificationModel(model_name)

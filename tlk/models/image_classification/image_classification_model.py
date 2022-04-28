@@ -26,7 +26,7 @@ from tlk.utils.types import FrameworkType, UseCaseType
 
 class ImageClassificationModel(BaseModel):
     """
-    Class used to represent a TF Hub pretrained model
+    Class used to represent a pretrained model for image classification
     """
 
     def __init__(self, image_size: int, do_fine_tuning: bool, dropout_layer_rate: int,

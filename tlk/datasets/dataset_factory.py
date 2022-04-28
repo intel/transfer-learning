@@ -31,7 +31,8 @@ dataset_map = {
 
 
 def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkType,
-                dataset_name=None, dataset_catalog=None):
+                dataset_name=None, dataset_catalog=None, **kwargs):
+    """A factory method for creating datasets."""
     if not isinstance(framework, FrameworkType):
         framework = FrameworkType.from_str(framework)
 
@@ -41,7 +42,7 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
     if framework in dataset_map.keys():
         if use_case in dataset_map[framework].keys():
             if dataset_catalog and dataset_catalog in dataset_map[framework][use_case]:
-                return dataset_map[framework][use_case][dataset_catalog](dataset_dir, dataset_name)
+                return dataset_map[framework][use_case][dataset_catalog](dataset_dir, dataset_name, **kwargs)
 
     # For the error message, if there's no dataset catalog specified, then it's a custom dataset
     if not dataset_catalog:

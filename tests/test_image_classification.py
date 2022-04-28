@@ -18,17 +18,16 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-from tlk.utils.types import FrameworkType
-from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
 
+from tlk.datasets import dataset_factory
+from tlk.models import model_factory
 
-def get_model(model_name: str, framework: FrameworkType):
-    """A factory method for creating models."""
-    if not isinstance(framework, FrameworkType):
-        framework = FrameworkType.from_str(framework)
-
-    if framework == FrameworkType.PYTORCH:
-        raise NotImplementedError("PyTorch support has not been implemented")
-
-    # TODO: Support other model types and support passing extra configs
-    return TFHubImageClassificationModel(model_name)
+def test_tf_image_classification():
+    """
+    Tests basic transfer learning functionality on tf_flowers with efficientnet_b0
+    """
+    flowers = dataset_factory.get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers',
+                                          'tf_datasets', split=["train[:5%]"])
+    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+    flowers.preprocess(model.image_size, 32)
+    model.train(flowers, 1)
