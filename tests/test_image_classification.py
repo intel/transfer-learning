@@ -31,3 +31,6 @@ def test_tf_image_classification():
     model = model_factory.get_model('efficientnet_b0', 'tensorflow')
     flowers.preprocess(model.image_size, 32)
     model.train(flowers, 1)
+    images, labels = flowers.get_batch()
+    predictions = model.predict(images)
+    assert len(predictions) == 32

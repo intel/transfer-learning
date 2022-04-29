@@ -32,7 +32,22 @@ dataset_map = {
 
 def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkType,
                 dataset_name=None, dataset_catalog=None, **kwargs):
-    """A factory method for creating datasets."""
+    """A factory method for creating datasets.
+
+        Args:
+            dataset_dir (str): directory containing the dataset or to which the dataset should be downloaded
+            use_case (str or UseCaseType): use case or task the dataset will be used to model
+            framework (str or FrameworkType): framework
+            dataset_name (str): optional; name of the dataset
+            dataset_catalog (str): optional; catalog from which to download the dataset
+            **kwargs: optional; additional keyword arguments for the framework or dataset_catalog
+
+        Returns:
+            (dataset)
+
+        Raises:
+            NotImplementedError if the dataset requested is not supported yet
+    """
     if not isinstance(framework, FrameworkType):
         framework = FrameworkType.from_str(framework)
 

@@ -46,3 +46,7 @@ class BaseDataset(abc.ABC):
     @abc.abstractmethod
     def dataset(self):
         pass
+
+    @abc.abstractmethod
+    def get_batch(self):
+        pass

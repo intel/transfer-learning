@@ -27,7 +27,7 @@ from tlk.datasets.image_classification.image_classification_dataset import Image
 
 class TFImageClassificationDataset(ImageClassificationDataset):
     """
-    Base class for an image classification from the TensorFlow datasets catalog
+    Base class for an image classification dataset from the TensorFlow datasets catalog
     """
     def __init__(self, dataset_dir, dataset_name, split=["train[:75%]"],
                  as_supervised=True, shuffle_files=True):
@@ -56,13 +56,32 @@ class TFImageClassificationDataset(ImageClassificationDataset):
     def dataset(self):
         return self._dataset
 
+    def get_batch(self):
+        """Get a single batch of images and labels from the dataset.
+
+            Returns:
+                 (images, labels)
+
+            Raises:
+                    ValueError if the dataset is not defined yet
+        """
+        if self._dataset:
+            return next(iter(self._dataset))
+        else:
+            raise ValueError("Unable to return a batch, because the dataset hasn't been defined.")
+
     def preprocess(self, image_size, batch_size):
+        """Preprocess the images to convert them to float32 and resize the images
+
+            Args:
+                image_size (int): desired square image size
+                batch_size (int): desired batch size
+
+            Raises:
+                ValueError if the dataset is not defined yet
         """
-        Preprocess the images to convert them to float32 and resize the images
-        
-        NOTE: Should this be part of init? If we get image_size and batch size during init,
-        then we don't need a separate call to preprocess.
-        """
+        # NOTE: Should this be part of init? If we get image_size and batch size during init,
+        # then we don't need a separate call to preprocess.
         def preprocess_image(image, label):
             image = tf.image.convert_image_dtype(image, tf.float32)
             image = tf.image.resize_with_pad(image, image_size, image_size)

@@ -19,6 +19,7 @@
 #
 
 import os
+import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
 
@@ -177,8 +178,10 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
     def evaluate(self, dataset: ImageClassificationDataset):
         return self._model.evaluate(dataset.dataset)
 
-    def predict(self, dataset: ImageClassificationDataset):
-        return NotImplementedError("Predict has not been implemented")
+    def predict(self, input_samples):
+        predictions = self._model.predict(input_samples)
+        predicted_ids = np.argmax(predictions, axis=-1)
+        return predicted_ids
 
     def export(self, output_dir):
         if self._model:

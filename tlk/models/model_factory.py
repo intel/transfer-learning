@@ -23,7 +23,18 @@ from tlk.models.image_classification.tfhub_image_classification_model import TFH
 
 
 def get_model(model_name: str, framework: FrameworkType):
-    """A factory method for creating models."""
+    """A factory method for creating models.
+
+        Args:
+            model_name (str): name of model
+            framework (str or FrameworkType): framework
+
+        Returns:
+            model object
+
+        Raises:
+            NotImplementedError if the model requested is not supported yet
+    """
     if not isinstance(framework, FrameworkType):
         framework = FrameworkType.from_str(framework)
 
