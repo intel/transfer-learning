@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Line Interface (CLI) &mdash; tlk 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Python Library (API)" href="api.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> tlk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Python Library (API)</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tlk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Command Line Interface (CLI)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cli.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="command-line-interface-cli">
+<h1>Command Line Interface (CLI)<a class="headerlink" href="#command-line-interface-cli" title="Permalink to this headline">¶</a></h1>
+<p>Use <cite>tlk –help</cite> to see the list of CLI commands. More detailed information on each
+command can be found using <cite>tlk &lt;command&gt; –help</cite> (like <cite>tlk train –help</cite>).</p>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>List the available models:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlk</span> <span class="nb">list</span> <span class="n">models</span>
+<span class="n">Image</span> <span class="n">Classification</span>
+<span class="o">----------------------------------------</span>
+<span class="n">resnet_v1_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet_v2_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet_v2_101</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">mobilenet_v2_100_224</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">s</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b0</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b1</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b2</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">inception_v3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">nasnet_large</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Train a model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlk</span> <span class="n">train</span> <span class="o">-</span><span class="n">f</span> <span class="n">tensorflow</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="n">efficientnet_b0</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">data</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span> <span class="n">tf_flowers</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">catalog</span> <span class="n">tf_datasets</span>
+<span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">efficientnet_b0</span>
+<span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
+<span class="n">Dataset</span> <span class="n">name</span><span class="p">:</span> <span class="n">tf_flowers</span>
+<span class="n">Dataset</span> <span class="n">catalog</span><span class="p">:</span> <span class="n">tf_datasets</span>
+<span class="n">Dataset</span> <span class="nb">dir</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">data</span>
+<span class="n">Output</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">27</span> <span class="mi">10</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mf">12.651375</span><span class="p">:</span> <span class="n">I</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">platform</span><span class="o">/</span><span class="n">cpu_feature_guard</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">151</span><span class="p">]</span> <span class="n">This</span> <span class="n">TensorFlow</span> <span class="n">binary</span> <span class="ow">is</span> <span class="n">optimized</span> <span class="k">with</span> <span class="n">oneAPI</span> <span class="n">Deep</span> <span class="n">Neural</span> <span class="n">Network</span> <span class="n">Library</span> <span class="p">(</span><span class="n">oneDNN</span><span class="p">)</span> <span class="n">to</span> <span class="n">use</span> <span class="n">the</span> <span class="n">following</span> <span class="n">CPU</span> <span class="n">instructions</span> <span class="ow">in</span> <span class="n">performance</span><span class="o">-</span><span class="n">critical</span> <span class="n">operations</span><span class="p">:</span>  <span class="n">AVX2</span> <span class="n">AVX512F</span> <span class="n">FMA</span>
+<span class="n">To</span> <span class="n">enable</span> <span class="n">them</span> <span class="ow">in</span> <span class="n">other</span> <span class="n">operations</span><span class="p">,</span> <span class="n">rebuild</span> <span class="n">TensorFlow</span> <span class="k">with</span> <span class="n">the</span> <span class="n">appropriate</span> <span class="n">compiler</span> <span class="n">flags</span><span class="o">.</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">27</span> <span class="mi">10</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mf">12.658987</span><span class="p">:</span> <span class="n">I</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">common_runtime</span><span class="o">/</span><span class="n">process_util</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">146</span><span class="p">]</span> <span class="n">Creating</span> <span class="n">new</span> <span class="n">thread</span> <span class="n">pool</span> <span class="k">with</span> <span class="n">default</span> <span class="n">inter</span> <span class="n">op</span> <span class="n">setting</span><span class="p">:</span>
+
+<span class="n">Model</span><span class="p">:</span> <span class="s2">&quot;sequential&quot;</span>
+<span class="n">_________________________________________________________________</span>
+<span class="n">Layer</span> <span class="p">(</span><span class="nb">type</span><span class="p">)</span>                <span class="n">Output</span> <span class="n">Shape</span>              <span class="n">Param</span> <span class="c1">#</span>
+<span class="o">=================================================================</span>
+<span class="n">keras_layer</span> <span class="p">(</span><span class="n">KerasLayer</span><span class="p">)</span>    <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1280</span><span class="p">)</span>              <span class="mi">4049564</span>
+
+<span class="n">dense</span> <span class="p">(</span><span class="n">Dense</span><span class="p">)</span>               <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>                 <span class="mi">6405</span>
+
+<span class="o">=================================================================</span>
+<span class="n">Total</span> <span class="n">params</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span><span class="mi">055</span><span class="p">,</span><span class="mi">969</span>
+<span class="n">Trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span><span class="mi">405</span>
+<span class="n">Non</span><span class="o">-</span><span class="n">trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span><span class="mi">049</span><span class="p">,</span><span class="mi">564</span>
+<span class="n">_________________________________________________________________</span>
+<span class="kc">None</span>
+<span class="mi">86</span><span class="o">/</span><span class="mi">86</span> <span class="p">[</span><span class="o">==============================</span><span class="p">]</span> <span class="o">-</span> <span class="mi">22</span><span class="n">s</span> <span class="mi">215</span><span class="n">ms</span><span class="o">/</span><span class="n">step</span> <span class="o">-</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">0.5106</span> <span class="o">-</span> <span class="n">acc</span><span class="p">:</span> <span class="mf">0.8438</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">27</span> <span class="mi">10</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mf">38.545222</span><span class="p">:</span> <span class="n">W</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">python</span><span class="o">/</span><span class="n">util</span><span class="o">/</span><span class="n">util</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">368</span><span class="p">]</span> <span class="n">Sets</span> <span class="n">are</span> <span class="ow">not</span> <span class="n">currently</span> <span class="n">considered</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">but</span> <span class="n">this</span> <span class="n">may</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">future</span><span class="p">,</span> <span class="n">so</span> <span class="n">consider</span> <span class="n">avoiding</span> <span class="n">using</span> <span class="n">them</span><span class="o">.</span>
+<span class="n">Saved</span> <span class="n">model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">efficientnet_b0</span><span class="o">/</span><span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="Python Library (API)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Intel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
