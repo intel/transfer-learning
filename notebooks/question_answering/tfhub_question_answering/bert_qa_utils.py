@@ -20,14 +20,15 @@ import glob
 import json
 import os
 import pandas as pd
+import sys
 import tensorflow as tf
-import wget
+
+sys.path.append(os.environ["TF_MODELS_DIR"])
 
 from official.common import distribute_utils
 from official.nlp.bert.run_squad_helper import get_dataset_fn
-
+from tlk.utils.file_utils import download_file
 from zipfile import ZipFile
-
 
 def create_mini_dataset_file(original_file, output_file, num_dataset_items, overwrite=False):
     """
@@ -133,7 +134,7 @@ def get_config_and_vocab_from_zip(zip_url, bert_dir):
     bert_config = os.path.join(bert_dir, "bert_config.json")
     
     if not os.path.exists(vocab_txt) or not os.path.exists(bert_config):
-        downloaded_file = wget.download(zip_url, bert_dir)
+        downloaded_file = download_file(zip_url, bert_dir)
         with ZipFile(downloaded_file, "r") as checkpoint_zip:
             def get_file_from_zip(file_path):
                 file_basename = os.path.basename(file_path)
