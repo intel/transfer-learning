@@ -21,10 +21,6 @@
 import click
 import sys
 
-from tlk.models import model_factory
-from tlk.datasets import dataset_factory
-from tlk.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
-
 
 @click.command()
 @click.option("--framework", "-f",
@@ -58,6 +54,10 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_
     """
     Trains the model
     """
+    from tlk.models import model_factory
+    from tlk.datasets import dataset_factory
+    from tlk.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
+
     print("Model name:", model_name)
     print("Framework:", framework)
 

@@ -16,11 +16,29 @@
 # limitations under the License.
 #
 
+import json
 import os
 import urllib.request
 import shutil
 import tarfile
 from zipfile import ZipFile
+
+
+def read_json_file(json_file_path):
+    """
+    Reads a json file an returns a dictionary representing the file contents
+
+    :param json_file_path: Path to the json file
+    :return: Dictionary
+    """
+
+    if not os.path.isfile(json_file_path):
+        raise FileNotFoundError("The json file {} does not exist".format(json_file_path))
+
+    with open(json_file_path, "r") as f:
+        data = json.load(f)
+
+    return data
 
 
 def download_file(download_url, destination_directory):

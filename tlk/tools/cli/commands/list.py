@@ -19,9 +19,10 @@
 #
 
 import click
+import sys
 
-from tlk.models.image_classification.tfhub_image_classification_model import tfhub_model_map
 from tlk.utils.types import FrameworkType, UseCaseType
+
 
 @click.group("list")
 def list_group():
@@ -43,13 +44,21 @@ def list_frameworks():
 @click.option("--framework", "-f",
               required=False,
               help="Filter the list of models by framework.")
-def list_models(framework):
-    # TODO: Standardize the way we store model info and get the list of models
-    if framework and framework.lower() == "pytorch":
-        print("There are no supported PyTorch models")
+@click.option("--use-case", "--use_case",
+              required=False,
+              help="Filter the list of models to a single use case")
+@click.option("--verbose", "verbose",
+              flag_value=True,
+              default=False,
+              help="Verbose output with extra information about each model")
+def list_models(framework, use_case, verbose):
+    """
+    List the supported models and the information that we have about each model from the config files.
+    """
+    from tlk.models.model_factory import print_supported_models
 
-    print("Image Classification")
-    print("-" * 40)
-    image_classification_models = ["{} (tensorflow)".format(m) for m in tfhub_model_map.keys()]
-    print("\n".join(image_classification_models))
-    print("")
+    try:
+        print_supported_models(framework, use_case, verbose)
+    except Exception as e:
+        sys.exit("Error while listing the supported models for framework: {}, use case: {}\n  {}".format(
+            str(framework), str(use_case), str(e)))

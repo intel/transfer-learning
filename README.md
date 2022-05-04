@@ -47,19 +47,29 @@ command can be found using `tlk <command> --help` (like `tlk train --help`).
 
 List the available models:
 ```bash
-> tlk list models
-Image Classification
-----------------------------------------
-resnet_v1_50 (tensorflow)
-resnet_v2_50 (tensorflow)
-resnet_v2_101 (tensorflow)
-mobilenet_v2_100_224 (tensorflow)
-efficientnetv2-s (tensorflow)
+> tlk list models --framework tensorflow --use-case image_classification
+------------------------------
+IMAGE CLASSIFICATION
+------------------------------
 efficientnet_b0 (tensorflow)
 efficientnet_b1 (tensorflow)
 efficientnet_b2 (tensorflow)
+efficientnet_b3 (tensorflow)
+efficientnet_b4 (tensorflow)
+efficientnet_b5 (tensorflow)
+efficientnet_b6 (tensorflow)
+efficientnet_b7 (tensorflow)
+efficientnetv2-b0 (tensorflow)
+efficientnetv2-b1 (tensorflow)
+efficientnetv2-b2 (tensorflow)
+efficientnetv2-b3 (tensorflow)
+efficientnetv2-s (tensorflow)
 inception_v3 (tensorflow)
+mobilenet_v2_100_224 (tensorflow)
 nasnet_large (tensorflow)
+resnet_v1_50 (tensorflow)
+resnet_v2_101 (tensorflow)
+resnet_v2_50 (tensorflow)
 ```
 
 Train a model:
