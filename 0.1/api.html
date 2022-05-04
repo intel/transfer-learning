@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Python Library (API) &mdash; tlk 0.0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -40,8 +41,8 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface (CLI)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Python Library (API)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#datasets">Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-tlk.datasets.dataset_factory">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-tlk.models.model_factory">Models</a></li>
 </ul>
 </li>
 </ul>
@@ -70,15 +71,182 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="python-library-api">
+  <section id="python-library-api">
 <h1>Python Library (API)<a class="headerlink" href="#python-library-api" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="datasets">
-<h2>Datasets<a class="headerlink" href="#datasets" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="models">
-<h2>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h2>
-</div>
-</div>
+<section id="module-tlk.datasets.dataset_factory">
+<span id="datasets"></span><h2>Datasets<a class="headerlink" href="#module-tlk.datasets.dataset_factory" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tlk.datasets.dataset_factory.get_dataset">
+<span class="sig-prename descclassname"><span class="pre">tlk.datasets.dataset_factory.</span></span><span class="sig-name descname"><span class="pre">get_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tlk.utils.types.UseCaseType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tlk.utils.types.FrameworkType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.datasets.dataset_factory.get_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method for creating datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset_dir</strong> (<em>str</em>) – directory containing the dataset or to which the dataset should be downloaded</p></li>
+<li><p><strong>use_case</strong> (<em>str</em><em> or </em><em>UseCaseType</em>) – use case or task the dataset will be used to model</p></li>
+<li><p><strong>framework</strong> (<em>str</em><em> or </em><em>FrameworkType</em>) – framework</p></li>
+<li><p><strong>dataset_name</strong> (<em>str</em>) – optional; name of the dataset</p></li>
+<li><p><strong>dataset_catalog</strong> (<em>str</em>) – optional; catalog from which to download the dataset</p></li>
+<li><p><strong>**kwargs</strong> – optional; additional keyword arguments for the framework or dataset_catalog</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(dataset)</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError if the dataset requested is not supported yet</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-tlk.datasets.dataset"></span><dl class="py class">
+<dt class="sig sig-object py" id="tlk.datasets.dataset.BaseDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlk.datasets.dataset.</span></span><span class="sig-name descname"><span class="pre">BaseDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.datasets.dataset.BaseDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract base class for a dataset used for training or evaluation</p>
+</dd></dl>
+
+<span class="target" id="module-tlk.datasets.image_classification.image_classification_dataset"></span><dl class="py class">
+<dt class="sig sig-object py" id="tlk.datasets.image_classification.image_classification_dataset.ImageClassificationDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlk.datasets.image_classification.image_classification_dataset.</span></span><span class="sig-name descname"><span class="pre">ImageClassificationDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.datasets.image_classification.image_classification_dataset.ImageClassificationDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for an image classification dataset</p>
+</dd></dl>
+
+<span class="target" id="module-tlk.datasets.image_classification.tf_image_classification_dataset"></span><dl class="py class">
+<dt class="sig sig-object py" id="tlk.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlk.datasets.image_classification.tf_image_classification_dataset.</span></span><span class="sig-name descname"><span class="pre">TFImageClassificationDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['train[:75%]']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_supervised</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for an image classification dataset from the TensorFlow datasets catalog</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.get_batch">
+<span class="sig-name descname"><span class="pre">get_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tlk.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.get_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a single batch of images and labels from the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(images, labels)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError if the dataset is not defined yet</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess the images to convert them to float32 and resize the images</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_size</strong> (<em>int</em>) – desired square image size</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – desired batch size</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError if the dataset is not defined yet</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tlk.models.model_factory">
+<span id="models"></span><h2>Models<a class="headerlink" href="#module-tlk.models.model_factory" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tlk.models.model_factory.get_model">
+<span class="sig-prename descclassname"><span class="pre">tlk.models.model_factory.</span></span><span class="sig-name descname"><span class="pre">get_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tlk.utils.types.FrameworkType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.model_factory.get_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>A factory method for creating models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_name</strong> (<em>str</em>) – name of model</p></li>
+<li><p><strong>framework</strong> (<em>str</em><em> or </em><em>FrameworkType</em>) – framework</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>model object</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>NotImplementedError if the model requested is not supported yet</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-tlk.models.model"></span><dl class="py class">
+<dt class="sig sig-object py" id="tlk.models.model.BaseModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlk.models.model.</span></span><span class="sig-name descname"><span class="pre">BaseModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tlk.utils.types.FrameworkType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tlk.utils.types.UseCaseType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.model.BaseModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract base class for a pretrained model that can be used for transfer learning</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.models.model.BaseModel.evaluate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tlk.datasets.dataset.BaseDataset" title="tlk.datasets.dataset.BaseDataset"><span class="pre">tlk.datasets.dataset.BaseDataset</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.model.BaseModel.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the model using the specified dataset. Returns the loss and metrics for the model in test mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.models.model.BaseModel.load_from_directory">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.model.BaseModel.load_from_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a model from a directory</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.models.model.BaseModel.predict">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_samples</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.model.BaseModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates predictions for the input samples. The input samples can be a BaseDataset type of object or a numpy
+array. Returns a numpy array of predictions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.models.model.BaseModel.train">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tlk.datasets.dataset.BaseDataset" title="tlk.datasets.dataset.BaseDataset"><span class="pre">tlk.datasets.dataset.BaseDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.model.BaseModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model using the specified dataset</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-tlk.models.tfhub_model"></span><dl class="py class">
+<dt class="sig sig-object py" id="tlk.models.tfhub_model.TFHubModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlk.models.tfhub_model.</span></span><span class="sig-name descname"><span class="pre">TFHubModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tlk.utils.types.FrameworkType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tlk.utils.types.UseCaseType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.tfhub_model.TFHubModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class used to represent a TF Hub pretrained model</p>
+</dd></dl>
+
+<span class="target" id="module-tlk.models.image_classification.image_classification_model"></span><dl class="py class">
+<dt class="sig sig-object py" id="tlk.models.image_classification.image_classification_model.ImageClassificationModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlk.models.image_classification.image_classification_model.</span></span><span class="sig-name descname"><span class="pre">ImageClassificationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_fine_tuning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_layer_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tlk.utils.types.FrameworkType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tlk.utils.types.UseCaseType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.image_classification.image_classification_model.ImageClassificationModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class used to represent a pretrained model for image classification</p>
+</dd></dl>
+
+<span class="target" id="module-tlk.models.image_classification.tfhub_image_classification_model"></span><dl class="py class">
+<dt class="sig sig-object py" id="tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlk.models.image_classification.tfhub_image_classification_model.</span></span><span class="sig-name descname"><span class="pre">TFHubImageClassificationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class used to represent a TF Hub pretrained model</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tlk.datasets.image_classification.image_classification_dataset.ImageClassificationDataset" title="tlk.datasets.image_classification.image_classification_dataset.ImageClassificationDataset"><span class="pre">tlk.datasets.image_classification.image_classification_dataset.ImageClassificationDataset</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the model using the specified dataset. Returns the loss and metrics for the model in test mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.load_from_directory">
+<span class="sig-name descname"><span class="pre">load_from_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.load_from_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a model from a directory</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_samples</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates predictions for the input samples. The input samples can be a BaseDataset type of object or a numpy
+array. Returns a numpy array of predictions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tlk.datasets.image_classification.image_classification_dataset.ImageClassificationDataset" title="tlk.datasets.image_classification.image_classification_dataset.ImageClassificationDataset"><span class="pre">tlk.datasets.image_classification.image_classification_dataset.ImageClassificationDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the model using the specified dataset</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
 
 
            </div>
