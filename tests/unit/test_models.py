@@ -20,6 +20,8 @@
 
 import pytest
 
+from unittest.mock import MagicMock, patch
+
 from tlk.models import model_factory
 from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
 from tlk.utils.types import FrameworkType, UseCaseType
@@ -112,3 +114,33 @@ def test_get_supported_models_bad_use_case(bad_use_case):
     with pytest.raises(ValueError) as e:
         model_factory.get_supported_models(use_case=bad_use_case)
         assert "Unsupported use case: {}".format(bad_use_case) in str(e)
+
+
+def test_tfhub_efficientnet_b0_train():
+    """
+    Tests calling train on an TFHub efficientnet_b0 model with a mock dataset and mock model
+    """
+    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+
+    with patch('tlk.models.image_classification.tfhub_image_classification_model.ImageClassificationDataset') \
+            as mock_dataset:
+        with patch('tlk.models.image_classification.tfhub_image_classification_model.'
+                   'TFHubImageClassificationModel._get_hub_model') as mock_get_hub_model:
+
+                mock_dataset.class_names = ['a', 'b', 'c']
+                mock_model = MagicMock()
+                expected_return_value = {"result": True}
+
+                def mock_fit(dataset, epochs, shuffle, callbacks):
+                    assert dataset is not None
+                    assert isinstance(epochs, int)
+                    assert isinstance(shuffle, bool)
+                    assert len(callbacks) > 0
+
+                    return expected_return_value
+
+                mock_model.fit = mock_fit
+                mock_get_hub_model.return_value = mock_model
+
+                return_val = model.train(mock_dataset, output_dir="/tmp/output")
+                assert return_val == expected_return_value

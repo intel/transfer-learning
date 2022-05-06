@@ -54,7 +54,7 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def train(self, dataset: BaseDataset, epochs=1):
+    def train(self, dataset: BaseDataset, output_dir, epochs=1):
         """
         Train the model using the specified dataset
         """

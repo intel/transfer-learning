@@ -20,6 +20,7 @@
 
 import click
 
+from tlk.tools.cli.commands.eval import eval
 from tlk.tools.cli.commands.list import list_group
 from tlk.tools.cli.commands.train import train
 
@@ -31,6 +32,7 @@ def cli_group():
 # Add top level commands
 cli_group.add_command(list_group)
 cli_group.add_command(train)
+cli_group.add_command(eval)
 
 if __name__ == '__main__':
     cli_group()

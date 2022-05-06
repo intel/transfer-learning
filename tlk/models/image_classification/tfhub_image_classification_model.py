@@ -23,65 +23,12 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
 
+from tlk import TLK_BASE_DIR
 from tlk.models.tfhub_model import TFHubModel
 from tlk.models.image_classification.image_classification_model import ImageClassificationModel
 from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
+from tlk.utils.file_utils import read_json_file, verify_directory
 from tlk.utils.types import FrameworkType, UseCaseType
-
-# Dictionary of TFHub image classification models.
-# TODO: Probably move this to json and standardize it with other models
-tfhub_model_map = {
-    "resnet_v1_50": {
-        "imagenet_model": "https://tfhub.dev/google/imagenet/resnet_v1_50/classification/5",
-        "feature_vector": "https://tfhub.dev/google/imagenet/resnet_v1_50/feature_vector/5",
-        "image_size": 224
-    },
-    "resnet_v2_50": {
-        "imagenet_model": "https://tfhub.dev/google/imagenet/resnet_v2_50/classification/5",
-        "feature_vector": "https://tfhub.dev/google/imagenet/resnet_v2_50/feature_vector/5",
-        "image_size": 224
-    },
-    "resnet_v2_101": {
-        "imagenet_model": "https://tfhub.dev/google/imagenet/resnet_v2_101/classification/5",
-        "feature_vector": "https://tfhub.dev/google/imagenet/resnet_v2_101/feature_vector/5",
-        "image_size": 224
-    },
-    "mobilenet_v2_100_224": {
-        "imagenet_model": "https://tfhub.dev/google/imagenet/mobilenet_v2_100_224/classification/5",
-        "feature_vector": "https://tfhub.dev/google/imagenet/mobilenet_v2_100_224/feature_vector/4",
-        "image_size": 224
-    },
-    "efficientnetv2-s": {
-        "imagenet_model": "https://tfhub.dev/google/imagenet/efficientnet_v2_imagenet1k_s/classification/2",
-        "feature_vector": "https://tfhub.dev/google/imagenet/efficientnet_v2_imagenet1k_s/feature_vector/2",
-        "image_size": 384
-    },
-    "efficientnet_b0": {
-        "imagenet_model": "https://tfhub.dev/google/efficientnet/b0/classification/1",
-        "feature_vector": "https://tfhub.dev/google/efficientnet/b0/feature-vector/1",
-        "image_size": 224
-    },
-    "efficientnet_b1": {
-        "imagenet_model": "https://tfhub.dev/google/efficientnet/b1/classification/1",
-        "feature_vector": "https://tfhub.dev/google/efficientnet/b1/feature-vector/1",
-        "image_size": 240
-    },
-    "efficientnet_b2": {
-        "imagenet_model": "https://tfhub.dev/google/efficientnet/b2/classification/1",
-        "feature_vector": "https://tfhub.dev/google/efficientnet/b2/feature-vector/1",
-        "image_size": 260
-    },
-    "inception_v3": {
-        "imagenet_model": "https://tfhub.dev/google/imagenet/inception_v3/classification/5",
-        "feature_vector": "https://tfhub.dev/google/imagenet/inception_v3/feature_vector/5",
-        "image_size": 299
-    },
-    "nasnet_large": {
-        "imagenet_model": "https://tfhub.dev/google/imagenet/nasnet_large/classification/5",
-        "feature_vector": "https://tfhub.dev/google/imagenet/nasnet_large/feature_vector/5",
-        "image_size": 331
-    }
-}
 
 
 class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
@@ -90,6 +37,8 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
     """
 
     def __init__(self, model_name: str):
+        tfhub_model_map = read_json_file(os.path.join(
+            TLK_BASE_DIR, "models/configs/tfhub_image_classification_models.json"))
         if model_name not in tfhub_model_map.keys():
             raise ValueError("The specified TF Hub image classification model ({}) "
                              "is not supported.".format(model_name))
@@ -103,6 +52,7 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         self._dropout_layer_rate = None
         self._optimizer = tf.keras.optimizers.Adam()
         self._loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        self._generate_checkpoints = True
 
         # placeholder for model definition
         self._model = None
@@ -139,15 +89,21 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
                     tf.keras.layers.Dense(num_classes)
                 ])
 
-            print(self._model.summary())
+            self._model.summary(print_fn=print)
 
         self._num_classes = num_classes
         return self._model
 
     def load_from_directory(self,  model_dir: str):
-        raise NotImplementedError("Loading the model from a directory has not been implemented yet")
+        # Verify that the model directory exists
+        verify_directory(model_dir, require_directory_exists=True)
 
-    def train(self, dataset: ImageClassificationDataset, epochs=1):
+        self._model = tf.keras.models.load_model(model_dir)
+        self._model.summary(print_fn=print)
+
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1):
+        verify_directory(output_dir)
+
         dataset_num_classes = len(dataset.class_names)
 
         # If the number of classes doesn't match what was used before, clear out the previous model
@@ -173,19 +129,46 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
 
         batch_stats_callback = CollectBatchStats()
 
-        return self._model.fit(dataset.dataset, epochs=epochs, shuffle=True, callbacks=[batch_stats_callback])
+        callbacks = [batch_stats_callback]
+
+        # Create a callback for generating checkpoints
+        if self._generate_checkpoints:
+            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
+            verify_directory(checkpoint_dir)
+            checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+                filepath=os.path.join(checkpoint_dir, self.model_name), save_weights_only=True)
+            print("Checkpoint directory:", checkpoint_dir)
+            callbacks.append(checkpoint_callback)
+
+        return self._model.fit(dataset.dataset, epochs=epochs, shuffle=True, callbacks=callbacks)
 
     def evaluate(self, dataset: ImageClassificationDataset):
-        return self._model.evaluate(dataset.dataset)
+        if self._model is None:
+            # The model hasn't been trained yet, use the original ImageNet trained model
+            print("The model has not been trained yet, so evaluation is being done using the original model")
+            original_model = tf.keras.Sequential([
+                hub.KerasLayer(self._model_url, input_shape=(self._image_size, self._image_size) + (3,))
+            ])
+            return original_model.eval(dataset.dataset)
+        else:
+            return self._model.evaluate(dataset.dataset)
 
     def predict(self, input_samples):
-        predictions = self._model.predict(input_samples)
+        if self._model is None:
+            print("The model has not been trained yet, so predictions are being done using the original model")
+            original_model = tf.keras.Sequential([
+                hub.KerasLayer(self._model_url, input_shape=(self._image_size, self._image_size) + (3,))
+            ])
+            predictions = original_model.predict(input_samples)
+        else:
+            predictions = self._model.predict(input_samples)
         predicted_ids = np.argmax(predictions, axis=-1)
         return predicted_ids
 
     def export(self, output_dir):
         if self._model:
             # Save the model in a format that can be served
+            verify_directory(output_dir)
             saved_model_dir = os.path.join(output_dir, self.model_name)
             if os.path.exists(saved_model_dir) and len(os.listdir(saved_model_dir)):
                 saved_model_dir = os.path.join(saved_model_dir, "{}".format(len(os.listdir(saved_model_dir)) + 1))
@@ -195,6 +178,6 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
             self._model.save(saved_model_dir)
             print("Saved model directory:", saved_model_dir)
 
-            # TODO: Also save off model info and configs so that we can reload it
+            return saved_model_dir
         else:
             raise ValueError("Unable to export the model, because it hasn't been trained yet")

@@ -106,3 +106,24 @@ def download_and_extract_zip_file(zip_file_url, destination_directory):
         extract_zip_file(local_zip_path, destination_directory)
     else:
         raise FileNotFoundError("Unable to find the downloaded zip file at:", local_zip_path)
+
+
+def verify_directory(directory_path, require_directory_exists=False):
+    """
+    Verifies that the input parameter is a string and that it's not already a file. If require_directory_exists is
+    True, and the directory does not exist, a NotADirectoryError is raised. Otherwise, if the directory does not
+    exist it will be created.
+    """
+
+    if not isinstance(directory_path, str):
+        raise TypeError("The directory path should be a str, but was a {}".format(type(directory_path)))
+
+    if require_directory_exists and not os.path.isdir(directory_path):
+        raise NotADirectoryError("The directory does not exist at:", directory_path)
+
+    if os.path.isfile(directory_path):
+        raise FileExistsError("Unable to use directory path {} because it already exists as "
+                              "file".format(directory_path))
+
+    if not os.path.isdir(directory_path):
+        os.makedirs(directory_path)

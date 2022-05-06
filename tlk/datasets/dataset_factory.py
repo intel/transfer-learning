@@ -39,7 +39,10 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
             use_case (str or UseCaseType): use case or task the dataset will be used to model
             framework (str or FrameworkType): framework
             dataset_name (str): optional; name of the dataset
-            dataset_catalog (str): optional; catalog from which to download the dataset
+            dataset_catalog (str): optional; catalog from which to download the dataset. If a dataset name is
+                                   provided and no dataset catalog is given, it will default to use tf_datasets
+                                   for a TensorFlow model, torchvision for PyTorch CV models, and huggingface
+                                   datasets for HuggingFace models.
             **kwargs: optional; additional keyword arguments for the framework or dataset_catalog
 
         Returns:
@@ -53,6 +56,18 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
 
     if not isinstance(use_case, UseCaseType):
         use_case = UseCaseType.from_str(use_case)
+
+    if dataset_name and not dataset_catalog:
+        # Try to assume a dataset catalog based on the other information that we have
+        if framework is FrameworkType.TENSORFLOW:
+            dataset_catalog = "tf_datasets"
+        elif framework is FrameworkType.PYTORCH and \
+            use_case in [UseCaseType.IMAGE_CLASSIFICATION, UseCaseType.OBJECT_DETECTION]:
+            dataset_catalog = "torchvision"
+        else:
+            dataset_catalog = "huggingface"
+
+        print("Using dataset catalog '{}', since no dataset catalog was specified".format(dataset_catalog))
 
     if framework in dataset_map.keys():
         if use_case in dataset_map[framework].keys():

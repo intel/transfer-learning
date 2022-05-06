@@ -70,16 +70,17 @@ resnet_v2_50 (tensorflow)
 
 Train a model:
 ```bash
-> tlk train -f tensorflow --model-name efficientnet_b0 --dataset-dir /tmp/data --output-dir /tmp/output --dataset-name tf_flowers --dataset-catalog tf_datasets
+> tlk train -f tensorflow --model-name efficientnet_b0 --dataset-dir /tmp/data --output-dir /tmp/output --dataset-name tf_flowers
 Model name: efficientnet_b0
 Framework: tensorflow
 Dataset name: tf_flowers
-Dataset catalog: tf_datasets
+Training epochs: 1
 Dataset dir: /tmp/data
 Output directory: /tmp/output
-2022-04-27 10:19:12.651375: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+Using dataset catalog 'tf_datasets', since no dataset catalog was specified
+2022-05-05 14:16:21.228537: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
 To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2022-04-27 10:19:12.658987: I tensorflow/core/common_runtime/process_util.cc:146] Creating new thread pool with default inter op setting:
+2022-05-05 14:16:21.236169: I tensorflow/core/common_runtime/process_util.cc:146] Creating new thread pool with default inter op setting:
 Model: "sequential"
 _________________________________________________________________
  Layer (type)                Output Shape              Param #
@@ -93,14 +94,40 @@ Total params: 4,055,969
 Trainable params: 6,405
 Non-trainable params: 4,049,564
 _________________________________________________________________
-None
-86/86 [==============================] - 22s 215ms/step - loss: 0.5106 - acc: 0.8438
-2022-04-27 10:19:38.545222: W tensorflow/python/util/util.cc:368] Sets are not currently considered sequences, but this may change in the future, so consider avoiding using them.
+Checkpoint directory: /tmp/output/efficientnet_b0_checkpoints
+86/86 [==============================] - 22s 225ms/step - loss: 0.5109 - acc: 0.8125
+2022-05-05 14:16:47.870607: W tensorflow/python/util/util.cc:368] Sets are not currently considered sequences, but this may change in the future, so consider avoiding using them.
 Saved model directory: /tmp/output/efficientnet_b0/1
 ```
 
 Evaluate a trained model:
-> Not implemented yet
+```bash
+ tlk eval --model-dir /tmp/output/efficientnet_b0/1 --dataset-dir /tmp/data --dataset-name tf_flowers
+Model directory: /tmp/output/efficientnet_b0/1
+Dataset directory: /tmp/data
+Dataset name: tf_flowers
+Model name: efficientnet_b0
+Loading model object for efficientnet_b0 using tensorflow
+Loading saved model from: /tmp/output/efficientnet_b0/1/saved_model.pb
+2022-05-05 14:21:08.159825: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2022-05-05 14:21:08.166652: I tensorflow/core/common_runtime/process_util.cc:146] Creating new thread pool with default inter op setting:
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #
+=================================================================
+ keras_layer (KerasLayer)    (None, 1280)              4049564
+
+ dense (Dense)               (None, 5)                 6405
+
+=================================================================
+Total params: 4,055,969
+Trainable params: 6,405
+Non-trainable params: 4,049,564
+_________________________________________________________________
+Using dataset catalog 'tf_datasets', since no dataset catalog was specified
+29/29 [==============================] - 8s 256ms/step - loss: 0.4217 - acc: 0.8715
+```
 
 ## Use the API
 

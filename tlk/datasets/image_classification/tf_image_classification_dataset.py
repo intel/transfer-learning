@@ -34,6 +34,8 @@ class TFImageClassificationDataset(ImageClassificationDataset):
         ImageClassificationDataset.__init__(self, dataset_dir, dataset_name)
         self._shuffle_files = shuffle_files
 
+        tf.get_logger().setLevel('ERROR')
+
         os.environ['NO_GCE_CHECK'] = 'true'
         [self._dataset], self._info = tfds.load(
             dataset_name,

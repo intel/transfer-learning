@@ -17,3 +17,7 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
+
+import os
+
+TLK_BASE_DIR = os.path.dirname(__file__)

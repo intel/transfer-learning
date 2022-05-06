@@ -34,7 +34,7 @@ import sys
 @click.option("--output-dir", "--output_dir",
               required=True,
               type=str,
-              help="Output directory for saved models, logs, etc")
+              help="Output directory for saved models, logs, checkpoints, etc")
 @click.option("--dataset-dir", "--dataset_dir",
               required=True,
               type=str,
@@ -49,28 +49,33 @@ import sys
               required=False,
               type=str,
               help="Name of a dataset catalog for a named dataset (Options: "
-                   "tf_datasets, torchvision, huggingface)")
-def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_catalog):
+                   "tf_datasets, torchvision, huggingface). If a dataset name is provided "
+                   "and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow "
+                   "model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models.")
+@click.option("--epochs",
+              default=1,
+              type=int,
+              help="Number of training epochs [default: 1]")
+def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_catalog, epochs):
     """
     Trains the model
     """
-    from tlk.models import model_factory
-    from tlk.datasets import dataset_factory
-    from tlk.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
-
     print("Model name:", model_name)
     print("Framework:", framework)
 
     if dataset_name:
         print("Dataset name:", dataset_name)
 
-        if not dataset_catalog:
-            sys.exit("If a dataset name is provided, a dataset catalog must also be provided")
+        if dataset_catalog:
+            print("Dataset catalog:", dataset_catalog)
 
-        print("Dataset catalog:", dataset_catalog)
-
+    print("Training epochs:", epochs)
     print("Dataset dir:", dataset_dir)
-    print("Output directory:", output_dir)
+    print("Output directory:", output_dir, flush=True)
+
+    from tlk.models import model_factory
+    from tlk.datasets import dataset_factory
+    from tlk.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
 
     # Get the model
     try:
@@ -93,7 +98,7 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_
 
     # Train the model using the dataset
     try:
-        model.train(dataset)
+        model.train(dataset, output_dir=output_dir, epochs=epochs)
     except Exception as e:
         sys.exit("There was an error during model training:\n{}".format(str(e)))
 

@@ -18,19 +18,48 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+import os
+import pytest
 
 from tlk.datasets import dataset_factory
 from tlk.models import model_factory
 
-def test_tf_image_classification():
+
+@pytest.mark.parametrize('model_name,dataset_name',
+                         [['efficientnet_b0', 'tf_flowers'],
+                          ['resnet_v1_50', 'tf_flowers']])
+def test_tf_image_classification(model_name, dataset_name):
     """
-    Tests basic transfer learning functionality on tf_flowers with efficientnet_b0
+    Tests basic transfer learning functionality for TensorFlow image classification models using TF Datasets
     """
-    flowers = dataset_factory.get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers',
+    framework = 'tensorflow'
+    output_dir = '/tmp/output'
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, dataset_name,
                                           'tf_datasets', split=["train[:5%]"])
-    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-    flowers.preprocess(model.image_size, 32)
-    model.train(flowers, 1)
-    images, labels = flowers.get_batch()
+
+    # Get the model
+    model = model_factory.get_model(model_name, framework)
+
+    # Preprocess the dataset and train
+    dataset.preprocess(model.image_size, 32)
+    model.train(dataset, output_dir=output_dir, epochs=1)
+
+    # Predict with a batch
+    images, labels = dataset.get_batch()
     predictions = model.predict(images)
     assert len(predictions) == 32
+
+    # export the saved model
+    saved_model_dir = model.export(output_dir)
+    assert os.path.isdir(saved_model_dir)
+    assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
+
+    # Reload the saved model
+    reload_model = model_factory.get_model(model_name, framework)
+    reload_model.load_from_directory(saved_model_dir)
+
+    # Evaluate
+    metrics = reload_model.evaluate(dataset)
+    assert len(metrics) > 0

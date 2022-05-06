@@ -20,11 +20,23 @@
 
 import os
 
+from tlk import TLK_BASE_DIR
 from tlk.utils.file_utils import read_json_file
 from tlk.utils.types import FrameworkType, UseCaseType
 
 
-def get_model(model_name: str, framework: FrameworkType):
+def get_model_class_map():
+    from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
+    return {
+        FrameworkType.TENSORFLOW: {
+            UseCaseType.IMAGE_CLASSIFICATION: {
+                "TFHub": TFHubImageClassificationModel
+            }
+        }
+    }
+
+
+def get_model(model_name: str, framework: FrameworkType = None):
     """A factory method for creating models.
 
         Args:
@@ -38,16 +50,35 @@ def get_model(model_name: str, framework: FrameworkType):
             NotImplementedError if the model requested is not supported yet
     """
 
-    from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
-
     if not isinstance(framework, FrameworkType):
         framework = FrameworkType.from_str(framework)
 
     if framework == FrameworkType.PYTORCH:
         raise NotImplementedError("PyTorch support has not been implemented")
 
-    # TODO: Support other model types and support passing extra configs
-    return TFHubImageClassificationModel(model_name)
+    model_use_case, model_dict = get_model_info(model_name, framework)
+
+    if not model_use_case:
+        framework_str = "tensorflow or pytorch" if framework is None else str(framework)
+        raise ValueError("The specified model is not supported for {}: {}".format(framework_str, model_name))
+
+    if len(model_dict) > 1:
+        raise ValueError("Multiple frameworks support {}. Please specify a framework type.".format(model_name))
+
+    model_framework_str = list(model_dict.keys())[0]
+    model_framework_enum = FrameworkType.from_str(model_framework_str)
+    model_hub = model_dict[model_framework_str]["model_hub"]
+
+    # Get the map of model to the class implementation
+    model_class_map = get_model_class_map()
+
+    if model_framework_enum in model_class_map:
+        if model_use_case in model_class_map[model_framework_enum]:
+            if model_hub in model_class_map[model_framework_enum][model_use_case]:
+                model_class = model_class_map[model_framework_enum][model_use_case][model_hub]
+                return model_class(model_name)
+
+    raise NotImplementedError("Not implemented yet: {} {}".format(model_framework_str, model_name))
 
 
 def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType = None):
@@ -56,7 +87,7 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
     The leaf items in the dictionary are attributes about the pretrained model.
     """
     # Directory of json files for the supported models
-    config_directory = os.path.join(os.path.dirname(__file__), "configs")
+    config_directory = os.path.join(TLK_BASE_DIR, "models/configs")
 
     # Models dictionary with keys for use case / model name / framework / model info
     models = {}
@@ -142,3 +173,15 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
 
         # Empty line between use cases
         print("")
+
+
+def get_model_info(model_name, framework=None):
+    models = get_supported_models(framework)
+
+    for model_use_case in models.keys():
+        if model_name in models[model_use_case]:
+            # Found a matching model
+            return UseCaseType.from_str(model_use_case), models[model_use_case][model_name]
+
+    return None, {}
+
