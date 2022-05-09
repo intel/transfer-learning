@@ -48,6 +48,13 @@ def get_model(model_name: str, framework: FrameworkType = None):
 
         Raises:
             NotImplementedError if the model requested is not supported yet
+
+        Example:
+            >>> from tlk.models.model_factory import get_model
+            >>> model = get_model('efficientnet_b0', 'tensorflow')
+            >>> model.image_size
+            224
+
     """
 
     if not isinstance(framework, FrameworkType):

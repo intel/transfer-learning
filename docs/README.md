@@ -12,3 +12,9 @@ make clean html
 ```
 
 The output HTML files will be located in `transfer-learning/docs/_build/html`.
+
+To run the doctests, use this command:
+
+```
+make doctest
+```

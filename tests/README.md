@@ -18,3 +18,6 @@ py.test -s
 > Note: After the tests have run, there will be downloaded data in `/tmp/data` 
 that has not been cleaned up. Currently, the developer has to manage this, but
 we should create fixtures that take care of it.
+
+There are some executable examples in module docstrings. To run them as tests, follow
+the steps in the [docs README.md](/docs/README.md).

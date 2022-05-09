@@ -50,6 +50,13 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
 
         Raises:
             NotImplementedError if the dataset requested is not supported yet
+
+        Example:
+            >>> from tlk.datasets.dataset_factory import get_dataset
+            >>> data = get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers', 'tf_datasets')
+            >>> data.class_names
+            ['dandelion', 'daisy', 'tulips', 'sunflowers', 'roses']
+
     """
     if not isinstance(framework, FrameworkType):
         framework = FrameworkType.from_str(framework)
