@@ -1,7 +1,7 @@
 # Transfer Learning Notebooks
 
 This directory has Jupyter notebooks that demonstrate transfer learning with
-models from the Model Zoo for Intel Architecture and other public model repositories using
+models from public model repositories using
 [Intel-optimized TensorFlow](https://pypi.org/project/intel-tensorflow/)
 and [Intel Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch).
 
@@ -18,6 +18,7 @@ and [Intel Extension for PyTorch](https://github.com/intel/intel-extension-for-p
 | Notebook | Use Case |  Framework | Description |
 | ---------| ---------|------------|-------------|
 | [Transfer Learning for Image Classification with TF Hub](/notebooks/image_classification/tf_image_classification) | Image Classification | TensorFlow | Demonstrates transfer learning with multiple [TF Hub](https://tfhub.dev) image classifiers, TF datasets, and custom image datasets |
+| [Transfer Learning for Image Classification with TF using the TLK API](/notebooks/image_classification/tlk_api_tf_image_classification) | Image Classification | TensorFlow and the TLK API | Demonstrates how to use the TLK API to do transfer learning for image classification using a TensorFlow model. |
 | [Transfer Learning for Image Classification with PyTorch & torchvision](/notebooks/image_classification/pytorch_image_classification) | Image Classification | PyTorch | Demonstrates transfer learning with multiple [torchvision](https://pytorch.org/vision/stable/index.html) image classification models, torchvision datasets, and custom datasets |
 | [Transfer Learning for Object Detection with PyTorch & torchvision](/notebooks/object_detection/pytorch_object_detection) | Object Detection | PyTorch |Demonstrates transfer learning with multiple [torchvision](https://pytorch.org/vision/stable/index.html) object detection models, a public image dataset, and a customized torchvision dataset |
 
