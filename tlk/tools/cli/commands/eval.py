@@ -84,12 +84,11 @@ def eval(model_dir, dataset_dir, dataset_name, dataset_catalog):
             from tlk.datasets import dataset_factory
             from tlk.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
 
-            # TODO: When we have 'validation' datasets, switch this out. For now, just grab 25% of the training split
-            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
-                                                  dataset_catalog, split=["train[:25%]"])
+            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
 
             if isinstance(dataset, TFImageClassificationDataset):
                 dataset.preprocess(model.image_size, batch_size=32)
+                dataset.shuffle_split(seed=10)
 
             model.evaluate(dataset)
         except Exception as e:

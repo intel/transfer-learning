@@ -22,22 +22,24 @@ import os
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
+from tlk.datasets.tf_dataset import TFDataset
 from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
 
-class TFImageClassificationDataset(ImageClassificationDataset):
+class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
     """
     Base class for an image classification dataset from the TensorFlow datasets catalog
     """
-    def __init__(self, dataset_dir, dataset_name, split=["train[:75%]"],
-                 as_supervised=True, shuffle_files=True):
+    def __init__(self, dataset_dir, dataset_name, split=["train"],
+                 as_supervised=True, shuffle_files=False):
+        if not isinstance(split, list):
+            raise ValueError("Value of split argument must be a list.")
         ImageClassificationDataset.__init__(self, dataset_dir, dataset_name)
-        self._shuffle_files = shuffle_files
-
+        self._preprocessed = {}
         tf.get_logger().setLevel('ERROR')
 
         os.environ['NO_GCE_CHECK'] = 'true'
-        [self._dataset], self._info = tfds.load(
+        data, self._info = tfds.load(
             dataset_name,
             data_dir=dataset_dir,
             split=split,
@@ -46,41 +48,46 @@ class TFImageClassificationDataset(ImageClassificationDataset):
             with_info=True
         )
 
+        self._dataset = None
+        self._train_subset = None
+        self._validation_subset = None
+        self._test_subset = None
+
+        if len(split) == 1:
+            self._validation_type = 'recall'  # Train & evaluate on the whole dataset
+            self._dataset = data[0]
+        else:
+            self._validation_type = 'defined_split'  # Defined by user or TFDS
+            for i, s in enumerate(split):
+                if s == 'train':
+                    self._train_subset = data[i]
+                elif s == 'validation':
+                    self._validation_subset = data[i]
+                elif s == 'test':
+                    self._test_subset = data[i]
+                self._dataset = data[i] if self._dataset is None else self._dataset.concatenate(data[i])
+
     @property
     def class_names(self):
-        return self.info.features["label"].names
+        return self._info.features["label"].names
 
     @property
     def info(self):
-        return self._info
+        return {'dataset_info': self._info, 'preprocessing_info': self._preprocessed}
 
     @property
     def dataset(self):
         return self._dataset
 
-    def get_batch(self):
-        """Get a single batch of images and labels from the dataset.
-
-            Returns:
-                 (images, labels)
-
-            Raises:
-                    ValueError if the dataset is not defined yet
-        """
-        if self._dataset:
-            return next(iter(self._dataset))
-        else:
-            raise ValueError("Unable to return a batch, because the dataset hasn't been defined.")
-
     def preprocess(self, image_size, batch_size):
-        """Preprocess the images to convert them to float32 and resize the images
+        """Preprocess the dataset to convert to float32, resize, and batch the images
 
             Args:
                 image_size (int): desired square image size
                 batch_size (int): desired batch size
 
             Raises:
-                ValueError if the dataset is not defined yet
+                ValueError if the dataset is not defined or has already been processed
         """
         # NOTE: Should this be part of init? If we get image_size and batch size during init,
         # then we don't need a separate call to preprocess.
@@ -89,16 +96,19 @@ class TFImageClassificationDataset(ImageClassificationDataset):
             image = tf.image.resize_with_pad(image, image_size, image_size)
             return (image, label)
 
-        if self._dataset:
-            self._dataset = self._dataset.map(preprocess_image)
-
-            self._dataset = self._dataset.cache()
-
-            if self._shuffle_files:
-                split_key = next(iter(self.info.splits.keys()))
-                self._dataset = self._dataset.shuffle(self.info.splits[split_key].num_examples)
-
-            self._dataset = self._dataset.batch(batch_size)
-            self._dataset = self._dataset.prefetch(tf.data.AUTOTUNE)
-        else:
+        if not (self._dataset or self._train_subset or self._validation_subset or self._test_subset):
             raise ValueError("Unable to preprocess, because the dataset hasn't been defined.")
+        if self._preprocessed and image_size != self._preprocessed['image_size']:
+            raise ValueError("Data has already been preprocessed with a different image size: {}".
+                             format(self._preprocessed))
+
+        # Get the non-None splits
+        split_list = ['_dataset', '_train_subset', '_validation_subset', '_test_subset']
+        subsets = [s for s in split_list if getattr(self, s, None)]
+        for subset in subsets:
+            if not self._preprocessed:
+                setattr(self, subset, getattr(self, subset).map(preprocess_image))
+                setattr(self, subset, getattr(self, subset).cache())
+            setattr(self, subset, getattr(self, subset).batch(batch_size))
+            setattr(self, subset, getattr(self, subset).prefetch(tf.data.AUTOTUNE))
+        self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}

@@ -44,7 +44,11 @@ def test_tf_image_classification(model_name, dataset_name):
 
     # Preprocess the dataset and train
     dataset.preprocess(model.image_size, 32)
+    dataset.shuffle_split(seed=10)
     model.train(dataset, output_dir=output_dir, epochs=1)
+
+    # Evaluate
+    model.evaluate(dataset)
 
     # Predict with a batch
     images, labels = dataset.get_batch()

@@ -23,7 +23,7 @@ import abc
 
 class BaseDataset(abc.ABC):
     """
-    Abstract base class for a dataset used for training or evaluation
+    Abstract base class for a dataset used for training and evaluation
     """
     def __init__(self, dataset_dir, dataset_name=None, dataset_catalog=None):
         self._dataset_dir = dataset_dir
@@ -45,6 +45,21 @@ class BaseDataset(abc.ABC):
     @property
     @abc.abstractmethod
     def dataset(self):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def train_subset(self):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def validation_subset(self):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def test_subset(self):
         pass
 
     @abc.abstractmethod

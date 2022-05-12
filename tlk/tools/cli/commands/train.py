@@ -91,6 +91,7 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_
         # TODO: get extra configs like batch size and maybe this doesn't need to be a separate call
         if isinstance(dataset, TFImageClassificationDataset):
             dataset.preprocess(model.image_size, batch_size=32)
+            dataset.shuffle_split(seed=10)
     except Exception as e:
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "
                  "dataset name: {}, dataset_catalog: {}):\n{}".format(

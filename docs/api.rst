@@ -10,6 +10,9 @@ Datasets
 .. automodule:: tlk.datasets.dataset
     :members: BaseDataset
 
+.. automodule:: tlk.datasets.tf_dataset
+    :members: TFDataset
+
 .. automodule:: tlk.datasets.image_classification.image_classification_dataset
     :members: ImageClassificationDataset
 

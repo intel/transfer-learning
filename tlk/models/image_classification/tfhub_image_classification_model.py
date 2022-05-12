@@ -140,18 +140,38 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
             print("Checkpoint directory:", checkpoint_dir)
             callbacks.append(checkpoint_callback)
 
-        return self._model.fit(dataset.dataset, epochs=epochs, shuffle=True, callbacks=callbacks)
+        if dataset._validation_type == 'shuffle_split':
+            train_dataset =  dataset.train_subset
+        else:
+            train_dataset = dataset.dataset
 
-    def evaluate(self, dataset: ImageClassificationDataset):
+        return self._model.fit(train_dataset, epochs=epochs, shuffle=True, callbacks=callbacks)
+
+    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
+        """
+        If there is a validation set, evaluation will be done on it (by default) or on the test set
+        (by setting use_test_set=True). Otherwise, the entire non-partitioned dataset will be
+        used for evaluation.
+        """
+        if use_test_set:
+            if dataset.test_subset:
+                eval_dataset = dataset.test_subset
+            else:
+                raise ValueError("No test subset is defined")
+        elif dataset.validation_subset:
+            eval_dataset = dataset.validation_subset
+        else:
+            eval_dataset = dataset.dataset
+
         if self._model is None:
             # The model hasn't been trained yet, use the original ImageNet trained model
             print("The model has not been trained yet, so evaluation is being done using the original model")
             original_model = tf.keras.Sequential([
                 hub.KerasLayer(self._model_url, input_shape=(self._image_size, self._image_size) + (3,))
             ])
-            return original_model.eval(dataset.dataset)
+            return original_model.eval(eval_dataset)
         else:
-            return self._model.evaluate(dataset.dataset)
+            return self._model.evaluate(eval_dataset)
 
     def predict(self, input_samples):
         if self._model is None:
