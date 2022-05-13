@@ -46,7 +46,7 @@ Use `tlk --help` to see the list of CLI commands. More detailed information on e
 command can be found using `tlk <command> --help` (like `tlk train --help`).
 
 List the available models:
-```bash
+```
 > tlk list models --framework tensorflow --use-case image_classification
 ------------------------------
 IMAGE CLASSIFICATION
@@ -73,8 +73,8 @@ resnet_v2_50 (tensorflow)
 ```
 
 Train a model:
-```bash
-> tlk train -f tensorflow --model-name efficientnet_b0 --dataset-dir /tmp/data --output-dir /tmp/output --dataset-name tf_flowers --dataset-catalog tf_datasets
+```
+> tlk train -f tensorflow --model-name efficientnet_b0 --dataset-dir /tmp/data --output-dir /tmp/output --dataset-name tf_flowers
 Model name: efficientnet_b0
 Framework: tensorflow
 Dataset name: tf_flowers
@@ -104,10 +104,35 @@ Saved model directory: /tmp/output/efficientnet_b0/1
 ```
 
 Evaluate a trained model:
-> Not implemented yet
+```
+> tlk eval --model-dir /tmp/output/efficientnet_b0/1 --dataset-name tf_flowers --dataset-dir /tmp/data
+Model directory: /tmp/output/efficientnet_b0/1
+Dataset directory: /tmp/data
+Dataset name: tf_flowers
+Model name: efficientnet_b0
+Loading model object for efficientnet_b0 using tensorflow
+Loading saved model from: /tmp/output/efficientnet_b0/1/saved_model.pb
+2022-05-13 12:47:19.809448: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2022-05-13 12:47:19.816455: I tensorflow/core/common_runtime/process_util.cc:146] Creating new thread pool with default inter op setting:
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #
+=================================================================
+ keras_layer (KerasLayer)    (None, 1280)              4049564
+
+ dense (Dense)               (None, 5)                 6405
+
+=================================================================
+Total params: 4,055,969
+Trainable params: 6,405
+Non-trainable params: 4,049,564
+_________________________________________________________________
+Using dataset catalog 'tf_datasets', since no dataset catalog was specified
+28/28 [==============================] - 8s 219ms/step - loss: 0.4080 - acc: 0.8996
+```
 
 ## Use the API
-
 ```python
 from tlk.datasets import dataset_factory
 from tlk.models import model_factory
@@ -123,11 +148,16 @@ tf_flowers = dataset_factory.get_dataset(dataset_dir="/tmp/data",
                                          framework=FrameworkType.TENSORFLOW, \
                                          dataset_name="tf_flowers", \
                                          dataset_catalog="tf_datasets")
-tf_flowers.preprocess(image_size=efficientnet_b0_model.image_size,
-                      batch_size=32)
+tf_flowers.preprocess(image_size=efficientnet_b0_model.image_size, batch_size=32)
+tf_flowers.shuffle_split(train_pct=.75, val_pct=.25)
 
 # Train the model using the dataset
-efficientnet_b0_model.train(tf_flowers, epochs=1)
+efficientnet_b0_model.train(tf_flowers, output_dir="/tmp/output", epochs=1)
+
+# Evaluate the trained model
+metrics = efficientnet_b0_model.evaluate(tf_flowers)
+for metric_name, metric_value in zip(efficientnet_b0_model._model.metrics_names, metrics):
+    print("{}: {}".format(metric_name, metric_value))
 
 # Export the model
 efficientnet_b0_model.export(output_dir="/tmp/output")
