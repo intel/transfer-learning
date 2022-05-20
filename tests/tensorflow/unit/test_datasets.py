@@ -95,11 +95,11 @@ def test_shuffle_split_errors():
     """
     flowers = get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers', 'tf_datasets')
     with pytest.raises(Exception) as e:
-        flowers.shuffle_split(train_pct=.5, eval_pct=.5, test_pct=.2)
-        assert 'Sum of percentage arguments must be less than or equal to 1.' == e
+        flowers.shuffle_split(train_pct=.5, val_pct=.5, test_pct=.2)
+    assert 'Sum of percentage arguments must be less than or equal to 1.' == str(e.value)
     with pytest.raises(Exception) as e:
-        flowers.shuffle_split(train_pct=1, eval_pct=0)
-        assert 'Percentage arguments must be floats.' == e
+        flowers.shuffle_split(train_pct=1, val_pct=0)
+    assert 'Percentage arguments must be floats.' == str(e.value)
 
 def test_shuffle_split_deterministic():
     """
@@ -137,4 +137,5 @@ def test_batching_error():
     flowers.preprocess(224, 1)
     with pytest.raises(Exception) as e:
         flowers.preprocess(256, 32)
-        assert 'Data has already bee n preprocessed with a different image size: {}"'.format(flower._preprocessed) == e
+    assert 'Data has already been preprocessed with a different image size: {}'.format(flowers._preprocessed) == \
+           str(e.value)

@@ -18,13 +18,21 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+from pydoc import locate
+
 from tlk.utils.types import FrameworkType, UseCaseType
-from tlk.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
 
 dataset_map = {
     FrameworkType.TENSORFLOW: {
         UseCaseType.IMAGE_CLASSIFICATION: {
-            "tf_datasets": TFImageClassificationDataset
+            "tf_datasets": {"module": "tlk.datasets.image_classification.tf_image_classification_dataset",
+                            "class": "TFImageClassificationDataset"}
+        }
+    },
+    FrameworkType.PYTORCH: {
+        UseCaseType.IMAGE_CLASSIFICATION: {
+            "torchvision": {"module": "tlk.datasets.image_classification.torchvision_image_classification_dataset",
+                            "class": "TorchvisionImageClassificationDataset"}
         }
     }
 }
@@ -79,7 +87,9 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
     if framework in dataset_map.keys():
         if use_case in dataset_map[framework].keys():
             if dataset_catalog and dataset_catalog in dataset_map[framework][use_case]:
-                return dataset_map[framework][use_case][dataset_catalog](dataset_dir, dataset_name, **kwargs)
+                dataset_class = locate('{}.{}'.format(dataset_map[framework][use_case][dataset_catalog]['module'],
+                                                      dataset_map[framework][use_case][dataset_catalog]['class']))
+                return dataset_class(dataset_dir, dataset_name, **kwargs)
 
     # For the error message, if there's no dataset catalog specified, then it's a custom dataset
     if not dataset_catalog:
