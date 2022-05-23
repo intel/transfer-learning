@@ -1,4 +1,7 @@
-# Sphinx Documentation
+# Documentation
+
+## Sphinx Documentation
+
 To build these docs, you need to have the following installed:
 
 ```
@@ -18,3 +21,8 @@ To run the doctests, use this command:
 ```
 make doctest
 ```
+
+## Software Design Documents
+
+* [Transfer_Learning_CLI_and_API_Design.pdf](/docs/sw_design/Transfer_Learning_CLI_and_API_Design.pdf)
+
