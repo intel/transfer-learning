@@ -13,8 +13,6 @@ Datasets
 .. automodule:: tlk.datasets.image_classification.image_classification_dataset
     :members: ImageClassificationDataset
 
-.. automodule:: tlk.datasets.image_classification.tf_image_classification_dataset
-    :members: TFImageClassificationDataset
 
 Models
 ------
@@ -25,11 +23,5 @@ Models
 .. automodule:: tlk.models.model
     :members: BaseModel
 
-.. automodule:: tlk.models.tfhub_model
-    :members: TFHubModel
-
 .. automodule:: tlk.models.image_classification.image_classification_model
     :members: ImageClassificationModel
-
-.. automodule:: tlk.models.image_classification.tfhub_image_classification_model
-    :members: TFHubImageClassificationModel

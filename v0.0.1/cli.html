@@ -43,6 +43,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Interface (CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#tlk">tlk</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tlk-eval">eval</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tlk-list">list</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tlk-train">train</a></li>
 </ul>
@@ -52,6 +53,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Python Library (API)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 </ul>
 
         </div>
@@ -86,18 +88,53 @@ command can be found using <cite>tlk &lt;command&gt; –help</cite> (like <cite>
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>List the available models:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlk</span> <span class="nb">list</span> <span class="n">models</span>
-<span class="n">Image</span> <span class="n">Classification</span>
-<span class="o">----------------------------------------</span>
-<span class="n">resnet_v1_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
-<span class="n">resnet_v2_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
-<span class="n">resnet_v2_101</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
-<span class="n">mobilenet_v2_100_224</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
-<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">s</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="o">------------------------------</span>
+<span class="n">IMAGE</span> <span class="n">CLASSIFICATION</span>
+<span class="o">------------------------------</span>
+<span class="n">densenet121</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">densenet161</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b0</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b1</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b1</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b2</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b4</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b5</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b6</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b7</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b0</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b1</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b2</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">s</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">googlenet</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">inception_v3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">mobilenet_v2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">mobilenet_v2_100_224</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
 <span class="n">nasnet_large</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet18</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet50</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet_v1_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet_v2_101</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet_v2_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">shufflenet_v2_x1_0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+
+<span class="o">------------------------------</span>
+<span class="n">OBJECT</span> <span class="n">DETECTION</span>
+<span class="o">------------------------------</span>
+<span class="n">No</span> <span class="nb">object</span> <span class="n">detection</span> <span class="n">models</span> <span class="n">are</span> <span class="n">supported</span> <span class="n">at</span> <span class="n">this</span> <span class="n">time</span>
+
+<span class="o">------------------------------</span>
+<span class="n">TEXT</span> <span class="n">CLASSIFICATION</span>
+<span class="o">------------------------------</span>
+<span class="n">No</span> <span class="n">text</span> <span class="n">classification</span> <span class="n">models</span> <span class="n">are</span> <span class="n">supported</span> <span class="n">at</span> <span class="n">this</span> <span class="n">time</span>
+
+<span class="o">------------------------------</span>
+<span class="n">QUESTION</span> <span class="n">ANSWERING</span>
+<span class="o">------------------------------</span>
+<span class="n">No</span> <span class="n">question</span> <span class="n">answering</span> <span class="n">models</span> <span class="n">are</span> <span class="n">supported</span> <span class="n">at</span> <span class="n">this</span> <span class="n">time</span>
 </pre></div>
 </div>
 <p>Train a model:</p>
@@ -106,15 +143,15 @@ command can be found using <cite>tlk &lt;command&gt; –help</cite> (like <cite>
 <span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
 <span class="n">Dataset</span> <span class="n">name</span><span class="p">:</span> <span class="n">tf_flowers</span>
 <span class="n">Dataset</span> <span class="n">catalog</span><span class="p">:</span> <span class="n">tf_datasets</span>
+<span class="n">Training</span> <span class="n">epochs</span><span class="p">:</span> <span class="mi">1</span>
 <span class="n">Dataset</span> <span class="nb">dir</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">data</span>
 <span class="n">Output</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
-<span class="mi">2022</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">27</span> <span class="mi">10</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mf">12.651375</span><span class="p">:</span> <span class="n">I</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">platform</span><span class="o">/</span><span class="n">cpu_feature_guard</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">151</span><span class="p">]</span> <span class="n">This</span> <span class="n">TensorFlow</span> <span class="n">binary</span> <span class="ow">is</span> <span class="n">optimized</span> <span class="k">with</span> <span class="n">oneAPI</span> <span class="n">Deep</span> <span class="n">Neural</span> <span class="n">Network</span> <span class="n">Library</span> <span class="p">(</span><span class="n">oneDNN</span><span class="p">)</span> <span class="n">to</span> <span class="n">use</span> <span class="n">the</span> <span class="n">following</span> <span class="n">CPU</span> <span class="n">instructions</span> <span class="ow">in</span> <span class="n">performance</span><span class="o">-</span><span class="n">critical</span> <span class="n">operations</span><span class="p">:</span>  <span class="n">AVX2</span> <span class="n">AVX512F</span> <span class="n">FMA</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">05</span> <span class="mi">14</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mf">30.222567</span><span class="p">:</span> <span class="n">I</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">platform</span><span class="o">/</span><span class="n">cpu_feature_guard</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">151</span><span class="p">]</span> <span class="n">This</span> <span class="n">TensorFlow</span> <span class="n">binary</span> <span class="ow">is</span> <span class="n">optimized</span> <span class="k">with</span> <span class="n">oneAPI</span> <span class="n">Deep</span> <span class="n">Neural</span> <span class="n">Network</span> <span class="n">Library</span> <span class="p">(</span><span class="n">oneDNN</span><span class="p">)</span> <span class="n">to</span> <span class="n">use</span> <span class="n">the</span> <span class="n">following</span> <span class="n">CPU</span> <span class="n">instructions</span> <span class="ow">in</span> <span class="n">performance</span><span class="o">-</span><span class="n">critical</span> <span class="n">operations</span><span class="p">:</span>  <span class="n">AVX2</span> <span class="n">AVX512F</span> <span class="n">FMA</span>
 <span class="n">To</span> <span class="n">enable</span> <span class="n">them</span> <span class="ow">in</span> <span class="n">other</span> <span class="n">operations</span><span class="p">,</span> <span class="n">rebuild</span> <span class="n">TensorFlow</span> <span class="k">with</span> <span class="n">the</span> <span class="n">appropriate</span> <span class="n">compiler</span> <span class="n">flags</span><span class="o">.</span>
-<span class="mi">2022</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">27</span> <span class="mi">10</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mf">12.658987</span><span class="p">:</span> <span class="n">I</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">common_runtime</span><span class="o">/</span><span class="n">process_util</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">146</span><span class="p">]</span> <span class="n">Creating</span> <span class="n">new</span> <span class="n">thread</span> <span class="n">pool</span> <span class="k">with</span> <span class="n">default</span> <span class="n">inter</span> <span class="n">op</span> <span class="n">setting</span><span class="p">:</span>
-
+<span class="mi">2022</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">05</span> <span class="mi">14</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mf">30.229992</span><span class="p">:</span> <span class="n">I</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">common_runtime</span><span class="o">/</span><span class="n">process_util</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">146</span><span class="p">]</span> <span class="n">Creating</span> <span class="n">new</span> <span class="n">thread</span> <span class="n">pool</span> <span class="k">with</span> <span class="n">default</span> <span class="n">inter</span> <span class="n">op</span> <span class="n">setting</span><span class="p">:</span>
 <span class="n">Model</span><span class="p">:</span> <span class="s2">&quot;sequential&quot;</span>
 <span class="n">_________________________________________________________________</span>
-<span class="n">Layer</span> <span class="p">(</span><span class="nb">type</span><span class="p">)</span>                <span class="n">Output</span> <span class="n">Shape</span>              <span class="n">Param</span> <span class="c1">#</span>
+ <span class="n">Layer</span> <span class="p">(</span><span class="nb">type</span><span class="p">)</span>                <span class="n">Output</span> <span class="n">Shape</span>              <span class="n">Param</span> <span class="c1">#</span>
 <span class="o">=================================================================</span>
 <span class="n">keras_layer</span> <span class="p">(</span><span class="n">KerasLayer</span><span class="p">)</span>    <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1280</span><span class="p">)</span>              <span class="mi">4049564</span>
 
@@ -125,10 +162,38 @@ command can be found using <cite>tlk &lt;command&gt; –help</cite> (like <cite>
 <span class="n">Trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span><span class="mi">405</span>
 <span class="n">Non</span><span class="o">-</span><span class="n">trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span><span class="mi">049</span><span class="p">,</span><span class="mi">564</span>
 <span class="n">_________________________________________________________________</span>
-<span class="kc">None</span>
-<span class="mi">86</span><span class="o">/</span><span class="mi">86</span> <span class="p">[</span><span class="o">==============================</span><span class="p">]</span> <span class="o">-</span> <span class="mi">22</span><span class="n">s</span> <span class="mi">215</span><span class="n">ms</span><span class="o">/</span><span class="n">step</span> <span class="o">-</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">0.5106</span> <span class="o">-</span> <span class="n">acc</span><span class="p">:</span> <span class="mf">0.8438</span>
-<span class="mi">2022</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">27</span> <span class="mi">10</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mf">38.545222</span><span class="p">:</span> <span class="n">W</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">python</span><span class="o">/</span><span class="n">util</span><span class="o">/</span><span class="n">util</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">368</span><span class="p">]</span> <span class="n">Sets</span> <span class="n">are</span> <span class="ow">not</span> <span class="n">currently</span> <span class="n">considered</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">but</span> <span class="n">this</span> <span class="n">may</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">future</span><span class="p">,</span> <span class="n">so</span> <span class="n">consider</span> <span class="n">avoiding</span> <span class="n">using</span> <span class="n">them</span><span class="o">.</span>
+<span class="n">Checkpoint</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">efficientnet_b0_checkpoints</span>
+<span class="mi">86</span><span class="o">/</span><span class="mi">86</span> <span class="p">[</span><span class="o">==============================</span><span class="p">]</span> <span class="o">-</span> <span class="mi">23</span><span class="n">s</span> <span class="mi">232</span><span class="n">ms</span><span class="o">/</span><span class="n">step</span> <span class="o">-</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">0.5875</span> <span class="o">-</span> <span class="n">acc</span><span class="p">:</span> <span class="mf">0.8125</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">05</span> <span class="mi">14</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mf">57.169689</span><span class="p">:</span> <span class="n">W</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">python</span><span class="o">/</span><span class="n">util</span><span class="o">/</span><span class="n">util</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">368</span><span class="p">]</span> <span class="n">Sets</span> <span class="n">are</span> <span class="ow">not</span> <span class="n">currently</span> <span class="n">considered</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">but</span> <span class="n">this</span> <span class="n">may</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">future</span><span class="p">,</span> <span class="n">so</span> <span class="n">consider</span> <span class="n">avoiding</span> <span class="n">using</span> <span class="n">them</span><span class="o">.</span>
 <span class="n">Saved</span> <span class="n">model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">efficientnet_b0</span><span class="o">/</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Evaluate a trained model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlk</span> <span class="nb">eval</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">efficientnet_b0</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">data</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span> <span class="n">tf_flowers</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">catalog</span> <span class="n">tf_datasets</span>
+<span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">efficientnet_b0</span><span class="o">/</span><span class="mi">1</span>
+<span class="n">Dataset</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">data</span>
+<span class="n">Dataset</span> <span class="n">name</span><span class="p">:</span> <span class="n">tf_flowers</span>
+<span class="n">Dataset</span> <span class="n">catalog</span><span class="p">:</span> <span class="n">tf_datasets</span>
+<span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">efficientnet_b0</span>
+<span class="n">Loading</span> <span class="n">model</span> <span class="nb">object</span> <span class="k">for</span> <span class="n">efficientnet_b0</span> <span class="n">using</span> <span class="n">tensorflow</span>
+<span class="n">Loading</span> <span class="n">saved</span> <span class="n">model</span> <span class="n">from</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">efficientnet_b0</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">saved_model</span><span class="o">.</span><span class="n">pb</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">05</span> <span class="mi">14</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mf">06.090646</span><span class="p">:</span> <span class="n">I</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">platform</span><span class="o">/</span><span class="n">cpu_feature_guard</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">151</span><span class="p">]</span> <span class="n">This</span> <span class="n">TensorFlow</span> <span class="n">binary</span> <span class="ow">is</span> <span class="n">optimized</span> <span class="k">with</span> <span class="n">oneAPI</span> <span class="n">Deep</span> <span class="n">Neural</span> <span class="n">Network</span> <span class="n">Library</span> <span class="p">(</span><span class="n">oneDNN</span><span class="p">)</span> <span class="n">to</span> <span class="n">use</span> <span class="n">the</span> <span class="n">following</span> <span class="n">CPU</span> <span class="n">instructions</span> <span class="ow">in</span> <span class="n">performance</span><span class="o">-</span><span class="n">critical</span> <span class="n">operations</span><span class="p">:</span>  <span class="n">AVX2</span> <span class="n">AVX512F</span> <span class="n">FMA</span>
+<span class="n">To</span> <span class="n">enable</span> <span class="n">them</span> <span class="ow">in</span> <span class="n">other</span> <span class="n">operations</span><span class="p">,</span> <span class="n">rebuild</span> <span class="n">TensorFlow</span> <span class="k">with</span> <span class="n">the</span> <span class="n">appropriate</span> <span class="n">compiler</span> <span class="n">flags</span><span class="o">.</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">05</span> <span class="mi">14</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mf">06.098042</span><span class="p">:</span> <span class="n">I</span> <span class="n">tensorflow</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">common_runtime</span><span class="o">/</span><span class="n">process_util</span><span class="o">.</span><span class="n">cc</span><span class="p">:</span><span class="mi">146</span><span class="p">]</span> <span class="n">Creating</span> <span class="n">new</span> <span class="n">thread</span> <span class="n">pool</span> <span class="k">with</span> <span class="n">default</span> <span class="n">inter</span> <span class="n">op</span> <span class="n">setting</span><span class="p">:</span>
+<span class="n">Model</span><span class="p">:</span> <span class="s2">&quot;sequential&quot;</span>
+<span class="n">_________________________________________________________________</span>
+ <span class="n">Layer</span> <span class="p">(</span><span class="nb">type</span><span class="p">)</span>                <span class="n">Output</span> <span class="n">Shape</span>              <span class="n">Param</span> <span class="c1">#</span>
+<span class="o">=================================================================</span>
+<span class="n">keras_layer</span> <span class="p">(</span><span class="n">KerasLayer</span><span class="p">)</span>    <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1280</span><span class="p">)</span>              <span class="mi">4049564</span>
+
+<span class="n">dense</span> <span class="p">(</span><span class="n">Dense</span><span class="p">)</span>               <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>                 <span class="mi">6405</span>
+
+<span class="o">=================================================================</span>
+<span class="n">Total</span> <span class="n">params</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span><span class="mi">055</span><span class="p">,</span><span class="mi">969</span>
+<span class="n">Trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span><span class="mi">405</span>
+<span class="n">Non</span><span class="o">-</span><span class="n">trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span><span class="mi">049</span><span class="p">,</span><span class="mi">564</span>
+<span class="n">_________________________________________________________________</span>
+<span class="mi">29</span><span class="o">/</span><span class="mi">29</span> <span class="p">[</span><span class="o">==============================</span><span class="p">]</span> <span class="o">-</span> <span class="mi">7</span><span class="n">s</span> <span class="mi">222</span><span class="n">ms</span><span class="o">/</span><span class="n">step</span> <span class="o">-</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">0.4217</span> <span class="o">-</span> <span class="n">acc</span><span class="p">:</span> <span class="mf">0.8715</span>
 </pre></div>
 </div>
 <section id="tlk">
@@ -136,6 +201,38 @@ command can be found using <cite>tlk &lt;command&gt; –help</cite> (like <cite>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlk <span class="o">[</span>OPTIONS<span class="o">]</span> COMMAND <span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
+<section id="tlk-eval">
+<h4>eval<a class="headerlink" href="#tlk-eval" title="Permalink to this headline">¶</a></h4>
+<p>Evaluates a model that has already been trained</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlk <span class="nb">eval</span> <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlk-eval-model-dir">
+<span id="cmdoption-tlk-eval-model_dir"></span><span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlk-eval-model-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Model directory to reload and evaluate a model exported by TLK.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlk-eval-dataset-dir">
+<span id="cmdoption-tlk-eval-dataset_dir"></span><span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlk-eval-dataset-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Dataset directory for a custom dataset, or if a dataset name and catalog are being provided, the dataset directory is the location where the dataset will be downloaded.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlk-eval-dataset-name">
+<span id="cmdoption-tlk-eval-dataset_name"></span><span class="sig-name descname"><span class="pre">--dataset-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlk-eval-dataset-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the dataset to use from a dataset catalog.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlk-eval-dataset-catalog">
+<span id="cmdoption-tlk-eval-dataset_catalog"></span><span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlk-eval-dataset-catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface). If a dataset name is provided and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models.</p>
+</dd></dl>
+
+</section>
 <section id="tlk-list">
 <h4>list<a class="headerlink" href="#tlk-list" title="Permalink to this headline">¶</a></h4>
 <p>Lists the available frameworks, use cases, or models</p>
@@ -160,6 +257,18 @@ command can be found using <cite>tlk &lt;command&gt; –help</cite> (like <cite>
 <dt class="sig sig-object std" id="cmdoption-tlk-list-models-f">
 <span id="cmdoption-tlk-list-models-framework"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--framework</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;framework&gt;</span></span><a class="headerlink" href="#cmdoption-tlk-list-models-f" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter the list of models by framework.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlk-list-models-use-case">
+<span id="cmdoption-tlk-list-models-use_case"></span><span class="sig-name descname"><span class="pre">--use-case</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use_case</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;use_case&gt;</span></span><a class="headerlink" href="#cmdoption-tlk-list-models-use-case" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the list of models to a single use case</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlk-list-models-verbose">
+<span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlk-list-models-verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verbose output with extra information about each model</p>
 </dd></dl>
 
 </section>
@@ -193,7 +302,7 @@ command can be found using <cite>tlk &lt;command&gt; –help</cite> (like <cite>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlk-train-output-dir">
 <span id="cmdoption-tlk-train-output_dir"></span><span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlk-train-output-dir" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Required</strong> Output directory for saved models, logs, etc</p>
+<dd><p><strong>Required</strong> Output directory for saved models, logs, checkpoints, etc</p>
 </dd></dl>
 
 <dl class="std option">
@@ -211,7 +320,13 @@ command can be found using <cite>tlk &lt;command&gt; –help</cite> (like <cite>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlk-train-dataset-catalog">
 <span id="cmdoption-tlk-train-dataset_catalog"></span><span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlk-train-dataset-catalog" title="Permalink to this definition">¶</a></dt>
-<dd><p>Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface)</p>
+<dd><p>Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface). If a dataset name is provided and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlk-train-epochs">
+<span class="sig-name descname"><span class="pre">--epochs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;epochs&gt;</span></span><a class="headerlink" href="#cmdoption-tlk-train-epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of training epochs [default: 1]</p>
 </dd></dl>
 
 </section>
