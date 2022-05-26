@@ -26,25 +26,26 @@ from tlk.models import model_factory
 
 
 @pytest.mark.parametrize('model_name,dataset_name',
-                         [['efficientnet_b0', 'tf_flowers'],
-                          ['resnet_v1_50', 'tf_flowers']])
-def test_tf_image_classification(model_name, dataset_name):
+                         [['efficientnet_b0', 'CIFAR10'],
+                          ['resnet18', 'CIFAR10']])
+def test_pyt_image_classification(model_name, dataset_name):
     """
-    Tests basic transfer learning functionality for TensorFlow image classification models using TF Datasets
+    Tests basic transfer learning functionality for PyTorch image classification models using a torchvision dataset
     """
-    framework = 'tensorflow'
-    output_dir = '/tmp/output'
+    framework = 'pytorch'
+    output_dir = '/tmp/output/pytorch'
 
     # Get the dataset
     dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, dataset_name,
-                                          'tf_datasets', split=["train[:5%]"])
+                                          'torchvision', split=["train"])
 
     # Get the model
     model = model_factory.get_model(model_name, framework)
 
     # Preprocess the dataset
-    dataset.preprocess(model.image_size, 32)
-    dataset.shuffle_split(seed=10)
+    dataset.preprocess(image_size='variable', batch_size=32)
+    dataset.shuffle_split(train_pct=0.05, val_pct=0.05, seed=10)
+    assert dataset._validation_type == 'shuffle_split'
 
     # Evaluate before training
     pretrained_metrics = model.evaluate(dataset)
@@ -66,7 +67,7 @@ def test_tf_image_classification(model_name, dataset_name):
     # export the saved model
     saved_model_dir = model.export(output_dir)
     assert os.path.isdir(saved_model_dir)
-    assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
+    assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
 
     # Reload the saved model
     reload_model = model_factory.get_model(model_name, framework)

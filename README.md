@@ -47,12 +47,17 @@ command can be found using `tlk <command> --help` (like `tlk train --help`).
 
 List the available models:
 ```
-> tlk list models --framework tensorflow --use-case image_classification
+> tlk list models --use-case image_classification
 ------------------------------
 IMAGE CLASSIFICATION
 ------------------------------
+densenet121 (pytorch)
+densenet161 (pytorch)
+efficientnet_b0 (pytorch)
 efficientnet_b0 (tensorflow)
+efficientnet_b1 (pytorch)
 efficientnet_b1 (tensorflow)
+efficientnet_b2 (pytorch)
 efficientnet_b2 (tensorflow)
 efficientnet_b3 (tensorflow)
 efficientnet_b4 (tensorflow)
@@ -64,12 +69,17 @@ efficientnetv2-b1 (tensorflow)
 efficientnetv2-b2 (tensorflow)
 efficientnetv2-b3 (tensorflow)
 efficientnetv2-s (tensorflow)
+googlenet (pytorch)
 inception_v3 (tensorflow)
+mobilenet_v2 (pytorch)
 mobilenet_v2_100_224 (tensorflow)
 nasnet_large (tensorflow)
+resnet18 (pytorch)
+resnet50 (pytorch)
 resnet_v1_50 (tensorflow)
 resnet_v2_101 (tensorflow)
 resnet_v2_50 (tensorflow)
+shufflenet_v2_x1_0 (pytorch)
 ```
 
 Train a model:

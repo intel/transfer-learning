@@ -43,6 +43,22 @@ class PyTorchDataset(BaseDataset):
     def test_subset(self):
         return torch.utils.data.Subset(self._dataset, self._test_indices) if self._test_indices else None
 
+    @property
+    def data_loader(self):
+        return self._data_loader
+
+    @property
+    def train_loader(self):
+        return self._train_loader
+
+    @property
+    def validation_loader(self):
+        return self._validation_loader
+
+    @property
+    def test_loader(self):
+        return self._test_loader
+
     def get_batch(self, subset='all'):
         """Get a single batch of images and labels from the dataset.
 
@@ -96,3 +112,5 @@ class PyTorchDataset(BaseDataset):
         else:
             self._test_indices = None
         self._validation_type = 'shuffle_split'
+        if self._preprocessed and 'batch_size' in self._preprocessed:
+            self._make_data_loaders(batch_size=self._preprocessed['batch_size'])

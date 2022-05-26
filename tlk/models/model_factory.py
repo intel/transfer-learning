@@ -19,18 +19,24 @@
 #
 
 import os
+from pydoc import locate
 
 from tlk import TLK_BASE_DIR
 from tlk.utils.file_utils import read_json_file
 from tlk.utils.types import FrameworkType, UseCaseType
 
 
-def get_model_class_map():
-    from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
-    return {
-        FrameworkType.TENSORFLOW: {
-            UseCaseType.IMAGE_CLASSIFICATION: {
-                "TFHub": TFHubImageClassificationModel
+model_map = {
+    FrameworkType.TENSORFLOW: {
+        UseCaseType.IMAGE_CLASSIFICATION: {
+            "TFHub": {"module": "tlk.models.image_classification.tfhub_image_classification_model",
+                     "class": "TFHubImageClassificationModel"}
+        },
+    },
+    FrameworkType.PYTORCH: {
+        UseCaseType.IMAGE_CLASSIFICATION: {
+            "torchvision": {"module": "tlk.models.image_classification.torchvision_image_classification_model",
+                            "class": "TorchvisionImageClassificationModel"}
             }
         }
     }
@@ -60,9 +66,6 @@ def get_model(model_name: str, framework: FrameworkType = None):
     if not isinstance(framework, FrameworkType):
         framework = FrameworkType.from_str(framework)
 
-    if framework == FrameworkType.PYTORCH:
-        raise NotImplementedError("PyTorch support has not been implemented")
-
     model_use_case, model_dict = get_model_info(model_name, framework)
 
     if not model_use_case:
@@ -76,13 +79,11 @@ def get_model(model_name: str, framework: FrameworkType = None):
     model_framework_enum = FrameworkType.from_str(model_framework_str)
     model_hub = model_dict[model_framework_str]["model_hub"]
 
-    # Get the map of model to the class implementation
-    model_class_map = get_model_class_map()
-
-    if model_framework_enum in model_class_map:
-        if model_use_case in model_class_map[model_framework_enum]:
-            if model_hub in model_class_map[model_framework_enum][model_use_case]:
-                model_class = model_class_map[model_framework_enum][model_use_case][model_hub]
+    if model_framework_enum in model_map:
+        if model_use_case in model_map[model_framework_enum]:
+            if model_hub in model_map[model_framework_enum][model_use_case]:
+                model_class = locate('{}.{}'.format(model_map[model_framework_enum][model_use_case][model_hub]['module'],
+                                                    model_map[model_framework_enum][model_use_case][model_hub]['class']))
                 return model_class(model_name)
 
     raise NotImplementedError("Not implemented yet: {} {}".format(model_framework_str, model_name))
@@ -115,7 +116,7 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
     # Read configs into the models dictionary
     for config_filename in os.listdir(config_directory):
         # Figure out which framework this config is, and filter it out, if necessary
-        config_framework = FrameworkType.PYTORCH if config_filename.startswith("pytorch") else FrameworkType.TENSORFLOW
+        config_framework = FrameworkType.PYTORCH if 'torch' in config_filename else FrameworkType.TENSORFLOW
 
         if framework is not None and framework != config_framework:
             continue

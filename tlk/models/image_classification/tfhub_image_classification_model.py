@@ -165,11 +165,16 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
 
         if self._model is None:
             # The model hasn't been trained yet, use the original ImageNet trained model
-            print("The model has not been trained yet, so evaluation is being done using the original model")
+            print("The model has not been trained yet, so evaluation is being done using the original model " + \
+                  "and its classes")
             original_model = tf.keras.Sequential([
                 hub.KerasLayer(self._model_url, input_shape=(self._image_size, self._image_size) + (3,))
             ])
-            return original_model.eval(eval_dataset)
+            original_model.compile(
+                optimizer=self._optimizer,
+                loss=self._loss,
+                metrics=['acc'])
+            return original_model.evaluate(eval_dataset)
         else:
             return self._model.evaluate(eval_dataset)
 

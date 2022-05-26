@@ -1,0 +1,62 @@
+{
+    "resnet18": {
+        "model_hub": "torchvision",
+        "classification_layer": ["fc"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "resnet50": {
+        "model_hub": "torchvision",
+        "classification_layer": ["fc"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V2"
+    },
+    "efficientnet_b0": {
+        "model_hub": "torchvision",
+        "classification_layer": ["classifier", 1],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "efficientnet_b1": {
+        "model_hub": "torchvision",
+        "classification_layer": ["classifier", 1],
+        "image_size": 240,
+        "original_dataset": "IMAGENET1K_V2"
+    },
+    "efficientnet_b2": {
+        "model_hub": "torchvision",
+        "classification_layer": ["classifier", 1],
+        "image_size": 288,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "densenet121": {
+        "model_hub": "torchvision",
+        "classification_layer": ["classifier"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "densenet161": {
+        "model_hub": "torchvision",
+        "classification_layer": ["classifier"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "googlenet": {
+        "model_hub": "torchvision",
+        "classification_layer": ["fc"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "shufflenet_v2_x1_0": {
+        "model_hub": "torchvision",
+        "classification_layer": ["fc"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "mobilenet_v2": {
+        "model_hub": "torchvision",
+        "classification_layer": ["classifier", 1],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V2"
+    }
+}

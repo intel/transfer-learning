@@ -148,21 +148,24 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
     def dataset(self):
         return self._dataset
 
-    def preprocess(self, image_size, batch_size):
+    def preprocess(self, image_size='variable', batch_size=32):
         """Preprocess the dataset to resize, normalize, and batch the images
 
             Args:
-                image_size (int): desired square image size
-                batch_size (int): desired batch size
-
+                image_size (int or 'variable'): desired square image size (if 'variable', does not alter image size)
+                batch_size (int): desired batch size (default 32)
             Raises:
                 ValueError if the dataset is not defined or has already been processed
         """
         # NOTE: Should this be part of init? If we get image_size and batch size during init,
         # then we don't need a separate call to preprocess.
+        if not (image_size == 'variable' or isinstance(image_size, int)):
+            raise ValueError("Input image_size must be either an int or 'variable'")
+        
         def get_transform(image_size):
             transforms = []
-            transforms.append(T.Resize([image_size, image_size]))
+            if isinstance(image_size, int):
+                transforms.append(T.Resize([image_size, image_size]))
             transforms.append(T.ToTensor())
             transforms.append(T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]))
 

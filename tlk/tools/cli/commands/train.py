@@ -75,7 +75,6 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_
 
     from tlk.models import model_factory
     from tlk.datasets import dataset_factory
-    from tlk.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
 
     # Get the model
     try:
@@ -89,7 +88,7 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_
         dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
 
         # TODO: get extra configs like batch size and maybe this doesn't need to be a separate call
-        if isinstance(dataset, TFImageClassificationDataset):
+        if framework in ['tensorflow', 'pytorch']:
             dataset.preprocess(model.image_size, batch_size=32)
             dataset.shuffle_split(seed=10)
     except Exception as e:
