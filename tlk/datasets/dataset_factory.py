@@ -26,7 +26,9 @@ dataset_map = {
     FrameworkType.TENSORFLOW: {
         UseCaseType.IMAGE_CLASSIFICATION: {
             "tf_datasets": {"module": "tlk.datasets.image_classification.tf_image_classification_dataset",
-                            "class": "TFImageClassificationDataset"}
+                            "class": "TFImageClassificationDataset"},
+            "custom": {"module": "tlk.datasets.image_classification.tf_custom_image_classification_dataset",
+                            "class": "TFCustomImageClassificationDataset"}
         }
     },
     FrameworkType.PYTORCH: {
@@ -40,7 +42,7 @@ dataset_map = {
 
 def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkType,
                 dataset_name=None, dataset_catalog=None, **kwargs):
-    """A factory method for creating datasets.
+    """A factory method for using a dataset from a catalog.
 
         Args:
             dataset_dir (str): directory containing the dataset or to which the dataset should be downloaded
@@ -91,10 +93,49 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
                                                       dataset_map[framework][use_case][dataset_catalog]['class']))
                 return dataset_class(dataset_dir, dataset_name, **kwargs)
 
-    # For the error message, if there's no dataset catalog specified, then it's a custom dataset
-    if not dataset_catalog:
-        dataset_catalog = "custom datasets"
-
     # If no match was found in the map, then it's not implemented yet
     raise NotImplementedError("Datasets support for {} {} {} has not been implemented yet".format(
+        str(framework), str(use_case), dataset_catalog))
+
+
+def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkType, dataset_name=None, **kwargs):
+    """A factory method for loading a custom dataset.
+
+        Args:
+            dataset_dir (str): directory containing the dataset
+            use_case (str or UseCaseType): use case or task the dataset will be used to model
+            framework (str or FrameworkType): framework
+            dataset_name (str): optional; name of the dataset used for informational purposes
+            **kwargs: optional; additional keyword arguments depending on the type of dataset being loaded
+
+        Returns:
+            (dataset)
+
+        Raises:
+            NotImplementedError if the type of dataset being loaded is not supported
+
+        Example:
+            >>> from tlk.datasets.dataset_factory import load_dataset
+            >>> data = load_dataset('/tmp/data/flower_photos', 'image_classification', 'tensorflow')
+            >>> data.class_names
+            ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips']
+
+    """
+    if not isinstance(framework, FrameworkType):
+        framework = FrameworkType.from_str(framework)
+
+    if not isinstance(use_case, UseCaseType):
+        use_case = UseCaseType.from_str(use_case)
+
+    dataset_catalog = "custom"
+
+    if framework in dataset_map.keys():
+        if use_case in dataset_map[framework].keys():
+            if dataset_catalog in dataset_map[framework][use_case]:
+                dataset_class = locate('{}.{}'.format(dataset_map[framework][use_case][dataset_catalog]['module'],
+                                                      dataset_map[framework][use_case][dataset_catalog]['class']))
+                return dataset_class(dataset_dir, dataset_name, **kwargs)
+
+    # If no match was found in the map, then it's not implemented yet
+    raise NotImplementedError("Custom dataset support for {} {} {} has not been implemented yet".format(
         str(framework), str(use_case), dataset_catalog))

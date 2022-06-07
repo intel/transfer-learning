@@ -82,11 +82,14 @@ def eval(model_dir, dataset_dir, dataset_name, dataset_catalog):
             model.load_from_directory(model_dir)
 
             from tlk.datasets import dataset_factory
-            from tlk.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
+            from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
-            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
+            if not dataset_catalog and not dataset_name:
+                dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+            else:
+                dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
 
-            if isinstance(dataset, TFImageClassificationDataset):
+            if isinstance(dataset, ImageClassificationDataset):
                 dataset.preprocess(model.image_size, batch_size=32)
                 dataset.shuffle_split(seed=10)
 

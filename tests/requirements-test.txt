@@ -1,4 +1,5 @@
 flake8
+pillow
 pytest
 pytest-cov
 pytest-xdist

@@ -1,18 +1,40 @@
 # Testing TLK
 
-To run these tests, first install [tlk](/tlk). Then install the following dependencies:
+To run these tests, first install [tlk](/tlk) for TensorFlow and/or PyTorch.
+Then install the following dependencies:
 
 ```
-pip3 install -r requirements-test.txt
+# Clone this repo, if you don't already have it
+git clone git@github.com:intel-innersource/frameworks.ai.transfer-learning.git
+cd frameworks.ai.transfer-learning
 
+# Create a virtual env or conda env for the test environment
+conda create --name tlk_tests python=3.8
+
+# Install tlk for TensorFlow and/or PyTorch
+pip3 install --editable .[tensorflow,pytorch]
+
+# Install the test requirements
+cd tests
+pip3 install -r requirements-test.txt
 ```
 
 ## API Tests
 There are unit and integration tests that exercise the API. 
-Make sure you are in the `transfer-learning/tests` directory and run:
-
+Make sure you are in the `transfer-learning/tests` directory and use the command
+below to run all tests:
 ```
 py.test -s
+```
+
+To run only the TensorFlow tests run:
+```
+py.test -s -m tensorflow
+```
+
+To run only the PyTorch tests run:
+```
+py.test -s -m pytorch
 ```
 
 > Note: After the tests have run, there will be downloaded data in `/tmp/data` 

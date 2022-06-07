@@ -19,14 +19,27 @@
 #
 
 import pytest
-import torch
+
 from unittest.mock import MagicMock, patch
 
 from tlk.models import model_factory
-from tlk.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel
 from tlk.utils.types import FrameworkType, UseCaseType
 
+try:
+    # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
+    import torch
+except ModuleNotFoundError as e:
+    print("WARNING: Unable to import torch. Torch may not be installed")
 
+
+try:
+    # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
+    from tlk.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel
+except ModuleNotFoundError as e:
+    print("WARNING: Unable to import TorchvisionImageClassificationModel. Torch may not be installed")
+
+
+@pytest.mark.pytorch
 def test_torchvision_efficientnet_b0():
     """
     Checks that an efficientnet_b0 model can be downloaded from TFHub
@@ -36,6 +49,7 @@ def test_torchvision_efficientnet_b0():
     assert model.model_name == 'efficientnet_b0'
 
 
+@pytest.mark.pytorch
 def test_get_supported_models():
     """
     Call get supported models and checks to make sure the dictionary has keys for each use case,
@@ -54,6 +68,7 @@ def test_get_supported_models():
     assert 'torchvision' == efficientnet_b0[str(FrameworkType.PYTORCH)]['model_hub']
 
 
+@pytest.mark.pytorch
 @pytest.mark.parametrize('framework,use_case',
                          [['tensorflow', None],
                           ['pytorch', None],
@@ -88,6 +103,7 @@ def test_get_supported_models_with_filter(framework, use_case):
                 assert framework in model_dict[use_case_key][model_name_key]
 
 
+@pytest.mark.pytorch
 @pytest.mark.parametrize('bad_framework',
                          ['tensorflowers',
                           'python',
@@ -102,6 +118,7 @@ def test_get_supported_models_bad_framework(bad_framework):
         assert "Unsupported framework: {}".format(bad_framework) in str(e)
 
 
+@pytest.mark.pytorch
 @pytest.mark.parametrize('bad_use_case',
                          ['tensorflow',
                           'imageclassification',
@@ -115,6 +132,8 @@ def test_get_supported_models_bad_use_case(bad_use_case):
         model_factory.get_supported_models(use_case=bad_use_case)
         assert "Unsupported use case: {}".format(bad_use_case) in str(e)
 
+
+@pytest.mark.pytorch
 def test_torchvision_efficientnet_b0_train():
     """
     Tests calling train on a torchvision efficientnet_b0 model with a mock dataset, model, and optimizer

@@ -23,10 +23,16 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 from tlk.models import model_factory
-from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
 from tlk.utils.types import FrameworkType, UseCaseType
 
+try:
+    # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
+    from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
+except ModuleNotFoundError as e:
+    print("WARNING: Unable to import TFHubImageClassificationModel. TensorFlow may not be installed")
 
+
+@pytest.mark.tensorflow
 def test_tfhub_efficientnet_b0():
     """
     Checks that an efficientnet_b0 model can be downloaded from TFHub
@@ -36,6 +42,7 @@ def test_tfhub_efficientnet_b0():
     assert model.image_size == 224
 
 
+@pytest.mark.tensorflow
 def test_get_supported_models():
     """
     Call get supported models and checks to make sure the dictionary has keys for each use case,
@@ -54,6 +61,7 @@ def test_get_supported_models():
     assert 'TFHub' == efficientnet_b0[str(FrameworkType.TENSORFLOW)]['model_hub']
 
 
+@pytest.mark.tensorflow
 @pytest.mark.parametrize('framework,use_case',
                          [['tensorflow', None],
                           ['pytorch', None],
@@ -88,6 +96,7 @@ def test_get_supported_models_with_filter(framework, use_case):
                 assert framework in model_dict[use_case_key][model_name_key]
 
 
+@pytest.mark.tensorflow
 @pytest.mark.parametrize('bad_framework',
                          ['tensorflowers',
                           'python',
@@ -102,6 +111,7 @@ def test_get_supported_models_bad_framework(bad_framework):
         assert "Unsupported framework: {}".format(bad_framework) in str(e)
 
 
+@pytest.mark.tensorflow
 @pytest.mark.parametrize('bad_use_case',
                          ['tensorflow',
                           'imageclassification',
@@ -116,6 +126,7 @@ def test_get_supported_models_bad_use_case(bad_use_case):
         assert "Unsupported use case: {}".format(bad_use_case) in str(e)
 
 
+@pytest.mark.tensorflow
 def test_tfhub_efficientnet_b0_train():
     """
     Tests calling train on an TFHub efficientnet_b0 model with a mock dataset and mock model

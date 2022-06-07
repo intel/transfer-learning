@@ -29,11 +29,11 @@ Requirements:
    and installing the wheel:
    ```
    python setup.py bdist_wheel --universal
-   pip install dist/tlk-0.0.1-py2.py3-none-any.whl[tensorflow]
+   pip install dist/tlk-0.0.1-py2.py3-none-any.whl[tensorflow,pytorch]
    ```
    Or for developers, do an editable install:
    ```
-   pip install --editable .[tensorflow]
+   pip install --editable .[tensorflow,pytorch]
    ```
 
 ## Run the CLI

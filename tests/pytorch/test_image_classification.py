@@ -20,11 +20,14 @@
 
 import os
 import pytest
+import shutil
+import tempfile
 
 from tlk.datasets import dataset_factory
 from tlk.models import model_factory
 
 
+@pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['efficientnet_b0', 'CIFAR10'],
                           ['resnet18', 'CIFAR10']])
@@ -33,7 +36,7 @@ def test_pyt_image_classification(model_name, dataset_name):
     Tests basic transfer learning functionality for PyTorch image classification models using a torchvision dataset
     """
     framework = 'pytorch'
-    output_dir = '/tmp/output/pytorch'
+    output_dir = tempfile.mkdtemp()
 
     # Get the dataset
     dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, dataset_name,
@@ -76,3 +79,7 @@ def test_pyt_image_classification(model_name, dataset_name):
     # Evaluate
     reload_metrics = reload_model.evaluate(dataset)
     assert reload_metrics == trained_metrics
+
+    # Delete the temp output directory
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)

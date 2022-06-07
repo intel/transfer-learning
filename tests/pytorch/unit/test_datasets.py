@@ -20,11 +20,16 @@
 
 import pytest
 from numpy.testing import assert_array_equal
-
 from tlk.datasets.dataset_factory import get_dataset
-from tlk.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset
+
+try:
+    # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
+    from tlk.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset
+except ModuleNotFoundError as e:
+    print("WARNING: Unable to import TorchvisionImageClassificationDataset. Torch may not be installed")
 
 # TODO: Create a fixture to initialize dataset and delete it once all tests have run
+@pytest.mark.pytorch
 def test_torchvision():
     """
     Checks that torchvision dataset can be created/loaded
@@ -34,6 +39,7 @@ def test_torchvision():
     assert len(data.class_names) == 10
     assert data.info['dataset_info'] == {'name': 'CIFAR10','size': 50000}
 
+@pytest.mark.pytorch
 def test_torchvision_subset():
     """
     Checks that a torchvision test subset can be loaded
@@ -42,6 +48,7 @@ def test_torchvision_subset():
     assert type(data) == TorchvisionImageClassificationDataset
     assert len(data.dataset) < 50000
 
+@pytest.mark.pytorch
 def test_preprocessing():
     """
     Checks that dataset can be preprocessed
@@ -51,6 +58,7 @@ def test_preprocessing():
     preprocessing_inputs = {'image_size': 224, 'batch_size': 32}
     assert data._preprocessed == preprocessing_inputs
 
+@pytest.mark.pytorch
 def test_defined_split():
     """
     Checks that dataset can be loaded into train and test subsets based on torchvision splits and then
@@ -73,6 +81,7 @@ def test_defined_split():
     assert len(data.test_subset) == 12000
     assert data._validation_type == 'shuffle_split'
 
+@pytest.mark.pytorch
 def test_shuffle_split():
     """
     Checks that dataset can be split into train, validation, and test subsets
@@ -84,6 +93,7 @@ def test_shuffle_split():
     assert data.test_subset is None
     assert data._validation_type == 'shuffle_split'
 
+@pytest.mark.pytorch
 def test_shuffle_split_errors():
     """
     Checks that splitting into train, validation, and test subsets will error if inputs are wrong
@@ -97,6 +107,7 @@ def test_shuffle_split_errors():
         data.shuffle_split(train_pct=1, val_pct=0)
     assert 'Percentage arguments must be floats.' == str(e.value)
 
+@pytest.mark.pytorch
 def test_shuffle_split_deterministic():
     """
     Checks that dataset can be split into train, validation, and test subsets in a way that is reproducible
@@ -115,6 +126,7 @@ def test_shuffle_split_deterministic():
         assert_array_equal(image_1, image_2)
         assert_array_equal(label_1, label_2)
 
+@pytest.mark.pytorch
 def test_batching():
     """
     Checks that dataset can be batched and then re-batched to a different batch size
@@ -125,6 +137,7 @@ def test_batching():
     data.preprocess(224, 32)
     assert len(data.get_batch()[0]) == 32
 
+@pytest.mark.pytorch
 def test_batching_error():
     """
     Checks that preprocessing cannot be run twice with two different image_sizes

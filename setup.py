@@ -29,6 +29,8 @@ EXTRA_PACKAGES = {
         "tensorflow-datasets==4.4.0"
     ],
     "pytorch": {
+        "protobuf==3.20.1",
+        "python-dateutil==2.7",
         "torch==1.11.0",
         "intel-extension-for-pytorch==1.11.0",
         "torchvision==0.12.0"

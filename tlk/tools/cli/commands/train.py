@@ -85,7 +85,10 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_
 
     # Get the dataset
     try:
-        dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
+        if not dataset_name and not dataset_catalog:
+            dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+        else:
+            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
 
         # TODO: get extra configs like batch size and maybe this doesn't need to be a separate call
         if framework in ['tensorflow', 'pytorch']:

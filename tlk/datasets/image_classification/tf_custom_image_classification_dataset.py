@@ -20,56 +20,72 @@
 
 import os
 import tensorflow as tf
-import tensorflow_datasets as tfds
 
 from tlk.datasets.tf_dataset import TFDataset
 from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
 
-class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
+class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
     """
-    Base class for an image classification dataset from the TensorFlow datasets catalog
+    Base class for a custom image classification dataset that can be used with TensorFlow models. Note that the
+    directory of images is expected to be organized with subfolders for each image class. Each subfolder should
+    contain .jpg images for the class. The name of the subfolder will be used as the class label.
+    
+    dataset_dir
+      ├── class_a
+      ├── class_b
+      └── class_c
+        
+        Args:
+            dataset_dir (str): Directory where the data is located. It should contain subdirectories with images for
+                               each class.
+            dataset_name (str): optional; Name of the dataset. If no dataset name is given, the dataset_dir folder name
+                                will be used as the dataset name.
+            color_mode (str): optional; Specify the color mode as "greyscale", "rgb", or "rgba". Defaults to "rgb".
+            shuffle_files (bool): optional; Whether to shuffle the data. Defaults to True.
+            seed (int): optional; Random seed for shuffling
+
+        Raises:
+            FileNotFoundError if dataset directory does not exist
     """
-    def __init__(self, dataset_dir, dataset_name, split=["train"],
-                 as_supervised=True, shuffle_files=False):
-        if not isinstance(split, list):
-            raise ValueError("Value of split argument must be a list.")
-        ImageClassificationDataset.__init__(self, dataset_dir, dataset_name)
-        self._preprocessed = {}
-        tf.get_logger().setLevel('ERROR')
 
-        os.environ['NO_GCE_CHECK'] = 'true'
-        data, self._info = tfds.load(
-            dataset_name,
-            data_dir=dataset_dir,
-            split=split,
-            as_supervised=as_supervised,
-            shuffle_files=shuffle_files,
-            with_info=True
-        )
+    def __init__(self, dataset_dir, dataset_name=None, color_mode="rgb", shuffle_files=True, seed=None):
+        if not os.path.exists(dataset_dir):
+            raise FileNotFoundError("The dataset directory ({}) does not exist".format(dataset_dir))
 
-        self._dataset = None
+        # The dataset name is only used for informational purposes. If one isn't given, use the directory name
+        if not dataset_name:
+            dataset_name = os.path.basename(dataset_dir)
+
+        ImageClassificationDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog=None)
+
+        self._info = {
+            "name": dataset_name,
+            "dataset_dir": dataset_dir,
+            "color_mode": color_mode
+        }
+        self._preprocessed = None
+
+        self._dataset = tf.keras.utils.image_dataset_from_directory(
+            self._dataset_dir,
+            batch_size=None,
+            shuffle=shuffle_files,
+            seed=seed,
+            color_mode=color_mode)
+        self._class_names = self._dataset.class_names
+
+        self._train_pct = 1.0
+        self._val_pct = 0
+        self._test_pct = 0
+        self._validation_type = 'recall'
         self._train_subset = None
         self._validation_subset = None
         self._test_subset = None
 
-        if len(split) == 1:
-            self._validation_type = 'recall'  # Train & evaluate on the whole dataset
-            self._dataset = data[0]
-        else:
-            self._validation_type = 'defined_split'  # Defined by user or TFDS
-            for i, s in enumerate(split):
-                if s == 'train':
-                    self._train_subset = data[i]
-                elif s == 'validation':
-                    self._validation_subset = data[i]
-                elif s == 'test':
-                    self._test_subset = data[i]
-                self._dataset = data[i] if self._dataset is None else self._dataset.concatenate(data[i])
 
     @property
     def class_names(self):
-        return self._info.features["label"].names
+        return self._class_names
 
     @property
     def info(self):
@@ -89,23 +105,24 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
             Raises:
                 ValueError if the dataset is not defined or has already been processed
         """
+        if self._preprocessed:
+            raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))
+
         if not isinstance(batch_size, int) or batch_size < 1:
             raise ValueError("batch_size should be an positive integer")
 
         if not isinstance(image_size, int) or image_size < 1:
             raise ValueError("image_size should be an positive integer")
 
-        # NOTE: Should this be part of init? If we get image_size and batch size during init,
-        # then we don't need a separate call to preprocess.
+        normalization_layer = tf.keras.layers.Rescaling(1. / 255)
+
         def preprocess_image(image, label):
-            image = tf.image.convert_image_dtype(image, tf.float32)
             image = tf.image.resize_with_pad(image, image_size, image_size)
+            image = normalization_layer(image)
             return (image, label)
 
         if not (self._dataset or self._train_subset or self._validation_subset or self._test_subset):
             raise ValueError("Unable to preprocess, because the dataset hasn't been defined.")
-        if self._preprocessed:
-            raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))
 
         # Get the non-None splits
         split_list = ['_dataset', '_train_subset', '_validation_subset', '_test_subset']
