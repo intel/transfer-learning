@@ -18,23 +18,28 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+import os
+
 from setuptools import setup, find_packages
 
 COMMON_PACKAGES = ["click"]
 
+
+def get_framework_requirements(framework_name):
+    """ Gets framework related requirements from its requirements.txt file """
+    with open('{}-requirements.txt'.format(framework_name)) as f:
+        requirements = f.read().splitlines()
+
+    if os.environ.get("EXCLUDE_FRAMEWORK", default="False") == "True":
+        # items to exclude if we don't want to install the framework
+        exclude_list = ["tensorflow", "intel-tensorflow", "torch", "intel-extension-for-pytorch", "torchvision"]
+        requirements = [r for r in requirements if r.split('=')[0] not in exclude_list]
+
+    return requirements
+
 EXTRA_PACKAGES = {
-    "tensorflow": [
-        "intel-tensorflow==2.8.0",
-        "tensorflow-hub==0.12.0",
-        "tensorflow-datasets==4.4.0"
-    ],
-    "pytorch": {
-        "protobuf==3.20.1",
-        "python-dateutil==2.7",
-        "torch==1.11.0",
-        "intel-extension-for-pytorch==1.11.0",
-        "torchvision==0.12.0"
-    }
+    "tensorflow": get_framework_requirements("tensorflow"),
+    "pytorch": get_framework_requirements("pytorch")
 }
 
 setup(name="tlk",
