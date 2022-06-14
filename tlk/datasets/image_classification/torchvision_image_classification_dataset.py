@@ -20,8 +20,6 @@
 
 from pydoc import locate
 import torch
-import torchvision.transforms as T
-from torch.utils.data import DataLoader as loader
 
 from tlk.datasets.pytorch_dataset import PyTorchDataset
 from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
@@ -113,29 +111,6 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
         self._make_data_loaders(batch_size=1)
         self._info = {'name': dataset_name, 'size': len(self._dataset)}
 
-    def _make_data_loaders(self, batch_size):
-        """Make data loaders for the whole dataset and the subsets that have indices defined"""
-        if self._dataset:
-            self._data_loader = loader(self.dataset, batch_size=batch_size,
-                                       shuffle=False, num_workers=self._num_workers)
-        else:
-            self._data_loader = None
-        if self._train_indices:
-            self._train_loader = loader(self.train_subset, batch_size=batch_size,
-                                        shuffle=False, num_workers=self._num_workers)
-        else:
-            self._train_loader = None
-        if self._validation_indices:
-            self._validation_loader = loader(self.validation_subset, batch_size=batch_size,
-                                             shuffle=False, num_workers=self._num_workers)
-        else:
-            self._validation_loader = None
-        if self._test_indices:
-            self._test_loader = loader(self.test_subset, batch_size=batch_size, shuffle=False,
-                                       num_workers=self._num_workers)
-        else:
-            self._test_loader = None
-
     @property
     def class_names(self):
         return self._dataset.classes
@@ -147,36 +122,3 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
     @property
     def dataset(self):
         return self._dataset
-
-    def preprocess(self, image_size='variable', batch_size=32):
-        """Preprocess the dataset to resize, normalize, and batch the images
-
-            Args:
-                image_size (int or 'variable'): desired square image size (if 'variable', does not alter image size)
-                batch_size (int): desired batch size (default 32)
-            Raises:
-                ValueError if the dataset is not defined or has already been processed
-        """
-        # NOTE: Should this be part of init? If we get image_size and batch size during init,
-        # then we don't need a separate call to preprocess.
-        if not (image_size == 'variable' or isinstance(image_size, int)):
-            raise ValueError("Input image_size must be either an int or 'variable'")
-        
-        def get_transform(image_size):
-            transforms = []
-            if isinstance(image_size, int):
-                transforms.append(T.Resize([image_size, image_size]))
-            transforms.append(T.ToTensor())
-            transforms.append(T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]))
-
-            return T.Compose(transforms)
-
-        if not (self._dataset):
-            raise ValueError("Unable to preprocess, because the dataset hasn't been defined.")
-        if self._preprocessed and image_size != self._preprocessed['image_size']:
-            raise ValueError("Data has already been preprocessed with a different image size: {}".
-                             format(self._preprocessed))
-
-        self._dataset.transform = get_transform(image_size)
-        self._make_data_loaders(batch_size=batch_size)
-        self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}

@@ -120,12 +120,12 @@ def test_shuffle_split_deterministic_custom():
     ic_dataset1 = None
     ic_dataset2 = None
     try:
-        ic_dataset1 = TestImageClassificationDataset(dataset_dir, None, None, class_names)
+        ic_dataset1 = ImageClassificationDatasetForTest(dataset_dir, None, None, class_names)
         tlk_dataset1 = ic_dataset1.tlk_dataset
         tlk_dataset1.preprocess(image_size, batch_size)
         tlk_dataset1.shuffle_split(seed=seed)
 
-        ic_dataset2 = TestImageClassificationDataset(dataset_dir, None, None, class_names)
+        ic_dataset2 = ImageClassificationDatasetForTest(dataset_dir, None, None, class_names)
         tlk_dataset2 = ic_dataset2.tlk_dataset
         tlk_dataset2.preprocess(image_size, batch_size)
         tlk_dataset2.shuffle_split(seed=seed)
@@ -152,7 +152,7 @@ def test_batching(dataset_dir, dataset_name, dataset_catalog, class_names, batch
     """
     Checks that dataset can be batched with valid positive integer values
     """
-    ic_dataset = TestImageClassificationDataset(dataset_dir, dataset_name, dataset_catalog, class_names)
+    ic_dataset = ImageClassificationDatasetForTest(dataset_dir, dataset_name, dataset_catalog, class_names)
 
     try:
         tlk_dataset = ic_dataset.tlk_dataset
@@ -171,7 +171,7 @@ def test_batching_error(dataset_dir, dataset_name, dataset_catalog, class_names)
     """
     Checks that preprocessing cannot be run twice
     """
-    ic_dataset = TestImageClassificationDataset(dataset_dir, dataset_name, dataset_catalog, class_names)
+    ic_dataset = ImageClassificationDatasetForTest(dataset_dir, dataset_name, dataset_catalog, class_names)
 
     try:
         tlk_dataset = ic_dataset.tlk_dataset
@@ -183,7 +183,7 @@ def test_batching_error(dataset_dir, dataset_name, dataset_catalog, class_names)
         ic_dataset.cleanup()
 
 
-class TestImageClassificationDataset:
+class ImageClassificationDatasetForTest:
     def __init__ (self, dataset_dir, dataset_name=None, dataset_catalog=None, class_names=None):
         """
         This class wraps initialization for image classification datasets (either from TFDS or custom).
@@ -242,9 +242,9 @@ tfds_metadata = {
     }
 }
 
-# Dataset parameters used to define datasets that will be initialized and tested using TestImageClassificationDatasets
+# Dataset parameters used to define datasets that will be initialized and tested using TestImageClassificationDataset
 # The parameters are: dataset_dir, dataset_name, dataset_catalog, and class_names, which map to the constructor
-# parameters for ImageClassificationDataset, which initializes the datasets using the dataset factory.
+# parameters for ImageClassificationDatasetForTest, which initializes the datasets using the dataset factory.
 dataset_params = [("/tmp/data", "tf_flowers", "tf_datasets", None),
                   ("/tmp/data", None, None, ["a", "b", "c"])]
 
@@ -253,7 +253,7 @@ dataset_params = [("/tmp/data", "tf_flowers", "tf_datasets", None),
 def image_classification_data(request):
     params = request.param
 
-    ic_dataset = TestImageClassificationDataset(*params)
+    ic_dataset = ImageClassificationDatasetForTest(*params)
 
     dataset_dir, dataset_name, dataset_catalog, dataset_classes = params
 
@@ -266,12 +266,14 @@ def image_classification_data(request):
     return (ic_dataset.tlk_dataset, dataset_name, dataset_classes)
 
 
-class ImageClassificationDatasetTests:
+@pytest.mark.tensorflow
+class TestImageClassificationDataset:
     """
     This class contains image classification dataset tests that only require the dataset to be initialized once. These
     tests will be run once for each of the dataset defined in the dataset_params list.
     """
 
+    @pytest.mark.tensorflow
     def test_class_names_and_size(self, image_classification_data):
         """
         Verify the TLK class type, dataset class names, and dataset length after initializaion
@@ -325,7 +327,7 @@ class ImageClassificationDatasetTests:
         # Trying to preprocess again should throw an exception
         with pytest.raises(Exception) as e:
             tlk_dataset.preprocess(324, 32)
-        assert 'Data has already been preprocessed: {}'.format(preprocessing_inputs) == e
+        assert 'Data has already been preprocessed: {}'.format(preprocessing_inputs) == str(e.value)
         print(tlk_dataset.info)
 
     @pytest.mark.tensorflow

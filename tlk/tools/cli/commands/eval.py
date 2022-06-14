@@ -66,37 +66,42 @@ def eval(model_dir, dataset_dir, dataset_name, dataset_catalog):
         sys.exit("Error while verifying the model directory: {}", str(e))
 
     saved_model_path = os.path.join(model_dir, "saved_model.pb")
+    pytorch_model_path = os.path.join(model_dir, "model.pt")
     if os.path.isfile(saved_model_path):
-        # If it's a saved model, we know that it's a TensorFlow model
-        model_name = os.path.basename(os.path.dirname(model_dir))
-
-        print("Model name:", model_name)
-
-        try:
-            from tlk.models.model_factory import get_model
-
-            print("Loading model object for {} using {}".format(model_name, str(FrameworkType.TENSORFLOW)), flush=True)
-            model = get_model(model_name, FrameworkType.TENSORFLOW)
-
-            print("Loading saved model from:", saved_model_path)
-            model.load_from_directory(model_dir)
-
-            from tlk.datasets import dataset_factory
-            from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-
-            if not dataset_catalog and not dataset_name:
-                dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
-            else:
-                dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
-
-            if isinstance(dataset, ImageClassificationDataset):
-                dataset.preprocess(model.image_size, batch_size=32)
-                dataset.shuffle_split(seed=10)
-
-            model.evaluate(dataset)
-        except Exception as e:
-            sys.exit("An error occurred during evaluation: {}".format(str(e)))
-
+        framework = FrameworkType.TENSORFLOW
+        model_path = saved_model_path
+    elif os.path.isfile(pytorch_model_path):
+        framework = FrameworkType.PYTORCH
+        model_path = pytorch_model_path
     else:
-        sys.exit("Evaluation is currently only implemented for TensorFlow saved models files. No saved_model.pb files "
+        sys.exit("Evaluation is currently only implemented for TensorFlow saved models and PyTorch .pt models. No such files "
                  "found in the model directory ({}).".format(model_dir))
+    model_name = os.path.basename(os.path.dirname(model_dir))
+
+    print("Model name:", model_name)
+    print("Framework:", framework)
+
+    try:
+        from tlk.models.model_factory import get_model
+
+        print("Loading model object for {} using {}".format(model_name, str(framework)), flush=True)
+        model = get_model(model_name, framework)
+
+        print("Loading saved model from:", model_path)
+        model.load_from_directory(model_dir)
+
+        from tlk.datasets import dataset_factory
+        from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
+
+        if not dataset_catalog and not dataset_name:
+            dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+        else:
+            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
+
+        if isinstance(dataset, ImageClassificationDataset):
+            dataset.preprocess(model.image_size, batch_size=32)
+            dataset.shuffle_split(seed=10)
+
+        model.evaluate(dataset)
+    except Exception as e:
+        sys.exit("An error occurred during evaluation: {}".format(str(e)))

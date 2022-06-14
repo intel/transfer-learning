@@ -34,7 +34,9 @@ dataset_map = {
     FrameworkType.PYTORCH: {
         UseCaseType.IMAGE_CLASSIFICATION: {
             "torchvision": {"module": "tlk.datasets.image_classification.torchvision_image_classification_dataset",
-                            "class": "TorchvisionImageClassificationDataset"}
+                            "class": "TorchvisionImageClassificationDataset"},
+            "custom": {"module": "tlk.datasets.image_classification.pytorch_custom_image_classification_dataset",
+                            "class": "PyTorchCustomImageClassificationDataset"}
         }
     }
 }

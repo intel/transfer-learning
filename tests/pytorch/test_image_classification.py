@@ -25,6 +25,7 @@ import tempfile
 
 from tlk.datasets import dataset_factory
 from tlk.models import model_factory
+from tlk.utils.file_utils import download_and_extract_tar_file
 
 
 @pytest.mark.pytorch
@@ -37,6 +38,7 @@ def test_pyt_image_classification(model_name, dataset_name):
     """
     framework = 'pytorch'
     output_dir = tempfile.mkdtemp()
+    os.environ["TORCH_HOME"] = output_dir
 
     # Get the dataset
     dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, dataset_name,
@@ -83,3 +85,77 @@ def test_pyt_image_classification(model_name, dataset_name):
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
+
+
+class TestImageClassificationCustomDataset:
+    """
+    Tests for PyTorch image classification using a custom dataset using the flowers dataset
+    """
+    @classmethod
+    def setup_class(cls):
+        temp_dir = tempfile.mkdtemp(dir='/tmp/data')
+        custom_dataset_path = os.path.join(temp_dir, "flower_photos")
+
+        if not os.path.exists(custom_dataset_path):
+            download_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
+            download_and_extract_tar_file(download_url, temp_dir)
+
+        cls._output_dir = tempfile.mkdtemp(dir='/tmp/output')
+        os.environ["TORCH_HOME"] = cls._output_dir
+        cls._temp_dir = temp_dir
+        cls._dataset_dir = custom_dataset_path
+
+    @classmethod
+    def teardown_class(cls):
+        # remove directories
+        for dir in [cls._output_dir, cls._temp_dir]:
+            if os.path.exists(dir):
+                print("Deleting test directory:", dir)
+                shutil.rmtree(dir)
+
+    @pytest.mark.pytorch
+    @pytest.mark.parametrize('model_name',
+                             ['efficientnet_b0',
+                              'resnet18'])
+    def test_custom_dataset_workflow(self, model_name):
+        """
+        Tests the full workflow for PYT image classification using a custom dataset
+        """
+        framework = 'pytorch'
+        use_case = 'image_classification'
+
+        # Get the dataset
+        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework)
+        assert ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips'] == dataset.class_names
+
+        # Get the model
+        model = model_factory.get_model(model_name, framework)
+
+        # Preprocess the dataset and split to get small subsets for training and validation
+        dataset.preprocess(model.image_size, 32)
+        dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
+
+        # Train for 1 epoch
+        model.train(dataset, output_dir=self._output_dir, epochs=1)
+
+        # Evaluate
+        model.evaluate(dataset)
+
+        # Predict with a batch
+        images, labels = dataset.get_batch()
+        predictions = model.predict(images)
+        assert len(predictions) == 32
+
+        # export the saved model
+        saved_model_dir = model.export(self._output_dir)
+        assert os.path.isdir(saved_model_dir)
+        assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
+
+        # Reload the saved model
+        reload_model = model_factory.get_model(model_name, framework)
+        reload_model.load_from_directory(saved_model_dir)
+
+        # Evaluate
+        metrics = reload_model.evaluate(dataset)
+        assert len(metrics) > 0
+

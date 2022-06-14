@@ -90,10 +90,10 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
                 ValueError if the dataset is not defined or has already been processed
         """
         if not isinstance(batch_size, int) or batch_size < 1:
-            raise ValueError("batch_size should be an positive integer")
+            raise ValueError("batch_size should be a positive integer")
 
         if not isinstance(image_size, int) or image_size < 1:
-            raise ValueError("image_size should be an positive integer")
+            raise ValueError("image_size should be a positive integer")
 
         # NOTE: Should this be part of init? If we get image_size and batch size during init,
         # then we don't need a separate call to preprocess.
