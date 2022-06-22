@@ -6,6 +6,8 @@ Requirements:
 * Linux system (or WSL2 on Windows)
 * git
 * python3
+* `apt-get install build-essential python3-dev`
+* To run use quantization functions: `apt-get install libgl1 libglib2.0-0`
 
 1. Clone this repo and navigate to the repo directory:
    ```
@@ -35,6 +37,15 @@ Requirements:
    ```
    pip install --editable .[tensorflow,pytorch]
    ```
+
+## Features
+
+The table below list features that have currently been implemented in the TLK CLI and API:
+
+| Use Case | Framework | Datasets | Optimizations |
+|----------|-----------|----------|---------------|
+| Image Classification | PyTorch | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, Flowers102, Food101, GTSRB | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) |
+| Image Classification | TensorFlow | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets (API only) |
 
 ## Run the CLI
 

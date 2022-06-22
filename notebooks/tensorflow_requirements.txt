@@ -4,7 +4,7 @@ ipywidgets==7.6.5
 matplotlib>=3.3.4
 notebook==6.4.11
 pandas>=1.1.5
-pyyaml==6.0
+pyyaml==5.4.1
 sentencepiece==0.1.96
 scipy==1.8.0
 tensorflow-addons==0.15.0

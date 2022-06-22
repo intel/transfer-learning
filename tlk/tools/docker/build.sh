@@ -38,7 +38,7 @@ if [[ "${FRAMEWORK,,}" == "tensorflow" ]]; then
     fi
 
     BASE_IMAGE=${BASE_IMAGE:-intel/intel-optimized-tensorflow}
-    BASE_TAG=${BASE_TAG:-latest}
+    BASE_TAG=${BASE_TAG:-2.8.0}
 elif [[ "${FRAMEWORK,,}" == "pytorch" ]]; then
     if [[ "${TEST_CONTAINER,,}" == "true" ]]; then
         echo "Building tlk unit test container for PyTorch"

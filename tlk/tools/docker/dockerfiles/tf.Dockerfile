@@ -35,7 +35,11 @@ ARG TLK_VERSION=0.0.1
 
 COPY --from=builder /workspace/dist/tlk-${TLK_VERSION}-py2.py3-none-any.whl .
 
-RUN pip install --upgrade pip && \
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y build-essential libgl1 libglib2.0-0 python3-dev  && \
+    pip install --upgrade pip && \
     pip install --no-cache-dir tlk-${TLK_VERSION}-py2.py3-none-any.whl[tensorflow] && \
     rm tlk-${TLK_VERSION}-py2.py3-none-any.whl
 

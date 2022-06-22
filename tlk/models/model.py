@@ -78,3 +78,71 @@ class BaseModel(abc.ABC):
     @abc.abstractmethod
     def export(self, output_dir: str):
         pass
+
+    @abc.abstractmethod
+    def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):
+        """"
+        Writes an INC compatible config file to the specified path usings args from the specified dataset and
+        parameters. This is currently only supported for TF custom image classification datasets.
+
+        Args:
+            config_file_path (str): Destination path on where to write the .yaml config file.
+            dataset (BaseDataset): A tlk dataset object
+            batch_size (int): Batch size to use for quantization and evaluation
+            overwrite (bool): Specify whether or not to overwrite the config_file_path, if it already exists
+                              (default: False)
+
+        Returns:
+            None
+
+        Raises:
+            FileExistsError if the config file already exists and overwrite is set to False
+            ValueError if the parameters are not within the expected values
+            NotImplementedError if the model or dataset does not support INC yet
+        """
+        pass
+
+    @abc.abstractmethod
+    def post_training_quantization(self, saved_model_dir, output_dir, inc_config_path):
+        """
+        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
+        using the specified config file. The quantized model is written to the output directory.
+
+        Args:
+            saved_model_dir (str): Source directory for the model to quantize.
+            output_dir (str): Writable output directory to save the quantized model
+            inc_config_path (str): Path to an INC config file (.yaml)
+
+        Returns:
+            None
+
+        Raises:
+            NotImplementedError if the model does not support INC yet
+            NotADirectoryError if the saved_model_dir is not a directory
+            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
+            is not found.
+            FileExistsError if the output_dir already has a saved_model.pb file
+        """
+        pass
+
+    @abc.abstractmethod
+    def benchmark(self, saved_model_dir, inc_config_path, mode='performance'):
+        """
+        Use INC to benchmark the specified model for performance or accuracy.
+
+        Args:
+            saved_model_dir (str): Path to the directory where the saved model is located
+            inc_config_path (str): Path to an INC config file (.yaml)
+            mode (str): performance or accuracy (defaults to performance)
+
+        Returns:
+            None
+
+        Raises:
+            NotImplementedError if the model does not support INC yet
+            NotADirectoryError if the saved_model_dir is not a directory
+            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
+            is not found.
+            ValueError if an unexpected mode is provided
+        """
+        raise NotImplementedError("INC benchmarking is not supported for this model")

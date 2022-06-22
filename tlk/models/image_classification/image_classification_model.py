@@ -19,7 +19,10 @@
 #
 
 import abc
+import os
+import yaml
 
+from tlk import TLK_BASE_DIR
 from tlk.models.model import BaseModel
 from tlk.utils.types import FrameworkType, UseCaseType
 
@@ -53,3 +56,24 @@ class ImageClassificationModel(BaseModel):
     @property
     def dropout_layer_rate(self):
         return self._dropout_layer_rate
+
+    def get_inc_config_template_dict(self):
+        """
+        Returns a dictionary for an config template compatible with the Intel Neural Compressor. It loads the yaml
+        file tlk/models/configs/inc/image_classification_template.yaml and then fills in parameters that the model
+        knows about (like framework and model name). There are still more parameters that need to be filled in before
+        using the config with INC (like the dataset information, image size, etc).
+        """
+        template_file_path = os.path.join(TLK_BASE_DIR, "models/configs/inc/image_classification_template.yaml")
+
+        if not os.path.exists(template_file_path):
+            raise FileNotFoundError("Unable to find the image recognition config template at:", template_file_path)
+
+        with open(template_file_path, 'r') as template_yaml:
+            config_template = yaml.safe_load(template_yaml)
+
+        # Update parameters that we know in the template
+        config_template["model"]["framework"] = str(self.framework)
+        config_template["model"]["name"] = self.model_name
+
+        return config_template

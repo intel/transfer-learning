@@ -86,6 +86,11 @@ def test_pyt_image_classification(model_name, dataset_name):
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
 
+    # Ensure we get not implemented errors for quantization
+    inc_config_file_path = os.path.join(output_dir, "pytorch_{}.yaml".format(model_name))
+    with pytest.raises(NotImplementedError) as e:
+        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32)
+
 
 class TestImageClassificationCustomDataset:
     """

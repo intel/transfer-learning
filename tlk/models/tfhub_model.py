@@ -19,6 +19,7 @@
 #
 
 import abc
+import os
 
 from tlk.models.model import BaseModel
 from tlk.datasets.dataset import BaseDataset
@@ -33,6 +34,8 @@ class TFHubModel(BaseModel):
     def __init__(self, model_url: str,  model_name: str, framework: FrameworkType, use_case: UseCaseType):
         self._model_url = model_url
         super().__init__(model_name, framework, use_case)
+        os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
+
 
     @property
     def model_url(self):

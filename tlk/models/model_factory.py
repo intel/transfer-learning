@@ -114,7 +114,7 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
         models[str(use_case)] = {}
 
     # Read configs into the models dictionary
-    for config_filename in os.listdir(config_directory):
+    for config_filename in [x for x in os.listdir(config_directory) if os.path.isfile(os.path.join(config_directory, x))]:
         # Figure out which framework this config is, and filter it out, if necessary
         config_framework = FrameworkType.PYTORCH if 'torch' in config_filename else FrameworkType.TENSORFLOW
 

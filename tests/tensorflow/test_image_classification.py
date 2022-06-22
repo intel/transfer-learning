@@ -80,6 +80,11 @@ def test_tf_image_classification(model_name, dataset_name):
     reload_metrics = reload_model.evaluate(dataset)
     assert reload_metrics == trained_metrics
 
+    # Test generating an INC config file (not implemented yet for TFDS)
+    inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))
+    with pytest.raises(NotImplementedError) as e:
+        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, tuning_workspace=output_dir)
+
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
@@ -98,7 +103,7 @@ class TestImageClassificationCustomDataset:
             download_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
             download_and_extract_tar_file(download_url, temp_dir)
 
-        cls._output_dir = tempfile.mkdtemp(dir='/tmp/output')
+        cls._output_dir = tempfile.mkdtemp()
         cls._temp_dir = temp_dir
         cls._dataset_dir = custom_dataset_path
 
@@ -156,3 +161,15 @@ class TestImageClassificationCustomDataset:
         metrics = reload_model.evaluate(dataset)
         assert len(metrics) > 0
 
+        # Test quantization with ResNet50
+        if model_name == "resnet_v1_50":
+            inc_config_file_path = os.path.join(self._output_dir, "tf_{}.yaml".format(model_name))
+            nc_workspace = os.path.join(self._output_dir, "nc_workspace")
+            model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, accuracy_criterion_relative=0.1,
+                                        exit_policy_max_trials=10, exit_policy_timeout=0, tuning_workspace=nc_workspace)
+
+            quantization_output = os.path.join(self._output_dir, "quantized", model_name)
+            os.makedirs(quantization_output)
+            model.post_training_quantization(saved_model_dir, quantization_output, inc_config_file_path)
+            assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
+            model.benchmark(quantization_output, inc_config_file_path)
