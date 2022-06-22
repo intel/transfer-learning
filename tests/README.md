@@ -27,9 +27,27 @@ below to run all tests:
 py.test -s
 ```
 
+### Markers
+
+The following custom markers have been defined in the transfer learning tests:
+```
+@pytest.mark.tensorflow: test requires tensorflow to be installed
+
+@pytest.mark.pytorch: test requires pytorch to be installed
+
+@pytest.mark.common: test does not require a specific framework to be installed
+```
+
+### Sample test run commands using markers
+
 To run only the TensorFlow tests run:
 ```
 py.test -s -m tensorflow
+```
+
+To run the TensorFlow tests and the common tests:
+```
+py.test -s -m "tensorflow or common"
 ```
 
 To run only the PyTorch tests run:
