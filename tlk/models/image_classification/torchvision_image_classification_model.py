@@ -240,7 +240,7 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
     def predict(self, input_samples):
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
-            pretrained_model_class = locate('torchvision.models.{}'.format(model_name))
+            pretrained_model_class = locate('torchvision.models.{}'.format(self.model_name))
             model = pretrained_model_class(pretrained=True)
             predictions = model(input_samples)
         else:
