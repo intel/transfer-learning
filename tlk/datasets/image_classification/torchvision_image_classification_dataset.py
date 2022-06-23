@@ -24,7 +24,7 @@ import torch
 from tlk.datasets.pytorch_dataset import PyTorchDataset
 from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
-DATASETS = ["CIFAR10", "Flowers102", "Food101", "GTSRB"]
+DATASETS = ["CIFAR10", "Food101", "CIFAR100", "Country211", "DTD", "FGVCAircraft", "RenderedSST2"]
 
 class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchDataset):
     """

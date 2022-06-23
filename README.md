@@ -48,7 +48,7 @@ The table below list features that have currently been implemented in the TLK CL
 
 | Use Case | Framework | Datasets | Optimizations |
 |----------|-----------|----------|---------------|
-| Image Classification | PyTorch | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, Flowers102, Food101, GTSRB | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) |
+| Image Classification | PyTorch | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) |
 | Image Classification | TensorFlow | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom  (API only) |
 
 ## Run the CLI

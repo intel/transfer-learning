@@ -90,11 +90,11 @@ def test_shuffle_split_deterministic_tv():
     """
     Checks that dataset can be split into train, validation, and test subsets in a way that is reproducible
     """
-    data = get_dataset('/tmp/data', 'image_classification', 'pytorch', 'GTSRB', 'torchvision', split=['test'])
+    data = get_dataset('/tmp/data', 'image_classification', 'pytorch', 'DTD', 'torchvision', split=['test'])
     data.preprocess(224, 128)
     data.shuffle_split(seed=10)
 
-    data2 = get_dataset('/tmp/data', 'image_classification', 'pytorch', 'GTSRB', 'torchvision', split=['test'])
+    data2 = get_dataset('/tmp/data', 'image_classification', 'pytorch', 'DTD', 'torchvision', split=['test'])
     data2.preprocess(224, 128)
     data2.shuffle_split(seed=10)
 
@@ -142,8 +142,8 @@ def test_shuffle_split_deterministic_custom():
 
 @pytest.mark.pytorch
 @pytest.mark.parametrize('dataset_dir,dataset_name,dataset_catalog,class_names,batch_size',
-                         [['/tmp/data', 'GTSRB', 'torchvision', None, 32],
-                          ['/tmp/data', 'GTSRB', 'torchvision', None, 1],
+                         [['/tmp/data', 'DTD', 'torchvision', None, 32],
+                          ['/tmp/data', 'DTD', 'torchvision', None, 1],
                           ['/tmp/data', None, None, ['foo', 'bar'], 8],
                           ['/tmp/data', None, None, ['foo', 'bar'], 1]])
 def test_batching(dataset_dir, dataset_name, dataset_catalog, class_names, batch_size):
@@ -163,7 +163,7 @@ def test_batching(dataset_dir, dataset_name, dataset_catalog, class_names, batch
 
 @pytest.mark.pytorch
 @pytest.mark.parametrize('dataset_dir,dataset_name,dataset_catalog,class_names',
-                         [['/tmp/data', 'GTSRB', 'torchvision', None],
+                         [['/tmp/data', 'DTD', 'torchvision', None],
                           ['/tmp/data', None, None, ['foo', 'bar']]])
 def test_batching_error(dataset_dir, dataset_name, dataset_catalog, class_names):
     """
