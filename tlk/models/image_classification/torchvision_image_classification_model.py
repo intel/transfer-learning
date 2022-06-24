@@ -22,6 +22,7 @@ import os
 import time
 import numpy as np
 from pydoc import locate
+from tqdm import tqdm
 
 import torch
 import intel_extension_for_pytorch as ipex
@@ -135,7 +136,7 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
             running_corrects = 0
 
             # Iterate over data.
-            for inputs, labels in train_data_loader:
+            for inputs, labels in tqdm(train_data_loader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
@@ -213,7 +214,7 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
         running_corrects = 0
 
         # Iterate over data.
-        for inputs, labels in eval_loader:
+        for inputs, labels in tqdm(eval_loader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
             inputs = inputs.to(device)
             labels = labels.to(device)
 
