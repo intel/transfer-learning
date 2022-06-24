@@ -15,7 +15,8 @@ Requirements:
 
 1. Clone this repo and navigate to the repo directory:
    ```
-   git clone git@github.com:intel-innersource/frameworks.ai.transfer-learning.git
+   git clone https://github.com/intel-innersource/frameworks.ai.transfer-learning.git
+
    cd frameworks.ai.transfer-learning
    ```
 
