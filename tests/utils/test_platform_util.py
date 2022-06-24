@@ -24,7 +24,7 @@ import os
 from mock import MagicMock, mock_open, patch
 
 from tlk.utils.platform_util import PlatformUtil, CPUInfo
-from ..test_utils import platform_config
+from test_utils import platform_config
 
 
 def setup_mock_values(mock_platform, mock_os, mock_subprocess):

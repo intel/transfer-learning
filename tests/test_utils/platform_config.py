@@ -50,6 +50,7 @@ WMIC_OUTPUT = ("DeviceID=CPU0\r\r\n"
                "NumberOfLogicalProcessors=56\r\r\n"
                "ThreadCount=56\r\r\n")
 
+CPUSET = "0-111"
 
 def set_mock_system_type(mock_platform):
     """

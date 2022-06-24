@@ -47,4 +47,6 @@ RUN apt-get update && \
 
 WORKDIR /workspace/tests
 
+ENV PYTHONPATH=/workspace/tests
+
 CMD ["py.test", "-s", "-m", "tensorflow"]

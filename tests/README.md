@@ -24,7 +24,7 @@ There are unit and integration tests that exercise the API.
 Make sure you are in the `transfer-learning/tests` directory and use the command
 below to run all tests:
 ```
-py.test -s
+PYTHONPATH=$(pwd) py.test -s
 ```
 
 ### Markers
@@ -42,17 +42,17 @@ The following custom markers have been defined in the transfer learning tests:
 
 To run only the TensorFlow tests run:
 ```
-py.test -s -m tensorflow
+PYTHONPATH=$(pwd) py.test -s -m tensorflow
 ```
 
 To run the TensorFlow tests and the common tests:
 ```
-py.test -s -m "tensorflow or common"
+PYTHONPATH=$(pwd) py.test -s -m "tensorflow or common"
 ```
 
 To run only the PyTorch tests run:
 ```
-py.test -s -m pytorch
+PYTHONPATH=$(pwd) py.test -s -m pytorch
 ```
 
 > Note: After the tests have run, there will be downloaded data in `/tmp/data` 

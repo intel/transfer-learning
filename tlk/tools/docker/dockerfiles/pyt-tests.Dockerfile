@@ -44,4 +44,6 @@ RUN pip install --upgrade pip && \
 ENV TORCH_HOME=/tmp/torch_cache
 WORKDIR /workspace/tests
 
+ENV PYTHONPATH=/workspace/tests
+
 CMD ["py.test", "-s", "-m", "pytorch"]

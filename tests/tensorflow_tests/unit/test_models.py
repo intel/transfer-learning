@@ -22,6 +22,7 @@ import pytest
 
 from unittest.mock import MagicMock, patch
 
+from test_utils import platform_config
 from tlk.models import model_factory
 from tlk.utils.types import FrameworkType, UseCaseType
 
@@ -155,3 +156,70 @@ def test_tfhub_efficientnet_b0_train():
 
                 return_val = model.train(mock_dataset, output_dir="/tmp/output")
                 assert return_val == expected_return_value
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('cpu_model,enable_auto_mixed_precision,expected_auto_mixed_precision_parameter,tf_version',
+                         [['85', None, False, '2.9.0'],
+                          ['143', None, True, '2.9.0'],
+                          ['123', None, False, '2.9.0'],
+                          ['85', True, True, '2.9.0'],
+                          ['143', True, True, '2.9.0'],
+                          ['123', True, True, '2.9.0'],
+                          ['85', True, True, '2.10.0'],
+                          ['143', True, True, '2.10.0'],
+                          ['123', True, True, '2.10.0'],
+                          ['85', False, False, '2.9.1'],
+                          ['143', False, False, '2.9.1'],
+                          ['123', False, False, '2.9.1'],
+                          ['123', False, None, '2.8.0'],
+                          ['123', None, None, '2.8.0'],
+                          ['123', True, None, '2.8.0'],
+                          ['85', None, None, '2.8.0'],
+                          ['85', True, None, '2.8.0'],
+                          ['143', None, True, '3.1.0']])
+@patch("tlk.models.image_classification.tfhub_image_classification_model.tf.version")
+@patch("tlk.models.image_classification.tfhub_image_classification_model.tf.config.optimizer.set_experimental_options")
+@patch("tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel._get_hub_model")
+@patch("tlk.models.image_classification.tfhub_image_classification_model.ImageClassificationDataset")
+@patch("tlk.utils.platform_util.PlatformUtil._get_cpuset")
+@patch("tlk.utils.platform_util.os")
+@patch("tlk.utils.platform_util.system_platform")
+@patch("tlk.utils.platform_util.subprocess")
+def test_tfhub_auto_mixed_precision(mock_subprocess, mock_platform, mock_os, mock_get_cpuset, mock_dataset,
+                                    mock_get_hub_model, mock_set_experimental_options, mock_tf_version, cpu_model,
+                                    enable_auto_mixed_precision, expected_auto_mixed_precision_parameter, tf_version):
+    """
+    Verifies that auto mixed precision is enabled by default for SPR (cpu model 85), but disabled by default for other
+    CPU types like SKX (cpu model 143).  The default auto mixed precision setting is used when
+    enable_auto_mixed_precision=None. Auto mixed precision was enabled for TF 2.9.0 and later, so don't expect the call
+    to set the config for earlier TF versions.
+    
+    If enable_auto_mixed_precision is set to True/False, then that's what should be used, regardless of CPU type.
+    """
+    mock_get_cpuset.return_value = platform_config.CPUSET
+    platform_config.set_mock_system_type(mock_platform)
+    platform_config.set_mock_os_access(mock_os)
+
+    # get the lscpu sample output, but replace in the parameterized cpu model id
+    lscpu_value = platform_config.LSCPU_OUTPUT
+    original_model_value = "Model:                 143\n"  # model test value from the test platform config
+    new_model_value = "Model:                 {}\n".format(cpu_model)
+    lscpu_value = lscpu_value.replace(original_model_value, new_model_value)
+    mock_subprocess.check_output.return_value = lscpu_value
+
+    mock_get_hub_model.return_value = MagicMock()
+    mock_dataset.class_names = ['a', 'b', 'c']
+
+    mock_tf_version.VERSION = tf_version
+
+    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+
+    model.train(mock_dataset, output_dir="/tmp/output", enable_auto_mixed_precision=enable_auto_mixed_precision)
+
+    if expected_auto_mixed_precision_parameter is not None:
+        expected_parameter = {'auto_mixed_precision_mkl': expected_auto_mixed_precision_parameter}
+        mock_set_experimental_options.assert_called_with(expected_parameter)
+    else:
+        # We expect that the auto mixed prercision config is not called (due to TF version unsupported)
+        assert not mock_set_experimental_options.called

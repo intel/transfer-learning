@@ -34,6 +34,7 @@ from tlk.datasets.image_classification.image_classification_dataset import Image
 from tlk.datasets.image_classification.tf_custom_image_classification_dataset import TFCustomImageClassificationDataset
 from tlk.utils.file_utils import read_json_file, verify_directory
 from tlk.utils.types import FrameworkType, UseCaseType
+from tlk.utils.platform_util import PlatformUtil
 
 
 class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
@@ -106,7 +107,25 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         self._model = tf.keras.models.load_model(model_dir)
         self._model.summary(print_fn=print)
 
-    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1):
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, enable_auto_mixed_precision=None):
+        """ 
+            Trains the model using the specified image classification dataset. The first time training is called, it
+            will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
+            in the specified dataset. The model is compiled and trained for the specified number of epochs.
+
+            Args:
+                dataset (ImageClassificationDataset): Dataset to use when training the model
+                output_dir (str): Path to a writeable directory for checkpoint files
+                epochs (int): Number of epochs to train the model (default: 1)
+                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
+                    uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
+                    If enable_auto_mixed_precision is set to None, auto mixed precision will be enabled when running with
+                    Intel fourth generation Xeon processors, and disabled for other platforms.
+
+            Returns:
+                History object from the model.fit() call
+        """
+
         verify_directory(output_dir)
 
         dataset_num_classes = len(dataset.class_names)
@@ -114,6 +133,38 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         # If the number of classes doesn't match what was used before, clear out the previous model
         if dataset_num_classes != self.num_classes:
             self._model = None
+
+        if enable_auto_mixed_precision is not None and not isinstance(enable_auto_mixed_precision, bool):
+            raise TypeError("Invalid type for enable_auto_mixed_precision. Expected None or a bool.")
+
+        # Get the TF version
+        tf_major_version = 0
+        tf_minor_version = 0
+        if tf.version.VERSION is not None and '.' in tf.version.VERSION:
+            tf_version_list = tf.version.VERSION.split('.')
+            if len(tf_version_list) > 1:
+                tf_major_version = int(tf_version_list[0])
+                tf_minor_version = int(tf_version_list[1])
+
+        auto_mixed_precision_supported = (tf_major_version == 2 and tf_minor_version >= 9) or tf_major_version > 2
+
+        if enable_auto_mixed_precision is None:
+            # Determine whether or not to enable this based on the CPU type
+            try:
+                # Only enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil(args=None).cpu_type == 'SPR'
+            except Exception as e:
+                if auto_mixed_precision_supported:
+                    print("Unable to determine the CPU type:", str(e))
+                enable_auto_mixed_precision = False
+        elif not auto_mixed_precision_supported:
+            print("Warning: Auto mixed precision requires TensorFlow 2.9.0 or later (found {}).".format(
+                tf.version.VERSION))
+
+        if auto_mixed_precision_supported:
+            if enable_auto_mixed_precision:
+                print("Enabling auto_mixed_precision_mkl")
+            tf.config.optimizer.set_experimental_options({'auto_mixed_precision_mkl': enable_auto_mixed_precision})
 
         self._model = self._get_hub_model(dataset_num_classes)
 
