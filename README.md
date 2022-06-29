@@ -50,7 +50,7 @@ The table below list features that have currently been implemented in the TLK CL
 | Use Case | Framework | Datasets | Optimizations |
 |----------|-----------|----------|---------------|
 | Image Classification | PyTorch | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) |
-| Image Classification | TensorFlow | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom  (API only) <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) |
+| Image Classification | TensorFlow | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) |
 
 ## Run the CLI
 
@@ -96,62 +96,116 @@ shufflenet_v2_x1_0 (pytorch)
 
 Train a model:
 ```
-> tlk train -f tensorflow --model-name efficientnet_b0 --dataset-dir /tmp/data --output-dir /tmp/output --dataset-name tf_flowers
-Model name: efficientnet_b0
+> tlk train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
+Model name: resnet_v1_50
 Framework: tensorflow
-Dataset name: tf_flowers
-Dataset catalog: tf_datasets
-Dataset dir: /tmp/data
+Training epochs: 1
+Dataset dir: /tmp/dataset/flower_photos
 Output directory: /tmp/output
-2022-04-27 10:19:12.651375: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
-To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2022-04-27 10:19:12.658987: I tensorflow/core/common_runtime/process_util.cc:146] Creating new thread pool with default inter op setting:
+Found 3670 files belonging to 5 classes.
+...
 Model: "sequential"
 _________________________________________________________________
  Layer (type)                Output Shape              Param #
 =================================================================
- keras_layer (KerasLayer)    (None, 1280)              4049564
+ keras_layer (KerasLayer)    (None, 2048)              23561152
 
- dense (Dense)               (None, 5)                 6405
+ dense (Dense)               (None, 5)                 10245
 
 =================================================================
-Total params: 4,055,969
-Trainable params: 6,405
-Non-trainable params: 4,049,564
+Total params: 23,571,397
+Trainable params: 10,245
+Non-trainable params: 23,561,152
 _________________________________________________________________
-None
-86/86 [==============================] - 22s 215ms/step - loss: 0.5106 - acc: 0.8438
-2022-04-27 10:19:38.545222: W tensorflow/python/util/util.cc:368] Sets are not currently considered sequences, but this may change in the future, so consider avoiding using them.
-Saved model directory: /tmp/output/efficientnet_b0/1
+Checkpoint directory: /tmp/output/resnet_v1_50_checkpoints
+86/86 [==============================] - 24s 248ms/step - loss: 0.4600 - acc: 0.8438
+Saved model directory: /tmp/output/resnet_v1_50/1
 ```
 
 Evaluate a trained model:
 ```
-> tlk eval --model-dir /tmp/output/efficientnet_b0/1 --dataset-name tf_flowers --dataset-dir /tmp/data
-Model directory: /tmp/output/efficientnet_b0/1
-Dataset directory: /tmp/data
-Dataset name: tf_flowers
-Model name: efficientnet_b0
-Loading model object for efficientnet_b0 using tensorflow
-Loading saved model from: /tmp/output/efficientnet_b0/1/saved_model.pb
-2022-05-13 12:47:19.809448: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
-To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2022-05-13 12:47:19.816455: I tensorflow/core/common_runtime/process_util.cc:146] Creating new thread pool with default inter op setting:
-Model: "sequential"
-_________________________________________________________________
- Layer (type)                Output Shape              Param #
-=================================================================
- keras_layer (KerasLayer)    (None, 1280)              4049564
+> tlk eval --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos
+Model directory: /tmp/output/resnet_v1_50/1
+Dataset directory: /tmp/dataset/flower_photos
+Model name: resnet_v1_50
+Framework: tensorflow
+Loading model object for resnet_v1_50 using tensorflow
+Loading saved model from: /tmp/output/resnet_v1_50/1/saved_model.pb
+...
+28/28 [==============================] - 8s 236ms/step - loss: 0.2528 - acc: 0.9163
+```
 
- dense (Dense)               (None, 5)                 6405
+Benchmark the trained model:
+```
+> tlk benchmark --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
+Model directory: /tmp/output/resnet_v1_50/1
+Dataset directory: /tmp/dataset/flower_photos
+Benchmarking mode: performance
+Batch size: 512
+Model name: resnet_v1_50
+Framework: tensorflow
+...
+performance mode benchmark result:
+2022-06-28 10:22:10 [INFO] Batch size = 512
+2022-06-28 10:22:10 [INFO] Latency: 3.031 ms
+2022-06-28 10:22:10 [INFO] Throughput: 329.878 images/sec
+```
 
-=================================================================
-Total params: 4,055,969
-Trainable params: 6,405
-Non-trainable params: 4,049,564
-_________________________________________________________________
-Using dataset catalog 'tf_datasets', since no dataset catalog was specified
-28/28 [==============================] - 8s 219ms/step - loss: 0.4080 - acc: 0.8996
+Quantize the model:
+```
+> tlk quantize --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 \
+  --accuracy-criterion 0.01 --output-dir /tmp/output
+Model directory: /tmp/output/resnet_v1_50/1
+Dataset directory: /tmp/dataset/flower_photos
+Accuracy criterion: 0.01
+Exit policy timeout: 0
+Exit policy max trials: 50
+Batch size: 512
+Output directory: /tmp/output
+...
+2022-06-28 10:25:58 [INFO] |******Mixed Precision Statistics*****|
+2022-06-28 10:25:58 [INFO] +-----------------+----------+--------+
+2022-06-28 10:25:58 [INFO] |     Op Type     |  Total   |  INT8  |
+2022-06-28 10:25:58 [INFO] +-----------------+----------+--------+
+2022-06-28 10:25:58 [INFO] |      Conv2D     |    53    |   53   |
+2022-06-28 10:25:58 [INFO] |      MatMul     |    1     |   1    |
+2022-06-28 10:25:58 [INFO] |     MaxPool     |    4     |   4    |
+2022-06-28 10:25:58 [INFO] |    QuantizeV2   |    5     |   5    |
+2022-06-28 10:25:58 [INFO] |    Dequantize   |    4     |   4    |
+2022-06-28 10:25:58 [INFO] +-----------------+----------+--------+
+2022-06-28 10:25:58 [INFO] Pass quantize model elapsed time: 32164.27 ms
+2022-06-28 10:25:58 [INFO] Start to evaluate the TensorFlow model.
+2022-06-28 10:26:12 [INFO] Model inference elapsed time: 13921.64 ms
+2022-06-28 10:26:12 [INFO] Tune 1 result is: [Accuracy (int8|fp32): 0.9008|0.9022, Duration (seconds) (int8|fp32): 13.9226|17.3321], Best tune result is: [Accuracy: 0.9008, Duration (seconds): 13.9226]
+2022-06-28 10:26:12 [INFO] |**********************Tune Result Statistics**********************|
+2022-06-28 10:26:12 [INFO] +--------------------+----------+---------------+------------------+
+2022-06-28 10:26:12 [INFO] |     Info Type      | Baseline | Tune 1 result | Best tune result |
+2022-06-28 10:26:12 [INFO] +--------------------+----------+---------------+------------------+
+2022-06-28 10:26:12 [INFO] |      Accuracy      | 0.9022   |    0.9008     |     0.9008       |
+2022-06-28 10:26:12 [INFO] | Duration (seconds) | 17.3321  |    13.9226    |     13.9226      |
+2022-06-28 10:26:12 [INFO] +--------------------+----------+---------------+------------------+
+2022-06-28 10:26:12 [INFO] Save tuning history to /tmp/output/nc_workspace/./history.snapshot.
+2022-06-28 10:26:12 [INFO] Specified timeout or max trials is reached! Found a quantized model which meet accuracy goal. Exit.
+...
+INFO:tensorflow:SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/saved_model.pb
+2022-06-28 10:26:13 [INFO] SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/saved_model.pb
+2022-06-28 10:26:13 [INFO] Save quantized model to /tmp/output/quantized/resnet_v1_50/1
+```
+
+Benchmark the quantized model:
+```
+> tlk benchmark --model-dir /tmp/output/quantized/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
+Model directory: /tmp/output/quantized/resnet_v1_50/1
+Dataset directory: /tmp/dataset/flower_photos
+Benchmarking mode: performance
+Batch size: 512
+Model name: resnet_v1_50
+Framework: tensorflow
+...
+performance mode benchmark result:
+2022-06-28 10:28:33 [INFO] Batch size = 512
+2022-06-28 10:28:33 [INFO] Latency: 0.946 ms
+2022-06-28 10:28:33 [INFO] Throughput: 1056.940 images/sec
 ```
 
 ## Use the API
@@ -161,26 +215,39 @@ from tlk.models import model_factory
 from tlk.utils.types import FrameworkType, UseCaseType
 
 # Get the model
-efficientnet_b0_model = model_factory.get_model(model_name="efficientnet_b0", \
-                                                framework=FrameworkType.TENSORFLOW)
+model = model_factory.get_model(model_name="resnet_v1_50", framework=FrameworkType.TENSORFLOW)
 
-# Get and preprocess a dataset
-tf_flowers = dataset_factory.get_dataset(dataset_dir="/tmp/data",
-                                         use_case=UseCaseType.IMAGE_CLASSIFICATION, \
-                                         framework=FrameworkType.TENSORFLOW, \
-                                         dataset_name="tf_flowers", \
-                                         dataset_catalog="tf_datasets")
-tf_flowers.preprocess(image_size=efficientnet_b0_model.image_size, batch_size=32)
-tf_flowers.shuffle_split(train_pct=.75, val_pct=.25)
+# Load and preprocess a dataset
+dataset = dataset_factory.load_dataset(dataset_dir="/tmp/data/flower_photos",
+                                       use_case=UseCaseType.IMAGE_CLASSIFICATION, \
+                                       framework=FrameworkType.TENSORFLOW)
+dataset.preprocess(image_size=model.image_size, batch_size=32)
+dataset.shuffle_split(train_pct=.75, val_pct=.25)
 
 # Train the model using the dataset
-efficientnet_b0_model.train(tf_flowers, output_dir="/tmp/output", epochs=1)
+model.train(dataset, output_dir="/tmp/output", epochs=1)
 
 # Evaluate the trained model
-metrics = efficientnet_b0_model.evaluate(tf_flowers)
-for metric_name, metric_value in zip(efficientnet_b0_model._model.metrics_names, metrics):
+metrics = model.evaluate(dataset)
+for metric_name, metric_value in zip(model._model.metrics_names, metrics):
     print("{}: {}".format(metric_name, metric_value))
 
 # Export the model
-efficientnet_b0_model.export(output_dir="/tmp/output")
+saved_model_dir = model.export(output_dir="/tmp/output")
+
+# Create an INC config file
+inc_config_file = "/tmp/output/inc_config.yaml"
+model.write_inc_config_file(inc_config_file, dataset=dataset, batch_size=512, overwrite=True,
+                            accuracy_criterion_relative=0.01, exit_policy_timeout=0,
+                            exit_policy_max_trials=10, tuning_workspace="/tmp/output/nc_workspace")
+
+# Benchmark the trained model using the INC config file
+model.benchmark(saved_model_dir, inc_config_file, 'performance')
+
+# Quantize the trained model
+quantization_output = "/tmp/output/quantized_model"
+model.post_training_quantization(saved_model_dir, quantization_output, inc_config_file)
+
+# Benchmark the quantized model
+model.benchmark(quantization_output, inc_config_file, 'performance')
 ```

@@ -49,4 +49,4 @@ WORKDIR /workspace/tests
 
 ENV PYTHONPATH=/workspace/tests
 
-CMD ["py.test", "-s", "-m", "tensorflow"]
+CMD ["py.test", "-s", "-m", "tensorflow or common"]

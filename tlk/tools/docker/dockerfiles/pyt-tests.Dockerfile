@@ -46,4 +46,4 @@ WORKDIR /workspace/tests
 
 ENV PYTHONPATH=/workspace/tests
 
-CMD ["py.test", "-s", "-m", "pytorch"]
+CMD ["py.test", "-s", "-m", "pytorch or common"]

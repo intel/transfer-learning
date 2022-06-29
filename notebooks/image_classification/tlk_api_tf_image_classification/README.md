@@ -6,11 +6,14 @@ image classification using TensorFlow.
 The notebook performs the following steps:
 1. Import dependencies
 1. Get the model
+1. Get the dataset
 1. Prepare the dataset
+1. Predict using the original model
 1. Transfer learning
 1. Evaluate
 1. Predict
 1. Export
+1. Post-training quantization
 
 ## Running the notebook
 
