@@ -42,7 +42,7 @@ def test_pyt_image_classification(model_name, dataset_name):
 
     # Get the dataset
     dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, dataset_name,
-                                          'torchvision', split=["train"])
+                                          'torchvision', split=["train"], shuffle_files=False)
 
     # Get the model
     model = model_factory.get_model(model_name, framework)
@@ -130,7 +130,7 @@ class TestImageClassificationCustomDataset:
         use_case = 'image_classification'
 
         # Get the dataset
-        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework)
+        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework, shuffle_files=False)
         assert ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips'] == dataset.class_names
 
         # Get the model

@@ -30,7 +30,7 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
     """
     Base class for an image classification dataset from the torchvision catalog
     """
-    def __init__(self, dataset_dir, dataset_name, split=['train'], download=True, num_workers=0):
+    def __init__(self, dataset_dir, dataset_name, split=['train'], download=True, num_workers=0, shuffle_files=True):
         if not isinstance(split, list):
             raise ValueError("Value of split argument must be a list.")
         for s in split:
@@ -42,6 +42,7 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
             dataset_class = locate('torchvision.datasets.{}'.format(dataset_name))
         ImageClassificationDataset.__init__(self, dataset_dir, dataset_name)
         self._num_workers = num_workers
+        self._shuffle = shuffle_files
         self._preprocessed = {}
         self._dataset = None
         self._train_indices = None

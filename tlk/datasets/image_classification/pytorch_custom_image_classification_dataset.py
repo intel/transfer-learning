@@ -47,7 +47,7 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
             FileNotFoundError if dataset directory does not exist
     """
 
-    def __init__(self, dataset_dir, dataset_name=None, num_workers=0):
+    def __init__(self, dataset_dir, dataset_name=None, num_workers=0, shuffle_files=True):
         if not os.path.exists(dataset_dir):
             raise FileNotFoundError("The dataset directory ({}) does not exist".format(dataset_dir))
 
@@ -62,6 +62,7 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
             "dataset_dir": dataset_dir
         }
         self._num_workers = num_workers
+        self._shuffle = shuffle_files
         self._preprocessed = None
         self._dataset = None
         self._train_indices = None
