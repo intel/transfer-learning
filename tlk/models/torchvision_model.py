@@ -52,7 +52,27 @@ class TorchvisionModel(BaseModel):
            """
         raise NotImplementedError("Writing an INC config file is not supported torchvision models yet")
 
-    def post_training_quantization(self, saved_model_dir, output_dir, inc_config_path):
+    def optimize_graph(self, saved_model_dir, output_dir):
+        """
+        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the saved_model_dir
+        and writes the inference-optimized model to the output_dir. Graph optimization includes converting
+        variables to constants, removing training-only operations like checkpoint saving, stripping out parts
+        of the graph that are never reached, removing debug operations like CheckNumerics, folding batch
+        normalization ops into the pre-calculated weights, and fusing common operations into unified versions.
+
+        Args:
+            saved_model_dir (str): Source directory for the model to optimize.
+            output_dir (str): Writable output directory to save the optimized model
+
+        Returns:
+            None
+
+        Raises:
+            NotImplementedError because this hasn't been implemented yet for torchvision
+        """
+        raise NotImplementedError("Graph optimization is not supported for torchvision models in tlk")
+
+    def quantize(self, saved_model_dir, output_dir, inc_config_path):
         """
         Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
         using the specified config file. The quantized model is written to the output directory.

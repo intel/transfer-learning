@@ -75,7 +75,7 @@ def test_quantize(mock_load_dataset, mock_get_model, model_name, framework, batc
         mock_get_model.assert_called_once_with(model_name, framework)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
         assert model_mock.write_inc_config_file.called
-        assert model_mock.post_training_quantization.called
+        assert model_mock.quantize.called
 
         # Verify a successful exit code
         assert result.exit_code == 0
@@ -98,7 +98,7 @@ def test_quantize(mock_load_dataset, mock_get_model, model_name, framework, batc
 
         mock_get_model.assert_called_once_with(model_name, framework)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
-        model_mock.post_training_quantization.called_once_with(model_dir, expected_quantization_dir)
+        model_mock.quantize.called_once_with(model_dir, expected_quantization_dir)
 
         # Function to create an INC config file should not have been called, since a yaml file was provided
         model_mock.write_inc_config_file.assert_not_called()
@@ -278,7 +278,7 @@ def test_quantize_output_dir(mock_get_model, mock_load_dataset):
 
             # Check for an expected quantization output dir with the folder number incrementing
             expected_quantize_dir = os.path.join(output_dir, "quantize", model_name, str(i))
-            model_mock.post_training_quantization.called_once_with(model_dir, expected_quantize_dir, inc_config)
+            model_mock.quantize.called_once_with(model_dir, expected_quantize_dir, inc_config)
 
             model_mock.reset_mock()
 

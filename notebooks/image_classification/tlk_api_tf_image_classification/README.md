@@ -1,9 +1,9 @@
 # Transfer Learning for TensorFlow Image Classification using the TLK API
 
-This notebook demonstrates how to use the TLK API to do transfer learning for
-image classification using TensorFlow.
+These notebooks demonstrate how to use the TLK API to do transfer learning for
+image classification using TensorFlow and then quantize or optimize the graph for inference.
 
-The notebook performs the following steps:
+`TLK_TF_Image_Classification_Transfer_Learning.ipynb`  performs the following steps:
 1. Import dependencies
 1. Get the model
 1. Get the dataset
@@ -15,9 +15,20 @@ The notebook performs the following steps:
 1. Export
 1. Post-training quantization
 
-## Running the notebook
+`TLK_TF_Transfer_Learning_and_Graph_Optimization.ipynb`  performs the following steps:
+1. Import dependencies
+1. Get the model
+1. Get the dataset
+1. Prepare the dataset
+1. Evaluate using the original model
+1. Transfer learning
+1. Evaluate using the trained model
+1. Export
+1. Graph Optimization
 
-To run the notebook, follow the instructions to setup the [TensorFlow notebook environment](/notebooks#tensorflow-environment).
+## Running the notebooks
+
+To run the notebooks, follow the instructions to setup the [TensorFlow notebook environment](/notebooks#tensorflow-environment).
 
 ## References
 

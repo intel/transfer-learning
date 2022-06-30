@@ -50,7 +50,7 @@ The table below list features that have currently been implemented in the TLK CL
 | Use Case | Framework | Datasets | Optimizations |
 |----------|-----------|----------|---------------|
 | Image Classification | PyTorch | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) |
-| Image Classification | TensorFlow | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) |
+| Image Classification | TensorFlow | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization and graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) |
 
 ## Run the CLI
 
@@ -246,7 +246,7 @@ model.benchmark(saved_model_dir, inc_config_file, 'performance')
 
 # Quantize the trained model
 quantization_output = "/tmp/output/quantized_model"
-model.post_training_quantization(saved_model_dir, quantization_output, inc_config_file)
+model.quantize(saved_model_dir, quantization_output, inc_config_file)
 
 # Benchmark the quantized model
 model.benchmark(quantization_output, inc_config_file, 'performance')

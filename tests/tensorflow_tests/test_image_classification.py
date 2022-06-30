@@ -161,7 +161,7 @@ class TestImageClassificationCustomDataset:
         metrics = reload_model.evaluate(dataset)
         assert len(metrics) > 0
 
-        # Test quantization with ResNet50
+        # Test benchmarking, quantization, and graph optimization with ResNet50
         if model_name == "resnet_v1_50":
             inc_config_file_path = os.path.join(self._output_dir, "tf_{}.yaml".format(model_name))
             nc_workspace = os.path.join(self._output_dir, "nc_workspace")
@@ -170,6 +170,11 @@ class TestImageClassificationCustomDataset:
 
             quantization_output = os.path.join(self._output_dir, "quantized", model_name)
             os.makedirs(quantization_output)
-            model.post_training_quantization(saved_model_dir, quantization_output, inc_config_file_path)
+            model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
             assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
             model.benchmark(quantization_output, inc_config_file_path)
+            optimization_output = os.path.join(self._output_dir, "optimized", model_name)
+            os.makedirs(optimization_output)
+            model.optimize_graph(saved_model_dir, optimization_output)
+            assert os.path.exists(os.path.join(optimization_output, "saved_model.pb"))
+

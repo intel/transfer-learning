@@ -37,7 +37,7 @@ except ModuleNotFoundError as e:
 
 
 @pytest.mark.tensorflow
-def test_tfhub_image_classification_quantize_config_file_overwrite():
+def test_tfhub_image_classification_config_file_overwrite():
     """
     Tests writing an INC config file for image classification models with a mock custom dataset. Checks that the
     overwrite flag lets you overwrite a config file that already exists.
@@ -73,7 +73,7 @@ def test_tfhub_image_classification_quantize_config_file_overwrite():
                           [1.434, False],
                           [0, False],
                           [128, True]])
-def test_tfhub_image_classification_quantize_config_file_batch_size(batch_size, valid):
+def test_tfhub_image_classification_config_file_batch_size(batch_size, valid):
     """
     Tests writing an INC config file with good and bad batch sizes
     """
@@ -106,7 +106,7 @@ def test_tfhub_image_classification_quantize_config_file_batch_size(batch_size, 
                           [1.434, False],
                           ['bicubic', True],
                           ['foo', False]])
-def test_tfhub_image_classification_quantize_config_file_resize_interpolation(resize_interpolation, valid):
+def test_tfhub_image_classification_config_file_resize_interpolation(resize_interpolation, valid):
     """
     Tests writing an INC config file with good and bad resize_interpolation values
     """
@@ -139,7 +139,7 @@ def test_tfhub_image_classification_quantize_config_file_resize_interpolation(re
                           [0.01, True],
                           [1.434, False],
                           ['foo', False]])
-def test_tfhub_image_classification_quantize_config_file_accuracy_criterion(accuracy_criterion, valid):
+def test_tfhub_image_classification_config_file_accuracy_criterion(accuracy_criterion, valid):
     """
     Tests writing an INC config file with good and bad accuracy_criterion_relative values
     """
@@ -173,7 +173,7 @@ def test_tfhub_image_classification_quantize_config_file_accuracy_criterion(accu
                           [0, True],
                           [60, True],
                           ['foo', False]])
-def test_tfhub_image_classification_quantize_config_file_timeout(timeout, valid):
+def test_tfhub_image_classification_config_file_timeout(timeout, valid):
     """
     Tests writing an INC config file with good and bad exit_policy_timeout values
     """
@@ -206,7 +206,7 @@ def test_tfhub_image_classification_quantize_config_file_timeout(timeout, valid)
                           [1, True],
                           [60, True],
                           ['foo', False]])
-def test_tfhub_image_classification_quantize_config_file_max_trials(max_trials, valid):
+def test_tfhub_image_classification_config_file_max_trials(max_trials, valid):
     """
     Tests writing an INC config file with good and bad exit_policy_max_trials values
     """
@@ -239,7 +239,7 @@ def test_tfhub_image_classification_quantize_config_file_max_trials(max_trials, 
                           [1, True],
                           [123, True],
                           ['foo', False]])
-def test_tfhub_image_classification_quantize_config_file_seed(seed, valid):
+def test_tfhub_image_classification_config_file_seed(seed, valid):
     """
     Tests writing an INC config file with good and bad tuning_random_seed values
     """
@@ -284,7 +284,7 @@ def test_tfhub_image_classification_quantization():
             with patch('neural_compressor.experimental.Quantization') as mock_q:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
-                model.post_training_quantization(saved_model_dir, output_dir, dummy_config_file)
+                model.quantize(saved_model_dir, output_dir, dummy_config_file)
                 mock_q.assert_called_with(dummy_config_file)
     finally:
         if os.path.exists(output_dir):
@@ -314,13 +314,84 @@ def test_tfhub_image_classification_quantization_model_does_not_exist():
 
                 # It's not a directory, so we expect an error
                 with pytest.raises(NotADirectoryError):
-                    model.post_training_quantization(random_dir, output_dir, dummy_config_file)
+                    model.quantize(random_dir, output_dir, dummy_config_file)
 
                 saved_model_dir = tempfile.mkdtemp()
 
                 # An empty directory with no saved model should alos generate an error
                 with pytest.raises(FileNotFoundError):
-                    model.post_training_quantization(saved_model_dir, output_dir, dummy_config_file)
+                    model.quantize(saved_model_dir, output_dir, dummy_config_file)
+
+            with patch('neural_compressor.experimental.Benchmark') as mock_bench:
+                # It's not a directory, so we expect an error
+                with pytest.raises(NotADirectoryError):
+                    model.benchmark(random_dir, dummy_config_file)
+
+                # An empty directory with no saved model should alos generate an error
+                with pytest.raises(FileNotFoundError):
+                    model.benchmark(saved_model_dir, dummy_config_file)
+
+    finally:
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+        if os.path.exists(saved_model_dir):
+            shutil.rmtree(saved_model_dir)
+
+
+@pytest.mark.tensorflow
+def test_tfhub_image_classification_optimize_graph():
+    """
+    Given valid directories for the saved model, output dir, and config file, test the graph optimization function with
+    the actual INC called mocked out.
+    """
+    try:
+        output_dir = tempfile.mkdtemp()
+        saved_model_dir = tempfile.mkdtemp()
+        saved_model_file = os.path.join(saved_model_dir, "saved_model.pb")
+        Path(saved_model_file).touch()
+
+        model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+        with patch('tlk.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+                as mock_dataset:
+            with patch('neural_compressor.experimental.Graph_Optimization') as mock_o:
+                mock_dataset.dataset_dir = "/tmp/data/my_photos"
+                model.optimize_graph(saved_model_dir, output_dir)
+                mock_o.assert_called()
+    finally:
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+        if os.path.exists(saved_model_dir):
+            shutil.rmtree(saved_model_dir)
+
+
+@pytest.mark.tensorflow
+def test_tfhub_image_classification_optimize_graph_model_does_not_exist():
+    """
+    Verifies the error that gets raise if graph optimization is done with a model that does not exist
+    """
+    try:
+        output_dir = tempfile.mkdtemp()
+        dummy_config_file = os.path.join(output_dir, "config.yaml")
+        Path(dummy_config_file).touch()
+        model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+        with patch('tlk.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+                as mock_dataset:
+            mock_dataset.dataset_dir = "/tmp/data/my_photos"
+            with patch('neural_compressor.experimental.Graph_Optimization') as mock_o:
+
+
+                # Generate a random name that wouldn't exist
+                random_dir = str(uuid.uuid4())
+
+                # It's not a directory, so we expect an error
+                with pytest.raises(NotADirectoryError):
+                    model.optimize_graph(random_dir, output_dir)
+
+                saved_model_dir = tempfile.mkdtemp()
+
+                # An empty directory with no saved model should alos generate an error
+                with pytest.raises(FileNotFoundError):
+                    model.optimize_graph(saved_model_dir, output_dir)
 
             with patch('neural_compressor.experimental.Benchmark') as mock_bench:
                 # It's not a directory, so we expect an error

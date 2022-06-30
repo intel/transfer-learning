@@ -424,7 +424,51 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         with open(config_file_path, "w") as config_file:
             yaml.dump(config_template, config_file)
 
-    def post_training_quantization(self, saved_model_dir, output_dir, inc_config_path):
+    def optimize_graph(self, saved_model_dir, output_dir):
+        """
+        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the saved_model_dir
+        and writes the inference-optimized model to the output_dir. Graph optimization includes converting
+        variables to constants, removing training-only operations like checkpoint saving, stripping out parts
+        of the graph that are never reached, removing debug operations like CheckNumerics, folding batch
+        normalization ops into the pre-calculated weights, and fusing common operations into unified versions.
+
+        Args:
+            saved_model_dir (str): Source directory for the model to optimize
+            output_dir (str): Writable output directory to save the optimized model
+
+        Returns:
+            None
+
+        Raises:
+            NotADirectoryError if the saved_model_dir is not a directory
+            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir
+            FileExistsError if the output_dir already has a saved_model.pb file
+        """
+        # The saved model directory should exist and contain a saved_model.pb file
+        if not os.path.isdir(saved_model_dir):
+            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
+        if not os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb")):
+            raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
+                saved_model_dir))
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        else:
+            # Verify that the output directory doesn't already have a saved_model.pb file
+            if os.path.exists(os.path.join(output_dir, "saved_model.pb")):
+                raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "saved_model.pb"))
+
+        from neural_compressor.experimental import Graph_Optimization
+
+        graph_optimizer = Graph_Optimization()
+        graph_optimizer.model = saved_model_dir
+        optimized_graph = graph_optimizer()
+        
+        # If optimization was successful, save the model
+        if optimized_graph:
+            optimized_graph.save(output_dir)
+
+    def quantize(self, saved_model_dir, output_dir, inc_config_path):
         """
         Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
         using the specified config file. The quantized model is written to the output directory.
@@ -509,3 +553,4 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         evaluator = Benchmark(inc_config_path)
         evaluator.model = saved_model_dir
         return evaluator(mode)
+

@@ -103,7 +103,7 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def post_training_quantization(self, saved_model_dir, output_dir, inc_config_path):
+    def quantize(self, saved_model_dir, output_dir, inc_config_path):
         """
         Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
         using the specified config file. The quantized model is written to the output directory.
@@ -121,6 +121,30 @@ class BaseModel(abc.ABC):
             NotADirectoryError if the saved_model_dir is not a directory
             FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found.
+            FileExistsError if the output_dir already has a saved_model.pb file
+        """
+        pass
+
+    @abc.abstractmethod
+    def optimize_graph(self, saved_model_dir, output_dir):
+        """
+        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the saved_model_dir
+        and writes the inference-optimized model to the output_dir. Graph optimization includes converting
+        variables to constants, removing training-only operations like checkpoint saving, stripping out parts
+        of the graph that are never reached, removing debug operations like CheckNumerics, folding batch
+        normalization ops into the pre-calculated weights, and fusing common operations into unified versions.
+
+        Args:
+            saved_model_dir (str): Source directory for the model to optimize
+            output_dir (str): Writable output directory to save the optimized model
+
+        Returns:
+            None
+
+        Raises:
+            NotImplementedError if the model does not support INC yet
+            NotADirectoryError if the saved_model_dir is not a directory
+            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir
             FileExistsError if the output_dir already has a saved_model.pb file
         """
         pass
