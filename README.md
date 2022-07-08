@@ -50,7 +50,7 @@ The table below list features that have currently been implemented in the TLK CL
 | Use Case | Framework | Datasets | Optimizations |
 |----------|-----------|----------|---------------|
 | Image Classification | PyTorch | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) |
-| Image Classification | TensorFlow | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization and graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) |
+| Image Classification | TensorFlow | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) |
 
 ## Run the CLI
 
@@ -208,6 +208,20 @@ performance mode benchmark result:
 2022-06-28 10:28:33 [INFO] Throughput: 1056.940 images/sec
 ```
 
+Do graph optimization on the trained model:
+```
+> tlk optimize --model-dir /tmp/output/resnet_v1_50/1 --output-dir --output-dir /tmp/output
+Model directory: /tmp/output/resnet_v1_50/1
+Model name: resnet_v1_50
+Output directory: /tmp/output
+Framework: tensorflow
+Starting graph optimization
+...
+2022-06-28 13:50:01 [INFO] Graph optimization is done.
+...
+2022-06-28 13:51:21 [INFO] SavedModel written to: /tmp/output/optimized/resnet_v1_50/1/saved_model.pb
+```
+
 ## Use the API
 ```python
 from tlk.datasets import dataset_factory
@@ -250,4 +264,8 @@ model.quantize(saved_model_dir, quantization_output, inc_config_file)
 
 # Benchmark the quantized model
 model.benchmark(quantization_output, inc_config_file, 'performance')
+
+# Do graph optimization on the trained model
+optimization_output = "/tmp/output/optimized_model"
+model.optimize_graph(saved_model_dir, optimization_output)
 ```

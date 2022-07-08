@@ -68,9 +68,9 @@ class TorchvisionModel(BaseModel):
             None
 
         Raises:
-            NotImplementedError because this hasn't been implemented yet for torchvision
+            NotImplementedError because this hasn't been implemented yet for PyTorch
         """
-        raise NotImplementedError("Graph optimization is not supported for torchvision models in tlk")
+        raise NotImplementedError("Only TensorFlow graph optimization is currently supported by the Intel Neural Compressor (INC)")
 
     def quantize(self, saved_model_dir, output_dir, inc_config_path):
         """

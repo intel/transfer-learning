@@ -69,7 +69,7 @@ def test_pyt_image_classification(model_name, dataset_name):
     predictions = model.predict(images)
     assert len(predictions) == 32
 
-    # export the saved model
+    # Export the saved model
     saved_model_dir = model.export(output_dir)
     assert os.path.isdir(saved_model_dir)
     assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
@@ -81,6 +81,10 @@ def test_pyt_image_classification(model_name, dataset_name):
     # Evaluate
     reload_metrics = reload_model.evaluate(dataset)
     assert reload_metrics == trained_metrics
+
+    # Ensure we get not implemented errors for graph_optimization
+    with pytest.raises(NotImplementedError) as e:
+        model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):

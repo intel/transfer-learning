@@ -67,7 +67,7 @@ def test_tf_image_classification(model_name, dataset_name):
     predictions = model.predict(images)
     assert len(predictions) == 32
 
-    # export the saved model
+    # Export the saved model
     saved_model_dir = model.export(output_dir)
     assert os.path.isdir(saved_model_dir)
     assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
@@ -79,6 +79,12 @@ def test_tf_image_classification(model_name, dataset_name):
     # Evaluate
     reload_metrics = reload_model.evaluate(dataset)
     assert reload_metrics == trained_metrics
+
+    # Optimize the graph
+    if model_name == 'resnet_v1_50':
+        optimized_model_dir = os.path.join(output_dir, "optimized")
+        model.optimize_graph(saved_model_dir, optimized_model_dir)
+        assert os.path.isfile(os.path.join(optimized_model_dir, "saved_model.pb"))
 
     # Test generating an INC config file (not implemented yet for TFDS)
     inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))

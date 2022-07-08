@@ -23,9 +23,9 @@ import click
 from tlk.tools.cli.commands.benchmark import benchmark
 from tlk.tools.cli.commands.eval import eval
 from tlk.tools.cli.commands.list import list_group
+from tlk.tools.cli.commands.optimize import optimize
 from tlk.tools.cli.commands.quantize import quantize
 from tlk.tools.cli.commands.train import train
-
 
 @click.group('cli')
 def cli_group():
@@ -37,6 +37,7 @@ cli_group.add_command(train)
 cli_group.add_command(eval)
 cli_group.add_command(quantize)
 cli_group.add_command(benchmark)
+cli_group.add_command(optimize)
 
 if __name__ == '__main__':
     cli_group()
