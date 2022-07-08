@@ -18,3 +18,8 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+LISTEN_IP ?= 127.0.0.1
+LISTEN_PORT ?= 9999
+serve:
+	@python -m http.server --directory ./_build/html ${LISTEN_PORT} --bind ${LISTEN_IP}
