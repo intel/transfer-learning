@@ -32,6 +32,12 @@ model_map = {
             "TFHub": {"module": "tlk.models.image_classification.tfhub_image_classification_model",
                      "class": "TFHubImageClassificationModel"}
         },
+        UseCaseType.TEXT_CLASSIFICATION: {
+            "TFHub": {
+                "module": "tlk.models.text_classification.tfhub_text_classification_model",
+                "class": "TFHubTextClassificationModel"
+            }
+        }
     },
     FrameworkType.PYTORCH: {
         UseCaseType.IMAGE_CLASSIFICATION: {

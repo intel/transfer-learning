@@ -19,6 +19,21 @@ Datasets
 .. automodule:: tlk.datasets.image_classification.tf_image_classification_dataset
     :members: TFImageClassificationDataset
 
+.. automodule:: tlk.datasets.image_classification.tf_custom_image_classification_dataset
+    :members: TFCustomImageClassificationDataset
+
+.. automodule:: tlk.datasets.image_classification.torchvision_image_classification_dataset
+    :members: TorchvisionImageClassificationDataset
+
+.. automodule:: tlk.datasets.image_classification.pytorch_custom_image_classification_dataset
+    :members: PyTorchCustomImageClassificationDataset
+
+.. automodule:: tlk.datasets.text_classification.text_classification_dataset
+    :members: TextClassificationDataset
+
+.. automodule:: tlk.datasets.text_classification.tfds_text_classification_dataset
+    :members: TFDSTextClassificationDataset
+
 Models
 ------
 
@@ -36,3 +51,12 @@ Models
 
 .. automodule:: tlk.models.image_classification.tfhub_image_classification_model
     :members: TFHubImageClassificationModel
+
+.. automodule:: tlk.models.image_classification.torchvision_image_classification_model
+    :members: TorchvisionImageClassificationModel
+
+.. automodule:: tlk.models.text_classification.text_classification_model
+    :members: TextClassificationModel
+
+.. automodule:: tlk.models.text_classification.tfhub_text_classification_model
+    :members: TFHubTextClassificationModel

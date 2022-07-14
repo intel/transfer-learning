@@ -30,21 +30,40 @@ try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
 except ModuleNotFoundError as e:
+    TFHubImageClassificationModel = None
     print("WARNING: Unable to import TFHubImageClassificationModel. TensorFlow may not be installed")
 
 
-@pytest.mark.tensorflow
-def test_tfhub_efficientnet_b0():
-    """
-    Checks that an efficientnet_b0 model can be downloaded from TFHub
-    """
-    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-    assert type(model) == TFHubImageClassificationModel
-    assert model.image_size == 224
+try:
+    # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
+    from tlk.models.text_classification.tfhub_text_classification_model import TFHubTextClassificationModel
+except ModuleNotFoundError as e:
+    TFHubTextClassificationModel = None
+    print("WARNING: Unable to import TFHubTextClassificationModel. TensorFlow may not be installed")
+
+from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
+from tlk.datasets.text_classification.text_classification_dataset import TextClassificationDataset
 
 
 @pytest.mark.tensorflow
-def test_get_supported_models():
+@pytest.mark.parametrize('model_name,expected_class,expected_image_size',
+                         [['efficientnet_b0', TFHubImageClassificationModel, 224],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', TFHubTextClassificationModel, None]])
+def test_tfhub_model_load(model_name, expected_class, expected_image_size):
+    """
+    Checks that a model can be downloaded form TF Hub
+    """
+    model = model_factory.get_model(model_name, 'tensorflow')
+    assert type(model) == expected_class
+    if expected_image_size:
+        assert model.image_size == expected_image_size
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,use_case',
+                         [['efficientnet_b0', 'image_classification'],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'text_classification']])
+def test_get_supported_models(model_name, use_case):
     """
     Call get supported models and checks to make sure the dictionary has keys for each use case,
     and checks for a known supported model.
@@ -56,10 +75,10 @@ def test_get_supported_models():
         assert str(k) in model_dict.keys()
 
     # Check for a known model
-    assert 'efficientnet_b0' in model_dict[str(UseCaseType.IMAGE_CLASSIFICATION)]
-    efficientnet_b0 = model_dict[str(UseCaseType.IMAGE_CLASSIFICATION)]['efficientnet_b0']
-    assert str(FrameworkType.TENSORFLOW) in efficientnet_b0
-    assert 'TFHub' == efficientnet_b0[str(FrameworkType.TENSORFLOW)]['model_hub']
+    assert model_name in model_dict[use_case]
+    model_info = model_dict[use_case][model_name]
+    assert str(FrameworkType.TENSORFLOW) in model_info
+    assert 'TFHub' == model_info[str(FrameworkType.TENSORFLOW)]['model_hub']
 
 
 @pytest.mark.tensorflow
@@ -69,6 +88,7 @@ def test_get_supported_models():
                           [None, 'image_classification'],
                           [None, 'question_answering'],
                           ['tensorflow', 'image_classification'],
+                          ['tensorflow', 'text_classification'],
                           ['pytorch', 'text_classification'],
                           ['pytorch', 'question_answering']])
 def test_get_supported_models_with_filter(framework, use_case):
@@ -128,67 +148,82 @@ def test_get_supported_models_bad_use_case(bad_use_case):
 
 
 @pytest.mark.tensorflow
-def test_tfhub_efficientnet_b0_train():
+@pytest.mark.parametrize('model_name,dataset_type,get_hub_model_patch,class_names',
+                         [['efficientnet_b0', ImageClassificationDataset,
+                           'tlk.models.image_classification.tfhub_image_classification_model.'
+                           'TFHubImageClassificationModel._get_hub_model', ['a', 'b', 'c']],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', TextClassificationDataset,
+                           'tlk.models.text_classification.tfhub_text_classification_model.'
+                           'TFHubTextClassificationModel._get_hub_model', ['a', 'b']]])
+def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_patch, class_names):
     """
-    Tests calling train on an TFHub efficientnet_b0 model with a mock dataset and mock model
+    Tests calling train on an TFHub model with a mock dataset and mock model and verifies we get back the return
+    value from the fit function.
     """
-    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+    model = model_factory.get_model(model_name, 'tensorflow')
 
-    with patch('tlk.models.image_classification.tfhub_image_classification_model.ImageClassificationDataset') \
-            as mock_dataset:
-        with patch('tlk.models.image_classification.tfhub_image_classification_model.'
-                   'TFHubImageClassificationModel._get_hub_model') as mock_get_hub_model:
+    with patch(get_hub_model_patch) as mock_get_hub_model:
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = dataset_type
+        print(type(mock_dataset))
 
-                mock_dataset.class_names = ['a', 'b', 'c']
-                mock_model = MagicMock()
-                expected_return_value = {"result": True}
+        mock_dataset.class_names = class_names
+        mock_model = MagicMock()
+        expected_return_value = {"result": True}
 
-                def mock_fit(dataset, epochs, shuffle, callbacks):
-                    assert dataset is not None
-                    assert isinstance(epochs, int)
-                    assert isinstance(shuffle, bool)
-                    assert len(callbacks) > 0
+        def mock_fit(dataset, epochs, shuffle, callbacks, validation_data=None):
+            assert dataset is not None
+            assert isinstance(epochs, int)
+            assert isinstance(shuffle, bool)
+            assert len(callbacks) > 0
 
-                    return expected_return_value
+            return expected_return_value
 
-                mock_model.fit = mock_fit
-                mock_get_hub_model.return_value = mock_model
+        mock_model.fit = mock_fit
+        mock_get_hub_model.return_value = mock_model
 
-                return_val = model.train(mock_dataset, output_dir="/tmp/output")
-                assert return_val == expected_return_value
+        return_val = model.train(mock_dataset, output_dir="/tmp/output")
+        assert return_val == expected_return_value
 
 
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('cpu_model,enable_auto_mixed_precision,expected_auto_mixed_precision_parameter,tf_version',
-                         [['85', None, False, '2.9.0'],
-                          ['143', None, True, '2.9.0'],
-                          ['123', None, False, '2.9.0'],
-                          ['85', True, True, '2.9.0'],
-                          ['143', True, True, '2.9.0'],
-                          ['123', True, True, '2.9.0'],
-                          ['85', True, True, '2.10.0'],
-                          ['143', True, True, '2.10.0'],
-                          ['123', True, True, '2.10.0'],
-                          ['85', False, False, '2.9.1'],
-                          ['143', False, False, '2.9.1'],
-                          ['123', False, False, '2.9.1'],
-                          ['123', False, None, '2.8.0'],
-                          ['123', None, None, '2.8.0'],
-                          ['123', True, None, '2.8.0'],
-                          ['85', None, None, '2.8.0'],
-                          ['85', True, None, '2.8.0'],
-                          ['143', None, True, '3.1.0']])
-@patch("tlk.models.image_classification.tfhub_image_classification_model.tf.version")
-@patch("tlk.models.image_classification.tfhub_image_classification_model.tf.config.optimizer.set_experimental_options")
-@patch("tlk.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel._get_hub_model")
-@patch("tlk.models.image_classification.tfhub_image_classification_model.ImageClassificationDataset")
+@pytest.mark.parametrize(
+    'cpu_model,enable_auto_mixed_precision,expected_auto_mixed_precision_parameter,tf_version,model_name,dataset_type',
+    [['85', None, False, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['143', None, True, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['123', None, False, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['85', True, True, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['143', True, True, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['123', True, True, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['85', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['85', None, False, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['143', None, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['123', None, False, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['85', True, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['143', True, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['123', True, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['85', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['143', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['123', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['85', False, False, '2.9.1', 'efficientnet_b0', ImageClassificationDataset],
+     ['143', False, False, '2.9.1', 'efficientnet_b0', ImageClassificationDataset],
+     ['123', False, False, '2.9.1', 'efficientnet_b0', ImageClassificationDataset],
+     ['123', False, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['123', None, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['123', True, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['85', None, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['85', True, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['143', None, True, '3.1.0', 'efficientnet_b0', ImageClassificationDataset]])
+@patch("tlk.models.tfhub_model.tf.version")
+@patch("tlk.models.tfhub_model.tf.config.optimizer.set_experimental_options")
 @patch("tlk.utils.platform_util.PlatformUtil._get_cpuset")
 @patch("tlk.utils.platform_util.os")
 @patch("tlk.utils.platform_util.system_platform")
 @patch("tlk.utils.platform_util.subprocess")
-def test_tfhub_auto_mixed_precision(mock_subprocess, mock_platform, mock_os, mock_get_cpuset, mock_dataset,
-                                    mock_get_hub_model, mock_set_experimental_options, mock_tf_version, cpu_model,
-                                    enable_auto_mixed_precision, expected_auto_mixed_precision_parameter, tf_version):
+def test_tfhub_auto_mixed_precision(mock_subprocess, mock_platform, mock_os, mock_get_cpuset,
+                                    mock_set_experimental_options, mock_tf_version, cpu_model,
+                                    enable_auto_mixed_precision, expected_auto_mixed_precision_parameter,
+                                    tf_version, model_name, dataset_type):
     """
     Verifies that auto mixed precision is enabled by default for SPR (cpu model 85), but disabled by default for other
     CPU types like SKX (cpu model 143).  The default auto mixed precision setting is used when
@@ -208,12 +243,14 @@ def test_tfhub_auto_mixed_precision(mock_subprocess, mock_platform, mock_os, moc
     lscpu_value = lscpu_value.replace(original_model_value, new_model_value)
     mock_subprocess.check_output.return_value = lscpu_value
 
-    mock_get_hub_model.return_value = MagicMock()
-    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = dataset_type
+    mock_dataset.class_names = ['a', 'b']
 
     mock_tf_version.VERSION = tf_version
 
-    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+    model = model_factory.get_model(model_name, 'tensorflow')
+    model._get_hub_model = MagicMock()
 
     model.train(mock_dataset, output_dir="/tmp/output", enable_auto_mixed_precision=enable_auto_mixed_precision)
 

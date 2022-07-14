@@ -9,44 +9,79 @@ Examples
 
 List the available models::
 
-    > tlk list models
-    ------------------------------
-    IMAGE CLASSIFICATION
-    ------------------------------
-    efficientnet_b0 (tensorflow)
-    efficientnet_b1 (tensorflow)
-    efficientnet_b2 (tensorflow)
-    efficientnet_b3 (tensorflow)
-    efficientnet_b4 (tensorflow)
-    efficientnet_b5 (tensorflow)
-    efficientnet_b6 (tensorflow)
-    efficientnet_b7 (tensorflow)
-    efficientnetv2-b0 (tensorflow)
-    efficientnetv2-b1 (tensorflow)
-    efficientnetv2-b2 (tensorflow)
-    efficientnetv2-b3 (tensorflow)
-    efficientnetv2-s (tensorflow)
-    inception_v3 (tensorflow)
-    mobilenet_v2_100_224 (tensorflow)
-    nasnet_large (tensorflow)
-    resnet_v1_50 (tensorflow)
-    resnet_v2_101 (tensorflow)
-    resnet_v2_50 (tensorflow)
+   > tlk list models
+   ------------------------------
+   IMAGE CLASSIFICATION
+   ------------------------------
+   densenet121 (pytorch)
+   densenet161 (pytorch)
+   efficientnet_b0 (tensorflow)
+   efficientnet_b0 (pytorch)
+   efficientnet_b1 (tensorflow)
+   efficientnet_b1 (pytorch)
+   efficientnet_b2 (tensorflow)
+   efficientnet_b2 (pytorch)
+   efficientnet_b3 (tensorflow)
+   efficientnet_b4 (tensorflow)
+   efficientnet_b5 (tensorflow)
+   efficientnet_b6 (tensorflow)
+   efficientnet_b7 (tensorflow)
+   efficientnetv2-b0 (tensorflow)
+   efficientnetv2-b1 (tensorflow)
+   efficientnetv2-b2 (tensorflow)
+   efficientnetv2-b3 (tensorflow)
+   efficientnetv2-s (tensorflow)
+   googlenet (pytorch)
+   inception_v3 (tensorflow)
+   mobilenet_v2 (pytorch)
+   mobilenet_v2_100_224 (tensorflow)
+   nasnet_large (tensorflow)
+   resnet18 (pytorch)
+   resnet50 (pytorch)
+   resnet_v1_50 (tensorflow)
+   resnet_v2_101 (tensorflow)
+   resnet_v2_50 (tensorflow)
+   shufflenet_v2_x1_0 (pytorch)
 
-    ------------------------------
-    OBJECT DETECTION
-    ------------------------------
-    No object detection models are supported at this time
+   ------------------------------
+   OBJECT DETECTION
+   ------------------------------
+   No object detection models are supported at this time
 
-    ------------------------------
-    TEXT CLASSIFICATION
-    ------------------------------
-    No text classification models are supported at this time
+   ------------------------------
+   TEXT CLASSIFICATION
+   ------------------------------
+   bert_en_uncased_L-12_H-768_A-12 (tensorflow)
+   bert_en_wwm_uncased_L-24_H-1024_A-16 (tensorflow)
+   small_bert/bert_en_uncased_L-10_H-128_A-2 (tensorflow)
+   small_bert/bert_en_uncased_L-10_H-256_A-4 (tensorflow)
+   small_bert/bert_en_uncased_L-10_H-512_A-8 (tensorflow)
+   small_bert/bert_en_uncased_L-10_H-768_A-12 (tensorflow)
+   small_bert/bert_en_uncased_L-12_H-128_A-2 (tensorflow)
+   small_bert/bert_en_uncased_L-12_H-256_A-4 (tensorflow)
+   small_bert/bert_en_uncased_L-12_H-512_A-8 (tensorflow)
+   small_bert/bert_en_uncased_L-12_H-768_A-12 (tensorflow)
+   small_bert/bert_en_uncased_L-2_H-128_A-2 (tensorflow)
+   small_bert/bert_en_uncased_L-2_H-256_A-4 (tensorflow)
+   small_bert/bert_en_uncased_L-2_H-512_A-8 (tensorflow)
+   small_bert/bert_en_uncased_L-2_H-768_A-12 (tensorflow)
+   small_bert/bert_en_uncased_L-4_H-128_A-2 (tensorflow)
+   small_bert/bert_en_uncased_L-4_H-256_A-4 (tensorflow)
+   small_bert/bert_en_uncased_L-4_H-512_A-8 (tensorflow)
+   small_bert/bert_en_uncased_L-4_H-768_A-12 (tensorflow)
+   small_bert/bert_en_uncased_L-6_H-128_A-2 (tensorflow)
+   small_bert/bert_en_uncased_L-6_H-256_A-4 (tensorflow)
+   small_bert/bert_en_uncased_L-6_H-512_A-8 (tensorflow)
+   small_bert/bert_en_uncased_L-6_H-768_A-12 (tensorflow)
+   small_bert/bert_en_uncased_L-8_H-128_A-2 (tensorflow)
+   small_bert/bert_en_uncased_L-8_H-256_A-4 (tensorflow)
+   small_bert/bert_en_uncased_L-8_H-512_A-8 (tensorflow)
+   small_bert/bert_en_uncased_L-8_H-768_A-12 (tensorflow)
 
-    ------------------------------
-    QUESTION ANSWERING
-    ------------------------------
-    No question answering models are supported at this time
+   ------------------------------
+   QUESTION ANSWERING
+   ------------------------------
+   No question answering models are supported at this time
 
 Train a model::
 

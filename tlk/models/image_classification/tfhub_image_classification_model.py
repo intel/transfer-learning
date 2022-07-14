@@ -34,7 +34,6 @@ from tlk.datasets.image_classification.image_classification_dataset import Image
 from tlk.datasets.image_classification.tf_custom_image_classification_dataset import TFCustomImageClassificationDataset
 from tlk.utils.file_utils import read_json_file, verify_directory
 from tlk.utils.types import FrameworkType, UseCaseType
-from tlk.utils.platform_util import PlatformUtil
 
 
 class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
@@ -134,37 +133,8 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         if dataset_num_classes != self.num_classes:
             self._model = None
 
-        if enable_auto_mixed_precision is not None and not isinstance(enable_auto_mixed_precision, bool):
-            raise TypeError("Invalid type for enable_auto_mixed_precision. Expected None or a bool.")
-
-        # Get the TF version
-        tf_major_version = 0
-        tf_minor_version = 0
-        if tf.version.VERSION is not None and '.' in tf.version.VERSION:
-            tf_version_list = tf.version.VERSION.split('.')
-            if len(tf_version_list) > 1:
-                tf_major_version = int(tf_version_list[0])
-                tf_minor_version = int(tf_version_list[1])
-
-        auto_mixed_precision_supported = (tf_major_version == 2 and tf_minor_version >= 9) or tf_major_version > 2
-
-        if enable_auto_mixed_precision is None:
-            # Determine whether or not to enable this based on the CPU type
-            try:
-                # Only enable auto mixed precision for SPR
-                enable_auto_mixed_precision = PlatformUtil(args=None).cpu_type == 'SPR'
-            except Exception as e:
-                if auto_mixed_precision_supported:
-                    print("Unable to determine the CPU type:", str(e))
-                enable_auto_mixed_precision = False
-        elif not auto_mixed_precision_supported:
-            print("Warning: Auto mixed precision requires TensorFlow 2.9.0 or later (found {}).".format(
-                tf.version.VERSION))
-
-        if auto_mixed_precision_supported:
-            if enable_auto_mixed_precision:
-                print("Enabling auto_mixed_precision_mkl")
-            tf.config.optimizer.set_experimental_options({'auto_mixed_precision_mkl': enable_auto_mixed_precision})
+        # Set auto mixed precision
+        self.set_auto_mixed_precision(enable_auto_mixed_precision)
 
         self._model = self._get_hub_model(dataset_num_classes)
 
@@ -245,23 +215,6 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
             predictions = self._model.predict(input_samples)
         predicted_ids = np.argmax(predictions, axis=-1)
         return predicted_ids
-
-    def export(self, output_dir):
-        if self._model:
-            # Save the model in a format that can be served
-            verify_directory(output_dir)
-            saved_model_dir = os.path.join(output_dir, self.model_name)
-            if os.path.exists(saved_model_dir) and len(os.listdir(saved_model_dir)):
-                saved_model_dir = os.path.join(saved_model_dir, "{}".format(len(os.listdir(saved_model_dir)) + 1))
-            else:
-                saved_model_dir = os.path.join(saved_model_dir, "1")
-
-            self._model.save(saved_model_dir)
-            print("Saved model directory:", saved_model_dir)
-
-            return saved_model_dir
-        else:
-            raise ValueError("Unable to export the model, because it hasn't been trained yet")
 
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False,
                               resize_interpolation='bicubic', accuracy_criterion_relative=0.01, exit_policy_timeout=0,
@@ -347,8 +300,6 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
 
             if output_dir_env_var:
                 tuning_workspace = os.path.join(output_dir_env_var, 'nc_workspace')
-
-        print("tuning_workspace:", tuning_workspace)
 
         if "quantization" in config_template.keys() and "calibration" in config_template["quantization"].keys() and \
             "dataloader" in config_template["quantization"]["calibration"].keys():

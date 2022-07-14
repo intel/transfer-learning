@@ -1,5 +1,5 @@
 protobuf==3.20.1
-python-dateutil==2.7
+python-dateutil==2.8.2
 torch==1.11.0
 intel-extension-for-pytorch==1.11.0
 torchvision==0.12.0

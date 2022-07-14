@@ -28,6 +28,9 @@ class TFDataset(BaseDataset):
 
     def __init__(self, dataset_dir, dataset_name="", dataset_catalog=""):
         BaseDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog)
+        self._train_subset = None
+        self._validation_subset = None
+        self._test_subset = None
 
     @property
     def train_subset(self):

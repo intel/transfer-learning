@@ -43,7 +43,8 @@ RUN apt-get update && \
     pip install --upgrade pip && \
     pip install --no-cache-dir tlk-${TLK_VERSION}-py2.py3-none-any.whl[tensorflow] && \
     rm tlk-${TLK_VERSION}-py2.py3-none-any.whl && \
-    pip install --no-cache-dir -r tests/requirements-test.txt
+    pip install --no-cache-dir -r tests/requirements-test.txt && \
+    pip install --no-deps tensorflow-text==2.8.2
 
 WORKDIR /workspace/tests
 

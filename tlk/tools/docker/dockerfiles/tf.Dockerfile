@@ -41,7 +41,8 @@ RUN apt-get update && \
     apt-get install -y build-essential libgl1 libglib2.0-0 python3-dev  && \
     pip install --upgrade pip && \
     pip install --no-cache-dir tlk-${TLK_VERSION}-py2.py3-none-any.whl[tensorflow] && \
-    rm tlk-${TLK_VERSION}-py2.py3-none-any.whl
+    rm tlk-${TLK_VERSION}-py2.py3-none-any.whl && \
+    pip install --no-deps tensorflow-text==2.8.2
 
 ENV DATASET_DIR=/workspace/data
 ENV OUTPUT_DIR=/workspace/output
