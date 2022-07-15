@@ -47,6 +47,8 @@ def test_torchvision_image_classification_optimize_graph_not_implemented():
         dummy_config_file = os.path.join(output_dir, "config.yaml")
         Path(dummy_config_file).touch()
         model = model_factory.get_model('resnet50', 'pytorch')
+        # The torchvision model is not present until training, so call _get_hub_model()
+        model._get_hub_model(3)
         # Graph optimization is not enabled for PyTorch, so this should fail 
         with patch('neural_compressor.experimental.Graph_Optimization') as mock_o:
             with pytest.raises(NotImplementedError):
