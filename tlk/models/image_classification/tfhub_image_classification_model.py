@@ -21,8 +21,6 @@
 import copy
 import os
 import numpy as np
-import shutil
-import tempfile
 import tensorflow as tf
 import tensorflow_hub as hub
 import yaml
@@ -99,33 +97,48 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         self._num_classes = num_classes
         return self._model
 
-    def load_from_directory(self,  model_dir: str):
-        # Verify that the model directory exists
-        verify_directory(model_dir, require_directory_exists=True)
-
-        self._model = tf.keras.models.load_model(model_dir)
-        self._model.summary(print_fn=print)
-
-    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, enable_auto_mixed_precision=None):
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
+              enable_auto_mixed_precision=None, shuffle_files=True):
         """ 
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
-            in the specified dataset. The model is compiled and trained for the specified number of epochs.
+            in the specified dataset. The model is compiled and trained for the specified number of epochs. If a
+            path to initial checkpoints is provided, those weights are loaded before training.
 
             Args:
                 dataset (ImageClassificationDataset): Dataset to use when training the model
                 output_dir (str): Path to a writeable directory for checkpoint files
                 epochs (int): Number of epochs to train the model (default: 1)
+                initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
+                    latest checkpoint will be used.
                 enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
                     uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
                     If enable_auto_mixed_precision is set to None, auto mixed precision will be enabled when running with
                     Intel fourth generation Xeon processors, and disabled for other platforms.
+                shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
 
             Returns:
                 History object from the model.fit() call
+
+            Raises:
+               FileExistsError if the output directory is a file
+               TypeError if the dataset specified is not an ImageClassificationDataset
+               TypeError if the output_dir parameter is not a string
+               TypeError if the epochs parameter is not a integer
+               TypeError if the initial_checkpoints parameter is not a string
         """
 
         verify_directory(output_dir)
+
+        if not isinstance(dataset, ImageClassificationDataset):
+            raise TypeError("The dataset must be a ImageClassificationDataset but found a {}".format(type(dataset)))
+
+        if not isinstance(epochs, int):
+            raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
+
+        if initial_checkpoints and not isinstance(initial_checkpoints, str):
+            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
+                type(initial_checkpoints)))
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -142,6 +155,12 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
             optimizer=self._optimizer,
             loss=self._loss,
             metrics=['acc'])
+
+        if initial_checkpoints:
+            if os.path.isdir(initial_checkpoints):
+                initial_checkpoints = tf.train.latest_checkpoint(initial_checkpoints)
+
+            self._model.load_weights(initial_checkpoints)
 
         class CollectBatchStats(tf.keras.callbacks.Callback):
             def __init__(self):
@@ -162,7 +181,7 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
             checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
             verify_directory(checkpoint_dir)
             checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(checkpoint_dir, self.model_name), save_weights_only=True)
+                filepath=os.path.join(checkpoint_dir, self.model_name.replace('/', '_')), save_weights_only=True)
             print("Checkpoint directory:", checkpoint_dir)
             callbacks.append(checkpoint_callback)
 
@@ -171,7 +190,7 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         else:
             train_dataset = dataset.dataset
 
-        return self._model.fit(train_dataset, epochs=epochs, shuffle=True, callbacks=callbacks)
+        return self._model.fit(train_dataset, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks)
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """

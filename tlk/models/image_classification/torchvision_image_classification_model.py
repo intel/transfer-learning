@@ -72,7 +72,7 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
     def num_classes(self):
         return self._num_classes
 
-    def _get_hub_model(self, num_classes):
+    def _get_hub_model(self, num_classes, ipex_optimize=True):
         if not self._model:
             pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
             self._model = pretrained_model_class(pretrained=True)
@@ -91,7 +91,9 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
                 setattr(self._model, self._classification_layer[0], torch.nn.Linear(num_features, num_classes))
 
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
-            self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+
+            if ipex_optimize:
+                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
         self._num_classes = num_classes
 
         return self._model, self._optimizer
@@ -102,8 +104,12 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
         self._model = torch.load(os.path.join(model_dir, 'model.pt'))
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
-    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1):
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None):
         verify_directory(output_dir)
+
+        if initial_checkpoints and not isinstance(initial_checkpoints, str):
+            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
+                type(initial_checkpoints)))
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -111,7 +117,19 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
         if dataset_num_classes != self.num_classes:
             self._model = None
 
-        self._model, self._optimize = self._get_hub_model(dataset_num_classes)
+        # If are loading weights, the state dicts need to be loaded before calling ipex.optimize, so get the model
+        # from torchvision, but hold off on the ipex optimize call.
+        ipex_optimize = False if initial_checkpoints else True
+
+        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=ipex_optimize)
+
+        if initial_checkpoints:
+            checkpoint = torch.load(initial_checkpoints)
+            self._model.load_state_dict(checkpoint['model_state_dict'])
+            self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+            # Call ipex.optimize now, since we didn't call it from _get_hub_model()
+            self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
         # Start PyTorch training loop
         since = time.time()

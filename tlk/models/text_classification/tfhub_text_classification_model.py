@@ -100,16 +100,11 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
         self._num_classes = num_classes
         return self._model
 
-    def load_from_directory(self, model_dir: str):
-        # Verify that the model directory exists
-        verify_directory(model_dir, require_directory_exists=True)
-
-        self._model = tf.keras.models.load_model(model_dir)
-        self._model.summary(print_fn=print)
-
-    def train(self, dataset: TextClassificationDataset, output_dir, epochs=1, enable_auto_mixed_precision=None):
+    def train(self, dataset: TextClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
+              enable_auto_mixed_precision=None, shuffle_files=True):
         """
-           Trains the model using the specified binary text classification dataset.
+           Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is
+           provided, those weights are loaded before training.
            
            Args:
                dataset (TextClassificationDataset): The dataset to use for training. If a train subset has been
@@ -117,10 +112,13 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
                                                     entire non-partitioned dataset will be used.
                output_dir (str): A writeable output directory to write checkpoint files during training
                epochs (int): The number of training epochs [default: 1]
+               initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
+                    latest checkpoint will be used.
                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
                     uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
                     If enable_auto_mixed_precision is set to None, auto mixed precision will be enabled when running with
                     Intel fourth generation Xeon processors, and disabled for other platforms.
+                shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
 
            Returns:
                History object from the model.fit() call
@@ -130,6 +128,7 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
                TypeError if the dataset specified is not a TextClassificationDataset
                TypeError if the output_dir parameter is not a string
                TypeError if the epochs parameter is not a integer
+               TypeError if the initial_checkpoints parameter is not a string
                NotImplementedError if the specified dataset has more than 2 classes.
         """
         verify_directory(output_dir)
@@ -139,6 +138,10 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
 
         if not isinstance(epochs, int):
             raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
+
+        if initial_checkpoints and not isinstance(initial_checkpoints, str):
+            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
+                type(initial_checkpoints)))
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -165,6 +168,12 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
             optimizer=tf.keras.optimizers.Adam(learning_rate=self._learning_rate, epsilon=self._epsilon),
             loss=loss,
             metrics=metrics)
+
+        if initial_checkpoints:
+            if os.path.isdir(initial_checkpoints):
+                initial_checkpoints = tf.train.latest_checkpoint(initial_checkpoints)
+
+            self._model.load_weights(initial_checkpoints)
 
         class CollectBatchStats(tf.keras.callbacks.Callback):
             def __init__(self):
@@ -196,14 +205,15 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
             checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
             verify_directory(checkpoint_dir)
             checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(checkpoint_dir, self.model_name), save_weights_only=True)
+                filepath=os.path.join(checkpoint_dir, self.model_name.replace('/', '_')), save_weights_only=True)
             print("Checkpoint directory:", checkpoint_dir)
             callbacks.append(checkpoint_callback)
 
         train_data = dataset.train_subset if dataset.train_subset else dataset.dataset
         val_data = dataset.validation_subset if dataset.validation_subset else None
 
-        return self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=True, callbacks=callbacks)
+        return self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=shuffle_files,
+                               callbacks=callbacks)
 
     def evaluate(self, dataset: TextClassificationDataset, use_test_set=False):
         """

@@ -33,14 +33,35 @@ class TFHubModel(BaseModel):
     """
 
     def __init__(self, model_url: str,  model_name: str, framework: FrameworkType, use_case: UseCaseType):
+        self._model = None
         self._model_url = model_url
         super().__init__(model_name, framework, use_case)
         os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
 
-
     @property
     def model_url(self):
         return self._model_url
+
+    def load_from_directory(self, model_dir: str):
+        """
+            Loads a saved model from the specified directory
+
+            Args:
+                model_dir (str): Directory with a saved_model.pb or h5py file to load
+
+            Returns:
+                None
+
+            Raises:
+                TypeError if model_dir is not a string
+                NotADirectoryError if model_dir is not a directory
+                IOError for an invalid model file
+        """
+        # Verify that the model directory exists
+        verify_directory(model_dir, require_directory_exists=True)
+
+        self._model = tf.keras.models.load_model(model_dir)
+        self._model.summary(print_fn=print)
 
     def set_auto_mixed_precision(self, enable_auto_mixed_precision):
         """

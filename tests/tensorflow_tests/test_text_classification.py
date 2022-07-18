@@ -41,7 +41,7 @@ def test_tf_binary_text_classification(model_name, dataset_name):
     try:
         # Get the dataset
         dataset = dataset_factory.get_dataset('/tmp/data', 'text_classification', framework, dataset_name,
-                                              'tf_datasets', split=["train[:5%]"])
+                                              'tf_datasets', split=["train[:8%]"], shuffle_files=False)
 
         # Get the model
         model = model_factory.get_model(model_name, framework)
@@ -60,7 +60,13 @@ def test_tf_binary_text_classification(model_name, dataset_name):
         assert "model must be trained" in str(e)
 
         # Train
-        model.train(dataset, output_dir=output_dir, epochs=1)
+        history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False)
+        assert history is not None
+
+        # Verify that checkpoints were generated
+        checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(model_name))
+        assert os.path.isdir(checkpoint_dir)
+        assert len(os.listdir(checkpoint_dir))
 
         # Evaluate
         trained_metrics = model.evaluate(dataset)
@@ -92,6 +98,14 @@ def test_tf_binary_text_classification(model_name, dataset_name):
         # Predict with the raw text input
         reload_predictions = reload_model.predict(raw_text_input)
         assert (reload_predictions == predictions).all()
+
+        # Retrain from checkpoints and verify that we have better accuracy than the original training
+        retrain_model = model_factory.get_model(model_name, framework)
+        retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
+                            shuffle_files=False)
+        retrain_metrics = retrain_model.evaluate(dataset)
+        accuracy_index = next(id for id, k in enumerate(model._model.metrics_names) if 'acc' in k)
+        assert retrain_metrics[accuracy_index] > trained_metrics[accuracy_index]
 
         # Test generating an INC config file (not implemented yet)
         inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))

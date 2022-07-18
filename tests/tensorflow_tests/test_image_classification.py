@@ -55,7 +55,13 @@ def test_tf_image_classification(model_name, dataset_name):
     assert len(pretrained_metrics) > 0
 
     # Train
-    model.train(dataset, output_dir=output_dir, epochs=1)
+    history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False)
+    assert history is not None
+
+    # Verify that checkpoints were generated
+    checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(model_name))
+    assert os.path.isdir(checkpoint_dir)
+    assert len(os.listdir(checkpoint_dir))
 
     # Evaluate
     trained_metrics = model.evaluate(dataset)
@@ -90,6 +96,12 @@ def test_tf_image_classification(model_name, dataset_name):
     inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))
     with pytest.raises(NotImplementedError) as e:
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, tuning_workspace=output_dir)
+
+    # Retrain from checkpoints and verify that we have better accuracy than the original training
+    retrain_model = model_factory.get_model(model_name, framework)
+    retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
+                                          shuffle_files=False)
+    assert retrain_history.history['acc'] > history.history['acc']
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
@@ -144,7 +156,13 @@ class TestImageClassificationCustomDataset:
         dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
 
         # Train for 1 epoch
-        model.train(dataset, output_dir=self._output_dir, epochs=1)
+        history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False)
+        assert history is not None
+
+        # Verify that checkpoints were generated
+        checkpoint_dir = os.path.join(self._output_dir, "{}_checkpoints".format(model_name))
+        assert os.path.isdir(checkpoint_dir)
+        assert len(os.listdir(checkpoint_dir))
 
         # Evaluate
         model.evaluate(dataset)
@@ -166,6 +184,12 @@ class TestImageClassificationCustomDataset:
         # Evaluate
         metrics = reload_model.evaluate(dataset)
         assert len(metrics) > 0
+
+        # Retrain from checkpoints and verify that we have better accuracy than the original training
+        retrain_model = model_factory.get_model(model_name, framework)
+        retrain_history = retrain_model.train(dataset, output_dir=self._output_dir, epochs=1,
+                                              initial_checkpoints=checkpoint_dir, shuffle_files=False)
+        assert retrain_history.history['acc'] > history.history['acc']
 
         # Test benchmarking, quantization, and graph optimization with ResNet50
         if model_name == "resnet_v1_50":

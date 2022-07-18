@@ -56,7 +56,12 @@ import sys
               default=1,
               type=int,
               help="Number of training epochs [default: 1]")
-def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_catalog, epochs):
+@click.option("--init-checkpoints", "--init_checkpoints",
+              required=False,
+              type=click.Path(dir_okay=True),
+              help="Optional path to checkpoint weights to load to resume training. If the path provided is a "
+                   "directory, the latest checkpoint from the directory will be used.")
+def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_catalog, epochs, init_checkpoints):
     """
     Trains the model
     """
@@ -70,6 +75,10 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_
             print("Dataset catalog:", dataset_catalog)
 
     print("Training epochs:", epochs)
+
+    if init_checkpoints:
+        print("Initial checkpoints:", init_checkpoints)
+
     print("Dataset dir:", dataset_dir)
     print("Output directory:", output_dir, flush=True)
 
@@ -101,7 +110,7 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_
 
     # Train the model using the dataset
     try:
-        model.train(dataset, output_dir=output_dir, epochs=epochs)
+        model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints)
     except Exception as e:
         sys.exit("There was an error during model training:\n{}".format(str(e)))
 
