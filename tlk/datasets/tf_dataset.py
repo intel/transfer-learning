@@ -23,10 +23,13 @@ from tlk.datasets.dataset import BaseDataset
 
 class TFDataset(BaseDataset):
     """
-    Class used to represent a TF Dataset
+    Base class used to represent a TF Dataset
     """
 
     def __init__(self, dataset_dir, dataset_name="", dataset_catalog=""):
+        """
+        Class constructor
+        """
         BaseDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog)
         self._train_subset = None
         self._validation_subset = None
@@ -34,18 +37,28 @@ class TFDataset(BaseDataset):
 
     @property
     def train_subset(self):
+        """
+        A subset of the dataset used for training
+        """
         return self._train_subset
 
     @property
     def validation_subset(self):
+        """
+        A subset of the dataset used for validation/evaluation
+        """
         return self._validation_subset
 
     @property
     def test_subset(self):
+        """
+        A subset of the dataset held out for final testing/evaluation
+        """
         return self._test_subset
 
     def get_batch(self, subset='all'):
-        """Get a single batch of images and labels from the dataset.
+        """
+        Get a single batch of images and labels from the dataset.
 
             Args:
                 subset (str): default "all", can also be "train", "validation", or "test"
@@ -68,7 +81,8 @@ class TFDataset(BaseDataset):
             raise ValueError("Unable to return a batch, because the dataset or subset hasn't been defined.")
 
     def shuffle_split(self, train_pct=.75, val_pct=.25, test_pct=0., seed=None):
-        """Randomly splits the dataset into train, validation, and test subsets with a pseudo-random seed option.
+        """
+        Randomly split the dataset into train, validation, and test subsets with a pseudo-random seed option.
 
             Args:
                 train_pct (float): default .75, percentage of dataset to use for training

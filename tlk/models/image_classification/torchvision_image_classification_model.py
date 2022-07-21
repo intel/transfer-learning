@@ -41,6 +41,9 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
     """
 
     def __init__(self, model_name: str):
+        """
+        Class constructor
+        """
         torchvision_model_map = read_json_file(os.path.join(
             TLK_BASE_DIR, "models/configs/torchvision_image_classification_models.json"))
         if model_name not in torchvision_model_map.keys():
@@ -70,6 +73,9 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
 
     @property
     def num_classes(self):
+        """
+        The number of output neurons in the model; equal to the number of classes in the dataset
+        """
         return self._num_classes
 
     def _get_hub_model(self, num_classes, ipex_optimize=True):
@@ -99,12 +105,31 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
         return self._model, self._optimizer
 
     def load_from_directory(self,  model_dir: str):
+        """
+        Load a saved model from the model_dir path
+        """
         # Verify that the model directory exists
         verify_directory(model_dir, require_directory_exists=True)
         self._model = torch.load(os.path.join(model_dir, 'model.pt'))
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None):
+        """
+            Trains the model using the specified image classification dataset. The first time training is called, it
+            will get the model from torchvision and add on a fully-connected dense layer with linear activation
+            based on the number of classes in the specified dataset. The model and optimizer are defined and trained
+            for the specified number of epochs.
+
+            Args:
+                dataset (ImageClassificationDataset): Dataset to use when training the model
+                output_dir (str): Path to a writeable directory for output files
+                epochs (int): Number of epochs to train the model (default: 1)
+                initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
+                    latest checkpoint will be used.
+
+            Returns:
+                Trained PyTorch model object
+        """
         verify_directory(output_dir)
 
         if initial_checkpoints and not isinstance(initial_checkpoints, str):
@@ -194,6 +219,8 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """
+        Evaluate the accuracy of the model on a dataset.
+
         If there is a validation set, evaluation will be done on it (by default) or on the test set
         (by setting use_test_set=True). Otherwise, the entire non-partitioned dataset will be
         used for evaluation.
@@ -257,6 +284,9 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
         return [epoch_loss, epoch_acc]
 
     def predict(self, input_samples):
+        """
+        Perform feed-forward inference and predict the classes of the input_samples
+        """
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
             pretrained_model_class = locate('torchvision.models.{}'.format(self.model_name))
@@ -269,6 +299,9 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
         return predicted_ids
 
     def export(self, output_dir):
+        """
+        Save a serialized version of the model to the output_dir path
+        """
         if self._model:
             # Save the model in a format that can be re-loaded for inference
             verify_directory(output_dir)

@@ -28,10 +28,13 @@ from tlk.datasets.image_classification.image_classification_dataset import Image
 
 class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
     """
-    Base class for an image classification dataset from the TensorFlow datasets catalog
+    An image classification dataset from the TensorFlow datasets catalog
     """
     def __init__(self, dataset_dir, dataset_name, split=["train"],
                  as_supervised=True, shuffle_files=False):
+        """
+        Class constructor
+        """
         if not isinstance(split, list):
             raise ValueError("Value of split argument must be a list.")
         ImageClassificationDataset.__init__(self, dataset_dir, dataset_name)
@@ -69,18 +72,24 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
 
     @property
     def class_names(self):
+        """Returns the list of class names"""
         return self._info.features["label"].names
 
     @property
     def info(self):
+        """Returns a dictionary of information about the dataset"""
         return {'dataset_info': self._info, 'preprocessing_info': self._preprocessed}
 
     @property
     def dataset(self):
+        """
+        Returns the framework dataset object (tf.data.Dataset)
+        """
         return self._dataset
 
     def preprocess(self, image_size, batch_size):
-        """Preprocess the dataset to convert to float32, resize, and batch the images
+        """
+        Preprocess the dataset to convert to float32, resize, and batch the images
 
             Args:
                 image_size (int): desired square image size

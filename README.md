@@ -1,9 +1,13 @@
-# Transfer Learning Kit (TLK)
+# Intel® Transfer Learning Tool Quick Start
 
-> Note that the `tlk` (Transfer Learning Kit) tool name is a placeholder until
-> we have the actual tool name picked out.
-
-
+## Features
+      
+| Use Case | Framework | Optimizations | Datasets |
+|----------|-----------|----------|---------------|
+| Image Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 |
+| Image Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) |
+| Binary Text Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/overview#image_classification): [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config), [glue/sst2](https://www.tensorflow.org/datasets/catalog/glue#gluesst2), [imdb_reviews](https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config) |
+   
 ## Build and Install
 
 Requirements:
@@ -49,17 +53,7 @@ Requirements:
    pip install --no-deps tensorflow-text==2.8.2
    ```
 
-## Features
-
-The table below list features that have currently been implemented in the TLK CLI and API:
-
-| Use Case | Framework | Datasets | Optimizations |
-|----------|-----------|----------|---------------|
-| Image Classification | PyTorch | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) |
-| Image Classification | TensorFlow | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) |
-| Binary Text Classification | TensorFlow | <li> [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/overview#image_classification): [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config), [glue/sst2](https://www.tensorflow.org/datasets/catalog/glue#gluesst2), [imdb_reviews](https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config) | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) |
-
-## Run the CLI
+## Getting Started with the CLI
 
 Use `tlk --help` to see the list of CLI commands. More detailed information on each
 command can be found using `tlk <command> --help` (like `tlk train --help`).
@@ -217,7 +211,7 @@ performance mode benchmark result:
 
 Do graph optimization on the trained model:
 ```
-> tlk optimize --model-dir /tmp/output/resnet_v1_50/1 --output-dir --output-dir /tmp/output
+> tlk optimize --model-dir /tmp/output/resnet_v1_50/1 --output-dir /tmp/output
 Model directory: /tmp/output/resnet_v1_50/1
 Model name: resnet_v1_50
 Output directory: /tmp/output
@@ -229,7 +223,7 @@ Starting graph optimization
 2022-06-28 13:51:21 [INFO] SavedModel written to: /tmp/output/optimized/resnet_v1_50/1/saved_model.pb
 ```
 
-## Use the API
+## Getting Started with the API
 ```python
 from tlk.datasets import dataset_factory
 from tlk.models import model_factory

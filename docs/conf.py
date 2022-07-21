@@ -12,13 +12,15 @@
 #
 import os
 import sys
+import shutil
+import glob
 sys.path.insert(0, os.path.abspath('../..'))
 sys.setrecursionlimit(1500)
 import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
-project = 'tlk'
+project = 'Intel® Transfer Learning Tool'
 copyright = '2022, Intel'
 author = 'Intel'
 
@@ -32,11 +34,16 @@ release = '0.0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'myst_parser',
+    'nbsphinx',
+    'nbsphinx_link',
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
     'sphinx_click'
 ]
 
@@ -46,8 +53,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv3']
-
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv3', 'README.md']
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -61,3 +67,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
+autodoc_member_order = 'bysource'
+nbsphinx_execute = 'never'
+myst_heading_anchors = 2
+

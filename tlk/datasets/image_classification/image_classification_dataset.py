@@ -28,9 +28,15 @@ class ImageClassificationDataset(BaseDataset):
     Base class for an image classification dataset
     """
     def __init__(self, dataset_dir, dataset_name="", dataset_catalog=""):
+        """
+        Class constructor
+        """
         BaseDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog)
 
     @property
     @abc.abstractmethod
     def class_names(self):
+        """
+        Returns the list of class names (abstract method implemented by subclasses)
+        """
         pass

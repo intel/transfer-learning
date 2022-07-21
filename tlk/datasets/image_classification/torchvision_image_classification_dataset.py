@@ -28,9 +28,12 @@ DATASETS = ["CIFAR10", "Food101", "CIFAR100", "Country211", "DTD", "FGVCAircraft
 
 class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchDataset):
     """
-    Base class for an image classification dataset from the torchvision catalog
+    An image classification dataset from the torchvision catalog
     """
     def __init__(self, dataset_dir, dataset_name, split=['train'], download=True, num_workers=0, shuffle_files=True):
+        """
+        Class constructor
+        """
         if not isinstance(split, list):
             raise ValueError("Value of split argument must be a list.")
         for s in split:
@@ -114,12 +117,21 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
 
     @property
     def class_names(self):
+        """
+        Returns the list of class names
+        """
         return self._dataset.classes
 
     @property
     def info(self):
+        """
+        Returns a dictionary of information about the dataset
+        """
         return {'dataset_info': self._info, 'preprocessing_info': self._preprocessed}
 
     @property
     def dataset(self):
+        """
+        Returns the framework dataset object (torch.utils.data.Dataset)
+        """
         return self._dataset

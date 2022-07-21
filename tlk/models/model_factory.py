@@ -99,6 +99,17 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
     """
     Returns a dictionary of supported models organized by use case, model name, and framework.
     The leaf items in the dictionary are attributes about the pretrained model.
+
+    Args:
+        framework (str or FrameworkType): framework
+        use_case (str or UseCaseType): use case
+
+    Returns:
+        dictionary
+
+    Raises:
+        NameError if a model config file is found with an unknown or missing use case
+
     """
     # Directory of json files for the supported models
     config_directory = os.path.join(TLK_BASE_DIR, "models/configs")
@@ -158,6 +169,12 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
     """
     Prints a list of the supported models, categorized by use case. The results can be filtered to only show a given
     framework or use case.
+
+    Args:
+        framework (str or FrameworkType): framework
+        use_case (str or UseCaseType): use case
+        verbose (boolean): include all model data from the config file in result, default is False
+
     """
     models = get_supported_models(framework, use_case)
 

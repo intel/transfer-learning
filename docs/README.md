@@ -10,9 +10,10 @@ source tlk_env/bin/activate
 python -m pip install --editable .[tensorflow,pytorch]
 ```
 
-Install Sphinx and a few other tools required to build docs
+Install pandoc, Sphinx and a few other tools required to build docs
 ```bash
-python -m pip install sphinx sphinx_click sphinx_rtd_theme
+sudo apt install pandoc
+pip install -r docs/requirements-docs.txt
 ```
 
 Navigate to `docs` directory and run the doctests to ensure all tests pass:
@@ -55,8 +56,3 @@ Serving HTTP on 0.0.0.0 port 9999 (http://0.0.0.0:9999/) ...
 
 runs the docs server on the host while listening to all hosts.
 Now you can Navigate to `HOSTNAME:9999` to view the docs.
-
-## Software Design Documents
-
-* [Transfer_Learning_CLI_and_API_Design.pdf](/docs/sw_design/Transfer_Learning_CLI_and_API_Design.pdf)
-

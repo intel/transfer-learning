@@ -30,26 +30,38 @@ class BaseModel(abc.ABC):
     """
 
     def __init__(self, model_name: str, framework: FrameworkType, use_case: UseCaseType):
+        """
+        Class constructor
+        """
         self._model_name = model_name
         self._framework = framework
         self._use_case = use_case
 
     @property
     def model_name(self):
+        """
+        Name of the model
+        """
         return self._model_name
 
     @property
     def framework(self):
+        """
+        Framework with which the model is compatible
+        """
         return self._framework
 
     @property
     def use_case(self):
+        """
+        Use case (or category) to which the model belongs
+        """
         return self._use_case
 
     @abc.abstractmethod
     def load_from_directory(self, model_dir: str):
         """
-        Loads a model from a directory
+        Load a model from a directory
         """
         pass
 
@@ -63,25 +75,32 @@ class BaseModel(abc.ABC):
     @abc.abstractmethod
     def evaluate(self, dataset: BaseDataset):
         """
-        Evaluate the model using the specified dataset. Returns the loss and metrics for the model in test mode.
+        Evaluate the model using the specified dataset.
+
+        Returns the loss and metrics for the model in test mode.
         """
         pass
 
     @abc.abstractmethod
     def predict(self, input_samples):
         """
-        Generates predictions for the input samples. The input samples can be a BaseDataset type of object or a numpy
-        array. Returns a numpy array of predictions.
+        Generates predictions for the input samples.
+
+        The input samples can be a BaseDataset type of object or a numpy array.
+        Returns a numpy array of predictions.
         """
         pass
 
     @abc.abstractmethod
     def export(self, output_dir: str):
+        """
+        Export the serialized model to an output directory
+        """
         pass
 
     @abc.abstractmethod
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):
-        """"
+        """
         Writes an INC compatible config file to the specified path usings args from the specified dataset and
         parameters. This is currently only supported for TF custom image classification datasets.
 

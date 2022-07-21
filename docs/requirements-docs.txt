@@ -1,0 +1,7 @@
+ipykernel
+myst-parser
+nbsphinx
+nbsphinx-link
+sphinx
+sphinx_click
+sphinx_rtd_theme

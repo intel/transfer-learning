@@ -26,10 +26,13 @@ from tlk.utils.types import FrameworkType, UseCaseType
 
 class TorchvisionModel(BaseModel):
     """
-    Class used to represent a Torchvision pretrained model
+    Base class used to represent a Torchvision pretrained model
     """
 
     def __init__(self, model_name: str, framework: FrameworkType, use_case: UseCaseType):
+        """
+        Class constructor
+        """
         super().__init__(model_name, framework, use_case)
 
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):

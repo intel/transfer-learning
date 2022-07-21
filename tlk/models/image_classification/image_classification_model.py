@@ -29,11 +29,14 @@ from tlk.utils.types import FrameworkType, UseCaseType
 
 class ImageClassificationModel(BaseModel):
     """
-    Class used to represent a pretrained model for image classification
+    Base class used to represent a pretrained model for image classification
     """
 
     def __init__(self, image_size, do_fine_tuning: bool, dropout_layer_rate: int,
                  model_name: str, framework: FrameworkType, use_case: UseCaseType):
+        """
+        Class constructor
+        """
         self._image_size = image_size
         self._do_fine_tuning = do_fine_tuning
         self._dropout_layer_rate = dropout_layer_rate
@@ -42,27 +45,41 @@ class ImageClassificationModel(BaseModel):
 
     @property
     def image_size(self):
+        """
+        The fixed image size that the pretrained model expects as input, in pixels with equal width and height
+        """
         return self._image_size
 
     @property
     @abc.abstractmethod
     def num_classes(self):
+        """
+        The number of output neurons in the model; equal to the number of classes in the dataset
+        """
         pass
 
     @property
     def do_fine_tuning(self):
+        """
+        When True, the weights in all of the model's layers will be trainable. When False, the intermediate
+        layer weights will be frozen, and only the final classification layer will be trainable.
+        """
         return self._do_fine_tuning
 
     @property
     def dropout_layer_rate(self):
+        """
+        The probability of any one node being dropped when a dropout layer is used
+        """
         return self._dropout_layer_rate
 
     def get_inc_config_template_dict(self):
         """
-        Returns a dictionary for an config template compatible with the Intel Neural Compressor. It loads the yaml
-        file tlk/models/configs/inc/image_classification_template.yaml and then fills in parameters that the model
-        knows about (like framework and model name). There are still more parameters that need to be filled in before
-        using the config with INC (like the dataset information, image size, etc).
+        Returns a dictionary for a config template compatible with the Intel Neural Compressor.
+
+        It loads the yaml file tlk/models/configs/inc/image_classification_template.yaml and then fills in parameters
+        that the model knows about (like framework and model name). There are still more parameters that need to be
+        filled in before using the config with INC (like the dataset information, image size, etc).
         """
         template_file_path = os.path.join(TLK_BASE_DIR, "models/configs/inc/image_classification_template.yaml")
 

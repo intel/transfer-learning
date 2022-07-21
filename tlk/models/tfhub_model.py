@@ -29,7 +29,7 @@ from tlk.utils.types import FrameworkType, UseCaseType
 
 class TFHubModel(BaseModel):
     """
-    Class used to represent a TF Hub pretrained model
+    Base class used to represent a TF Hub pretrained model
     """
 
     def __init__(self, model_url: str,  model_name: str, framework: FrameworkType, use_case: UseCaseType):
@@ -40,6 +40,9 @@ class TFHubModel(BaseModel):
 
     @property
     def model_url(self):
+        """
+        The public URL used to download the TFHub model
+        """
         return self._model_url
 
     def load_from_directory(self, model_dir: str):

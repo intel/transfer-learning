@@ -29,42 +29,67 @@ from tlk.datasets.dataset import BaseDataset
 
 class PyTorchDataset(BaseDataset):
     """
-    Class used to represent a PyTorch Dataset
+    Base class used to represent a PyTorch Dataset
     """
 
     def __init__(self, dataset_dir, dataset_name="", dataset_catalog=""):
+        """
+        Class constructor
+        """
         BaseDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog)
 
     @property
     def train_subset(self):
+        """
+        A subset of the dataset used for training
+        """
         return torch.utils.data.Subset(self._dataset, self._train_indices) if self._train_indices else None
 
     @property
     def validation_subset(self):
+        """
+        A subset of the dataset used for validation/evaluation
+        """
         return torch.utils.data.Subset(self._dataset, self._validation_indices) if self._validation_indices else None
 
     @property
     def test_subset(self):
+        """
+        A subset of the dataset held out for final testing/evaluation
+        """
         return torch.utils.data.Subset(self._dataset, self._test_indices) if self._test_indices else None
 
     @property
     def data_loader(self):
+        """
+        A data loader object corresponding to the dataset
+        """
         return self._data_loader
 
     @property
     def train_loader(self):
+        """
+        A data loader object corresponding to the training subset
+        """
         return self._train_loader
 
     @property
     def validation_loader(self):
+        """
+        A data loader object corresponding to the validation subset
+        """
         return self._validation_loader
 
     @property
     def test_loader(self):
+        """
+        A data loader object corresponding to the test subset
+        """
         return self._test_loader
 
     def get_batch(self, subset='all'):
-        """Get a single batch of images and labels from the dataset.
+        """
+        Get a single batch of images and labels from the dataset.
 
             Args:
                 subset (str): default "all", can also be "train", "validation", or "test"
@@ -87,7 +112,8 @@ class PyTorchDataset(BaseDataset):
             raise ValueError("Unable to return a batch, because the dataset or subset hasn't been defined.")
 
     def shuffle_split(self, train_pct=.75, val_pct=.25, test_pct=0., seed=None):
-        """Randomly splits the dataset into train, validation, and test subsets with a pseudo-random seed option.
+        """
+        Randomly split the dataset into train, validation, and test subsets with a pseudo-random seed option.
 
             Args:
                 train_pct (float): default .75, percentage of dataset to use for training
@@ -148,7 +174,8 @@ class PyTorchDataset(BaseDataset):
             self._test_loader = None
 
     def preprocess(self, image_size='variable', batch_size=32):
-        """Preprocess the dataset to resize, normalize, and batch the images
+        """
+        Preprocess the dataset to resize, normalize, and batch the images
 
             Args:
                 image_size (int or 'variable'): desired square image size (if 'variable', does not alter image size)

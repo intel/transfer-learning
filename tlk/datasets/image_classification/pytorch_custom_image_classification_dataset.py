@@ -27,27 +27,33 @@ from tlk.datasets.image_classification.image_classification_dataset import Image
 
 class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorchDataset):
     """
-    Base class for a custom image classification dataset that can be used with PyTorch models. Note that the
+    A custom image classification dataset that can be used with PyTorch models. Note that the
     directory of images is expected to be organized with subfolders for each image class. Each subfolder should
     contain .jpg images for the class. The name of the subfolder will be used as the class label.
-    
-    dataset_dir
-      ├── class_a
-      ├── class_b
-      └── class_c
-        
-        Args:
-            dataset_dir (str): Directory where the data is located. It should contain subdirectories with images for
-                               each class.
-            dataset_name (str): optional; Name of the dataset. If no dataset name is given, the dataset_dir folder name
-                                will be used as the dataset name.
-            num_workers (int): optional; Number of processes to use for data loading, default is 0
 
-        Raises:
-            FileNotFoundError if dataset directory does not exist
+    .. code-block:: text
+
+        dataset_dir
+          ├── class_a
+          ├── class_b
+          └── class_c
+        
+    Args:
+        dataset_dir (str): Directory where the data is located. It should contain subdirectories with images for
+                           each class.
+        dataset_name (str): optional; Name of the dataset. If no dataset name is given, the dataset_dir folder name
+                            will be used as the dataset name.
+        num_workers (int): optional; Number of processes to use for data loading, default is 0
+
+    Raises:
+        FileNotFoundError if dataset directory does not exist
+
     """
 
     def __init__(self, dataset_dir, dataset_name=None, num_workers=0, shuffle_files=True):
+        """
+        Class constructor
+        """
         if not os.path.exists(dataset_dir):
             raise FileNotFoundError("The dataset directory ({}) does not exist".format(dataset_dir))
 
@@ -83,12 +89,21 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
 
     @property
     def class_names(self):
+        """
+        Returns the list of class names
+        """
         return self._dataset.classes
 
     @property
     def info(self):
+        """
+        Returns a dictionary of information about the dataset
+        """
         return {'dataset_info': self._info, 'preprocessing_info': self._preprocessed}
 
     @property
     def dataset(self):
+        """
+        Returns the framework dataset object (torch.utils.data.Dataset)
+        """
         return self._dataset

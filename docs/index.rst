@@ -1,48 +1,78 @@
-.. tlk documentation master file, created by
-   sphinx-quickstart on Wed Apr 27 16:19:07 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Intel® Transfer Learning Tool
+=============================
 
-Transfer Learning Kit (TLK)
-===========================
+Goals
+-----
 
-Introduction
-------------
+* To make transfer learning workflows easier for data scientists for a variety of AI use cases, frameworks, and public
+  pretrained models
+* To incorporate all available Intel optimizations and best practices for XPU
 
-Transfer learning uses pretrained model weights as a starting point to train the model on a different dataset
-for a new task. This allows for a smaller amount of training data and reduced training time, compared to training
-from scratch. Transfer learning has been increasing in popularity (particularly for computer vision and natural
-language processing) and there are many pretrained models available in public model hubs like TensorFlow Hub,
-torchvision, and HuggingFace. As Intel, we want to utilize transfer learning on XPU to demonstrate that the training
-times can be reasonable with transfer learning and fine tuning. To help do this, we provide a CLI and API to
-reduce the complexity that can be involved with transfer learning.
+Features
+--------
 
-Transfer learning involves several steps including preprocessing the dataset, finding and downloading an appropriate
-pretrained model, manipulating the model’s layers, retraining, evaluation, and exporting the final model. There are
-many transfer learning tutorials online, but those tutorials often cover a single use case, may gloss over certain
-details like how the dataset needs to be formatted, and do not always explain how to apply the same method to other
-tasks. These tutorials also do not utilize technologies that give the best performance on Intel hardware (like
-Intel-optimized frameworks/extensions and pruning/quantization using the Intel Neural Compressor).
+* Low-code API and no-code CLI for:
+   * TensorFlow 2.8
+      * Image Classification with 19 models from TFHub
+   * PyTorch 1.11
+      * Image Classification with 10 models from torchvision
 
-This transfer learning CLI and API provide a consistent interface for users to apply transfer learning to their own
-tasks across various CV and NLP use cases. The tools also abstract out differences between frameworks and different
-model hubs. The tools can be run on the command line, interactively in a low code environment with sample Jupyter
-notebooks, and deployed as part of MLOps pipelines in containers.
-
-Sequence Diagram
-----------------
-
-.. figure:: images/sequence_diagram.png
+.. figure:: images/features.png
    :scale: 50 %
-   :alt: TLK Sequence Diagram
+   :alt: TLK Features
+
+* Jupyter notebooks demonstrating:
+   * 5 Computer Vision workflows
+   * 3 Natural Language Processing workflows
+
+.. csv-table::
+   :header: "Notebook", "Use Case", "Framework"
+   :widths: 60, 20, 20
+
+   Image Classification with TF Hub, Image Classification, TensorFlow
+   :doc:`Image Classification with TF using the TLK API <notebooks/TLK_TF_Image_Classification_Transfer_Learning>`, Image Classification, TensorFlow & TLK
+   Image Classification with PyTorch & torchvision, Image Classification, PyTorch
+   :doc:`Image Classification with PyTorch using the TLK API <notebooks/TLK_PyTorch_Image_Classification_Transfer_Learning>`, Image Classification, PyTorch & TLK
+   Object Detection with PyTorch & torchvision, Object Detection, PyTorch
+   BERT SQuAD fine tuning with TF Hub, Question Answering, TensorFlow
+   BERT Binary Text Classification with TF Hub, Text Classification, TensorFlow
+   Text Classifier fine tuning with PyTorch & Hugging Face, Text Classification, PyTorch
+
+Models
+------
+
+.. csv-table::
+   :header: TensorFlow,PyTorch
+   :widths: 50, 50
+
+   efficientnet_b0,densenet121
+   efficientnet_b1,densenet161
+   efficientnet_b2,efficientnet_b0
+   efficientnet_b3,efficientnet_b1
+   efficientnet_b4,efficientnet_b2
+   efficientnet_b5,googlenet
+   efficientnet_b6,mobilenet_v2
+   efficientnet_b7,resnet18
+   efficientnetv2-b0,resnet50
+   efficientnetv2-b1,shufflenet_v2_x1_0
+   efficientnetv2-b2,
+   efficientnetv2-b3,
+   efficientnetv2-s,
+   inception_v3,
+   mobilenet_v2_100_224,
+   nasnet_large,
+   resnet_v1_50,
+   resnet_v2_101,
+   resnet_v2_50,
 
 .. toctree::
    :maxdepth: 1
    :caption: Contents
 
-   install
+   quickstart
    cli
    api
+   notebooks
 
 Indices and tables
 ==================
@@ -50,3 +80,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+

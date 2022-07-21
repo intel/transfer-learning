@@ -40,6 +40,9 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
     """
 
     def __init__(self, model_name: str):
+        """
+        Class constructor
+        """
         tfhub_model_map = read_json_file(os.path.join(
             TLK_BASE_DIR, "models/configs/tfhub_image_classification_models.json"))
         if model_name not in tfhub_model_map.keys():
@@ -68,10 +71,16 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
 
     @property
     def feature_vector_url(self):
+        """
+        The public URL used to download the headless TFHub model used for transfer learning
+        """
         return self._feature_vector_url
 
     @property
     def num_classes(self):
+        """
+        The number of output neurons in the model; equal to the number of classes in the dataset
+        """
         return self._num_classes
 
     def _get_hub_model(self, num_classes):
@@ -194,7 +203,9 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """
-        If there is a validation set, evaluation will be done on it (by default) or on the test set
+        Evaluate the accuracy of the model on a dataset.
+
+        If there is a validation subset, evaluation will be done on it (by default) or on the test set
         (by setting use_test_set=True). Otherwise, the entire non-partitioned dataset will be
         used for evaluation.
         """
@@ -224,6 +235,9 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
             return self._model.evaluate(eval_dataset)
 
     def predict(self, input_samples):
+        """
+        Perform feed-forward inference and predict the classes of the input_samples
+        """
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
             original_model = tf.keras.Sequential([

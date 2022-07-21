@@ -26,42 +26,69 @@ class BaseDataset(abc.ABC):
     Abstract base class for a dataset used for training and evaluation
     """
     def __init__(self, dataset_dir, dataset_name=None, dataset_catalog=None):
+        """
+        Class constructor
+        """
         self._dataset_dir = dataset_dir
         self._dataset_name = dataset_name
         self._dataset_catalog = dataset_catalog
 
     @property
     def dataset_name(self):
+        """
+        Name of the dataset
+        """
         return self._dataset_name
 
     @property
     def dataset_dir(self):
+        """
+        Host directory containing the dataset files
+        """
         return self._dataset_dir
 
     @property
     def dataset_catalog(self):
+        """
+        The string name of the dataset catalog (or None)
+        """
         return self._dataset_catalog
 
     @property
     @abc.abstractmethod
     def dataset(self):
+        """
+        The framework dataset object
+        """
         pass
 
     @property
     @abc.abstractmethod
     def train_subset(self):
+        """
+        A subset of the dataset used for training
+        """
         pass
 
     @property
     @abc.abstractmethod
     def validation_subset(self):
+        """
+        A subset of the dataset used for validation/evaluation
+        """
         pass
 
     @property
     @abc.abstractmethod
     def test_subset(self):
+        """
+        A subset of the dataset held out for final testing/evaluation
+        """
         pass
 
     @abc.abstractmethod
     def get_batch(self):
+        """
+        Get a single batch of images and labels from the dataset
+        """
         pass

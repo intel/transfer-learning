@@ -1,62 +1,97 @@
-Python Library (API)
-====================
+
+API Reference
+=============
 
 Datasets
 --------
 
+.. currentmodule:: tlk.datasets
+
+The simplest way to create datasets is with the dataset factory methods :meth:`load_dataset`, for using a
+custom dataset, and :meth:`get_dataset`, for downloading and using a third-party dataset from a catalog such as TensorFlow
+Datasets or torchvision.
+
+Factory Methods
+***************
+
 .. automodule:: tlk.datasets.dataset_factory
-    :members: get_dataset
+   :members: load_dataset, get_dataset
 
-.. automodule:: tlk.datasets.dataset
-    :members: BaseDataset
+Class Reference
+***************
 
-.. automodule:: tlk.datasets.tf_dataset
-    :members: TFDataset
+Image Classification
+^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: tlk.datasets.image_classification.image_classification_dataset
-    :members: ImageClassificationDataset
+.. currentmodule:: tlk.datasets.image_classification
 
-.. automodule:: tlk.datasets.image_classification.tf_image_classification_dataset
-    :members: TFImageClassificationDataset
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
 
-.. automodule:: tlk.datasets.image_classification.tf_custom_image_classification_dataset
-    :members: TFCustomImageClassificationDataset
+    pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset
+    tf_custom_image_classification_dataset.TFCustomImageClassificationDataset
+    tf_image_classification_dataset.TFImageClassificationDataset
+    torchvision_image_classification_dataset.TorchvisionImageClassificationDataset
+    image_classification_dataset.ImageClassificationDataset
 
-.. automodule:: tlk.datasets.image_classification.torchvision_image_classification_dataset
-    :members: TorchvisionImageClassificationDataset
+Base Classes
+^^^^^^^^^^^^
 
-.. automodule:: tlk.datasets.image_classification.pytorch_custom_image_classification_dataset
-    :members: PyTorchCustomImageClassificationDataset
+.. note:: Users should rarely need to interact directly with these.
 
-.. automodule:: tlk.datasets.text_classification.text_classification_dataset
-    :members: TextClassificationDataset
+.. currentmodule:: tlk.datasets
 
-.. automodule:: tlk.datasets.text_classification.tfds_text_classification_dataset
-    :members: TFDSTextClassificationDataset
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+    pytorch_dataset.PyTorchDataset
+    tf_dataset.TFDataset
+    dataset.BaseDataset
 
 Models
 ------
 
+.. currentmodule:: tlk.models
+
+Discover and work with available models by using model factory methods. The :meth:`get_model`
+function will download third-party models and provide a convenient interface for modifying, training, evaluating, and
+so on. The model discovery and inspection methods are :meth:`get_supported_models` and :meth:`print_supported_models`.
+
+Factory Methods
+***************
+
 .. automodule:: tlk.models.model_factory
-    :members: get_model
+   :members: get_model, get_supported_models, print_supported_models
 
-.. automodule:: tlk.models.model
-    :members: BaseModel
+Class Reference
+***************
 
-.. automodule:: tlk.models.tfhub_model
-    :members: TFHubModel
+Image Classification
+^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: tlk.models.image_classification.image_classification_model
-    :members: ImageClassificationModel
+.. currentmodule:: tlk.models.image_classification
 
-.. automodule:: tlk.models.image_classification.tfhub_image_classification_model
-    :members: TFHubImageClassificationModel
+.. autosummary::
+  :toctree: _autosummary
+  :nosignatures:
 
-.. automodule:: tlk.models.image_classification.torchvision_image_classification_model
-    :members: TorchvisionImageClassificationModel
+   tfhub_image_classification_model.TFHubImageClassificationModel
+   torchvision_image_classification_model.TorchvisionImageClassificationModel
+   image_classification_model.ImageClassificationModel
 
-.. automodule:: tlk.models.text_classification.text_classification_model
-    :members: TextClassificationModel
+Base Classes
+^^^^^^^^^^^^
 
-.. automodule:: tlk.models.text_classification.tfhub_text_classification_model
-    :members: TFHubTextClassificationModel
+.. note:: Users should rarely need to interact directly with these.
+
+.. currentmodule:: tlk.models
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+    torchvision_model.TorchvisionModel
+    tfhub_model.TFHubModel
+    model.BaseModel
