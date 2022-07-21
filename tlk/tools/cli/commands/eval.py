@@ -19,6 +19,7 @@
 #
 
 import click
+import inspect
 import os
 import sys
 
@@ -30,6 +31,12 @@ from tlk.utils.types import FrameworkType
               required=True,
               type=str,
               help="Model directory to reload and evaluate a model exported by TLK.")
+@click.option("--model-name", "--model_name",
+              required=False,
+              type=str,
+              help="Name of the model to evaluate. If a model name is not provided, the CLI will try to get the model "
+                   "name from the model directory path. For example, if the model directory is /tmp/efficientnet_b0/10,"
+                   " it will use 'efficientnet_b0' as the model name.")
 @click.option("--dataset-dir", "--dataset_dir",
               required=True,
               type=str,
@@ -42,12 +49,12 @@ from tlk.utils.types import FrameworkType
               help="Name of the dataset to use from a dataset catalog.")
 @click.option("--dataset-catalog", "--dataset_catalog",
               required=False,
-              type=str,
+              type=click.Choice(['tf_datasets', 'torchvision', 'huggingface']),
               help="Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface). "
                    "If a dataset name is provided and no dataset catalog is given, it will default to use "
                    "tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets "
                    "for HuggingFace models.")
-def eval(model_dir, dataset_dir, dataset_name, dataset_catalog):
+def eval(model_dir, model_name, dataset_dir, dataset_name, dataset_catalog):
     """
     Evaluates a model that has already been trained
     """
@@ -76,7 +83,9 @@ def eval(model_dir, dataset_dir, dataset_name, dataset_catalog):
     else:
         sys.exit("Evaluation is currently only implemented for TensorFlow saved models and PyTorch .pt models. No such files "
                  "found in the model directory ({}).".format(model_dir))
-    model_name = os.path.basename(os.path.dirname(model_dir))
+
+    if not model_name:
+        model_name = os.path.basename(os.path.dirname(model_dir))
 
     print("Model name:", model_name)
     print("Framework:", framework)
@@ -98,9 +107,12 @@ def eval(model_dir, dataset_dir, dataset_name, dataset_catalog):
         else:
             dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
 
-        if isinstance(dataset, ImageClassificationDataset):
-            dataset.preprocess(model.image_size, batch_size=32)
-            dataset.shuffle_split(seed=10)
+        if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
+            dataset.preprocess(image_size=model.image_size, batch_size=32)
+        else:
+            dataset.preprocess(batch_size=32)
+
+        dataset.shuffle_split(seed=10)
 
         model.evaluate(dataset)
     except Exception as e:

@@ -19,6 +19,7 @@
 #
 
 import click
+import inspect
 import sys
 
 
@@ -26,6 +27,7 @@ import sys
 @click.option("--framework", "-f",
               required=False,
               default="tensorflow",
+              type=click.Choice(['tensorflow', 'pytorch']),
               help="Deep learning framework [default: tensorflow]")
 @click.option("--model-name", "--model_name",
               required=True,
@@ -33,11 +35,11 @@ import sys
               help="Name of the model to use")
 @click.option("--output-dir", "--output_dir",
               required=True,
-              type=str,
+              type=click.Path(dir_okay=True, file_okay=False),
               help="Output directory for saved models, logs, checkpoints, etc")
 @click.option("--dataset-dir", "--dataset_dir",
               required=True,
-              type=str,
+              type=click.Path(dir_okay=True, file_okay=False),
               help="Dataset directory for a custom dataset, or if a dataset name "
                    "and catalog are being provided, the dataset directory is the "
                    "location where the dataset will be downloaded.")
@@ -47,14 +49,14 @@ import sys
               help="Name of the dataset to use from a dataset catalog.")
 @click.option("--dataset-catalog", "--dataset_catalog",
               required=False,
-              type=str,
+              type=click.Choice(['tf_datasets', 'torchvision', 'huggingface']),
               help="Name of a dataset catalog for a named dataset (Options: "
                    "tf_datasets, torchvision, huggingface). If a dataset name is provided "
                    "and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow "
                    "model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models.")
 @click.option("--epochs",
               default=1,
-              type=int,
+              type=click.IntRange(min=1),
               help="Number of training epochs [default: 1]")
 @click.option("--init-checkpoints", "--init_checkpoints",
               required=False,
@@ -101,7 +103,10 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_name, dataset_
 
         # TODO: get extra configs like batch size and maybe this doesn't need to be a separate call
         if framework in ['tensorflow', 'pytorch']:
-            dataset.preprocess(model.image_size, batch_size=32)
+            if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
+                dataset.preprocess(image_size=model.image_size, batch_size=32)
+            else:
+                dataset.preprocess(batch_size=32)
             dataset.shuffle_split(seed=10)
     except Exception as e:
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "
