@@ -109,6 +109,7 @@ class TestImageClassificationCustomDataset:
             download_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
             download_and_extract_tar_file(download_url, temp_dir)
 
+        os.makedirs('/tmp/output', exist_ok=True)
         cls._output_dir = tempfile.mkdtemp(dir='/tmp/output')
         os.environ["TORCH_HOME"] = cls._output_dir
         cls._temp_dir = temp_dir

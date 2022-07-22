@@ -1,0 +1,14 @@
+ARG IMAGE_NAME=python
+ARG IMAGE_TAG=3.9
+
+FROM ${IMAGE_NAME}:${IMAGE_TAG} as tlk-dev
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    make \
+    build-essential \
+    libgl1 \
+    python3-dev \
+    libglib2.0-0
+    

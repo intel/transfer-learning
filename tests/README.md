@@ -8,6 +8,9 @@ Then install the following dependencies:
 git clone git@github.com:intel-innersource/frameworks.ai.transfer-learning.git
 cd frameworks.ai.transfer-learning
 
+# Run tests with make, or skip this step to run individually
+make test
+
 # Create a virtual env or conda env for the test environment
 conda create --name tlk_tests python=3.8
 
@@ -18,16 +21,15 @@ pip3 install --editable .[tensorflow,pytorch]
 pip install --no-deps tensorflow-text==2.8.2
 
 # Install the test requirements
-cd tests
-pip3 install -r requirements-test.txt
+pip3 install -r tests/requirements-test.txt
 ```
 
 ## API Tests
 There are unit and integration tests that exercise the API. 
-Make sure you are in the `transfer-learning/tests` directory and use the command
+Make sure you are in the `transfer-learning/` directory and use the command
 below to run all tests:
 ```
-PYTHONPATH=$(pwd) py.test -s
+PYTHONPATH=$(pwd)/tests py.test -s
 ```
 
 ### Markers
@@ -45,17 +47,17 @@ The following custom markers have been defined in the transfer learning tests:
 
 To run only the TensorFlow tests run:
 ```
-PYTHONPATH=$(pwd) py.test -s -m tensorflow
+PYTHONPATH=$(pwd)/tests py.test -s -m tensorflow
 ```
 
 To run the TensorFlow tests and the common tests:
 ```
-PYTHONPATH=$(pwd) py.test -s -m "tensorflow or common"
+PYTHONPATH=$(pwd)/tests py.test -s -m "tensorflow or common"
 ```
 
 To run only the PyTorch tests run:
 ```
-PYTHONPATH=$(pwd) py.test -s -m pytorch
+PYTHONPATH=$(pwd)/tests py.test -s -m pytorch
 ```
 
 > Note: After the tests have run, there will be downloaded data in `/tmp/data` 

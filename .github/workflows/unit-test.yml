@@ -1,0 +1,24 @@
+name: Unit Test
+on:
+  pull_request_review:
+    types: [submitted]
+jobs:
+  unit-test:
+    if: github.event.review.state == 'approved'
+    runs-on: [ aia-devops ]
+    container:
+      image: amr-registry.caas.intel.com/aiops/tlk-dev
+      env:
+        http_proxy: ${{ secrets.HTTP_PROXY }}
+        https_proxy: ${{ secrets.HTTPS_PROXY }}
+        no_proxy: ${{ secrets.NO_PROXY }}
+      credentials:
+        username: ${{ secrets.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install virtualenv
+        run: pip install virtualenv
+      - name: Run Unit Test
+        run: make test
+        

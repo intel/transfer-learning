@@ -54,10 +54,6 @@ def patch_setattr(module_names, module_replace, monkeypatch, path, m):
         module = fn.replace(os.path.sep, '.').replace('test_', '').replace(
             *module_replace)
         try:
-            # NOTE: this is needed because we are currently running tests from the 'tests' directory. If we change
-            # to run from the root directory with a top level Makefile or something, this line should be removed.
-            module = "tlk.{}".format(module)
-
             monkeypatch.setattr('.'.join((module, path)), m)
         except AttributeError:
             # handle mocking builtins like `open`
