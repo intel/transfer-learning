@@ -8,8 +8,7 @@
 |----------|-----------|----------|---------------|
 | Image Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 |
 | Image Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) |
-| Binary Text Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Auto mixed precision training on Intel® fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/overview#image_classification): [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config), [glue/sst2](https://www.tensorflow.org/datasets/catalog/glue#gluesst2), [imdb_reviews](https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config) |
-   
+
 ## Build and Install
 
 Requirements:
@@ -43,16 +42,10 @@ Requirements:
    ```
    python setup.py bdist_wheel --universal
    pip install dist/tlk-0.0.1-py2.py3-none-any.whl[tensorflow,pytorch]
-
-   # Required for TensorFlow text classification
-   pip install --no-deps tensorflow-text==2.8.2
    ```
    Or for developers, do an editable install:
    ```
    pip install --editable .[tensorflow,pytorch]
-
-   # Required for TensorFlow text classification
-   pip install --no-deps tensorflow-text==2.8.2
    ```
 
 ## Getting Started with the CLI

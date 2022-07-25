@@ -12,9 +12,6 @@ venv_test: $(CURDIR)/tests/requirements-test.txt
 	@echo "Building the TLK API in tlk_tests env..."
 	@. $(ACTIVATE_TEST) && pip install --editable .[tensorflow,pytorch]
 
-	@echo "Required for TensorFlow text classification..."
-	@. $(ACTIVATE_TEST) && pip install --no-deps tensorflow-text==2.8.2
-
 	@echo "Installing test dependencies..."
 	@. $(ACTIVATE_TEST) && pip install -r $(CURDIR)/tests/requirements-test.txt
 

@@ -33,22 +33,11 @@ except ModuleNotFoundError as e:
     TFHubImageClassificationModel = None
     print("WARNING: Unable to import TFHubImageClassificationModel. TensorFlow may not be installed")
 
-
-try:
-    # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
-    from tlk.models.text_classification.tfhub_text_classification_model import TFHubTextClassificationModel
-except ModuleNotFoundError as e:
-    TFHubTextClassificationModel = None
-    print("WARNING: Unable to import TFHubTextClassificationModel. TensorFlow may not be installed")
-
 from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-from tlk.datasets.text_classification.text_classification_dataset import TextClassificationDataset
-
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,expected_class,expected_image_size',
-                         [['efficientnet_b0', TFHubImageClassificationModel, 224],
-                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', TFHubTextClassificationModel, None]])
+                         [['efficientnet_b0', TFHubImageClassificationModel, 224]])
 def test_tfhub_model_load(model_name, expected_class, expected_image_size):
     """
     Checks that a model can be downloaded form TF Hub
@@ -151,10 +140,7 @@ def test_get_supported_models_bad_use_case(bad_use_case):
 @pytest.mark.parametrize('model_name,dataset_type,get_hub_model_patch,class_names',
                          [['efficientnet_b0', ImageClassificationDataset,
                            'tlk.models.image_classification.tfhub_image_classification_model.'
-                           'TFHubImageClassificationModel._get_hub_model', ['a', 'b', 'c']],
-                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', TextClassificationDataset,
-                           'tlk.models.text_classification.tfhub_text_classification_model.'
-                           'TFHubTextClassificationModel._get_hub_model', ['a', 'b']]])
+                           'TFHubImageClassificationModel._get_hub_model', ['a', 'b', 'c']]])
 def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_patch, class_names):
     """
     Tests calling train on an TFHub model with a mock dataset and mock model and verifies we get back the return
@@ -196,12 +182,6 @@ def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_pat
      ['143', True, True, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
      ['123', True, True, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
      ['85', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
-     ['85', None, False, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
-     ['143', None, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
-     ['123', None, False, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
-     ['85', True, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
-     ['143', True, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
-     ['123', True, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
      ['85', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
      ['143', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
      ['123', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],

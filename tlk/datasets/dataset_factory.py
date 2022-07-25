@@ -29,10 +29,6 @@ dataset_map = {
                             "class": "TFImageClassificationDataset"},
             "custom": {"module": "tlk.datasets.image_classification.tf_custom_image_classification_dataset",
                             "class": "TFCustomImageClassificationDataset"}
-        },
-        UseCaseType.TEXT_CLASSIFICATION: {
-            "tf_datasets": {"module": "tlk.datasets.text_classification.tfds_text_classification_dataset",
-                            "class": "TFDSTextClassificationDataset"}
         }
     },
     FrameworkType.PYTORCH: {

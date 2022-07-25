@@ -36,12 +36,6 @@ except ModuleNotFoundError as e:
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
-    from tlk.datasets.text_classification.tfds_text_classification_dataset import TFDSTextClassificationDataset
-except ModuleNotFoundError as e:
-    print("WARNING: Unable to import TFDSTextClassificationDataset. TensorFlow may not be installed")
-
-try:
-    # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlk.datasets.image_classification.tf_custom_image_classification_dataset import TFCustomImageClassificationDataset
 except ModuleNotFoundError as e:
     print("WARNING: Unable to import TFCustomImageClassificationDataset. TensorFlow may not be installed")
@@ -60,8 +54,7 @@ def test_tf_flowers_10pct():
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,train_split,val_split,test_split,train_len,val_len,test_len',
-                         [['beans', 'image_classification', 'train', 'validation', None, 1034, 133, 0],
-                          ['glue/cola', 'text_classification', 'train', 'validation', 'test', 8551, 1043, 1063]])
+                         [['beans', 'image_classification', 'train', 'validation', None, 1034, 133, 0]])
 def test_defined_split(dataset_name, use_case, train_split, val_split, test_split, train_len, val_len, test_len):
     """
     Checks that dataset can be loaded into train, validation, and test subsets based on TFDS splits and then
@@ -104,8 +97,7 @@ def test_defined_split(dataset_name, use_case, train_split, val_split, test_spli
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,train_split,train_len,val_len',
-                         [['tf_flowers', 'image_classification', 'train[:30%]', 825, 275],
-                          ['glue/cola', 'text_classification', 'train[:10%]', 641, 213]])
+                         [['tf_flowers', 'image_classification', 'train[:30%]', 825, 275]])
 def test_shuffle_split(dataset_name, use_case, train_split, train_len, val_len):
     """
     Checks that dataset can be split into train, validation, and test subsets. The expected train subset length is
@@ -121,8 +113,7 @@ def test_shuffle_split(dataset_name, use_case, train_split, train_len, val_len):
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,image_size',
-                         [['tf_flowers', 'image_classification', 224],
-                          ['glue/cola', 'text_classification', None]])
+                         [['tf_flowers', 'image_classification', 224]])
 def test_shuffle_split_deterministic_tfds(dataset_name, use_case, image_size):
     """
     Checks that tfds datasets can be split into train, validation, and test subsets in a way that is reproducible
@@ -194,9 +185,7 @@ def test_shuffle_split_deterministic_custom():
                          [['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None, 32],
                           ['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None, 1],
                           ['/tmp/data', 'image_classification',  None, None, ['foo', 'bar'], 8],
-                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar'], 1],
-                          ['/tmp/data', 'text_classification', 'glue/cola', 'tf_datasets', None, 1],
-                          ['/tmp/data', 'text_classification', 'glue/cola', 'tf_datasets', None, 32]])
+                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar'], 1]])
 def test_batching(dataset_dir, use_case, dataset_name, dataset_catalog, class_names, batch_size):
     """
     Checks that dataset can be batched with valid positive integer values
@@ -218,8 +207,7 @@ def test_batching(dataset_dir, use_case, dataset_name, dataset_catalog, class_na
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_dir,use_case,dataset_name,dataset_catalog,class_names',
                          [['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None],
-                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar']],
-                          ['/tmp/data', 'text_classification', 'glue/cola', 'tf_datasets', None]])
+                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar']]])
 def test_batching_error(dataset_dir, use_case, dataset_name, dataset_catalog, class_names):
     """
     Checks that preprocessing cannot be run twice
@@ -243,36 +231,6 @@ def test_batching_error(dataset_dir, use_case, dataset_name, dataset_catalog, cl
         assert 'Data has already been preprocessed: {}'.format(tlk_dataset._preprocessed) == str(e.value)
     finally:
         ic_dataset.cleanup()
-
-
-@pytest.mark.tensorflow
-@pytest.mark.parametrize('dataset_name,use_case,expected_class_names',
-                         [['glue/cola', 'text_classification', ['unacceptable', 'acceptable']],
-                          ['glue/sst2', 'text_classification', ['negative', 'positive']],
-                          ['imdb_reviews', 'text_classification', ['neg', 'pos']]])
-def test_supported_tfds_datasets(dataset_name, use_case, expected_class_names):
-    """
-    Verifies that we are able to load supported datasets and get class names
-    """
-    dataset = get_dataset('/tmp/data', use_case, 'tensorflow', dataset_name, 'tf_datasets', split=["train[:10%]"])
-
-    assert dataset.class_names == expected_class_names
-
-
-@pytest.mark.tensorflow
-@pytest.mark.parametrize('dataset_name,use_case',
-                         [['glue', 'text_classification'],
-                          ['sst2', 'text_classification'],
-                          ['taco', 'text_classification']])
-def test_unsupported_tfds_datasets(dataset_name, use_case):
-    """
-    Verifies that unsupported datasets get the proper error
-    """
-
-    with pytest.raises(ValueError) as e:
-        get_dataset('/tmp/data', use_case, 'tensorflow', dataset_name, 'tf_datasets', split=["train[:10%]"])
-
-    assert "Dataset name is not supported" in str(e)
 
 
 class DatasetForTest:
@@ -344,8 +302,7 @@ tfds_metadata = {
 # The parameters are: dataset_dir, use_case, dataset_name, dataset_catalog, and class_names, which map to the
 # constructor parameters for DatasetForTest, which initializes the datasets using the dataset factory.
 dataset_params = [("/tmp/data", 'image_classification', "tf_flowers", "tf_datasets", None),
-                  ("/tmp/data", 'image_classification', None, None, ["a", "b", "c"]),
-                  ("/tmp/data", 'text_classification', "glue/cola", "tf_datasets", None)]
+                  ("/tmp/data", 'image_classification', None, None, ["a", "b", "c"])]
 
 
 @pytest.fixture(scope="class", params=dataset_params)
