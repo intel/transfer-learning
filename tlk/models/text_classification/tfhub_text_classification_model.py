@@ -116,9 +116,12 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
                     latest checkpoint will be used.
                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
                     uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
-                    If enable_auto_mixed_precision is set to None, auto mixed precision will be enabled when running with
-                    Intel fourth generation Xeon processors, and disabled for other platforms.
-                shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
+                    It is recommended to enable auto mixed precision training when running on platforms that support
+                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                    does not support bfloat16, it can be detrimental to the training performance. If
+                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                    running with Intel fourth generation Xeon processors, and disabled for other platforms.
+               shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
 
            Returns:
                History object from the model.fit() call
