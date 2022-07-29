@@ -34,7 +34,7 @@ Requirements:
 
    Or `conda`:
    ```
-   conda create --name tlk_env python=3.8
+   conda create --name tlk_env python=3.9
    conda activate tlk_env
    ```
 
@@ -45,14 +45,14 @@ Requirements:
    pip install dist/tlk-0.0.1-py2.py3-none-any.whl[tensorflow,pytorch]
 
    # Required for TensorFlow text classification
-   pip install --no-deps tensorflow-text==2.8.2
+   pip install tensorflow-text==2.9.0
    ```
    Or for developers, do an editable install:
    ```
    pip install --editable .[tensorflow,pytorch]
 
    # Required for TensorFlow text classification
-   pip install --no-deps tensorflow-text==2.8.2
+   pip install tensorflow-text==2.9.0
    ```
 
 ## Getting Started with the CLI

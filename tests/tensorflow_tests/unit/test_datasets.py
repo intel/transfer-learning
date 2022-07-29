@@ -129,7 +129,7 @@ def test_shuffle_split_deterministic_tfds(dataset_name, use_case, image_size):
     """
     seed = 10
 
-    data1 = get_dataset('/tmp/data', use_case, 'tensorflow', dataset_name, 'tf_datasets')
+    data1 = get_dataset('/tmp/data', use_case, 'tensorflow', dataset_name, 'tf_datasets', shuffle_files=False)
     if image_size:
         data1.preprocess(image_size, batch_size=1)
     else:
@@ -137,7 +137,7 @@ def test_shuffle_split_deterministic_tfds(dataset_name, use_case, image_size):
 
     data1.shuffle_split(seed=seed)
 
-    data2 = get_dataset('/tmp/data', use_case, 'tensorflow', dataset_name, 'tf_datasets')
+    data2 = get_dataset('/tmp/data', use_case, 'tensorflow', dataset_name, 'tf_datasets', shuffle_files=False)
 
     if image_size:
         data2.preprocess(image_size, batch_size=1)

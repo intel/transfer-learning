@@ -38,7 +38,7 @@ if [[ "${FRAMEWORK,,}" == "tensorflow" ]]; then
     fi
 
     BASE_IMAGE=${BASE_IMAGE:-intel/intel-optimized-tensorflow}
-    BASE_TAG=${BASE_TAG:-2.8.0}
+    BASE_TAG=${BASE_TAG:-latest}
 elif [[ "${FRAMEWORK,,}" == "pytorch" ]]; then
     if [[ "${TEST_CONTAINER,,}" == "true" ]]; then
         echo "Building tlk unit test container for PyTorch"
@@ -92,7 +92,7 @@ docker build --no-cache \
              --build-arg BASE_IMAGE=${BASE_IMAGE} \
              --build-arg BASE_TAG=${BASE_TAG} \
              --build-arg TLK_VERSION=${TLK_VERSION} \
-	     -t ${IMAGE_NAME} \
+             -t ${IMAGE_NAME} \
              -f ${DOCKERFILE} .
 
 # Remove the temp copy of the dockerfile
