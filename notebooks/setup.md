@@ -76,7 +76,7 @@ System Requirements:
    ```
    pip install --upgrade pip
    pip install -r ${TLK_REPO}/notebooks/tensorflow_requirements.txt
-   pip install --no-deps tensorflow-text==2.8.2
+   pip install tensorflow-text==2.9.0
    ```
 3. Set environment variables for the path to the dataset folder and an output directory.
    The dataset and output directories can be empty. The notebook will download the dataset to

@@ -39,14 +39,13 @@ COPY --from=builder /workspace/tests /workspace/tests
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y build-essential libgl1 libglib2.0-0 python3-dev && \
+    apt-get install -y build-essential libgl1 libglib2.0-0 python3.9-dev && \
     pip install --upgrade pip && \
     pip install --no-cache-dir tlk-${TLK_VERSION}-py2.py3-none-any.whl[tensorflow] && \
     rm tlk-${TLK_VERSION}-py2.py3-none-any.whl && \
-    pip install --no-cache-dir -r tests/requirements-test.txt && \
-    pip install --no-deps tensorflow-text==2.8.2
+    pip install --no-cache-dir -r tests/requirements-test.txt
 
-WORKDIR /workspace/tests
+WORKDIR /workspace
 
 ENV PYTHONPATH=/workspace/tests
 

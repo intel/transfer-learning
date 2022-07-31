@@ -12,7 +12,7 @@ cd frameworks.ai.transfer-learning
 make test
 
 # Create a virtual env or conda env for the test environment
-conda create --name tlk_tests python=3.8
+conda create --name tlk_tests python=3.9
 
 # Install tlk for TensorFlow and/or PyTorch
 pip3 install --editable .[tensorflow,pytorch]

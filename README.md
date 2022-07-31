@@ -33,7 +33,7 @@ Requirements:
 
    Or `conda`:
    ```
-   conda create --name tlk_env python=3.8
+   conda create --name tlk_env python=3.9
    conda activate tlk_env
    ```
 

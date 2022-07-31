@@ -31,7 +31,7 @@ If they are not set, their default value will be used.
 | `TLK_REPO` | Path to the root directory of the cloned tlk repository. | `$(pwd)` (the current directory) |
 | `IMAGE_NAME` | The name/tag of the image being built. | `intel/tlk:tensorflow` or `intel/tlk:pytorch`, depending on `FRAMEWORK`. Unit test containers are named `intel/tlk:tensorflow-tests` and `intel/tlk:pytorch-tests`  |
 | `BASE_IMAGE` | The base image name. | `intel/intel-optimized-tensorflow` or `intel/intel-optimized-pytorch`, depending on `FRAMEWORK` |
-| `BASE_TAG` | The tag for the base image. | `latest` for PyTorch <br /> `2.8.0` for TensorFlow |
+| `BASE_TAG` | The tag for the base image. | `latest` |
 
 ### Running the build script
 Build the docker container using the `build.sh` script and dockerfiles from this repository:
@@ -193,7 +193,6 @@ OUTPUT_DIR=<path to a writeable output directory>
 mkdir -p ${OUTPUT_DIR}
 
 docker run --rm \
-    -u $(id -u):$(id -g) \
     --env http_proxy=${http_proxy} \
     --env https_proxy=${https_proxy} \
     -v ${DATASET_DIR}:/tmp/data \
