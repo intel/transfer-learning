@@ -5,7 +5,7 @@ API Reference
 Datasets
 --------
 
-.. currentmodule:: tlk.datasets
+.. currentmodule:: tlt.datasets
 
 The simplest way to create datasets is with the dataset factory methods :meth:`load_dataset`, for using a
 custom dataset, and :meth:`get_dataset`, for downloading and using a third-party dataset from a catalog such as TensorFlow
@@ -14,7 +14,7 @@ Datasets or torchvision.
 Factory Methods
 ***************
 
-.. automodule:: tlk.datasets.dataset_factory
+.. automodule:: tlt.datasets.dataset_factory
    :members: load_dataset, get_dataset
 
 Class Reference
@@ -23,7 +23,7 @@ Class Reference
 Image Classification
 ^^^^^^^^^^^^^^^^^^^^
 
-.. currentmodule:: tlk.datasets.image_classification
+.. currentmodule:: tlt.datasets.image_classification
 
 .. autosummary::
    :toctree: _autosummary
@@ -40,7 +40,7 @@ Base Classes
 
 .. note:: Users should rarely need to interact directly with these.
 
-.. currentmodule:: tlk.datasets
+.. currentmodule:: tlt.datasets
 
 .. autosummary::
    :toctree: _autosummary
@@ -53,7 +53,7 @@ Base Classes
 Models
 ------
 
-.. currentmodule:: tlk.models
+.. currentmodule:: tlt.models
 
 Discover and work with available models by using model factory methods. The :meth:`get_model`
 function will download third-party models and provide a convenient interface for modifying, training, evaluating, and
@@ -62,7 +62,7 @@ so on. The model discovery and inspection methods are :meth:`get_supported_model
 Factory Methods
 ***************
 
-.. automodule:: tlk.models.model_factory
+.. automodule:: tlt.models.model_factory
    :members: get_model, get_supported_models, print_supported_models
 
 Class Reference
@@ -71,7 +71,7 @@ Class Reference
 Image Classification
 ^^^^^^^^^^^^^^^^^^^^
 
-.. currentmodule:: tlk.models.image_classification
+.. currentmodule:: tlt.models.image_classification
 
 .. autosummary::
   :toctree: _autosummary
@@ -86,7 +86,7 @@ Base Classes
 
 .. note:: Users should rarely need to interact directly with these.
 
-.. currentmodule:: tlk.models
+.. currentmodule:: tlt.models
 
 .. autosummary::
    :toctree: _autosummary

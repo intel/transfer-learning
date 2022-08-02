@@ -22,8 +22,8 @@ import pytest
 
 from unittest.mock import MagicMock, patch
 
-from tlk.models import model_factory
-from tlk.utils.types import FrameworkType, UseCaseType
+from tlt.models import model_factory
+from tlt.utils.types import FrameworkType, UseCaseType
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
@@ -34,7 +34,7 @@ except ModuleNotFoundError as e:
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
-    from tlk.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel
+    from tlt.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel
 except ModuleNotFoundError as e:
     print("WARNING: Unable to import TorchvisionImageClassificationModel. Torch may not be installed")
 
@@ -141,9 +141,9 @@ def test_torchvision_efficientnet_b0_train():
     model = model_factory.get_model('efficientnet_b0', 'pytorch')
     model._generate_checkpoints = False
     
-    with patch('tlk.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset') \
+    with patch('tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset') \
             as mock_dataset:
-        with patch('tlk.models.image_classification.torchvision_image_classification_model.'
+        with patch('tlt.models.image_classification.torchvision_image_classification_model.'
                    'TorchvisionImageClassificationModel._get_hub_model') as mock_get_hub_model:
                 mock_dataset.train_subset = [1, 2, 3]
                 mock_model = MagicMock()

@@ -1,6 +1,6 @@
-# Testing TLK
+# Testing Intel® Transfer Learning Tool
 
-To run these tests, first install [tlk](/tlk) for TensorFlow and/or PyTorch.
+To run these tests, first install [tlt](/tlt) for TensorFlow and/or PyTorch.
 Then install the following dependencies:
 
 ```
@@ -12,9 +12,9 @@ cd frameworks.ai.transfer-learning
 make test
 
 # Create a virtual env or conda env for the test environment
-conda create --name tlk_tests python=3.9
+conda create --name tlt_tests python=3.9
 
-# Install tlk for TensorFlow and/or PyTorch
+# Install tlt for TensorFlow and/or PyTorch
 pip3 install --editable .[tensorflow,pytorch]
 
 # Required for TensorFlow text classification

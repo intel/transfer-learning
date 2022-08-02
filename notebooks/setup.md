@@ -13,7 +13,7 @@ System Requirements:
 1. Get a clone of this Transfer Learning repository from GitHub:
    ```
    git clone https://github.com/intel-innersource/frameworks.ai.transfer-learning.git transfer_learning
-   export TLK_REPO=$(pwd)/transfer_learning
+   export TLT_REPO=$(pwd)/transfer_learning
    ```
 2. Create a Python3 virtual environment and install required packages.
 
@@ -30,7 +30,7 @@ System Requirements:
    Then, from inside the activated virtualenv or conda environment run these steps:
    ```
    pip install --upgrade pip
-   pip install -r ${TLK_REPO}/notebooks/pytorch_requirements.txt
+   pip install -r ${TLT_REPO}/notebooks/pytorch_requirements.txt
    ```
 3. Set environment variables for the path to the dataset folder and an output directory.
    The dataset and output directories can be empty. The notebook will download the dataset to
@@ -47,8 +47,8 @@ System Requirements:
 4. Navigate to the notebook directory in your clone of the Transfer Learning repo, and then start the
    [notebook server](https://jupyter.readthedocs.io/en/latest/running.html#starting-the-notebook-server):
    ```
-   cd ${TLK_REPO}/notebooks
-   PYTHONPATH=${TLK_REPO} jupyter notebook --port 8888
+   cd ${TLT_REPO}/notebooks
+   PYTHONPATH=${TLT_REPO} jupyter notebook --port 8888
    ```
 5. Copy and paste the URL from the terminal to your browser to view and run any of the
    PyTorch notebooks.
@@ -58,7 +58,7 @@ System Requirements:
 1. Get a clone of this Transfer Learning repository from GitHub:
    ```
    git clone https://github.com/intel-innersource/frameworks.ai.transfer-learning.git transfer_learning
-   export TLK_REPO=$(pwd)/transfer_learning
+   export TLT_REPO=$(pwd)/transfer_learning
    ```
 2. Create a Python3 virtual environment and install required packages.
 
@@ -75,7 +75,7 @@ System Requirements:
    Then, from inside the activated virtualenv or conda environment run these steps:
    ```
    pip install --upgrade pip
-   pip install -r ${TLK_REPO}/notebooks/tensorflow_requirements.txt
+   pip install -r ${TLT_REPO}/notebooks/tensorflow_requirements.txt
    pip install tensorflow-text==2.9.0
    ```
 3. Set environment variables for the path to the dataset folder and an output directory.
@@ -93,8 +93,8 @@ System Requirements:
 4. Navigate to the notebook directory in your clone of the Transfer Learning repo, and then start the
    [notebook server](https://jupyter.readthedocs.io/en/latest/running.html#starting-the-notebook-server):
    ```
-   cd ${TLK_REPO}/notebooks
-   PYTHONPATH=${TLK_REPO} jupyter notebook --port 8888
+   cd ${TLT_REPO}/notebooks
+   PYTHONPATH=${TLT_REPO} jupyter notebook --port 8888
    ```
 5. Copy and paste the URL from the terminal to your browser to view and run any of the
    TensorFlow notebooks.

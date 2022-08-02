@@ -26,8 +26,8 @@ import sys
 from mock import MagicMock
 
 
-MODULES = ('tlk.tests',)
-MODULES_REPLACE = ('tests', 'tlk')
+MODULES = ('tlt.tests',)
+MODULES_REPLACE = ('tests', 'tlt')
 
 
 def patch_setattr(module_names, module_replace, monkeypatch, path, m):

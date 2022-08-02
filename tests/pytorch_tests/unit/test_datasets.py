@@ -26,17 +26,17 @@ import tempfile
 from numpy.testing import assert_array_equal
 from PIL import Image
 
-from tlk.datasets.dataset_factory import get_dataset, load_dataset
+from tlt.datasets.dataset_factory import get_dataset, load_dataset
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
-    from tlk.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset
+    from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset
 except ModuleNotFoundError as e:
     print("WARNING: Unable to import TorchvisionImageClassificationDataset. Torch may not be installed")
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
-    from tlk.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset
+    from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset
 except ModuleNotFoundError as e:
     print("WARNING: Unable to import PyTorchCustomImageClassificationDataset. Torch may not be installed")
 
@@ -119,18 +119,18 @@ def test_shuffle_split_deterministic_custom():
     ic_dataset2 = None
     try:
         ic_dataset1 = ImageClassificationDatasetForTest(dataset_dir, None, None, class_names)
-        tlk_dataset1 = ic_dataset1.tlk_dataset
-        tlk_dataset1.preprocess(image_size, batch_size)
-        tlk_dataset1.shuffle_split(seed=seed)
+        tlt_dataset1 = ic_dataset1.tlt_dataset
+        tlt_dataset1.preprocess(image_size, batch_size)
+        tlt_dataset1.shuffle_split(seed=seed)
 
         ic_dataset2 = ImageClassificationDatasetForTest(dataset_dir, None, None, class_names)
-        tlk_dataset2 = ic_dataset2.tlk_dataset
-        tlk_dataset2.preprocess(image_size, batch_size)
-        tlk_dataset2.shuffle_split(seed=seed)
+        tlt_dataset2 = ic_dataset2.tlt_dataset
+        tlt_dataset2.preprocess(image_size, batch_size)
+        tlt_dataset2.shuffle_split(seed=seed)
 
         for i in range(10):
-            image_1, label_1 = tlk_dataset1.get_batch()
-            image_2, label_2 = tlk_dataset2.get_batch()
+            image_1, label_1 = tlt_dataset1.get_batch()
+            image_2, label_2 = tlt_dataset2.get_batch()
             assert_array_equal(image_1, image_2)
             assert_array_equal(label_1, label_2)
     finally:
@@ -153,10 +153,10 @@ def test_batching(dataset_dir, dataset_name, dataset_catalog, class_names, batch
     ic_dataset = ImageClassificationDatasetForTest(dataset_dir, dataset_name, dataset_catalog, class_names)
 
     try:
-        tlk_dataset = ic_dataset.tlk_dataset
+        tlt_dataset = ic_dataset.tlt_dataset
 
-        tlk_dataset.preprocess(224, batch_size)
-        assert len(tlk_dataset.get_batch()[0]) == batch_size
+        tlt_dataset.preprocess(224, batch_size)
+        assert len(tlt_dataset.get_batch()[0]) == batch_size
     finally:
         ic_dataset.cleanup()
 
@@ -172,12 +172,12 @@ def test_batching_error(dataset_dir, dataset_name, dataset_catalog, class_names)
     ic_dataset = ImageClassificationDatasetForTest(dataset_dir, dataset_name, dataset_catalog, class_names)
 
     try:
-        tlk_dataset = ic_dataset.tlk_dataset
-        tlk_dataset.preprocess(224, 1)
+        tlt_dataset = ic_dataset.tlt_dataset
+        tlt_dataset.preprocess(224, 1)
         with pytest.raises(Exception) as e:
-            tlk_dataset.preprocess(256, 32)
+            tlt_dataset.preprocess(256, 32)
         assert 'Data has already been preprocessed: {}'.\
-                   format(tlk_dataset._preprocessed) == str(e.value)
+                   format(tlt_dataset._preprocessed) == str(e.value)
     finally:
         ic_dataset.cleanup()
 
@@ -199,7 +199,7 @@ class ImageClassificationDatasetForTest:
 
         if dataset_name and dataset_catalog:
             self._dataset_catalog = dataset_catalog
-            self._tlk_dataset = get_dataset(dataset_dir, use_case, framework, dataset_name, dataset_catalog)
+            self._tlt_dataset = get_dataset(dataset_dir, use_case, framework, dataset_name, dataset_catalog)
         elif class_names:
             self._dataset_catalog = "custom"
             dataset_dir = tempfile.mkdtemp(dir=dataset_dir)
@@ -213,16 +213,16 @@ class ImageClassificationDatasetForTest:
                     img = Image.new(mode='RGB', size=(24, 24))
                     img.save(os.path.join(image_class_dir, 'img_{}.jpg'.format(n)))
 
-            self._tlk_dataset = load_dataset(dataset_dir, use_case, framework)
+            self._tlt_dataset = load_dataset(dataset_dir, use_case, framework)
 
         self._dataset_dir = dataset_dir
 
     @property
-    def tlk_dataset(self):
+    def tlt_dataset(self):
         """
-        Returns the tlk dataset object
+        Returns the tlt dataset object
         """
-        return self._tlk_dataset
+        return self._tlt_dataset
 
     def cleanup(self):
         """
@@ -261,8 +261,8 @@ def image_classification_data(request):
 
     request.addfinalizer(cleanup)
 
-    # Return the tlk dataset along with metadata that tests might need
-    return (ic_dataset.tlk_dataset, dataset_name, dataset_classes)
+    # Return the tlt dataset along with metadata that tests might need
+    return (ic_dataset.tlt_dataset, dataset_name, dataset_classes)
 
 
 @pytest.mark.pytorch
@@ -275,18 +275,18 @@ class TestImageClassificationDataset:
     @pytest.mark.pytorch
     def test_class_names_and_size(self, image_classification_data):
         """
-        Verify the TLK class type, dataset class names, and dataset length after initializaion
+        Verify the class type, dataset class names, and dataset length after initializaion
         """
-        tlk_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes = image_classification_data
 
         if dataset_name is None:
-            assert type(tlk_dataset) == PyTorchCustomImageClassificationDataset
-            assert len(tlk_dataset.class_names) == len(dataset_classes)
-            assert len(tlk_dataset.dataset) == len(dataset_classes) * 50
+            assert type(tlt_dataset) == PyTorchCustomImageClassificationDataset
+            assert len(tlt_dataset.class_names) == len(dataset_classes)
+            assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
         else:
-            assert type(tlk_dataset) == TorchvisionImageClassificationDataset
-            assert len(tlk_dataset.class_names) == len(torchvision_metadata[dataset_name]['class_names'])
-            assert len(tlk_dataset.dataset) == torchvision_metadata[dataset_name]['size']
+            assert type(tlt_dataset) == TorchvisionImageClassificationDataset
+            assert len(tlt_dataset.class_names) == len(torchvision_metadata[dataset_name]['class_names'])
+            assert len(tlt_dataset.dataset) == torchvision_metadata[dataset_name]['size']
 
     @pytest.mark.pytorch
     @pytest.mark.parametrize('batch_size',
@@ -297,9 +297,9 @@ class TestImageClassificationDataset:
         """
         Ensures that a ValueError is raised when an invalid batch size is passed
         """
-        tlk_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes = image_classification_data
         with pytest.raises(ValueError):
-            tlk_dataset.preprocess(224, batch_size)
+            tlt_dataset.preprocess(224, batch_size)
 
     @pytest.mark.pytorch
     @pytest.mark.parametrize('image_size',
@@ -310,37 +310,37 @@ class TestImageClassificationDataset:
         """
         Ensures that a ValueError is raised when an invalid image size is passed
         """
-        tlk_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes = image_classification_data
         with pytest.raises(ValueError):
-            tlk_dataset.preprocess(image_size, batch_size=8)
+            tlt_dataset.preprocess(image_size, batch_size=8)
 
     @pytest.mark.pytorch
     def test_preprocessing(self, image_classification_data):
         """
         Checks that dataset can be preprocessed only once
         """
-        tlk_dataset, dataset_name, dataset_classes = image_classification_data
-        tlk_dataset.preprocess(224, 8)
+        tlt_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset.preprocess(224, 8)
         preprocessing_inputs = {'image_size': 224, 'batch_size': 8}
-        assert tlk_dataset._preprocessed == preprocessing_inputs
+        assert tlt_dataset._preprocessed == preprocessing_inputs
         # Trying to preprocess again should throw an exception
         with pytest.raises(Exception) as e:
-            tlk_dataset.preprocess(324, 32)
+            tlt_dataset.preprocess(324, 32)
         assert 'Data has already been preprocessed: {}'.format(preprocessing_inputs) == str(e.value)
-        print(tlk_dataset.info)
+        print(tlt_dataset.info)
 
     @pytest.mark.pytorch
     def test_shuffle_split_errors(self, image_classification_data):
         """
         Checks that splitting into train, validation, and test subsets will error if inputs are wrong
         """
-        tlk_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes = image_classification_data
 
         with pytest.raises(Exception) as e:
-            tlk_dataset.shuffle_split(train_pct=.5, val_pct=.5, test_pct=.2)
+            tlt_dataset.shuffle_split(train_pct=.5, val_pct=.5, test_pct=.2)
         assert 'Sum of percentage arguments must be less than or equal to 1.' == str(e.value)
         with pytest.raises(Exception) as e:
-            tlk_dataset.shuffle_split(train_pct=1, val_pct=0)
+            tlt_dataset.shuffle_split(train_pct=1, val_pct=0)
         assert 'Percentage arguments must be floats.' == str(e.value)
 
     @pytest.mark.pytorch
@@ -348,13 +348,13 @@ class TestImageClassificationDataset:
         """
         Checks that dataset can be split into train, validation, and test subsets
         """
-        tlk_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes = image_classification_data
 
         # Before the shuffle split, validation type should be recall
-        assert 'recall' == tlk_dataset._validation_type
+        assert 'recall' == tlt_dataset._validation_type
 
         # Perform shuffle split with default percentages
-        tlk_dataset.shuffle_split(seed=10)
+        tlt_dataset.shuffle_split(seed=10)
         default_train_pct = 0.75
         default_val_pct = 0.25
 
@@ -362,10 +362,10 @@ class TestImageClassificationDataset:
         dataset_size = torchvision_metadata[dataset_name]['size'] if dataset_name else len(dataset_classes) * 50
 
         # Divide by the batch size that was used to preprocess earlier
-        dataset_size = dataset_size / tlk_dataset.info['preprocessing_info']['batch_size']
+        dataset_size = dataset_size / tlt_dataset.info['preprocessing_info']['batch_size']
 
         # The PyTorch loaders are what gets batched and they can be off by 1 from the floor value
-        assert math.floor(dataset_size * default_train_pct) <= len(tlk_dataset.train_loader) <= math.ceil(dataset_size * default_train_pct)
-        assert math.floor(dataset_size * default_val_pct) <= len(tlk_dataset.validation_loader) <= math.ceil(dataset_size * default_val_pct)
-        assert tlk_dataset.test_loader is None
-        assert tlk_dataset._validation_type == 'shuffle_split'
+        assert math.floor(dataset_size * default_train_pct) <= len(tlt_dataset.train_loader) <= math.ceil(dataset_size * default_train_pct)
+        assert math.floor(dataset_size * default_val_pct) <= len(tlt_dataset.validation_loader) <= math.ceil(dataset_size * default_val_pct)
+        assert tlt_dataset.test_loader is None
+        assert tlt_dataset._validation_type == 'shuffle_split'

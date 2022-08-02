@@ -26,16 +26,16 @@ import tempfile
 from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from tlk.tools.cli.commands.eval import eval
-from tlk.utils.types import FrameworkType
+from tlt.tools.cli.commands.eval import eval
+from tlt.utils.types import FrameworkType
 
 
 @pytest.mark.common
 @pytest.mark.parametrize('model_name,framework',
                          [['efficientnet_b0', FrameworkType.TENSORFLOW],
                           ['resnet50', FrameworkType.PYTORCH]])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.load_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
 @patch("inspect.getfullargspec")
 def test_eval_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_get_model, model_name, framework):
     """
@@ -93,8 +93,8 @@ def test_eval_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_g
 @pytest.mark.parametrize('model_name,framework',
                          [['small_bert/bert_en_uncased_L-10_H-128_A-2', FrameworkType.TENSORFLOW],
                           ['bert_en_uncased_L-12_H-768_A-12', FrameworkType.PYTORCH]])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.load_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
 @patch("inspect.getfullargspec")
 def test_eval_preprocess_without_image_size(mock_inspect, mock_load_dataset, mock_get_model, model_name, framework):
     """
@@ -157,8 +157,8 @@ def test_eval_preprocess_without_image_size(mock_inspect, mock_load_dataset, moc
                           ['test', 'bert_en_uncased_L-12_H-768_A-12/3', 'test',
                            FrameworkType.PYTORCH]
                           ])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.load_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
 def test_eval_model_name(mock_load_dataset, mock_get_model, provided_model_name, model_dir,
                          expected_model_name, framework):
     """
@@ -210,8 +210,8 @@ def test_eval_model_name(mock_load_dataset, mock_get_model, provided_model_name,
 @pytest.mark.parametrize('model_name,framework,dataset_name,dataset_catalog',
                          [['efficientnet_b0', FrameworkType.TENSORFLOW, 'tf_flowers', 'tf_datasets'],
                           ['resnet50', FrameworkType.PYTORCH, 'cifar10', 'torchvision']])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.get_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.get_dataset")
 def test_eval_dataset_catalog(mock_get_dataset, mock_get_model, model_name, framework, dataset_name, dataset_catalog):
     """
     Tests the eval command a named dataset and verifies that get_dataset is called (vs load_dataset, which is used

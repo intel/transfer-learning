@@ -42,8 +42,8 @@ EXTRA_PACKAGES = {
     "pytorch": get_framework_requirements("pytorch")
 }
 
-setup(name="tlk",
-      description="A Transfer Learning Kit from Intel",
+setup(name="tlt",
+      description="Intel® Transfer Learning Tool",
       version="0.0.1",
       packages=find_packages(),
       install_requires=COMMON_PACKAGES,
@@ -51,7 +51,7 @@ setup(name="tlk",
       python_requires=">3.8",
       entry_points={
         "console_scripts": [
-            "tlk = tlk.tools.cli.main:cli_group"
+            "tlt = tlt.tools.cli.main:cli_group"
             ]
         },
       include_package_data=True

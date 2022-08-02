@@ -1,15 +1,15 @@
 # Note: These are just placeholders for future additions to Makefile.
 # You can remove these comments later.
-ACTIVATE_TLK = "tlk_env/bin/activate"
+ACTIVATE_TLT = "tlt_env/bin/activate"
 ACTIVATE_TF = "intel_tf/bin/activate"
 ACTIVATE_PYT = "intel_pyt/bin/activate"
-ACTIVATE_TEST = "tlk_tests/bin/activate"
+ACTIVATE_TEST = "tlt_tests/bin/activate"
 
 venv_test: $(CURDIR)/tests/requirements-test.txt
-	@echo "Creating a virtualenv tlk_tests..."
-	@test -d tlk_tests || virtualenv -p python tlk_tests
+	@echo "Creating a virtualenv tlt_tests..."
+	@test -d tlt_tests || virtualenv -p python tlt_tests
 
-	@echo "Building the TLK API in tlk_tests env..."
+	@echo "Building the TLT API in tlt_tests env..."
 	@. $(ACTIVATE_TEST) && pip install --editable .[tensorflow,pytorch]
 
 	@echo "Required for TensorFlow text classification..."
@@ -23,5 +23,5 @@ test: venv_test
 	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test -s
 
 clean:
-	rm -rf tlk_tests
+	rm -rf tlt_tests
 	

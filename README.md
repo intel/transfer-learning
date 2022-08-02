@@ -28,21 +28,21 @@ Requirements:
 
 1. Create and activate a Python3 virtual environment using `virtualenv`:
    ```
-   python3 -m virtualenv tlk_env
-   source tlk_env/bin/activate
+   python3 -m virtualenv tlt_env
+   source tlt_env/bin/activate
    ```
 
    Or `conda`:
    ```
-   conda create --name tlk_env python=3.9
-   conda activate tlk_env
+   conda create --name tlt_env python=3.9
+   conda activate tlt_env
    ```
 
 1. Install the tool with the `tensorflow` and/or `pytorch` option by either building
    and installing the wheel:
    ```
    python setup.py bdist_wheel --universal
-   pip install dist/tlk-0.0.1-py2.py3-none-any.whl[tensorflow,pytorch]
+   pip install dist/tlt-0.0.1-py2.py3-none-any.whl[tensorflow,pytorch]
 
    # Required for TensorFlow text classification
    pip install tensorflow-text==2.9.0
@@ -57,12 +57,12 @@ Requirements:
 
 ## Getting Started with the CLI
 
-Use `tlk --help` to see the list of CLI commands. More detailed information on each
-command can be found using `tlk <command> --help` (like `tlk train --help`).
+Use `tlt --help` to see the list of CLI commands. More detailed information on each
+command can be found using `tlt <command> --help` (like `tlt train --help`).
 
 List the available models:
 ```
-> tlk list models --use-case image_classification
+> tlt list models --use-case image_classification
 ------------------------------
 IMAGE CLASSIFICATION
 ------------------------------
@@ -99,7 +99,7 @@ shufflenet_v2_x1_0 (pytorch)
 
 Train a model:
 ```
-> tlk train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
+> tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
 Model name: resnet_v1_50
 Framework: tensorflow
 Training epochs: 1
@@ -127,7 +127,7 @@ Saved model directory: /tmp/output/resnet_v1_50/1
 
 Evaluate a trained model:
 ```
-> tlk eval --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos
+> tlt eval --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos
 Model directory: /tmp/output/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
 Model name: resnet_v1_50
@@ -140,7 +140,7 @@ Loading saved model from: /tmp/output/resnet_v1_50/1/saved_model.pb
 
 Benchmark the trained model:
 ```
-> tlk benchmark --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
+> tlt benchmark --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
 Model directory: /tmp/output/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
 Benchmarking mode: performance
@@ -156,7 +156,7 @@ performance mode benchmark result:
 
 Quantize the model:
 ```
-> tlk quantize --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 \
+> tlt quantize --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 \
   --accuracy-criterion 0.01 --output-dir /tmp/output
 Model directory: /tmp/output/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
@@ -197,7 +197,7 @@ INFO:tensorflow:SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/save
 
 Benchmark the quantized model:
 ```
-> tlk benchmark --model-dir /tmp/output/quantized/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
+> tlt benchmark --model-dir /tmp/output/quantized/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
 Model directory: /tmp/output/quantized/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
 Benchmarking mode: performance
@@ -213,7 +213,7 @@ performance mode benchmark result:
 
 Do graph optimization on the trained model:
 ```
-> tlk optimize --model-dir /tmp/output/resnet_v1_50/1 --output-dir /tmp/output
+> tlt optimize --model-dir /tmp/output/resnet_v1_50/1 --output-dir /tmp/output
 Model directory: /tmp/output/resnet_v1_50/1
 Model name: resnet_v1_50
 Output directory: /tmp/output
@@ -227,9 +227,9 @@ Starting graph optimization
 
 ## Getting Started with the API
 ```python
-from tlk.datasets import dataset_factory
-from tlk.models import model_factory
-from tlk.utils.types import FrameworkType, UseCaseType
+from tlt.datasets import dataset_factory
+from tlt.models import model_factory
+from tlt.utils.types import FrameworkType, UseCaseType
 
 # Get the model
 model = model_factory.get_model(model_name="resnet_v1_50", framework=FrameworkType.TENSORFLOW)

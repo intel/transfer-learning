@@ -27,11 +27,11 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from tlk.models import model_factory
+from tlt.models import model_factory
 
 try:
     # Do PyTorch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
-    from tlk.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel
+    from tlt.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel
 except ModuleNotFoundError as e:
     print("WARNING: Unable to import TorchvisionImageClassificationModel. PyTorch or torchvision may not be installed")
 

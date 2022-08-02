@@ -23,8 +23,8 @@ import pytest
 import shutil
 import tempfile
 
-from tlk.datasets import dataset_factory
-from tlk.models import model_factory
+from tlt.datasets import dataset_factory
+from tlt.models import model_factory
 
 
 @pytest.mark.tensorflow

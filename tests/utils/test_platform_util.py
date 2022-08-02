@@ -23,7 +23,7 @@ import pytest
 import os
 from mock import MagicMock, mock_open, patch
 
-from tlk.utils.platform_util import PlatformUtil, CPUInfo
+from tlt.utils.platform_util import PlatformUtil, CPUInfo
 from test_utils import platform_config
 
 
@@ -59,7 +59,7 @@ def read_mock(patch):
 
 
 @pytest.mark.common
-@patch("tlk.utils.platform_util.PlatformUtil._get_cpuset")
+@patch("tlt.utils.platform_util.PlatformUtil._get_cpuset")
 def test_platform_util_lscpu_parsing(get_cpuset_mock, platform_mock, subprocess_mock, os_mock):
     """
     Verifies that platform_utils gives us the proper values that we expect
@@ -86,7 +86,7 @@ def test_platform_util_lscpu_parsing(get_cpuset_mock, platform_mock, subprocess_
                          [['85', 'SKX, CPX, CLX'],
                           ['143', 'SPR'],
                           ['123', '']])
-@patch("tlk.utils.platform_util.PlatformUtil._get_cpuset")
+@patch("tlt.utils.platform_util.PlatformUtil._get_cpuset")
 def test_platform_util_known_cpu_types(get_cpuset_mock, platform_mock, subprocess_mock, os_mock,
                                        cpu_model, expected_type):
     """
@@ -180,7 +180,7 @@ def test_cpu_info_binding_information_no_numa(subprocess_mock):
 
 
 @pytest.mark.common
-@patch("tlk.utils.platform_util.PlatformUtil._get_cpuset")
+@patch("tlt.utils.platform_util.PlatformUtil._get_cpuset")
 def test_numa_cpu_core_list(get_cpuset_mock, subprocess_mock, subprocess_popen_mock, platform_mock, os_mock):
     """ Test the platform utils to ensure that we are getting the proper core lists """
     subprocess_mock.return_value = platform_config.LSCPU_OUTPUT
@@ -223,7 +223,7 @@ def test_platform_util_wmic_parsing(platform_mock, subprocess_mock, os_mock):
 
 
 @pytest.mark.common
-@patch("tlk.utils.platform_util.PlatformUtil._get_cpuset")
+@patch("tlt.utils.platform_util.PlatformUtil._get_cpuset")
 @pytest.mark.parametrize('cpuset_range,expected_list',
                          [['0-5', [0, 1, 2, 3, 4, 5]],
                           ['0-3,7,6', [0, 1, 2, 3, 6, 7]],
@@ -277,7 +277,7 @@ def test_numa_cpu_core_list_cpuset(path_exists_mock, subprocess_mock, subprocess
 
 
 @pytest.mark.common
-@patch("tlk.utils.platform_util.PlatformUtil._get_cpuset")
+@patch("tlt.utils.platform_util.PlatformUtil._get_cpuset")
 @pytest.mark.parametrize('cpuset_range,expected_num_sockets',
                          [['0-5', 1],
                           ['0-3,7,6', 1],

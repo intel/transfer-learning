@@ -2,6 +2,6 @@
 CLI Reference
 =============
 
-.. click:: tlk.tools.cli.main:cli_group
-   :prog: tlk
+.. click:: tlt.tools.cli.main:cli_group
+   :prog: tlt
    :nested: full

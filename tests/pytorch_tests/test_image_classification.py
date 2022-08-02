@@ -23,9 +23,9 @@ import pytest
 import shutil
 import tempfile
 
-from tlk.datasets import dataset_factory
-from tlk.models import model_factory
-from tlk.utils.file_utils import download_and_extract_tar_file
+from tlt.datasets import dataset_factory
+from tlt.models import model_factory
+from tlt.utils.file_utils import download_and_extract_tar_file
 
 
 @pytest.mark.pytorch

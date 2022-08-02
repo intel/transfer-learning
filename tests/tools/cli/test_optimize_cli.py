@@ -26,8 +26,8 @@ import tempfile
 from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from tlk.tools.cli.commands.optimize import optimize
-from tlk.utils.types import FrameworkType
+from tlt.tools.cli.commands.optimize import optimize
+from tlt.utils.types import FrameworkType
 
 
 @pytest.mark.common
@@ -35,11 +35,11 @@ from tlk.utils.types import FrameworkType
                          [['efficientnet_b0', FrameworkType.TENSORFLOW],
                           ['inception_v3', FrameworkType.TENSORFLOW],
                           ['resnet50', FrameworkType.PYTORCH]])
-@patch("tlk.models.model_factory.get_model")
+@patch("tlt.models.model_factory.get_model")
 def test_optimize(mock_get_model, model_name, framework):
     """
     Tests the optimize commandand verifies that the expected calls are made
-    on the tlk model object. The call parameters also verify that the optimize command is able to properly identify
+    on the tlt model object. The call parameters also verify that the optimize command is able to properly identify
     the model's name based on the directory and the framework type based on the type of saved model.
     """
     runner = CliRunner()
@@ -172,7 +172,7 @@ def test_optimize_model_dir_does_not_exist():
 
 
 @pytest.mark.common
-@patch("tlk.models.model_factory.get_model")
+@patch("tlt.models.model_factory.get_model")
 def test_optimize_output_dir(mock_get_model):
     """
     Verifies that the optimize command increments the output directory for the optimized model each time the optimization
