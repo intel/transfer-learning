@@ -14,6 +14,7 @@ Features
 * Low-code API and no-code CLI for:
    * TensorFlow 2.9
       * Image Classification with 19 models from TFHub
+      * Text Classification with 26 models from TFHub
    * PyTorch 1.11
       * Image Classification with 10 models from torchvision
 
@@ -36,6 +37,7 @@ Features
    Object Detection with PyTorch & torchvision, Object Detection, PyTorch
    BERT SQuAD fine tuning with TF Hub, Question Answering, TensorFlow
    BERT Binary Text Classification with TF Hub, Text Classification, TensorFlow
+   :doc:`Text Classification with TF using the TLT API <notebooks/TLT_TF_Text_Classification_Transfer_Learning>`, Text Classification, TensorFlow & TLT
    Text Classifier fine tuning with PyTorch & Hugging Face, Text Classification, PyTorch
 
 Models
@@ -45,16 +47,18 @@ Models
    :header: TensorFlow,PyTorch
    :widths: 50, 50
 
-   efficientnet_b0,densenet121
-   efficientnet_b1,densenet161
-   efficientnet_b2,efficientnet_b0
-   efficientnet_b3,efficientnet_b1
-   efficientnet_b4,efficientnet_b2
-   efficientnet_b5,googlenet
-   efficientnet_b6,mobilenet_v2
-   efficientnet_b7,resnet18
-   efficientnetv2-b0,resnet50
-   efficientnetv2-b1,shufflenet_v2_x1_0
+   bert_en_uncased_L-12_H-768_A-12,densenet121
+   bert_en_wwm_uncased_L-24_H-1024_A-16,densenet161
+   efficientnet_b0,efficientnet_b0
+   efficientnet_b1,efficientnet_b1
+   efficientnet_b2,efficientnet_b2
+   efficientnet_b3,googlenet
+   efficientnet_b4,mobilenet_v2
+   efficientnet_b5,resnet18
+   efficientnet_b6,resnet50
+   efficientnet_b7,shufflenet_v2_x1_0
+   efficientnetv2-b0,
+   efficientnetv2-b1,
    efficientnetv2-b2,
    efficientnetv2-b3,
    efficientnetv2-s,
@@ -64,6 +68,30 @@ Models
    resnet_v1_50,
    resnet_v2_101,
    resnet_v2_50,
+   small_bert/bert_en_uncased_L-10_H-128_A-2,
+   small_bert/bert_en_uncased_L-10_H-256_A-4,
+   small_bert/bert_en_uncased_L-10_H-512_A-8,
+   small_bert/bert_en_uncased_L-10_H-768_A-12,
+   small_bert/bert_en_uncased_L-12_H-128_A-2,
+   small_bert/bert_en_uncased_L-12_H-256_A-4,
+   small_bert/bert_en_uncased_L-12_H-512_A-8,
+   small_bert/bert_en_uncased_L-12_H-768_A-12,
+   small_bert/bert_en_uncased_L-2_H-128_A-2,
+   small_bert/bert_en_uncased_L-2_H-256_A-4,
+   small_bert/bert_en_uncased_L-2_H-512_A-8,
+   small_bert/bert_en_uncased_L-2_H-768_A-12,
+   small_bert/bert_en_uncased_L-4_H-128_A-2,
+   small_bert/bert_en_uncased_L-4_H-256_A-4,
+   small_bert/bert_en_uncased_L-4_H-512_A-8,
+   small_bert/bert_en_uncased_L-4_H-768_A-12,
+   small_bert/bert_en_uncased_L-6_H-128_A-2,
+   small_bert/bert_en_uncased_L-6_H-256_A-4,
+   small_bert/bert_en_uncased_L-6_H-512_A-8,
+   small_bert/bert_en_uncased_L-6_H-768_A-12,
+   small_bert/bert_en_uncased_L-8_H-128_A-2,
+   small_bert/bert_en_uncased_L-8_H-256_A-4,
+   small_bert/bert_en_uncased_L-8_H-512_A-8,
+   small_bert/bert_en_uncased_L-8_H-768_A-12,
 
 .. toctree::
    :maxdepth: 1
