@@ -4,6 +4,7 @@ ACTIVATE_TLT = "tlt_env/bin/activate"
 ACTIVATE_TF = "intel_tf/bin/activate"
 ACTIVATE_PYT = "intel_pyt/bin/activate"
 ACTIVATE_TEST = "tlt_tests/bin/activate"
+ACTIVATE_DOCS = $(ACTIVATE_TEST)
 
 venv_test: $(CURDIR)/tests/requirements-test.txt
 	@echo "Creating a virtualenv tlt_tests..."
@@ -24,4 +25,15 @@ test: venv_test
 
 clean:
 	rm -rf tlt_tests
-	
+
+venv_docs: venv_test $(CURDIR)/docs/requirements-docs.txt
+	@echo "Installing docs dependencies..."
+	@. $(ACTIVATE_DOCS) && pip install -r $(CURDIR)/docs/requirements-docs.txt
+
+html: venv_docs
+	@echo "Building Sphinx documentation..."
+	@. $(ACTIVATE_DOCS) && $(MAKE) -C docs clean html
+
+test_docs: html
+	@echo "Testing Sphinx documentation..."
+	@. $(ACTIVATE_DOCS) && $(MAKE) -C docs doctest

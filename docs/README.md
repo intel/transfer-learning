@@ -13,7 +13,7 @@ python -m pip install tensorflow-text==2.9.0
 
 Install pandoc, Sphinx and a few other tools required to build docs
 ```bash
-sudo apt install pandoc
+sudo apt-get install pandoc
 pip install -r docs/requirements-docs.txt
 ```
 
