@@ -1,0 +1,41 @@
+﻿tlt.models.tfhub\_model.TFHubModel
+==================================
+
+.. currentmodule:: tlt.models.tfhub_model
+
+.. autoclass:: TFHubModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFHubModel.__init__
+      ~TFHubModel.benchmark
+      ~TFHubModel.evaluate
+      ~TFHubModel.export
+      ~TFHubModel.load_from_directory
+      ~TFHubModel.optimize_graph
+      ~TFHubModel.predict
+      ~TFHubModel.quantize
+      ~TFHubModel.set_auto_mixed_precision
+      ~TFHubModel.train
+      ~TFHubModel.write_inc_config_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFHubModel.framework
+      ~TFHubModel.model_name
+      ~TFHubModel.model_url
+      ~TFHubModel.use_case
+   
+   

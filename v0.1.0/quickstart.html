@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intel® Transfer Learning Tool Quick Start &mdash; Intel® Transfer Learning Tool 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CLI Reference" href="cli.html" />
+    <link rel="prev" title="Intel® Transfer Learning Tool" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Intel® Transfer Learning Tool Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-and-install">Build and Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started-with-the-cli">Getting Started with the CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started-with-the-api">Getting Started with the API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Example Notebooks</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Intel® Transfer Learning Tool Quick Start</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<p><img alt="Tests" src="https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/unit-test.yml/badge.svg" /></p>
+<section id="intel-transfer-learning-tool-quick-start">
+<h1>Intel® Transfer Learning Tool Quick Start<a class="headerlink" href="#intel-transfer-learning-tool-quick-start" title="Permalink to this heading">¶</a></h1>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Use Case</p></th>
+<th class="head"><p>Framework</p></th>
+<th class="head"><p>Optimizations</p></th>
+<th class="head"><p>Datasets</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Image Classification</p></td>
+<td><p>PyTorch</p></td>
+<td><p><li><a class="reference external" href="https://github.com/intel/intel-extension-for-pytorch">Intel® Extension for PyTorch</a></p></td>
+<td><p><li> Custom datasets <li> <a class="reference external" href="https://pytorch.org/vision/stable/datasets.html">torchvision datasets</a>: CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Image Classification</p></td>
+<td><p>TensorFlow</p></td>
+<td><p><li><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html">Intel® Optimization for TensorFlow</a> <li>Post-training quantization using <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a>, when using custom datasets <li>FP32 graph optimization using <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a> <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later)</p></td>
+<td><p><li> Custom datasets <li> Image classification datasets from the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview#image_classification">TensorFlow Dataset catalog</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Binary Text Classification</p></td>
+<td><p>TensorFlow</p></td>
+<td><p><li><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html">Intel® Optimization for TensorFlow</a> <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later)</p></td>
+<td><p><li> <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview#image_classification">TensorFlow Datasets</a>: <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config">glue/cola</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluesst2">glue/sst2</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config">imdb_reviews</a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="build-and-install">
+<h2>Build and Install<a class="headerlink" href="#build-and-install" title="Permalink to this heading">¶</a></h2>
+<p>Requirements:</p>
+<ul class="simple">
+<li><p>Linux system (or WSL2 on Windows)</p></li>
+<li><p>git</p></li>
+<li><p>python3</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">build-essential</span> <span class="pre">python3-dev</span></code></p></li>
+<li><p>To run use quantization functions: <code class="docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libgl1</span> <span class="pre">libglib2.0-0</span></code></p></li>
+</ul>
+<ol class="arabic">
+<li><p>Clone this repo and navigate to the repo directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">intel</span><span class="o">-</span><span class="n">innersource</span><span class="o">/</span><span class="n">frameworks</span><span class="o">.</span><span class="n">ai</span><span class="o">.</span><span class="n">transfer</span><span class="o">-</span><span class="n">learning</span><span class="o">.</span><span class="n">git</span>
+
+<span class="n">cd</span> <span class="n">frameworks</span><span class="o">.</span><span class="n">ai</span><span class="o">.</span><span class="n">transfer</span><span class="o">-</span><span class="n">learning</span>
+</pre></div>
+</div>
+</li>
+<li><p>Create and activate a Python3 virtual environment using <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">virtualenv</span> <span class="n">tlt_env</span>
+<span class="n">source</span> <span class="n">tlt_env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>Or <code class="docutils literal notranslate"><span class="pre">conda</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">tlt_env</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.9</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">tlt_env</span>
+</pre></div>
+</div>
+</li>
+<li><p>Install the tool with the <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code> and/or <code class="docutils literal notranslate"><span class="pre">pytorch</span></code> option by either building
+and installing the wheel:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">bdist_wheel</span> <span class="o">--</span><span class="n">universal</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">dist</span><span class="o">/</span><span class="n">tlt</span><span class="o">-</span><span class="mf">0.0.1</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span><span class="p">[</span><span class="n">tensorflow</span><span class="p">,</span><span class="n">pytorch</span><span class="p">]</span>
+
+<span class="c1"># Required for TensorFlow text classification</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">text</span><span class="o">==</span><span class="mf">2.9.0</span>
+</pre></div>
+</div>
+<p>Or for developers, do an editable install:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">editable</span> <span class="o">.</span><span class="p">[</span><span class="n">tensorflow</span><span class="p">,</span><span class="n">pytorch</span><span class="p">]</span>
+
+<span class="c1"># Required for TensorFlow text classification</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">text</span><span class="o">==</span><span class="mf">2.9.0</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="getting-started-with-the-cli">
+<h2>Getting Started with the CLI<a class="headerlink" href="#getting-started-with-the-cli" title="Permalink to this heading">¶</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">--help</span></code> to see the list of CLI commands. More detailed information on each
+command can be found using <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">&lt;command&gt;</span> <span class="pre">--help</span></code> (like <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">train</span> <span class="pre">--help</span></code>).</p>
+<p>List the available models:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="nb">list</span> <span class="n">models</span> <span class="o">--</span><span class="n">use</span><span class="o">-</span><span class="n">case</span> <span class="n">image_classification</span>
+<span class="o">------------------------------</span>
+<span class="n">IMAGE</span> <span class="n">CLASSIFICATION</span>
+<span class="o">------------------------------</span>
+<span class="n">densenet121</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">densenet161</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b0</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b1</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b1</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b2</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b4</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b5</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b6</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b7</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b0</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b1</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b2</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">s</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">googlenet</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">inception_v3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">mobilenet_v2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">mobilenet_v2_100_224</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">nasnet_large</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet18</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet50</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet_v1_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet_v2_101</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet_v2_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">shufflenet_v2_x1_0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Train a model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="n">train</span> <span class="o">-</span><span class="n">f</span> <span class="n">tensorflow</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="n">resnet_v1_50</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+<span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
+<span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
+<span class="n">Training</span> <span class="n">epochs</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">Dataset</span> <span class="nb">dir</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
+<span class="n">Output</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+<span class="n">Found</span> <span class="mi">3670</span> <span class="n">files</span> <span class="n">belonging</span> <span class="n">to</span> <span class="mi">5</span> <span class="n">classes</span><span class="o">.</span>
+<span class="o">...</span>
+<span class="n">Model</span><span class="p">:</span> <span class="s2">&quot;sequential&quot;</span>
+<span class="n">_________________________________________________________________</span>
+ <span class="n">Layer</span> <span class="p">(</span><span class="nb">type</span><span class="p">)</span>                <span class="n">Output</span> <span class="n">Shape</span>              <span class="n">Param</span> <span class="c1">#</span>
+<span class="o">=================================================================</span>
+ <span class="n">keras_layer</span> <span class="p">(</span><span class="n">KerasLayer</span><span class="p">)</span>    <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">2048</span><span class="p">)</span>              <span class="mi">23561152</span>
+
+ <span class="n">dense</span> <span class="p">(</span><span class="n">Dense</span><span class="p">)</span>               <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>                 <span class="mi">10245</span>
+
+<span class="o">=================================================================</span>
+<span class="n">Total</span> <span class="n">params</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span><span class="mi">571</span><span class="p">,</span><span class="mi">397</span>
+<span class="n">Trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span><span class="mi">245</span>
+<span class="n">Non</span><span class="o">-</span><span class="n">trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span><span class="mi">561</span><span class="p">,</span><span class="mi">152</span>
+<span class="n">_________________________________________________________________</span>
+<span class="n">Checkpoint</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50_checkpoints</span>
+<span class="mi">86</span><span class="o">/</span><span class="mi">86</span> <span class="p">[</span><span class="o">==============================</span><span class="p">]</span> <span class="o">-</span> <span class="mi">24</span><span class="n">s</span> <span class="mi">248</span><span class="n">ms</span><span class="o">/</span><span class="n">step</span> <span class="o">-</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">0.4600</span> <span class="o">-</span> <span class="n">acc</span><span class="p">:</span> <span class="mf">0.8438</span>
+<span class="n">Saved</span> <span class="n">model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Evaluate a trained model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="nb">eval</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
+<span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+<span class="n">Dataset</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
+<span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
+<span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
+<span class="n">Loading</span> <span class="n">model</span> <span class="nb">object</span> <span class="k">for</span> <span class="n">resnet_v1_50</span> <span class="n">using</span> <span class="n">tensorflow</span>
+<span class="n">Loading</span> <span class="n">saved</span> <span class="n">model</span> <span class="n">from</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">saved_model</span><span class="o">.</span><span class="n">pb</span>
+<span class="o">...</span>
+<span class="mi">28</span><span class="o">/</span><span class="mi">28</span> <span class="p">[</span><span class="o">==============================</span><span class="p">]</span> <span class="o">-</span> <span class="mi">8</span><span class="n">s</span> <span class="mi">236</span><span class="n">ms</span><span class="o">/</span><span class="n">step</span> <span class="o">-</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">0.2528</span> <span class="o">-</span> <span class="n">acc</span><span class="p">:</span> <span class="mf">0.9163</span>
+</pre></div>
+</div>
+<p>Benchmark the trained model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="n">benchmark</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">size</span> <span class="mi">512</span> <span class="o">--</span><span class="n">mode</span> <span class="n">performance</span>
+<span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+<span class="n">Dataset</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
+<span class="n">Benchmarking</span> <span class="n">mode</span><span class="p">:</span> <span class="n">performance</span>
+<span class="n">Batch</span> <span class="n">size</span><span class="p">:</span> <span class="mi">512</span>
+<span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
+<span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
+<span class="o">...</span>
+<span class="n">performance</span> <span class="n">mode</span> <span class="n">benchmark</span> <span class="n">result</span><span class="p">:</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">10</span><span class="p">:</span><span class="mi">22</span><span class="p">:</span><span class="mi">10</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Batch</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">10</span><span class="p">:</span><span class="mi">22</span><span class="p">:</span><span class="mi">10</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Latency</span><span class="p">:</span> <span class="mf">3.031</span> <span class="n">ms</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">10</span><span class="p">:</span><span class="mi">22</span><span class="p">:</span><span class="mi">10</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Throughput</span><span class="p">:</span> <span class="mf">329.878</span> <span class="n">images</span><span class="o">/</span><span class="n">sec</span>
+</pre></div>
+</div>
+<p>Quantize the model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&gt; tlt quantize --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 \
+  --accuracy-criterion 0.01 --output-dir /tmp/output
+Model directory: /tmp/output/resnet_v1_50/1
+Dataset directory: /tmp/dataset/flower_photos
+Accuracy criterion: 0.01
+Exit policy timeout: 0
+Exit policy max trials: 50
+Batch size: 512
+Output directory: /tmp/output
+...
+2022-06-28 10:25:58 [INFO] |******Mixed Precision Statistics*****|
+2022-06-28 10:25:58 [INFO] +-----------------+----------+--------+
+2022-06-28 10:25:58 [INFO] |     Op Type     |  Total   |  INT8  |
+2022-06-28 10:25:58 [INFO] +-----------------+----------+--------+
+2022-06-28 10:25:58 [INFO] |      Conv2D     |    53    |   53   |
+2022-06-28 10:25:58 [INFO] |      MatMul     |    1     |   1    |
+2022-06-28 10:25:58 [INFO] |     MaxPool     |    4     |   4    |
+2022-06-28 10:25:58 [INFO] |    QuantizeV2   |    5     |   5    |
+2022-06-28 10:25:58 [INFO] |    Dequantize   |    4     |   4    |
+2022-06-28 10:25:58 [INFO] +-----------------+----------+--------+
+2022-06-28 10:25:58 [INFO] Pass quantize model elapsed time: 32164.27 ms
+2022-06-28 10:25:58 [INFO] Start to evaluate the TensorFlow model.
+2022-06-28 10:26:12 [INFO] Model inference elapsed time: 13921.64 ms
+2022-06-28 10:26:12 [INFO] Tune 1 result is: [Accuracy (int8|fp32): 0.9008|0.9022, Duration (seconds) (int8|fp32): 13.9226|17.3321], Best tune result is: [Accuracy: 0.9008, Duration (seconds): 13.9226]
+2022-06-28 10:26:12 [INFO] |**********************Tune Result Statistics**********************|
+2022-06-28 10:26:12 [INFO] +--------------------+----------+---------------+------------------+
+2022-06-28 10:26:12 [INFO] |     Info Type      | Baseline | Tune 1 result | Best tune result |
+2022-06-28 10:26:12 [INFO] +--------------------+----------+---------------+------------------+
+2022-06-28 10:26:12 [INFO] |      Accuracy      | 0.9022   |    0.9008     |     0.9008       |
+2022-06-28 10:26:12 [INFO] | Duration (seconds) | 17.3321  |    13.9226    |     13.9226      |
+2022-06-28 10:26:12 [INFO] +--------------------+----------+---------------+------------------+
+2022-06-28 10:26:12 [INFO] Save tuning history to /tmp/output/nc_workspace/./history.snapshot.
+2022-06-28 10:26:12 [INFO] Specified timeout or max trials is reached! Found a quantized model which meet accuracy goal. Exit.
+...
+INFO:tensorflow:SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/saved_model.pb
+2022-06-28 10:26:13 [INFO] SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/saved_model.pb
+2022-06-28 10:26:13 [INFO] Save quantized model to /tmp/output/quantized/resnet_v1_50/1
+</pre></div>
+</div>
+<p>Benchmark the quantized model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="n">benchmark</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">quantized</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">size</span> <span class="mi">512</span> <span class="o">--</span><span class="n">mode</span> <span class="n">performance</span>
+<span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">quantized</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+<span class="n">Dataset</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
+<span class="n">Benchmarking</span> <span class="n">mode</span><span class="p">:</span> <span class="n">performance</span>
+<span class="n">Batch</span> <span class="n">size</span><span class="p">:</span> <span class="mi">512</span>
+<span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
+<span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
+<span class="o">...</span>
+<span class="n">performance</span> <span class="n">mode</span> <span class="n">benchmark</span> <span class="n">result</span><span class="p">:</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">10</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">33</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Batch</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">10</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">33</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Latency</span><span class="p">:</span> <span class="mf">0.946</span> <span class="n">ms</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">10</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">33</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Throughput</span><span class="p">:</span> <span class="mf">1056.940</span> <span class="n">images</span><span class="o">/</span><span class="n">sec</span>
+</pre></div>
+</div>
+<p>Do graph optimization on the trained model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="n">optimize</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+<span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+<span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
+<span class="n">Output</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+<span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
+<span class="n">Starting</span> <span class="n">graph</span> <span class="n">optimization</span>
+<span class="o">...</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">13</span><span class="p">:</span><span class="mi">50</span><span class="p">:</span><span class="mi">01</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Graph</span> <span class="n">optimization</span> <span class="ow">is</span> <span class="n">done</span><span class="o">.</span>
+<span class="o">...</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">13</span><span class="p">:</span><span class="mi">51</span><span class="p">:</span><span class="mi">21</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">SavedModel</span> <span class="n">written</span> <span class="n">to</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">optimized</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">saved_model</span><span class="o">.</span><span class="n">pb</span>
+</pre></div>
+</div>
+</section>
+<section id="getting-started-with-the-api">
+<h2>Getting Started with the API<a class="headerlink" href="#getting-started-with-the-api" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
+
+<span class="c1"># Get the model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;resnet_v1_50&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">)</span>
+
+<span class="c1"># Load and preprocess a dataset</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/data/flower_photos&quot;</span><span class="p">,</span>
+                                       <span class="n">use_case</span><span class="o">=</span><span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_CLASSIFICATION</span><span class="p">,</span> \
+                                       <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">image_size</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">image_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="mf">.75</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">.25</span><span class="p">)</span>
+
+<span class="c1"># Train the model using the dataset</span>
+<span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/output&quot;</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Evaluate the trained model</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric_value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">metrics_names</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metric_name</span><span class="p">,</span> <span class="n">metric_value</span><span class="p">))</span>
+
+<span class="c1"># Export the model</span>
+<span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/output&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create an INC config file</span>
+<span class="n">inc_config_file</span> <span class="o">=</span> <span class="s2">&quot;/tmp/output/inc_config.yaml&quot;</span>
+<span class="n">model</span><span class="o">.</span><span class="n">write_inc_config_file</span><span class="p">(</span><span class="n">inc_config_file</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">accuracy_criterion_relative</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">exit_policy_timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">exit_policy_max_trials</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tuning_workspace</span><span class="o">=</span><span class="s2">&quot;/tmp/output/nc_workspace&quot;</span><span class="p">)</span>
+
+<span class="c1"># Benchmark the trained model using the INC config file</span>
+<span class="n">model</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">inc_config_file</span><span class="p">,</span> <span class="s1">&#39;performance&#39;</span><span class="p">)</span>
+
+<span class="c1"># Quantize the trained model</span>
+<span class="n">quantization_output</span> <span class="o">=</span> <span class="s2">&quot;/tmp/output/quantized_model&quot;</span>
+<span class="n">model</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">quantization_output</span><span class="p">,</span> <span class="n">inc_config_file</span><span class="p">)</span>
+
+<span class="c1"># Benchmark the quantized model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">quantization_output</span><span class="p">,</span> <span class="n">inc_config_file</span><span class="p">,</span> <span class="s1">&#39;performance&#39;</span><span class="p">)</span>
+
+<span class="c1"># Do graph optimization on the trained model</span>
+<span class="n">optimization_output</span> <span class="o">=</span> <span class="s2">&quot;/tmp/output/optimized_model&quot;</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize_graph</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">optimization_output</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Intel® Transfer Learning Tool" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli.html" class="btn btn-neutral float-right" title="CLI Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Intel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLI Reference &mdash; Intel® Transfer Learning Tool 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api.html" />
+    <link rel="prev" title="Intel® Transfer Learning Tool Quick Start" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CLI Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tlt">tlt</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tlt-benchmark">benchmark</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tlt-eval">eval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tlt-list">list</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tlt-list-frameworks">frameworks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tlt-list-models">models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tlt-list-use-cases">use_cases</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tlt-optimize">optimize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tlt-quantize">quantize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tlt-train">train</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Example Notebooks</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>CLI Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cli.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="cli-reference">
+<h1>CLI Reference<a class="headerlink" href="#cli-reference" title="Permalink to this heading">¶</a></h1>
+<section id="tlt">
+<h2>tlt<a class="headerlink" href="#tlt" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt <span class="o">[</span>OPTIONS<span class="o">]</span> COMMAND <span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="tlt-benchmark">
+<h3>benchmark<a class="headerlink" href="#tlt-benchmark" title="Permalink to this heading">¶</a></h3>
+<p>Uses the Intel Neural Compressor to benchmark a trained model</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt benchmark <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-benchmark-model-dir">
+<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-model-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Model directory to reload for benchmarking. The model directory should contain a saved_model.pb for TensorFlow models or a model.pt file for PyTorch models.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-benchmark-dataset-dir">
+<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-dataset-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Dataset directory for a custom dataset. Benchmarking is not supported with dataset catalogs at this time.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-benchmark-inc-config">
+<span class="sig-name descname"><span class="pre">--inc-config</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--inc_config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;inc_config&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-inc-config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to a config file (yaml) that will be used to benchmark the model using the Intel Neural Compressor. The INC benchmarking documentation can be found at: <a class="reference external" href="https://github.com/intel/neural-compressor/blob/master/docs/benchmark.md">https://github.com/intel/neural-compressor/blob/master/docs/benchmark.md</a> If no INC config file is provided, a default config file will be generated.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-benchmark-mode">
+<span class="sig-name descname"><span class="pre">--mode</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mode&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify to benchmark the model’s performance or accuracy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p>performance</p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>performance | accuracy</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-benchmark-batch-size">
+<span class="sig-name descname"><span class="pre">--batch-size</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--batch_size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;batch_size&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-batch-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Batch size used for benchmarking, if an INC config file is not provided. If an INC config file is provided, the batch size from the config file will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p>32</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-benchmark-output-dir">
+<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-output-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>A writeable output directory. The output directory will be used as a location to write the INC config file, if a config file is not provided. If no output directory is provided, a temporary folder will be created and then deleted after benchmarking has completed.</p>
+</dd></dl>
+
+</section>
+<section id="tlt-eval">
+<h3>eval<a class="headerlink" href="#tlt-eval" title="Permalink to this heading">¶</a></h3>
+<p>Evaluates a model that has already been trained</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt <span class="nb">eval</span> <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-eval-model-dir">
+<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-model-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Model directory to reload and evaluate a previously exported model.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-eval-model-name">
+<span class="sig-name descname"><span class="pre">--model-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-model-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the model to evaluate. If a model name is not provided, the CLI will try to get the model name from the model directory path. For example, if the model directory is /tmp/efficientnet_b0/10, it will use ‘efficientnet_b0’ as the model name.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-eval-dataset-dir">
+<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Dataset directory for a custom dataset, or if a dataset name and catalog are being provided, the dataset directory is the location where the dataset will be downloaded.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-eval-dataset-name">
+<span class="sig-name descname"><span class="pre">--dataset-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the dataset to use from a dataset catalog.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-eval-dataset-catalog">
+<span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface). If a dataset name is provided and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf_datasets | torchvision | huggingface</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="tlt-list">
+<h3>list<a class="headerlink" href="#tlt-list" title="Permalink to this heading">¶</a></h3>
+<p>Lists the available frameworks, use cases, or models</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt list <span class="o">[</span>OPTIONS<span class="o">]</span> COMMAND <span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<section id="tlt-list-frameworks">
+<h4>frameworks<a class="headerlink" href="#tlt-list-frameworks" title="Permalink to this heading">¶</a></h4>
+<p>List the available frameworks</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt list frameworks <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="tlt-list-models">
+<h4>models<a class="headerlink" href="#tlt-list-models" title="Permalink to this heading">¶</a></h4>
+<p>List the available models</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt list models <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-list-models-f">
+<span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--framework</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;framework&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-list-models-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the list of models by framework.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-list-models-use-case">
+<span class="sig-name descname"><span class="pre">--use-case</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use_case</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;use_case&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-list-models-use-case" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the list of models to a single use case</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-list-models-verbose">
+<span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-list-models-verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verbose output with extra information about each model</p>
+</dd></dl>
+
+</section>
+<section id="tlt-list-use-cases">
+<h4>use_cases<a class="headerlink" href="#tlt-list-use-cases" title="Permalink to this heading">¶</a></h4>
+<p>List the available use cases</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt list use_cases <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="tlt-optimize">
+<h3>optimize<a class="headerlink" href="#tlt-optimize" title="Permalink to this heading">¶</a></h3>
+<p>Uses the Intel Neural Compressor to perform graph optimization on a trained model</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt optimize <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-optimize-model-dir">
+<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-optimize-model-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Model directory to reload for graph optimization. The model directory should contain a saved_model.pb TensorFlow model.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-optimize-output-dir">
+<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-optimize-output-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> A writeable output directory. The output directory will be used as a location to save the optimized model.</p>
+</dd></dl>
+
+</section>
+<section id="tlt-quantize">
+<h3>quantize<a class="headerlink" href="#tlt-quantize" title="Permalink to this heading">¶</a></h3>
+<p>Uses the Intel Neural Compressor to perform post-training quantization on a trained model</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt quantize <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-quantize-model-dir">
+<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-model-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Model directory to reload for quantization. The model directory should contain a saved_model.pb for TensorFlow models or a model.pt file for PyTorch models.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-quantize-dataset-dir">
+<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-dataset-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Dataset directory for a custom dataset. Quantization is not supported with dataset catalogs at this time.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-quantize-inc-config">
+<span class="sig-name descname"><span class="pre">--inc-config</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--inc_config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;inc_config&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-inc-config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to a config file (yaml) that will be used to quantize the model using the Intel Neural Compressor. The INC config examples for quantization can be found at: <a class="reference external" href="https://github.com/intel/neural-compressor/tree/master/examples">https://github.com/intel/neural-compressor/tree/master/examples</a>. If no INC config file is provided, a default config file will be generated.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-quantize-batch-size">
+<span class="sig-name descname"><span class="pre">--batch-size</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--batch_size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;batch_size&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-batch-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Batch size used during quantization, if an INC config file is not provided. If an INC config file is provided, the batch size from the config file will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p>32</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-quantize-accuracy-criterion">
+<span class="sig-name descname"><span class="pre">--accuracy-criterion</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--accuracy_criterion</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;accuracy_criterion&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-accuracy-criterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Relative accuracy loss to allow (for example, a value of 0.01 allows for a relative accuracy loss of 1%), if an INC config file is not provided. If an INC config file is provided, the accuracy criterion from the config file will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p>0.01</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-quantize-timeout">
+<span class="sig-name descname"><span class="pre">--timeout</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;timeout&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuning timeout in seconds, if an INC config file is not provided. If an INC config file is provided, the timeout from the config file will be used. Tuning processing finishes when the timeout or max trials is reached. A tuning timeout of 0 means that the tuning phase stops when the accuracy criterion is met.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p>0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-quantize-max-trials">
+<span class="sig-name descname"><span class="pre">--max-trials</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max_trials</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_trials&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-max-trials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum number of tuning trials, if an INC config file is not provided. If an INC config file is provided, the number of max trials from the config file will be used. Tuning processing finishes when the timeout or max trials is reached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p>50</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-quantize-output-dir">
+<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-output-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> A writeable output directory. The output directory will be used as a location to save the quantized model, the tuning workspace, and the INC config file, if a config file is not provided.</p>
+</dd></dl>
+
+</section>
+<section id="tlt-train">
+<h3>train<a class="headerlink" href="#tlt-train" title="Permalink to this heading">¶</a></h3>
+<p>Trains the model</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt train <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-f">
+<span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--framework</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;framework&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deep learning framework [default: tensorflow]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tensorflow | pytorch</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-model-name">
+<span class="sig-name descname"><span class="pre">--model-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-model-name" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Name of the model to use</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-output-dir">
+<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-output-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Output directory for saved models, logs, checkpoints, etc</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-dataset-dir">
+<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-dir" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Required</strong> Dataset directory for a custom dataset, or if a dataset name and catalog are being provided, the dataset directory is the location where the dataset will be downloaded.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-dataset-name">
+<span class="sig-name descname"><span class="pre">--dataset-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the dataset to use from a dataset catalog.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-dataset-catalog">
+<span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface). If a dataset name is provided and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf_datasets | torchvision | huggingface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-epochs">
+<span class="sig-name descname"><span class="pre">--epochs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;epochs&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of training epochs [default: 1]</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-init-checkpoints">
+<span class="sig-name descname"><span class="pre">--init-checkpoints</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--init_checkpoints</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;init_checkpoints&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-init-checkpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional path to checkpoint weights to load to resume training. If the path provided is a directory, the latest checkpoint from the directory will be used.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Intel® Transfer Learning Tool Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Intel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

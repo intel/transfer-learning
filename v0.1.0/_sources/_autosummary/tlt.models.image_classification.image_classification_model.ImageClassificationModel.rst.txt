@@ -1,0 +1,44 @@
+﻿tlt.models.image\_classification.image\_classification\_model.ImageClassificationModel
+======================================================================================
+
+.. currentmodule:: tlt.models.image_classification.image_classification_model
+
+.. autoclass:: ImageClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ImageClassificationModel.__init__
+      ~ImageClassificationModel.benchmark
+      ~ImageClassificationModel.evaluate
+      ~ImageClassificationModel.export
+      ~ImageClassificationModel.get_inc_config_template_dict
+      ~ImageClassificationModel.load_from_directory
+      ~ImageClassificationModel.optimize_graph
+      ~ImageClassificationModel.predict
+      ~ImageClassificationModel.quantize
+      ~ImageClassificationModel.train
+      ~ImageClassificationModel.write_inc_config_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ImageClassificationModel.do_fine_tuning
+      ~ImageClassificationModel.dropout_layer_rate
+      ~ImageClassificationModel.framework
+      ~ImageClassificationModel.image_size
+      ~ImageClassificationModel.model_name
+      ~ImageClassificationModel.num_classes
+      ~ImageClassificationModel.use_case
+   
+   

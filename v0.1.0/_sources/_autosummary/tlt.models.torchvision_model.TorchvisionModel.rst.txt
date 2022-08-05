@@ -1,0 +1,39 @@
+﻿tlt.models.torchvision\_model.TorchvisionModel
+==============================================
+
+.. currentmodule:: tlt.models.torchvision_model
+
+.. autoclass:: TorchvisionModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TorchvisionModel.__init__
+      ~TorchvisionModel.benchmark
+      ~TorchvisionModel.evaluate
+      ~TorchvisionModel.export
+      ~TorchvisionModel.load_from_directory
+      ~TorchvisionModel.optimize_graph
+      ~TorchvisionModel.predict
+      ~TorchvisionModel.quantize
+      ~TorchvisionModel.train
+      ~TorchvisionModel.write_inc_config_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TorchvisionModel.framework
+      ~TorchvisionModel.model_name
+      ~TorchvisionModel.use_case
+   
+   
