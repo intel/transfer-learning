@@ -23,17 +23,17 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 from test_utils import platform_config
-from tlk.models import model_factory
-from tlk.utils.types import FrameworkType, UseCaseType
+from tlt.models import model_factory
+from tlt.utils.types import FrameworkType, UseCaseType
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
-    from tlk.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
+    from tlt.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
 except ModuleNotFoundError as e:
     TFHubImageClassificationModel = None
     print("WARNING: Unable to import TFHubImageClassificationModel. TensorFlow may not be installed")
 
-from tlk.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
+from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,expected_class,expected_image_size',
@@ -50,8 +50,7 @@ def test_tfhub_model_load(model_name, expected_class, expected_image_size):
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,use_case',
-                         [['efficientnet_b0', 'image_classification'],
-                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'text_classification']])
+                         [['efficientnet_b0', 'image_classification']])
 def test_get_supported_models(model_name, use_case):
     """
     Call get supported models and checks to make sure the dictionary has keys for each use case,
@@ -139,7 +138,7 @@ def test_get_supported_models_bad_use_case(bad_use_case):
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,dataset_type,get_hub_model_patch,class_names',
                          [['efficientnet_b0', ImageClassificationDataset,
-                           'tlk.models.image_classification.tfhub_image_classification_model.'
+                           'tlt.models.image_classification.tfhub_image_classification_model.'
                            'TFHubImageClassificationModel._get_hub_model', ['a', 'b', 'c']]])
 def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_patch, class_names):
     """
@@ -194,12 +193,12 @@ def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_pat
      ['85', None, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
      ['85', True, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
      ['143', None, True, '3.1.0', 'efficientnet_b0', ImageClassificationDataset]])
-@patch("tlk.models.tfhub_model.tf.version")
-@patch("tlk.models.tfhub_model.tf.config.optimizer.set_experimental_options")
-@patch("tlk.utils.platform_util.PlatformUtil._get_cpuset")
-@patch("tlk.utils.platform_util.os")
-@patch("tlk.utils.platform_util.system_platform")
-@patch("tlk.utils.platform_util.subprocess")
+@patch("tlt.models.tfhub_model.tf.version")
+@patch("tlt.models.tfhub_model.tf.config.optimizer.set_experimental_options")
+@patch("tlt.utils.platform_util.PlatformUtil._get_cpuset")
+@patch("tlt.utils.platform_util.os")
+@patch("tlt.utils.platform_util.system_platform")
+@patch("tlt.utils.platform_util.subprocess")
 def test_tfhub_auto_mixed_precision(mock_subprocess, mock_platform, mock_os, mock_get_cpuset,
                                     mock_set_experimental_options, mock_tf_version, cpu_model,
                                     enable_auto_mixed_precision, expected_auto_mixed_precision_parameter,

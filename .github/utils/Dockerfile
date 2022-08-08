@@ -1,7 +1,7 @@
 ARG IMAGE_NAME=python
 ARG IMAGE_TAG=3.9
 
-FROM ${IMAGE_NAME}:${IMAGE_TAG} as tlk-dev
+FROM ${IMAGE_NAME}:${IMAGE_TAG} as tlt-dev
 
 ENV DEBIAN_FRONTEND=noninteractive
 

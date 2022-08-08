@@ -12,14 +12,14 @@ Features
 --------
 
 * Low-code API and no-code CLI for:
-   * TensorFlow 2.8
+   * TensorFlow 2.9
       * Image Classification with 19 models from TFHub
    * PyTorch 1.11
       * Image Classification with 10 models from torchvision
 
 .. figure:: images/features.png
    :scale: 50 %
-   :alt: TLK Features
+   :alt: TLT Features
 
 * Jupyter notebooks demonstrating:
    * 5 Computer Vision workflows
@@ -30,9 +30,9 @@ Features
    :widths: 60, 20, 20
 
    Image Classification with TF Hub, Image Classification, TensorFlow
-   :doc:`Image Classification with TF using the TLK API <notebooks/TLK_TF_Image_Classification_Transfer_Learning>`, Image Classification, TensorFlow & TLK
+   :doc:`Image Classification with TF using the Intel® Transfer Learning Tool API <notebooks/TLT_TF_Image_Classification_Transfer_Learning>`, Image Classification, TensorFlow & TLT
    Image Classification with PyTorch & torchvision, Image Classification, PyTorch
-   :doc:`Image Classification with PyTorch using the TLK API <notebooks/TLK_PyTorch_Image_Classification_Transfer_Learning>`, Image Classification, PyTorch & TLK
+   :doc:`Image Classification with PyTorch using the Intel® Transfer Learning Tool API <notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning>`, Image Classification, PyTorch & TLT
    Object Detection with PyTorch & torchvision, Object Detection, PyTorch
    BERT SQuAD fine tuning with TF Hub, Question Answering, TensorFlow
    BERT Binary Text Classification with TF Hub, Text Classification, TensorFlow

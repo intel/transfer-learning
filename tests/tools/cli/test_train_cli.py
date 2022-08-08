@@ -25,16 +25,16 @@ import tempfile
 
 from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
-from tlk.tools.cli.commands.train import train
-from tlk.utils.types import FrameworkType
+from tlt.tools.cli.commands.train import train
+from tlt.utils.types import FrameworkType
 
 
 @pytest.mark.common
 @pytest.mark.parametrize('model_name,framework',
                          [['efficientnet_b0', FrameworkType.TENSORFLOW],
                           ['resnet50', FrameworkType.PYTORCH]])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.load_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
 @patch("inspect.getfullargspec")
 def test_train_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_get_model, model_name, framework):
     """
@@ -88,8 +88,8 @@ def test_train_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_
 @pytest.mark.parametrize('model_name,framework',
                          [['small_bert/bert_en_uncased_L-10_H-128_A-2', FrameworkType.TENSORFLOW],
                           ['bert_en_uncased_L-12_H-768_A-12', FrameworkType.PYTORCH]])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.load_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
 @patch("inspect.getfullargspec")
 def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mock_get_model, model_name, framework):
     """
@@ -144,8 +144,8 @@ def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mo
 @pytest.mark.parametrize('model_name,framework,init_checkpoints',
                          [['bert_en_uncased_L-12_H-768_A-12', FrameworkType.TENSORFLOW, '/tmp/checkpoints'],
                           ['resnet50', FrameworkType.PYTORCH, '/tmp/checkpoint.pt']])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.load_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
 def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, framework, init_checkpoints):
     """
     Tests the train command with init checkpoints. Actual calls for the model and dataset are mocked out. The test
@@ -194,8 +194,8 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
 @pytest.mark.parametrize('model_name,framework,dataset_name,dataset_catalog',
                          [['efficientnet_b0', FrameworkType.TENSORFLOW, 'tf_flowers', 'tf_datasets'],
                           ['resnet50', FrameworkType.PYTORCH, 'cifar10', 'torchvision']])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.get_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.get_dataset")
 def test_train_dataset_catalog(mock_get_dataset, mock_get_model, model_name, framework, dataset_name, dataset_catalog):
     """
     Tests the train command a named dataset and verifies that get_dataset is called (vs load_dataset, which is used

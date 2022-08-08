@@ -27,7 +27,7 @@ sys.path.append(os.environ["TF_MODELS_DIR"])
 
 from official.common import distribute_utils
 from official.nlp.bert.run_squad_helper import get_dataset_fn
-from tlk.utils.file_utils import download_file
+from tlt.utils.file_utils import download_file
 from zipfile import ZipFile
 
 def create_mini_dataset_file(original_file, output_file, num_dataset_items, overwrite=False):

@@ -26,8 +26,8 @@ import tempfile
 from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from tlk.tools.cli.commands.benchmark import benchmark
-from tlk.utils.types import FrameworkType
+from tlt.tools.cli.commands.benchmark import benchmark
+from tlt.utils.types import FrameworkType
 
 
 @pytest.mark.common
@@ -36,12 +36,12 @@ from tlk.utils.types import FrameworkType
                           ['inception_v3', FrameworkType.TENSORFLOW, 32, 'accuracy'],
                           ['resnet50', FrameworkType.PYTORCH, 128, 'performance'],
                           ['efficientnet_b2', FrameworkType.PYTORCH, 256, 'accuracy']])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.load_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
 def test_benchmark(mock_load_dataset, mock_get_model, model_name, framework, batch_size, mode):
     """
     Tests the benchmark comamnd with an without an INC config file and verifies that the expected calls are made
-    on the tlk model object. The call parameters also verify that the benchmark command is able to properly identify
+    on the tlt model object. The call parameters also verify that the benchmark command is able to properly identify
     the model's name based on the directory and the framework type based on the type of saved model.
     """
     runner = CliRunner()

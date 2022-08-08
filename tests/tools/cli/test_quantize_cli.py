@@ -26,8 +26,8 @@ import tempfile
 from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from tlk.tools.cli.commands.quantize import quantize
-from tlk.utils.types import FrameworkType
+from tlt.tools.cli.commands.quantize import quantize
+from tlt.utils.types import FrameworkType
 
 
 @pytest.mark.common
@@ -36,12 +36,12 @@ from tlk.utils.types import FrameworkType
                           ['inception_v3', FrameworkType.TENSORFLOW, 32],
                           ['resnet50', FrameworkType.PYTORCH, 128],
                           ['efficientnet_b2', FrameworkType.PYTORCH, 256]])
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.load_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
 def test_quantize(mock_load_dataset, mock_get_model, model_name, framework, batch_size):
     """
     Tests the quantize comamnd with an without an INC config file and verifies that the expected calls are made
-    on the tlk model object. The call parameters also verify that the quantize command is able to properly identify
+    on the tlt model object. The call parameters also verify that the quantize command is able to properly identify
     the model's name based on the directory and the framework type based on the type of saved model.
     """
     runner = CliRunner()
@@ -238,8 +238,8 @@ def test_quantize_dataset_dir_does_not_exist():
 
 
 @pytest.mark.common
-@patch("tlk.models.model_factory.get_model")
-@patch("tlk.datasets.dataset_factory.load_dataset")
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
 def test_quantize_output_dir(mock_get_model, mock_load_dataset):
     """
     Verifies that quantize command increments the output directory for the quantized model each time the quantization

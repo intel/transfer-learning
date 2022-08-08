@@ -7,7 +7,7 @@ jobs:
     if: github.event.review.state == 'approved'
     runs-on: [ aia-devops ]
     container:
-      image: amr-registry.caas.intel.com/aiops/tlk-dev
+      image: amr-registry.caas.intel.com/aiops/tlt-dev
       env:
         http_proxy: ${{ secrets.HTTP_PROXY }}
         https_proxy: ${{ secrets.HTTPS_PROXY }}
