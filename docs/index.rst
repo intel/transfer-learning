@@ -15,7 +15,7 @@ Features
    * TensorFlow 2.9
       * Image Classification with 19 models from TFHub
    * PyTorch 1.11
-      * Image Classification with 10 models from torchvision
+      * Image Classification with 56 models from torchvision
 
 .. figure:: images/features.png
    :scale: 50 %
@@ -45,25 +45,61 @@ Models
    :header: TensorFlow,PyTorch
    :widths: 50, 50
 
-   efficientnet_b0,densenet121
-   efficientnet_b1,densenet161
-   efficientnet_b2,efficientnet_b0
-   efficientnet_b3,efficientnet_b1
-   efficientnet_b4,efficientnet_b2
-   efficientnet_b5,googlenet
-   efficientnet_b6,mobilenet_v2
-   efficientnet_b7,resnet18
-   efficientnetv2-b0,resnet50
-   efficientnetv2-b1,shufflenet_v2_x1_0
-   efficientnetv2-b2,
-   efficientnetv2-b3,
-   efficientnetv2-s,
-   inception_v3,
-   mobilenet_v2_100_224,
-   nasnet_large,
-   resnet_v1_50,
-   resnet_v2_101,
-   resnet_v2_50,
+   efficientnet_b0,alexnet
+   efficientnet_b1,convnext_tiny
+   efficientnet_b2,convnext_small
+   efficientnet_b3,convnext_base
+   efficientnet_b4,convnext_large
+   efficientnet_b5,densenet121
+   efficientnet_b6,densenet161
+   efficientnet_b7,densenet169
+   efficientnetv2-b0,efficientnet_b0
+   efficientnetv2-b1,efficientnet_b1
+   efficientnetv2-b2,efficientnet_b2
+   efficientnetv2-b3,efficientnet_b3
+   efficientnetv2-s,efficientnet_b4
+   inception_v3,efficientnet_b5
+   mobilenet_v2_100_224,efficientnet_b6
+   nasnet_large,efficientnet_b7
+   resnet_v1_50,googlenet
+   resnet_v2_101,mnasnet0_5
+   resnet_v2_50,mnasnet1_0
+   ,mobilenet_v2
+   ,mobilenet_v3_small
+   ,mobilenet_v3_large
+   ,resnet18
+   ,resnet34
+   ,resnet50
+   ,resnet101
+   ,resnet152
+   ,resnext50_32x4d
+   ,resnext101_32x8d
+   ,regnet_x_400mf
+   ,regnet_x_800mf
+   ,regnet_x_1_6gf
+   ,regnet_x_3_2gf
+   ,regnet_x_8gf
+   ,regnet_x_16gf
+   ,regnet_x_32gf
+   ,regnet_y_400mf
+   ,regnet_y_800mf
+   ,regnet_y_1_6gf
+   ,regnet_y_3_2gf
+   ,regnet_y_8gf
+   ,regnet_y_16gf
+   ,regnet_y_32gf
+   ,shufflenet_v2_x0_5
+   ,shufflenet_v2_x1_0
+   ,vgg11
+   ,vgg11_bn
+   ,vgg13
+   ,vgg13_bn
+   ,vgg16
+   ,vgg16_bn
+   ,vgg19
+   ,vgg19_bn
+   ,wide_resnet50_2
+   ,wide_resnet101_2
 
 .. toctree::
    :maxdepth: 1

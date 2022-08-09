@@ -1,10 +1,15 @@
-name: Unit Test
+name: Build and Test docs
 on:
-  pull_request_review:
+  pull_request:
     types: [submitted]
+  # run the workflow if changes pushed to main or release branches
+  push:
+    branches: '**'
+    paths: '**'
+
+# installs dependencies, build the docs and push it to `gh-pages`
 jobs:
-  unit-test:
-    if: github.event.review.state == 'approved'
+  docs-test:
     runs-on: [ aia-devops ]
     container:
       image: amr-registry.caas.intel.com/aiops/tlt-dev
@@ -18,9 +23,10 @@ jobs:
       volumes:
         - /tf_dataset/dataset/transfer_learning/flower_photos:/tmp/flower_photos
     steps:
-      - uses: actions/checkout@v3
-      - name: Install virtualenv
-        run: pip install virtualenv
-      - name: Run Unit Test
-        run: make test
-        
+    - uses: actions/checkout@v3
+    - name: Install virtualenv
+      run: pip install virtualenv
+    # Test the docs
+    - name: Run documentation tests
+      run: |
+        make test_docs

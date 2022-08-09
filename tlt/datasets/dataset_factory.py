@@ -69,7 +69,7 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
 
     Example:
         >>> from tlt.datasets.dataset_factory import load_dataset
-        >>> data = load_dataset('/tf_dataset/dataset/transfer_learning/flower_photos', 'image_classification', 'tensorflow')
+        >>> data = load_dataset('/tmp/flower_photos', 'image_classification', 'tensorflow')
         Found 3670 files belonging to 5 classes.
         >>> data.class_names
         ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips']
@@ -119,9 +119,9 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
 
     Example:
         >>> from tlt.datasets.dataset_factory import get_dataset
-        >>> data = get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers', 'tf_datasets')
+        >>> data = get_dataset('/tmp/data/', 'image_classification', 'tensorflow', 'tf_flowers', 'tf_datasets') # doctest: +SKIP
         >>> data.class_names
-        ['dandelion', 'daisy', 'tulips', 'sunflowers', 'roses']
+        ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips']
 
     """
     if not isinstance(framework, FrameworkType):
