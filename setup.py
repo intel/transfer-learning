@@ -44,7 +44,7 @@ EXTRA_PACKAGES = {
 
 setup(name="tlt",
       description="Intel® Transfer Learning Tool",
-      version="0.0.1",
+      version="0.1.0",
       packages=find_packages(),
       install_requires=COMMON_PACKAGES,
       extras_require=EXTRA_PACKAGES,
