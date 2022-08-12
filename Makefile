@@ -37,3 +37,14 @@ html: venv_docs
 test_docs: html
 	@echo "Testing Sphinx documentation..."
 	@. $(ACTIVATE_DOCS) && $(MAKE) -C docs doctest
+
+dist:
+	@echo "Create binary wheel..."
+	@. $(ACTIVATE_DOCS) && python setup.py bdist_wheel
+
+check_dist: dist
+	@echo "Testing the wheel..."
+	@. $(ACTIVATE_DOCS) && \
+	pip install twine && \
+	python setup.py bdist_wheel && \
+	twine check dist/*
