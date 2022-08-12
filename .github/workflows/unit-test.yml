@@ -16,7 +16,7 @@ jobs:
         username: ${{ secrets.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_TOKEN }}
       volumes:
-        - /tf_dataset/dataset/transfer_learning/flower_photos:/tmp/flower_photos
+        - /tf_dataset/dataset/transfer_learning:/tmp/data
     steps:
       - uses: actions/checkout@v3
       - name: Install virtualenv

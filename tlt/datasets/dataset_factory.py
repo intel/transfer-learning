@@ -73,7 +73,7 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
 
     Example:
         >>> from tlt.datasets.dataset_factory import load_dataset
-        >>> data = load_dataset('/tmp/flower_photos', 'image_classification', 'tensorflow')
+        >>> data = load_dataset('/tmp/data/flower_photos', 'image_classification', 'tensorflow')
         Found 3670 files belonging to 5 classes.
         >>> data.class_names
         ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips']
