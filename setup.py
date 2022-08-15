@@ -20,10 +20,14 @@
 
 import os
 
+from pathlib import Path
 from setuptools import setup, find_packages
 
 COMMON_PACKAGES = ["click"]
 
+# read the contents of your README file
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 def get_framework_requirements(framework_name):
     """ Gets framework related requirements from its requirements.txt file """
@@ -44,7 +48,9 @@ EXTRA_PACKAGES = {
 
 setup(name="tlt",
       description="Intel® Transfer Learning Tool",
-      version="0.0.1",
+      version="0.1.0",
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       packages=find_packages(),
       install_requires=COMMON_PACKAGES,
       extras_require=EXTRA_PACKAGES,
