@@ -1,3 +1,0 @@
-{
-    "path": "../../notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb"
-}

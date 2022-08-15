@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Intel® Transfer Learning Tool Quick Start &mdash; Intel® Transfer Learning Tool 0.0.1 documentation</title>
+  <title>Intel® Transfer Learning Tool Quick Start &mdash; Intel® Transfer Learning Tool 0.1.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -125,11 +125,6 @@
 <td><p><li><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html">Intel® Optimization for TensorFlow</a> <li>Post-training quantization using <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a>, when using custom datasets <li>FP32 graph optimization using <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a> <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later)</p></td>
 <td><p><li> Custom datasets <li> Image classification datasets from the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview#image_classification">TensorFlow Dataset catalog</a></p></td>
 </tr>
-<tr class="row-even"><td><p>Binary Text Classification</p></td>
-<td><p>TensorFlow</p></td>
-<td><p><li><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html">Intel® Optimization for TensorFlow</a> <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later)</p></td>
-<td><p><li> <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview#image_classification">TensorFlow Datasets</a>: <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config">glue/cola</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluesst2">glue/sst2</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config">imdb_reviews</a></p></td>
-</tr>
 </tbody>
 </table>
 </section>
@@ -166,16 +161,10 @@
 and installing the wheel:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">bdist_wheel</span> <span class="o">--</span><span class="n">universal</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="n">dist</span><span class="o">/</span><span class="n">tlt</span><span class="o">-</span><span class="mf">0.0.1</span><span class="o">-</span><span class="n">py2</span><span class="o">.</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span><span class="p">[</span><span class="n">tensorflow</span><span class="p">,</span><span class="n">pytorch</span><span class="p">]</span>
-
-<span class="c1"># Required for TensorFlow text classification</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">text</span><span class="o">==</span><span class="mf">2.9.0</span>
 </pre></div>
 </div>
 <p>Or for developers, do an editable install:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">editable</span> <span class="o">.</span><span class="p">[</span><span class="n">tensorflow</span><span class="p">,</span><span class="n">pytorch</span><span class="p">]</span>
-
-<span class="c1"># Required for TensorFlow text classification</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">text</span><span class="o">==</span><span class="mf">2.9.0</span>
 </pre></div>
 </div>
 </li>
@@ -190,18 +179,30 @@ command can be found using <code class="docutils literal notranslate"><span clas
 <span class="o">------------------------------</span>
 <span class="n">IMAGE</span> <span class="n">CLASSIFICATION</span>
 <span class="o">------------------------------</span>
+<span class="n">alexnet</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">convnext_base</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">convnext_large</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">convnext_small</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">convnext_tiny</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">densenet121</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">densenet161</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">densenet169</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">densenet201</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b0</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
 <span class="n">efficientnet_b1</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b1</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
 <span class="n">efficientnet_b2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b2</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b3</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b4</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b4</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b5</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b5</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b6</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b6</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b7</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">efficientnet_b7</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
 <span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b0</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
 <span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b1</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
@@ -210,15 +211,13 @@ command can be found using <code class="docutils literal notranslate"><span clas
 <span class="n">efficientnetv2</span><span class="o">-</span><span class="n">s</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
 <span class="n">googlenet</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">inception_v3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">mnasnet0_5</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">mnasnet1_0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">mobilenet_v2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="n">mobilenet_v2_100_224</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
-<span class="n">nasnet_large</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
-<span class="n">resnet18</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
-<span class="n">resnet50</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
-<span class="n">resnet_v1_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
-<span class="n">resnet_v2_101</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
-<span class="n">resnet_v2_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
-<span class="n">shufflenet_v2_x1_0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">mobilenet_v3_large</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="o">...</span>
+
 </pre></div>
 </div>
 <p>Train a model:</p>

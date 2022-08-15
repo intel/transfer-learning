@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tlt.datasets.dataset_factory &mdash; Intel® Transfer Learning Tool 0.0.1 documentation</title>
+  <title>tlt.datasets.dataset_factory &mdash; Intel® Transfer Learning Tool 0.1.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -100,10 +100,6 @@
                             <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TFImageClassificationDataset&quot;</span><span class="p">},</span>
             <span class="s2">&quot;custom&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.datasets.image_classification.tf_custom_image_classification_dataset&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TFCustomImageClassificationDataset&quot;</span><span class="p">}</span>
-        <span class="p">},</span>
-        <span class="n">UseCaseType</span><span class="o">.</span><span class="n">TEXT_CLASSIFICATION</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;tf_datasets&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.datasets.text_classification.tfds_text_classification_dataset&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TFDSTextClassificationDataset&quot;</span><span class="p">}</span>
         <span class="p">}</span>
     <span class="p">},</span>
     <span class="n">FrameworkType</span><span class="o">.</span><span class="n">PYTORCH</span><span class="p">:</span> <span class="p">{</span>
@@ -144,7 +140,7 @@
 
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; from tlt.datasets.dataset_factory import load_dataset</span>
-<span class="sd">        &gt;&gt;&gt; data = load_dataset(&#39;/tmp/flower_photos&#39;, &#39;image_classification&#39;, &#39;tensorflow&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; data = load_dataset(&#39;/tmp/data/flower_photos&#39;, &#39;image_classification&#39;, &#39;tensorflow&#39;)</span>
 <span class="sd">        Found 3670 files belonging to 5 classes.</span>
 <span class="sd">        &gt;&gt;&gt; data.class_names</span>
 <span class="sd">        [&#39;daisy&#39;, &#39;dandelion&#39;, &#39;roses&#39;, &#39;sunflowers&#39;, &#39;tulips&#39;]</span>

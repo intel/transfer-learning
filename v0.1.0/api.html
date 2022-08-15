@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; Intel® Transfer Learning Tool 0.0.1 documentation</title>
+  <title>API Reference &mdash; Intel® Transfer Learning Tool 0.1.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -48,7 +48,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-tlt.datasets.dataset_factory">Factory Methods</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#class-reference">Class Reference</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#image-classification">Image Classification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#text-classification">Text Classification</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#base-classes">Base Classes</a></li>
 </ul>
 </li>
@@ -58,8 +57,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id1">Factory Methods</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id2">Class Reference</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id3">Image Classification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id4">Text Classification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id5">Base Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Base Classes</a></li>
 </ul>
 </li>
 </ul>
@@ -157,7 +155,7 @@ subfolder will be used as the class label.</p>
 </dl>
 <p class="rubric">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tlt.datasets.dataset_factory</span> <span class="kn">import</span> <span class="n">load_dataset</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;/tmp/flower_photos&#39;</span><span class="p">,</span> <span class="s1">&#39;image_classification&#39;</span><span class="p">,</span> <span class="s1">&#39;tensorflow&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;/tmp/data/flower_photos&#39;</span><span class="p">,</span> <span class="s1">&#39;image_classification&#39;</span><span class="p">,</span> <span class="s1">&#39;tensorflow&#39;</span><span class="p">)</span>
 <span class="go">Found 3670 files belonging to 5 classes.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">class_names</span>
 <span class="go">[&#39;daisy&#39;, &#39;dandelion&#39;, &#39;roses&#39;, &#39;sunflowers&#39;, &#39;tulips&#39;]</span>
@@ -220,19 +218,6 @@ datasets for HuggingFace models.</p></li>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset.html#tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset" title="tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_classification_dataset.ImageClassificationDataset</span></code></a></p></td>
 <td><p>Base class for an image classification dataset</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="text-classification">
-<h4>Text Classification<a class="headerlink" href="#text-classification" title="Permalink to this heading">¶</a></h4>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset.html#tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset" title="tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfds_text_classification_dataset.TFDSTextClassificationDataset</span></code></a></p></td>
-<td><p>Base class for a text classification dataset from the TensorFlow datasets catalog</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset.html#tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset" title="tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_classification_dataset.TextClassificationDataset</span></code></a></p></td>
-<td><p>Base class for a text classification dataset</p></td>
 </tr>
 </tbody>
 </table>
@@ -350,20 +335,7 @@ framework or use case.</p>
 </table>
 </section>
 <section id="id4">
-<h4>Text Classification<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h4>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel.html#tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel" title="tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfhub_text_classification_model.TFHubTextClassificationModel</span></code></a></p></td>
-<td><p>Class used to represent a TF Hub pretrained model that can be used for binary text classification fine tuning.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.text_classification_model.TextClassificationModel.html#tlt.models.text_classification.text_classification_model.TextClassificationModel" title="tlt.models.text_classification.text_classification_model.TextClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_classification_model.TextClassificationModel</span></code></a></p></td>
-<td><p>Class used to represent a pretrained model for text classification</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="id5">
-<h4>Base Classes<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h4>
+<h4>Base Classes<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h4>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Users should rarely need to interact directly with these.</p>

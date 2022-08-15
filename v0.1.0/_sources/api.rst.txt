@@ -35,18 +35,6 @@ Image Classification
     torchvision_image_classification_dataset.TorchvisionImageClassificationDataset
     image_classification_dataset.ImageClassificationDataset
 
-Text Classification
-^^^^^^^^^^^^^^^^^^^
-
-.. currentmodule:: tlt.datasets.text_classification
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-    tfds_text_classification_dataset.TFDSTextClassificationDataset
-    text_classification_dataset.TextClassificationDataset
-
 Base Classes
 ^^^^^^^^^^^^
 
@@ -92,18 +80,6 @@ Image Classification
    tfhub_image_classification_model.TFHubImageClassificationModel
    torchvision_image_classification_model.TorchvisionImageClassificationModel
    image_classification_model.ImageClassificationModel
-
-Text Classification
-^^^^^^^^^^^^^^^^^^^
-
-.. currentmodule:: tlt.models.text_classification
-
-.. autosummary::
-  :toctree: _autosummary
-  :nosignatures:
-
-   tfhub_text_classification_model.TFHubTextClassificationModel
-   text_classification_model.TextClassificationModel
 
 Base Classes
 ^^^^^^^^^^^^
