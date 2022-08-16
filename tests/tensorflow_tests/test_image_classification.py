@@ -29,10 +29,10 @@ from tlt.utils.file_utils import download_and_extract_tar_file
 
 
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('model_name,dataset_name',
-                         [['efficientnet_b0', 'tf_flowers'],
-                          ['resnet_v1_50', 'tf_flowers']])
-def test_tf_image_classification(model_name, dataset_name):
+@pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy',
+                         [['efficientnet_b0', 'tf_flowers', 0.34375, 0.5625],
+                          ['resnet_v1_50', 'tf_flowers', 0.40625, 0.6875]])
+def test_tf_image_classification(model_name, dataset_name, train_accuracy, retrain_accuracy):
     """
     Tests basic transfer learning functionality for TensorFlow image classification models using TF Datasets
     """
@@ -55,8 +55,9 @@ def test_tf_image_classification(model_name, dataset_name):
     assert len(pretrained_metrics) > 0
 
     # Train
-    history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False)
+    history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, seed=10)
     assert history is not None
+    assert history.history['acc'] == [train_accuracy]
 
     # Verify that checkpoints were generated
     checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(model_name))
@@ -100,8 +101,8 @@ def test_tf_image_classification(model_name, dataset_name):
     # Retrain from checkpoints and verify that we have better accuracy than the original training
     retrain_model = model_factory.get_model(model_name, framework)
     retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
-                                          shuffle_files=False)
-    assert retrain_history.history['acc'] > history.history['acc']
+                                          shuffle_files=False, seed=10)
+    assert retrain_history.history['acc'] == [retrain_accuracy]
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
@@ -134,10 +135,10 @@ class TestImageClassificationCustomDataset:
                 shutil.rmtree(dir)
 
     @pytest.mark.tensorflow
-    @pytest.mark.parametrize('model_name',
-                             ['efficientnet_b0',
-                              'resnet_v1_50'])
-    def test_custom_dataset_workflow(self, model_name):
+    @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy',
+                             [['efficientnet_b0', 0.6875, 0.78125],
+                              ['resnet_v1_50', 0.59375, 0.6875]])
+    def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy):
         """
         Tests the full workflow for TF image classification using a custom dataset
         """
@@ -156,8 +157,9 @@ class TestImageClassificationCustomDataset:
         dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
 
         # Train for 1 epoch
-        history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False)
+        history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False, seed=10)
         assert history is not None
+        assert history.history['acc'] == [train_accuracy]
 
         # Verify that checkpoints were generated
         checkpoint_dir = os.path.join(self._output_dir, "{}_checkpoints".format(model_name))
@@ -188,8 +190,8 @@ class TestImageClassificationCustomDataset:
         # Retrain from checkpoints and verify that we have better accuracy than the original training
         retrain_model = model_factory.get_model(model_name, framework)
         retrain_history = retrain_model.train(dataset, output_dir=self._output_dir, epochs=1,
-                                              initial_checkpoints=checkpoint_dir, shuffle_files=False)
-        assert retrain_history.history['acc'] > history.history['acc']
+                                              initial_checkpoints=checkpoint_dir, shuffle_files=False, seed=10)
+        assert retrain_history.history['acc'] == [retrain_accuracy]
 
         # Test benchmarking, quantization, and graph optimization with ResNet50
         if model_name == "resnet_v1_50":
