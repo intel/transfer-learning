@@ -20,6 +20,7 @@
 
 import copy
 import os
+import random
 import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -107,7 +108,7 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         return self._model
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              enable_auto_mixed_precision=None, shuffle_files=True):
+              enable_auto_mixed_precision=None, shuffle_files=True, seed=None):
         """ 
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
@@ -128,6 +129,7 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
                     enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
                     running with Intel fourth generation Xeon processors, and disabled for other platforms.
                 shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
+                seed (int): Optionally set a seed for reproducibility.
 
             Returns:
                 History object from the model.fit() call
@@ -157,6 +159,12 @@ class TFHubImageClassificationModel(ImageClassificationModel, TFHubModel):
         # If the number of classes doesn't match what was used before, clear out the previous model
         if dataset_num_classes != self.num_classes:
             self._model = None
+
+        if seed is not None:
+            os.environ['PYTHONHASHSEED'] = str(seed)
+            random.seed(seed)
+            np.random.seed(seed)
+            tf.random.set_seed(seed)
 
         # Set auto mixed precision
         self.set_auto_mixed_precision(enable_auto_mixed_precision)
