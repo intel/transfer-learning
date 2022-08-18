@@ -1,4 +1,4 @@
-#
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018-2022 Intel Corporation
@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+# SPDX-License-Identifier: EPL-2.0
 #
 
 import platform as system_platform
