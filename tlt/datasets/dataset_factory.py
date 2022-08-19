@@ -28,11 +28,13 @@ dataset_map = {
             "tf_datasets": {"module": "tlt.datasets.image_classification.tf_image_classification_dataset",
                             "class": "TFImageClassificationDataset"},
             "custom": {"module": "tlt.datasets.image_classification.tf_custom_image_classification_dataset",
-                            "class": "TFCustomImageClassificationDataset"}
+                       "class": "TFCustomImageClassificationDataset"}
         },
         UseCaseType.TEXT_CLASSIFICATION: {
             "tf_datasets": {"module": "tlt.datasets.text_classification.tfds_text_classification_dataset",
-                            "class": "TFDSTextClassificationDataset"}
+                            "class": "TFDSTextClassificationDataset"},
+            "custom": {"module": "tlt.datasets.text_classification.tf_custom_text_classification_dataset",
+                       "class": "TFCustomTextClassificationDataset"}
         }
     },
     FrameworkType.PYTORCH: {
@@ -47,9 +49,10 @@ dataset_map = {
 
 
 def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkType, dataset_name=None, **kwargs):
-    """A factory method for loading a custom dataset. Note that the directory of images is expected to be organized
-    with subfolders for each image class. Each subfolder should contain .jpg images for the class. The name of the
-    subfolder will be used as the class label.
+    """A factory method for loading a custom dataset. 
+    
+    Image classification datasets expect a directory of images organized with subfolders for each image class. Each
+    subfolder should contain .jpg images for the class. The name of the subfolder will be used as the class label.
 
     .. code-block:: text
 
@@ -57,6 +60,17 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
           ├── class_a
           ├── class_b
           └── class_c
+
+    Text classification datasets are expected to be a directory with text/csv file with two columns: the label and the
+    text/sentence to classify. See the TFCustomTextClassificationDataset documentation for a list of the additional
+    **kwargs arguments that are used for loading the a text classification dataset file.
+
+    .. code-block:: text
+
+        class_a,<text>
+        class_b,<text>
+        class_a,<text>
+        ... 
 
     Args:
         dataset_dir (str): directory containing the dataset
@@ -90,8 +104,12 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
     if framework in dataset_map.keys():
         if use_case in dataset_map[framework].keys():
             if dataset_catalog in dataset_map[framework][use_case]:
-                dataset_class = locate('{}.{}'.format(dataset_map[framework][use_case][dataset_catalog]['module'],
-                                                      dataset_map[framework][use_case][dataset_catalog]['class']))
+                dataset_class_str = '{}.{}'.format(dataset_map[framework][use_case][dataset_catalog]['module'],
+                                                   dataset_map[framework][use_case][dataset_catalog]['class'])
+                dataset_class = locate(dataset_class_str)
+
+                if not dataset_class:
+                    raise NotImplementedError("Unable to find the dataset class:", dataset_class_str)
                 return dataset_class(dataset_dir, dataset_name, **kwargs)
 
     # If no match was found in the map, then it's not implemented yet

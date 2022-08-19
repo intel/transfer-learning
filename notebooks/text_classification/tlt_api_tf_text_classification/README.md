@@ -8,6 +8,7 @@ The notebook performs the following steps:
 1. Install dependencies and setup parameters
 1. Get the model
 1. Get the dataset
+1. Prepare the dataset
 1. Fine tuning
 1. Evaluate
 1. Predict
@@ -38,5 +39,12 @@ Dataset citations:
   author={Wang, Alex and Singh, Amanpreet and Michael, Julian and Hill, Felix and Levy, Omer and Bowman, Samuel R.},
   note={In the Proceedings of ICLR.},
   year={2019}
+}
+
+@misc{misc_sms_spam_collection_228,
+  author       = {Almeida, Tiago},
+  title        = {{SMS Spam Collection}},
+  year         = {2012},
+  howpublished = {UCI Machine Learning Repository}
 }
 ```

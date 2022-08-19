@@ -275,6 +275,107 @@ def test_unsupported_tfds_datasets(dataset_name, use_case):
     assert "Dataset name is not supported" in str(e)
 
 
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('dataset_name,delimiter',
+                         [['foo', ':'],
+                          [None, '\t'],
+                          ['potato', ',']])
+def test_custom_text_classification_csv(dataset_name, delimiter):
+    """
+    Tests load_dataset with a text classification csv file. Verifies that the csv file gets loaded into the dataset
+    and that the map function is properly applied to the data.
+    """
+    dataset_dir = tempfile.mkdtemp()
+    csv_file_name = "test.csv"
+    default_dataset_name = "test"
+    use_case = "text_classification"
+    framework = "tensorflow"
+    class_names = ['neg', 'pos']
+    batch_size = 20
+
+    try:
+        # Write dummy csv file
+        csv_lines = ['pos{}hello\n'.format(delimiter), 'neg{}bye\n'.format(delimiter)] * batch_size
+        with open(os.path.join(dataset_dir, csv_file_name), 'w') as f:
+            f.writelines(csv_lines)
+
+        def map_func(x):
+            return int(x == 'pos')
+
+        dataset = load_dataset(dataset_dir, use_case, framework, dataset_name, csv_file_name=csv_file_name,
+                               label_map_func=map_func, class_names=class_names, delimiter=delimiter,
+                               shuffle_files=False)
+
+        assert len(dataset._dataset) == len(csv_lines)
+        assert dataset.class_names == class_names
+
+        if dataset_name:
+            assert dataset.dataset_name == dataset_name
+        else:
+            assert dataset.dataset_name == default_dataset_name
+
+        dataset.preprocess(batch_size=batch_size)
+
+        # Get a batch and verify that the text labels have been mapped to numerical values
+        _, label_value = dataset.get_batch()
+        assert_array_equal([1, 0] * int(batch_size/2), label_value)
+
+    finally:
+        # Clean up after the test by deleting the temp dataset directory
+        if os.path.exists(dataset_dir):
+            shutil.rmtree(dataset_dir)
+
+
+def test_custom_text_classification_extra_columns():
+    """
+    Tests load_dataset with a text classification csv file that has 3 columns and uses select_cols and exclude_cols to
+    make the resulting dataset only have 2 columns.
+    """
+    dataset_dir = tempfile.mkdtemp()
+    csv_file_name = "test.csv"
+    use_case = "text_classification"
+    framework = "tensorflow"
+    class_names = ['neg', 'pos']
+    batch_size = 20
+    delimiter = ","
+
+    try:
+        # Write dummy csv file with 3 columns
+        csv_lines = ['pos{0}hello{0}other\n'.format(delimiter), 'neg{0}bye{0}other\n'.format(delimiter)] * batch_size
+        with open(os.path.join(dataset_dir, csv_file_name), 'w') as f:
+            f.writelines(csv_lines)
+
+        def str_to_int(x):
+            return int(x == 'pos')
+
+        # Call load_dataset with exclude_cols
+        dataset = load_dataset(dataset_dir, use_case, framework, dataset_name=None, csv_file_name=csv_file_name,
+                               class_names=class_names, delimiter=delimiter, exclude_cols=[2],
+                               shuffle_files=False, label_map_func=str_to_int)
+
+        assert len(dataset._dataset) == len(csv_lines)
+        dataset.preprocess(batch_size=batch_size)
+
+        # The batch should have 2 columns, since one was excluded using 'exclude_cols'
+        assert len(dataset.get_batch()) == 2
+
+        # Call load_dataset with select_cols
+        dataset = load_dataset(dataset_dir, use_case, framework, dataset_name=None, csv_file_name=csv_file_name,
+                               class_names=class_names, delimiter=delimiter, select_cols=[0, 1], shuffle_files=False,
+                               label_map_func=str_to_int)
+
+        assert len(dataset._dataset) == len(csv_lines)
+        dataset.preprocess(batch_size=batch_size)
+
+        # We should only have 2 columns, since 'select_cols' was used
+        assert len(dataset.get_batch()) == 2
+
+    finally:
+        # Clean up after the test by deleting the temp dataset directory
+        if os.path.exists(dataset_dir):
+            shutil.rmtree(dataset_dir)
+
+
 class DatasetForTest:
     def __init__ (self, dataset_dir, use_case, dataset_name=None, dataset_catalog=None, class_names=None):
         """

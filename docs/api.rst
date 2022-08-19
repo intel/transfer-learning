@@ -45,6 +45,7 @@ Text Classification
    :nosignatures:
 
     tfds_text_classification_dataset.TFDSTextClassificationDataset
+    tf_custom_text_classification_dataset.TFCustomTextClassificationDataset
     text_classification_dataset.TextClassificationDataset
 
 Base Classes
