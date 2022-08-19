@@ -93,7 +93,10 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
                 self._model.classifier[self._classification_layer[1]] = torch.nn.Linear(num_features, num_classes)
             else:
                 classifier = getattr(self._model, self._classification_layer[0])
-                num_features = classifier.in_features
+                if self._classification_layer[0] == "heads":
+                    num_features = classifier.head.in_features
+                else:
+                    num_features = classifier.in_features
                 setattr(self._model, self._classification_layer[0], torch.nn.Linear(num_features, num_classes))
 
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)

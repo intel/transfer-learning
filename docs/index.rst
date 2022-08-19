@@ -16,7 +16,7 @@ Features
       * Image Classification with 19 models from TFHub
       * Text Classification with 26 models from TFHub
    * PyTorch 1.11
-      * Image Classification with 56 models from torchvision
+      * Image Classification with 60 models from torchvision
 
 .. figure:: images/features.png
    :scale: 50 %
@@ -101,6 +101,10 @@ Models
    ,vgg16_bn
    ,vgg19
    ,vgg19_bn
+   ,vit_b_16
+   ,vit_b_32
+   ,vit_l_16
+   ,vit_l_32
    ,wide_resnet50_2
    ,wide_resnet101_2
 
