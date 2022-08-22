@@ -18,7 +18,10 @@ Features
       * Image Classification with 56 models from torchvision
 
 .. figure:: images/features.png
-   :scale: 50 %
+   :scale: 42% %
+   :height: 1272px
+   :width: 1676px
+   :align: center
    :alt: TLT Features
 
 * Jupyter notebooks demonstrating:
