@@ -141,8 +141,8 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
 
     Example:
         >>> from tlt.datasets.dataset_factory import get_dataset
-        >>> data = get_dataset('/tmp/data/', 'image_classification', 'tensorflow', 'tf_flowers', 'tf_datasets') # doctest: +SKIP
-        >>> data.class_names
+        >>> data = get_dataset('/tmp/data/', 'image_classification', 'tensorflow', 'tf_flowers', 'tf_datasets')
+        >>> sorted(data.class_names)
         ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips']
 
     """
