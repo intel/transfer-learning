@@ -62,6 +62,7 @@ def test_train_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_
         mock_inspect.return_value = inspect_mock
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
+        model_mock.export.return_value = output_dir
 
         # Call the train command
         result = runner.invoke(train,
@@ -118,6 +119,7 @@ def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mo
         mock_inspect.return_value = inspect_mock
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
+        model_mock.export.return_value = output_dir
 
         # Call the train command
         result = runner.invoke(train,
@@ -166,6 +168,7 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
         data_mock = MagicMock()
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
+        model_mock.export.return_value = output_dir
 
         # Call the train command
         result = runner.invoke(train,
@@ -216,6 +219,7 @@ def test_train_dataset_catalog(mock_get_dataset, mock_get_model, model_name, fra
         data_mock = MagicMock()
         mock_get_model.return_value = model_mock
         mock_get_dataset.return_value = data_mock
+        model_mock.export.return_value = output_dir 
 
         # Call the train command
         result = runner.invoke(train,

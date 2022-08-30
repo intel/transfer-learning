@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
@@ -17,11 +18,9 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-
 import click
 import inspect
 import sys
-
 
 @click.command()
 @click.option("--framework", "-f",
@@ -82,41 +81,41 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     """
     Trains the model
     """
+    session_log = {} # Initialize an empty dictionary to store information about this training session
     print("Model name:", model_name)
+    session_log["model_name"] = model_name
     print("Framework:", framework)
-
+    session_log["framework"] = framework
     if dataset_name:
         print("Dataset name:", dataset_name)
-
+        session_log["dataset_name"] = dataset_name
         if dataset_catalog:
             print("Dataset catalog:", dataset_catalog)
-
+            session_log["dataset_catalog"] = dataset_catalog
     print("Training epochs:", epochs)
-
+    session_log["epochs"] = epochs
     if init_checkpoints:
         print("Initial checkpoints:", init_checkpoints)
-
+        session_log["init_checkpoints"] = init_checkpoints
     print("Dataset dir:", dataset_dir)
-
+    session_log["dataset_dir"] = dataset_dir
     if dataset_file:
         print("Dataset file:", dataset_file)
-
+        session_log["dataset_file"] = dataset_file
     if class_names:
         class_names = class_names.split(",")
         print("Class names:", class_names)
-
+        session_log["class_names"] = class_names
     print("Output directory:", output_dir, flush=True)
-
+    session_log["output_directory"] = output_dir
     from tlt.models import model_factory
     from tlt.datasets import dataset_factory
-
     # Get the model
     try:
         model = model_factory.get_model(model_name, framework)
     except Exception as e:
         sys.exit("Error while getting the model (model name: {}, framework: {}):\n{}".format(
             model_name, framework, str(e)))
-
     # Get the dataset
     try:
         if not dataset_name and not dataset_catalog:
@@ -127,7 +126,6 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
                 if not class_names:
                     raise ValueError("Loading a text classification dataset requires --class-names to specify a list "
                                      "of the class labels for the dataset.")
-
                 dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
                                                        class_names=class_names, csv_file_name=dataset_file,
                                                        delimiter=delimiter)
@@ -135,7 +133,6 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
                 dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
         else:
             dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
-
         # TODO: get extra configs like batch size and maybe this doesn't need to be a separate call
         if framework in ['tensorflow', 'pytorch']:
             if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
@@ -147,16 +144,24 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "
                  "dataset name: {}, dataset_catalog: {}):\n{}".format(
             dataset_dir, model.use_case,  model.framework, dataset_name, dataset_catalog, str(e)))
-
     # Train the model using the dataset
     try:
         model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints)
     except Exception as e:
         sys.exit("There was an error during model training:\n{}".format(str(e)))
-
     # Save the trained model
     try:
-        # TODO: also export info about how the model was trained, logs, etc so that it's reproducible
-        model.export(output_dir)
+        log_output = model.export(output_dir)
     except Exception as e:
         sys.exit("There was an error when saving the model:\n{}".format(str(e)))
+    # Save the log file
+    try:
+        import os
+        import json 
+        json_filename = os.path.join(log_output, "session_log.json")
+        session_log["log_path"] = log_output
+        json_object = json.dumps(session_log, indent=4)
+        with open(json_filename, "w") as outfile:
+            outfile.write(json_object)
+    except Exception as e:
+        sys.exit("There was an error when saving the session log file:\n{}".format(str(e)))
