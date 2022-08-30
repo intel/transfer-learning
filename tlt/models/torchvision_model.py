@@ -35,6 +35,12 @@ class TorchvisionModel(BaseModel):
         """
         super().__init__(model_name, framework, use_case)
 
+        # Setup warnings module to set warnings to go to stdout
+        import warnings, sys
+        def customwarn(message, category, filename, lineno, file=None, line=None):
+            sys.stdout.write(warnings.formatwarning(message, category, filename, lineno))
+        warnings.showwarning = customwarn 
+
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):
         """
         Writes an INC compatible config file to the specified path usings args from the specified dataset and
