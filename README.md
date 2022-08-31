@@ -42,7 +42,7 @@ Requirements:
    and installing the wheel:
    ```
    python setup.py bdist_wheel --universal
-   pip install dist/tlt-0.0.1-py2.py3-none-any.whl[tensorflow,pytorch]
+   pip install dist/intel_transfer_learning_tool-0.1.0-py3-none-any.whl[tensorflow,pytorch]
 
    # Required for TensorFlow text classification
    pip install tensorflow-text==2.9.0

@@ -46,7 +46,7 @@ EXTRA_PACKAGES = {
     "pytorch": get_framework_requirements("pytorch")
 }
 
-setup(name="tlt",
+setup(name="intel-transfer-learning-tool",
       description="Intel® Transfer Learning Tool",
       version="0.1.0",
       long_description=long_description,

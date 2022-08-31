@@ -56,7 +56,7 @@ test_docs: html
 	@echo "Testing Sphinx documentation..."
 	@. $(ACTIVATE_DOCS) && $(MAKE) -C docs doctest
 
-dist:
+dist: venv_docs
 	@echo "Create binary wheel..."
 	@. $(ACTIVATE_DOCS) && python setup.py bdist_wheel
 
