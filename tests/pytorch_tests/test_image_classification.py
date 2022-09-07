@@ -57,7 +57,7 @@ def test_pyt_image_classification(model_name, dataset_name):
     assert len(pretrained_metrics) > 0
 
     # Train
-    model.train(dataset, output_dir=output_dir, epochs=1)
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
 
     # Evaluate
     trained_metrics = model.evaluate(dataset)
@@ -146,7 +146,7 @@ class TestImageClassificationCustomDataset:
         dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
 
         # Train for 1 epoch
-        model.train(dataset, output_dir=self._output_dir, epochs=1)
+        model.train(dataset, output_dir=self._output_dir, epochs=1, do_eval=False)
 
         # Evaluate
         model.evaluate(dataset)

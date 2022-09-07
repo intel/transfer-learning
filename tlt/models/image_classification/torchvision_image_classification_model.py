@@ -116,7 +116,8 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
         self._model = torch.load(os.path.join(model_dir, 'model.pt'))
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
-    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None):
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
+              do_eval=True):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -129,6 +130,8 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
                 epochs (int): Number of epochs to train the model (default: 1)
                 initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
                     latest checkpoint will be used.
+                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                    at the end of each epoch.
 
             Returns:
                 Trained PyTorch model object
@@ -172,6 +175,13 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
             train_data_loader = dataset.data_loader
             data_length = len(dataset.dataset)
 
+        if do_eval and dataset.validation_subset:
+            validation_data_loader = dataset.validation_loader
+            validation_data_length = len(dataset.validation_subset)
+        else:
+            validation_data_loader = None
+            validation_data_length = 0
+
         for epoch in range(epochs):
             print(f'Epoch {epoch}/{epochs - 1}')
             print('-' * 10)
@@ -201,10 +211,32 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
 
-            epoch_loss = running_loss / data_length
-            epoch_acc = float(running_corrects) / data_length
+            train_epoch_loss = running_loss / data_length
+            train_epoch_acc = float(running_corrects) / data_length
 
-        print(f'Training Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+            loss_acc_output = f'Loss: {train_epoch_loss:.4f} - Acc: {train_epoch_acc:.4f}'
+
+            if do_eval and validation_data_loader is not None:
+                self._model.eval()
+                running_loss = 0.0
+                running_corrects = 0
+
+                with torch.no_grad():
+                    for inputs, labels in validation_data_loader:
+                        outputs = self._model(inputs)
+                        _, preds = torch.max(outputs, 1)
+                        loss = self._loss(outputs, labels)
+
+                        running_loss += loss.item() * inputs.size(0)
+                        running_corrects += torch.sum(preds == labels.data)
+
+                eval_epoch_loss = running_loss / validation_data_length
+                eval_epoch_acc = float(running_corrects) / validation_data_length
+
+                loss_acc_output += f' - Val Loss: {eval_epoch_loss:.4f} - Val Acc: {eval_epoch_acc:.4f}'
+
+            print(loss_acc_output)
+
         time_elapsed = time.time() - since
         print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
 
@@ -215,7 +247,7 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
                         'epoch': epochs,
                         'model_state_dict': self._model.state_dict(),
                         'optimizer_state_dict': self._optimizer.state_dict(),
-                        'loss': epoch_loss,
+                        'loss': train_epoch_loss,
                        }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
         return self._model
@@ -238,7 +270,7 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
             eval_loader = dataset.validation_loader
             data_length = len(dataset.validation_subset)
         else:
-            eval_dataset = dataset.data_loader
+            eval_loader = dataset.data_loader
             data_length = len(dataset.dataset)
 
         if self._model is None:

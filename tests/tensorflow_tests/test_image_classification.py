@@ -55,7 +55,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     assert len(pretrained_metrics) > 0
 
     # Train
-    history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, seed=10)
+    history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, seed=10, do_eval=False)
     assert history is not None
     assert history.history['acc'] == [train_accuracy]
 
@@ -101,7 +101,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     # Retrain from checkpoints and verify that we have better accuracy than the original training
     retrain_model = model_factory.get_model(model_name, framework)
     retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
-                                          shuffle_files=False, seed=10)
+                                          shuffle_files=False, seed=10, do_eval=False)
     assert retrain_history.history['acc'] == [retrain_accuracy]
 
     # Delete the temp output directory
@@ -157,7 +157,8 @@ class TestImageClassificationCustomDataset:
         dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
 
         # Train for 1 epoch
-        history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False, seed=10)
+        history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False, seed=10,
+                              do_eval=False)
         assert history is not None
         assert history.history['acc'] == [train_accuracy]
 
@@ -190,7 +191,8 @@ class TestImageClassificationCustomDataset:
         # Retrain from checkpoints and verify that we have better accuracy than the original training
         retrain_model = model_factory.get_model(model_name, framework)
         retrain_history = retrain_model.train(dataset, output_dir=self._output_dir, epochs=1,
-                                              initial_checkpoints=checkpoint_dir, shuffle_files=False, seed=10)
+                                              initial_checkpoints=checkpoint_dir, shuffle_files=False, seed=10,
+                                              do_eval=False)
         assert retrain_history.history['acc'] == [retrain_accuracy]
 
         # Test benchmarking, quantization, and graph optimization with ResNet50

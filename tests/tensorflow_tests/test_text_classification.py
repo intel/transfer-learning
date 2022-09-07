@@ -60,7 +60,7 @@ def test_tf_binary_text_classification(model_name, dataset_name):
         assert "model must be trained" in str(e)
 
         # Train
-        history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False)
+        history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, do_eval=False)
         assert history is not None
 
         # Verify that checkpoints were generated
@@ -102,7 +102,7 @@ def test_tf_binary_text_classification(model_name, dataset_name):
         # Retrain from checkpoints and verify that we have better accuracy than the original training
         retrain_model = model_factory.get_model(model_name, framework)
         retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
-                            shuffle_files=False)
+                            shuffle_files=False, do_eval=False)
         retrain_metrics = retrain_model.evaluate(dataset)
         accuracy_index = next(id for id, k in enumerate(model._model.metrics_names) if 'acc' in k)
         assert retrain_metrics[accuracy_index] > trained_metrics[accuracy_index]

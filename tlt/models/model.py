@@ -66,7 +66,7 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def train(self, dataset: BaseDataset, output_dir, epochs=1, initial_checkpoints=None):
+    def train(self, dataset: BaseDataset, output_dir, epochs=1, initial_checkpoints=None, do_eval=True):
         """
         Train the model using the specified dataset
         """

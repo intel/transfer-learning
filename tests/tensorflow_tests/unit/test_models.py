@@ -165,7 +165,7 @@ def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_pat
     with patch(get_hub_model_patch) as mock_get_hub_model:
         mock_dataset = MagicMock()
         mock_dataset.__class__ = dataset_type
-        print(type(mock_dataset))
+        mock_dataset.validation_subset = [1, 2, 3]
 
         mock_dataset.class_names = class_names
         mock_model = MagicMock()
@@ -177,12 +177,30 @@ def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_pat
             assert isinstance(shuffle, bool)
             assert len(callbacks) > 0
 
+            if eval_expected:
+                assert validation_data is not None
+            else:
+                assert validation_data is None
+
             return expected_return_value
 
         mock_model.fit = mock_fit
         mock_get_hub_model.return_value = mock_model
 
-        return_val = model.train(mock_dataset, output_dir="/tmp/output")
+        # Test train with eval
+        eval_expected = True
+        return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=True)
+        assert return_val == expected_return_value
+
+        # Test train without eval
+        eval_expected = False
+        return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=False)
+        assert return_val == expected_return_value
+
+        # Test train with eval, but no validation subset
+        eval_expected = False
+        mock_dataset.validation_subset = None
+        return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=True)
         assert return_val == expected_return_value
 
 
