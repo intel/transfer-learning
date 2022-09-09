@@ -13,10 +13,9 @@ with optimizations for extra performance boost on Intel hardware.
 The notebook performs the following steps:
 1. Import dependencies and setup parameters
 2. Prepare the dataset
-3. Get the model and setup the Trainer
-4. Fine tuning and evaluation
-5. Export the model
-6. Reload the model and make predictions
+3. Prepare the Model for Fine Tuning and Evaluation
+4. Export the model
+5. Reload the model and make predictions
 
 ## Running the notebook
 
