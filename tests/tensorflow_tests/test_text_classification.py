@@ -88,8 +88,7 @@ def test_tf_binary_text_classification(model_name, dataset_name):
         assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
 
         # Reload the saved model
-        reload_model = model_factory.get_model(model_name, framework)
-        reload_model.load_from_directory(saved_model_dir)
+        reload_model = model_factory.load_model(model_name, saved_model_dir, framework, 'text_classification')
 
         # Evaluate
         reload_metrics = reload_model.evaluate(dataset)

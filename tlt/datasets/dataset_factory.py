@@ -63,7 +63,7 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
 
     Text classification datasets are expected to be a directory with text/csv file with two columns: the label and the
     text/sentence to classify. See the TFCustomTextClassificationDataset documentation for a list of the additional
-    **kwargs arguments that are used for loading the a text classification dataset file.
+    kwargs that are used for loading the a text classification dataset file.
 
     .. code-block:: text
 
@@ -77,7 +77,7 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
         use_case (str or UseCaseType): use case or task the dataset will be used to model
         framework (str or FrameworkType): framework
         dataset_name (str): optional; name of the dataset used for informational purposes
-        **kwargs: optional; additional keyword arguments depending on the type of dataset being loaded
+        kwargs: optional; additional keyword arguments depending on the type of dataset being loaded
 
     Returns:
         (dataset)

@@ -31,13 +31,13 @@ from tlt.models import model_factory
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
-    from tlt.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
+    from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel
 except ModuleNotFoundError as e:
-    print("WARNING: Unable to import TFHubImageClassificationModel. TensorFlow may not be installed")
+    print("WARNING: Unable to import TFImageClassificationModel. TensorFlow may not be installed")
 
 
 @pytest.mark.tensorflow
-def test_tfhub_image_classification_config_file_overwrite():
+def test_tf_image_classification_config_file_overwrite():
     """
     Tests writing an INC config file for image classification models with a mock custom dataset. Checks that the
     overwrite flag lets you overwrite a config file that already exists.
@@ -45,7 +45,7 @@ def test_tfhub_image_classification_config_file_overwrite():
     try:
         temp_dir = tempfile.mkdtemp()
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             config_file = os.path.join(temp_dir, "config.yaml")
             batch_size=24
@@ -73,7 +73,7 @@ def test_tfhub_image_classification_config_file_overwrite():
                           [1.434, False],
                           [0, False],
                           [128, True]])
-def test_tfhub_image_classification_config_file_batch_size(batch_size, valid):
+def test_tf_image_classification_config_file_batch_size(batch_size, valid):
     """
     Tests writing an INC config file with good and bad batch sizes
     """
@@ -81,7 +81,7 @@ def test_tfhub_image_classification_config_file_batch_size(batch_size, valid):
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
@@ -106,7 +106,7 @@ def test_tfhub_image_classification_config_file_batch_size(batch_size, valid):
                           [1.434, False],
                           ['bicubic', True],
                           ['foo', False]])
-def test_tfhub_image_classification_config_file_resize_interpolation(resize_interpolation, valid):
+def test_tf_image_classification_config_file_resize_interpolation(resize_interpolation, valid):
     """
     Tests writing an INC config file with good and bad resize_interpolation values
     """
@@ -114,7 +114,7 @@ def test_tfhub_image_classification_config_file_resize_interpolation(resize_inte
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
@@ -139,7 +139,7 @@ def test_tfhub_image_classification_config_file_resize_interpolation(resize_inte
                           [0.01, True],
                           [1.434, False],
                           ['foo', False]])
-def test_tfhub_image_classification_config_file_accuracy_criterion(accuracy_criterion, valid):
+def test_tf_image_classification_config_file_accuracy_criterion(accuracy_criterion, valid):
     """
     Tests writing an INC config file with good and bad accuracy_criterion_relative values
     """
@@ -147,7 +147,7 @@ def test_tfhub_image_classification_config_file_accuracy_criterion(accuracy_crit
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
@@ -173,7 +173,7 @@ def test_tfhub_image_classification_config_file_accuracy_criterion(accuracy_crit
                           [0, True],
                           [60, True],
                           ['foo', False]])
-def test_tfhub_image_classification_config_file_timeout(timeout, valid):
+def test_tf_image_classification_config_file_timeout(timeout, valid):
     """
     Tests writing an INC config file with good and bad exit_policy_timeout values
     """
@@ -181,7 +181,7 @@ def test_tfhub_image_classification_config_file_timeout(timeout, valid):
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
@@ -206,7 +206,7 @@ def test_tfhub_image_classification_config_file_timeout(timeout, valid):
                           [1, True],
                           [60, True],
                           ['foo', False]])
-def test_tfhub_image_classification_config_file_max_trials(max_trials, valid):
+def test_tf_image_classification_config_file_max_trials(max_trials, valid):
     """
     Tests writing an INC config file with good and bad exit_policy_max_trials values
     """
@@ -214,7 +214,7 @@ def test_tfhub_image_classification_config_file_max_trials(max_trials, valid):
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
@@ -239,7 +239,7 @@ def test_tfhub_image_classification_config_file_max_trials(max_trials, valid):
                           [1, True],
                           [123, True],
                           ['foo', False]])
-def test_tfhub_image_classification_config_file_seed(seed, valid):
+def test_tf_image_classification_config_file_seed(seed, valid):
     """
     Tests writing an INC config file with good and bad tuning_random_seed values
     """
@@ -247,7 +247,7 @@ def test_tfhub_image_classification_config_file_seed(seed, valid):
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
@@ -265,7 +265,7 @@ def test_tfhub_image_classification_config_file_seed(seed, valid):
 
 
 @pytest.mark.tensorflow
-def test_tfhub_image_classification_quantization():
+def test_tf_image_classification_quantization():
     """
     Given valid directories for the saved model, output dir, and config file, test the quantization function with
     the actual INC called mocked out.
@@ -279,7 +279,7 @@ def test_tfhub_image_classification_quantization():
         Path(dummy_config_file).touch()
 
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             with patch('neural_compressor.experimental.Quantization') as mock_q:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
@@ -294,7 +294,7 @@ def test_tfhub_image_classification_quantization():
 
 
 @pytest.mark.tensorflow
-def test_tfhub_image_classification_quantization_model_does_not_exist():
+def test_tf_image_classification_quantization_model_does_not_exist():
     """
     Verifies the error that gets raise if quantization or INC benchmarking is done with a model that does not exist
     """
@@ -303,7 +303,7 @@ def test_tfhub_image_classification_quantization_model_does_not_exist():
         dummy_config_file = os.path.join(output_dir, "config.yaml")
         Path(dummy_config_file).touch()
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
             with patch('neural_compressor.experimental.Quantization') as mock_q:
@@ -339,7 +339,7 @@ def test_tfhub_image_classification_quantization_model_does_not_exist():
 
 
 @pytest.mark.tensorflow
-def test_tfhub_image_classification_optimize_graph():
+def test_tf_image_classification_optimize_graph():
     """
     Given valid directories for the saved model, output dir, and config file, test the graph optimization function with
     the actual INC called mocked out.
@@ -351,7 +351,7 @@ def test_tfhub_image_classification_optimize_graph():
         Path(saved_model_file).touch()
 
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             with patch('neural_compressor.experimental.Graph_Optimization') as mock_o:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
@@ -365,7 +365,7 @@ def test_tfhub_image_classification_optimize_graph():
 
 
 @pytest.mark.tensorflow
-def test_tfhub_image_classification_optimize_graph_model_does_not_exist():
+def test_tf_image_classification_optimize_graph_model_does_not_exist():
     """
     Verifies the error that gets raise if graph optimization is done with a model that does not exist
     """
@@ -374,7 +374,7 @@ def test_tfhub_image_classification_optimize_graph_model_does_not_exist():
         dummy_config_file = os.path.join(output_dir, "config.yaml")
         Path(dummy_config_file).touch()
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
             with patch('neural_compressor.experimental.Graph_Optimization') as mock_o:
@@ -410,7 +410,7 @@ def test_tfhub_image_classification_optimize_graph_model_does_not_exist():
 
 
 @pytest.mark.tensorflow
-def test_tfhub_image_classification_inc_benchmark():
+def test_tf_image_classification_inc_benchmark():
     """
     Verifies that if we have valid parameters for the saved model, config file, and mode, benchmarking is called. The
     actual benchmarking calls to INC are mocked out.
@@ -424,7 +424,7 @@ def test_tfhub_image_classification_inc_benchmark():
         Path(dummy_config_file).touch()
 
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             with patch('neural_compressor.experimental.Benchmark') as mock_bench:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
@@ -445,7 +445,7 @@ def test_tfhub_image_classification_inc_benchmark():
                           [0, False],
                           ['performance', True],
                           ['accuracy', True]])
-def test_tfhub_image_classification_inc_benchmark_mode(mode, valid):
+def test_tf_image_classification_inc_benchmark_mode(mode, valid):
     """
     Checks error handling for the benchmarking mode
     """
@@ -458,7 +458,7 @@ def test_tfhub_image_classification_inc_benchmark_mode(mode, valid):
         Path(dummy_config_file).touch()
 
         model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tfhub_image_classification_model.TFCustomImageClassificationDataset') \
+        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             with patch('neural_compressor.experimental.Benchmark') as mock_bench:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"

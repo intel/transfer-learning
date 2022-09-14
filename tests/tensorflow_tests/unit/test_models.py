@@ -19,8 +19,8 @@
 #
 
 import pytest
-
 from unittest.mock import MagicMock, patch
+from tensorflow import keras
 
 from test_utils import platform_config
 from tlt.models import model_factory
@@ -29,20 +29,50 @@ from tlt.utils.types import FrameworkType, UseCaseType
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlt.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
+    from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel
 except ModuleNotFoundError as e:
     TFHubImageClassificationModel = None
-    print("WARNING: Unable to import TFHubImageClassificationModel. TensorFlow may not be installed")
+    TFImageClassificationModel = None
+    print("WARNING: Unable to import TFHubImageClassificationModel or TFImageClassificationModel. "
+          "TensorFlow may not be installed")
 
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlt.models.text_classification.tfhub_text_classification_model import TFHubTextClassificationModel
+    from tlt.models.text_classification.tf_text_classification_model import TFTextClassificationModel
 except ModuleNotFoundError as e:
     TFHubTextClassificationModel = None
+    TFTextClassificationModel = None
     print("WARNING: Unable to import TFHubTextClassificationModel. TensorFlow may not be installed")
 
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
+
+
+# Define a custom model
+ALEXNET = keras.models.Sequential([
+    keras.layers.Conv2D(filters=96, kernel_size=(11, 11), strides=(4, 4), activation='relu',
+                        input_shape=(227, 227, 3)),
+    keras.layers.BatchNormalization(),
+    keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+    keras.layers.Conv2D(filters=256, kernel_size=(5, 5), strides=(1, 1), activation='relu', padding="same"),
+    keras.layers.BatchNormalization(),
+    keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+    keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
+    keras.layers.BatchNormalization(),
+    keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
+    keras.layers.BatchNormalization(),
+    keras.layers.Conv2D(filters=256, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
+    keras.layers.BatchNormalization(),
+    keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+    keras.layers.Flatten(),
+    keras.layers.Dense(4096, activation='relu'),
+    keras.layers.Dropout(0.5),
+    keras.layers.Dense(4096, activation='relu'),
+    keras.layers.Dropout(0.5),
+    keras.layers.Dense(3, activation='softmax')
+])
 
 
 @pytest.mark.tensorflow
@@ -56,6 +86,21 @@ def test_tfhub_model_load(model_name, expected_class, expected_image_size):
     model = model_factory.get_model(model_name, 'tensorflow')
     assert type(model) == expected_class
     if expected_image_size:
+        assert model.image_size == expected_image_size
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,use_case,expected_class,expected_image_size,expected_num_classes',
+                         [['alexnet', 'image_classification', TFImageClassificationModel, 227, 3],
+                          ['alexnet', 'text_classification', TFTextClassificationModel, None, 3]])
+def test_custom_model_load(model_name, use_case, expected_class, expected_image_size, expected_num_classes):
+    """
+    Checks that a custom model can be loaded
+    """
+    model = model_factory.load_model(model_name, ALEXNET, 'tensorflow', use_case)
+    assert type(model) == expected_class
+    assert model.num_classes == expected_num_classes
+    if use_case == 'image_classification':
         assert model.image_size == expected_image_size
 
 
@@ -152,10 +197,11 @@ def test_get_supported_models_bad_use_case(bad_use_case):
                          [['efficientnet_b0', ImageClassificationDataset,
                            'tlt.models.image_classification.tfhub_image_classification_model.'
                            'TFHubImageClassificationModel._get_hub_model', ['a', 'b', 'c']],
-                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', TextClassificationDataset,
-                           'tlt.models.text_classification.tfhub_text_classification_model.'
-                           'TFHubTextClassificationModel._get_hub_model', ['a', 'b']]])
-def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_patch, class_names):
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2',
+                           TextClassificationDataset, 'tlt.models.text_classification.tfhub_text_classification_model.'
+                           'TFHubTextClassificationModel._get_hub_model', ['a', 'b']]
+                          ])
+def test_tfhub_model_train(model_name, dataset_type, get_hub_model_patch, class_names):
     """
     Tests calling train on an TFHub model with a mock dataset and mock model and verifies we get back the return
     value from the fit function.
@@ -202,6 +248,35 @@ def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_pat
         mock_dataset.validation_subset = None
         return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=True)
         assert return_val == expected_return_value
+
+
+@pytest.mark.tensorflow
+def test_custom_model_train():
+    """
+    Tests calling train on a custom TF model with a mock dataset and mock model and verifies we get back the return
+    value from the fit function.
+    """
+    model = model_factory.load_model('custom_model', ALEXNET, 'tensorflow', 'image_classification')
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = ImageClassificationDataset
+
+    mock_dataset.class_names = ['1', '2', '3']
+    model._model = MagicMock()
+    expected_return_value = {"result": True}
+
+    def mock_fit(dataset, epochs, shuffle, callbacks, validation_data=None):
+        assert dataset is not None
+        assert isinstance(epochs, int)
+        assert isinstance(shuffle, bool)
+        assert len(callbacks) > 0
+
+        return expected_return_value
+
+    model._model.fit = mock_fit
+
+    return_val = model.train(mock_dataset, output_dir="/tmp/output")
+    assert return_val == expected_return_value
 
 
 @pytest.mark.tensorflow

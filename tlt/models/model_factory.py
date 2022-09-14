@@ -30,13 +30,16 @@ model_map = {
     FrameworkType.TENSORFLOW: {
         UseCaseType.IMAGE_CLASSIFICATION: {
             "TFHub": {"module": "tlt.models.image_classification.tfhub_image_classification_model",
-                     "class": "TFHubImageClassificationModel"}
+                     "class": "TFHubImageClassificationModel"},
+            "Custom": {"module": "tlt.models.image_classification.tf_image_classification_model",
+                      "class": "TFImageClassificationModel"}
         },
         UseCaseType.TEXT_CLASSIFICATION: {
             "TFHub": {
                 "module": "tlt.models.text_classification.tfhub_text_classification_model",
-                "class": "TFHubTextClassificationModel"
-            }
+                "class": "TFHubTextClassificationModel"},
+            "Custom": {"module": "tlt.models.text_classification.tf_text_classification_model",
+                      "class": "TFTextClassificationModel"}
         }
     },
     FrameworkType.PYTORCH: {
@@ -46,6 +49,39 @@ model_map = {
             }
         }
     }
+
+
+def load_model(model_name: str, model, framework: FrameworkType = None, use_case: UseCaseType = None):
+    """A factory method for loading an existing model.
+
+        Args:
+            model_name (str): name of model
+            model (model or str): model object or directory with a saved_model.pb or model.pt file to load
+            framework (str or FrameworkType): framework
+            use_case (str or UseCaseType): use case
+
+        Returns:
+            model object
+
+        Examples:
+            >>> from tensorflow.keras import Sequential, Input
+            >>> from tensorflow.keras.layers import Dense
+            >>> from tlt.models.model_factory import load_model
+            >>> my_model = Sequential([Input(shape=(3,)), Dense(4, activation='relu'), Dense(5, activation='softmax')])
+            >>> model = load_model('my_model', my_model, 'tensorflow', 'image_classification')
+
+    """
+
+    if not isinstance(framework, FrameworkType):
+        framework = FrameworkType.from_str(framework)
+
+    if use_case is not None and not isinstance(use_case, UseCaseType):
+        use_case = UseCaseType.from_str(use_case)
+    
+    if framework == FrameworkType.TENSORFLOW:
+        model_class = locate('{}.{}'.format(model_map[framework][use_case]['Custom']['module'],
+                                                model_map[framework][use_case]['Custom']['class']))
+        return model_class(model_name, model)
 
 
 def get_model(model_name: str, framework: FrameworkType = None):

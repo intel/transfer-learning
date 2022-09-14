@@ -68,15 +68,16 @@ Models
 
 .. currentmodule:: tlt.models
 
-Discover and work with available models by using model factory methods. The :meth:`get_model`
-function will download third-party models and provide a convenient interface for modifying, training, evaluating, and
-so on. The model discovery and inspection methods are :meth:`get_supported_models` and :meth:`print_supported_models`.
+Discover and work with available models by using model factory methods. The :meth:`get_model` function will download
+third-party models, while the :meth:`load_model` function will load a custom model, from either a path location or a
+model object in memory. The model discovery and inspection methods are :meth:`get_supported_models` and
+:meth:`print_supported_models`.
 
 Factory Methods
 ***************
 
 .. automodule:: tlt.models.model_factory
-   :members: get_model, get_supported_models, print_supported_models
+   :members: get_model, load_model, get_supported_models, print_supported_models
 
 Class Reference
 ***************
@@ -90,6 +91,7 @@ Image Classification
   :toctree: _autosummary
   :nosignatures:
 
+   tf_image_classification_model.TFImageClassificationModel
    tfhub_image_classification_model.TFHubImageClassificationModel
    torchvision_image_classification_model.TorchvisionImageClassificationModel
    image_classification_model.ImageClassificationModel
@@ -103,6 +105,7 @@ Text Classification
   :toctree: _autosummary
   :nosignatures:
 
+   tf_text_classification_model.TFTextClassificationModel
    tfhub_text_classification_model.TFHubTextClassificationModel
    text_classification_model.TextClassificationModel
 
@@ -118,5 +121,6 @@ Base Classes
    :nosignatures:
 
     torchvision_model.TorchvisionModel
+    tf_model.TFModel
     tfhub_model.TFHubModel
     model.BaseModel

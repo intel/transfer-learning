@@ -22,6 +22,7 @@ import os
 import pytest
 import shutil
 import tempfile
+from tensorflow import keras
 
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
@@ -37,6 +38,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     Tests basic transfer learning functionality for TensorFlow image classification models using TF Datasets
     """
     framework = 'tensorflow'
+    use_case = 'image_classification'
     output_dir = tempfile.mkdtemp()
 
     # Get the dataset
@@ -103,6 +105,98 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
                                           shuffle_files=False, seed=10, do_eval=False)
     assert retrain_history.history['acc'] == [retrain_accuracy]
+
+    # Delete the temp output directory
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)
+
+@pytest.mark.tensorflow
+def test_tf_image_classification_custom_model():
+    """
+    Tests basic transfer learning functionality for a custom TensorFlow image classification model using TF Datasets
+    """
+    framework = 'tensorflow'
+    use_case = 'image_classification'
+    output_dir = tempfile.mkdtemp()
+    model_name = 'custom_model'
+    image_size = 227
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, 'tf_flowers',
+                                          'tf_datasets', split=["train[:5%]"])
+
+    # Define a custom model
+    alexnet = keras.models.Sequential([
+        keras.layers.Conv2D(filters=96, kernel_size=(11,11), strides=(4,4), activation='relu',
+                            input_shape=(image_size,image_size,3)),
+        keras.layers.BatchNormalization(),
+        keras.layers.MaxPool2D(pool_size=(3,3), strides=(2,2)),
+        keras.layers.Conv2D(filters=256, kernel_size=(5,5), strides=(1,1), activation='relu', padding="same"),
+        keras.layers.BatchNormalization(),
+        keras.layers.MaxPool2D(pool_size=(3,3), strides=(2,2)),
+        keras.layers.Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), activation='relu', padding="same"),
+        keras.layers.BatchNormalization(),
+        keras.layers.Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), activation='relu', padding="same"),
+        keras.layers.BatchNormalization(),
+        keras.layers.Conv2D(filters=256, kernel_size=(3,3), strides=(1,1), activation='relu', padding="same"),
+        keras.layers.BatchNormalization(),
+        keras.layers.MaxPool2D(pool_size=(3,3), strides=(2,2)),
+        keras.layers.Flatten(),
+        keras.layers.Dense(4096, activation='relu'),
+        keras.layers.Dropout(0.5),
+        keras.layers.Dense(4096, activation='relu'),
+        keras.layers.Dropout(0.5),
+        keras.layers.Dense(5, activation='softmax')
+    ])
+
+    model = model_factory.load_model(model_name=model_name, model=alexnet, framework=framework, use_case=use_case)
+    assert model.num_classes == 5
+    assert model._image_size == 227
+
+    # Preprocess the dataset
+    dataset.preprocess(image_size, 32)
+    dataset.shuffle_split(seed=10)
+
+    # Train
+    history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, seed=10)
+    assert history is not None
+
+    # Verify that checkpoints were generated
+    checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(model_name))
+    assert os.path.isdir(checkpoint_dir)
+    assert len(os.listdir(checkpoint_dir))
+
+    # Evaluate
+    trained_metrics = model.evaluate(dataset)
+    assert trained_metrics is not None
+
+    # Predict with a batch
+    images, labels = dataset.get_batch()
+    predictions = model.predict(images)
+    assert len(predictions) == 32
+
+    # Export the saved model
+    saved_model_dir = model.export(output_dir)
+    assert os.path.isdir(saved_model_dir)
+    assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
+
+    # Reload the saved model
+    reload_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
+
+    # Evaluate
+    reload_metrics = reload_model.evaluate(dataset)
+    assert reload_metrics == trained_metrics
+
+    # Optimize the graph
+    optimized_model_dir = os.path.join(output_dir, "optimized")
+    model.optimize_graph(saved_model_dir, optimized_model_dir)
+    assert os.path.isfile(os.path.join(optimized_model_dir, "saved_model.pb"))
+
+    # Retrain from checkpoints and verify that we have better accuracy than the original training
+    retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
+    retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
+                                          shuffle_files=False, seed=10)
+    assert retrain_history is not None
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
