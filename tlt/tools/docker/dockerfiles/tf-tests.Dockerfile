@@ -33,7 +33,7 @@ FROM ${BASE_IMAGE}:${BASE_TAG}
 WORKDIR /workspace
 ARG TLT_VERSION=0.1.0
 
-COPY --from=builder /workspace/dist/tlt-${TLT_VERSION}-py2.py3-none-any.whl .
+COPY --from=builder /workspace/dist/intel_transfer_learning_tool-${TLT_VERSION}-py2.py3-none-any.whl .
 COPY --from=builder /workspace/tests /workspace/tests
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -41,8 +41,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y build-essential libgl1 libglib2.0-0 python3.9-dev && \
     pip install --upgrade pip && \
-    pip install --no-cache-dir tlt-${TLT_VERSION}-py2.py3-none-any.whl[tensorflow] && \
-    rm tlt-${TLT_VERSION}-py2.py3-none-any.whl && \
+    pip install --no-cache-dir intel_transfer_learning_tool-${TLT_VERSION}-py2.py3-none-any.whl[tensorflow] && \
+    rm intel_transfer_learning_tool-${TLT_VERSION}-py2.py3-none-any.whl && \
     pip install --no-cache-dir -r tests/requirements-test.txt && \
     pip install tensorflow-text==2.9.0
 
