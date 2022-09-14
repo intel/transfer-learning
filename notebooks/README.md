@@ -23,6 +23,8 @@ and [Intel Extension for PyTorch](https://github.com/intel/intel-extension-for-p
 | [Image Classification with PyTorch & torchvision](/notebooks/image_classification/pytorch_image_classification) | Image Classification | PyTorch | Demonstrates transfer learning with multiple [torchvision](https://pytorch.org/vision/stable/index.html) image classification models, torchvision datasets, and custom datasets |
 | [Image Classification with PyTorch using Intel® Transfer Learning Tool](/notebooks/image_classification/tlt_api_pyt_image_classification) | Image Classification | PyTorch and the TLT API | Demonstrates how to use the TLT API to do transfer learning for image classification using a PyTorch model. |
 | [Object Detection with PyTorch & torchvision](/notebooks/object_detection/pytorch_object_detection) | Object Detection | PyTorch |Demonstrates transfer learning with multiple [torchvision](https://pytorch.org/vision/stable/index.html) object detection models, a public image dataset, and a customized torchvision dataset |
+| [Video Classification with PyTorch & torchvision](/notebooks/video_classification/pytorch_video_classification) | Video Classification | PyTorch | Demonstrates transfer learning with multiple [torchvision](https://pytorch.org/vision/stable/index.html) video classification models using the HMBD51 torchvision compatible dataset |
+
 
 ## Environment setup and running the notebooks
 
