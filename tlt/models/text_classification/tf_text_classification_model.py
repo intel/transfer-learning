@@ -71,7 +71,7 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         return self._num_classes
 
     def train(self, dataset: TextClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              enable_auto_mixed_precision=None, shuffle_files=True):
+              do_eval=True, enable_auto_mixed_precision=None, shuffle_files=True):
         """
            Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is
            provided, those weights are loaded before training.
@@ -84,6 +84,8 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
                epochs (int): The number of training epochs [default: 1]
                initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
                     latest checkpoint will be used.
+               do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                    at the end of each epoch.
                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
                     uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
                     It is recommended to enable auto mixed precision training when running on platforms that support
@@ -176,10 +178,10 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
             callbacks.append(checkpoint_callback)
 
         train_data = dataset.train_subset if dataset.train_subset else dataset.dataset
-        val_data = dataset.validation_subset if dataset.validation_subset else None
+        validation_data = dataset.validation_subset if do_eval else None
 
-        return self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=shuffle_files,
-                               callbacks=callbacks)
+        return self._model.fit(train_data, validation_data=validation_data, epochs=epochs, shuffle=shuffle_files,
+                       callbacks=callbacks)
 
     def evaluate(self, dataset: TextClassificationDataset, use_test_set=False):
         """

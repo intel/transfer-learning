@@ -74,7 +74,7 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
     def num_classes(self):
         return self._num_classes
 
-    def _get_hub_model(self, num_classes):
+    def _get_hub_model(self, num_classes, extra_layers=None):
         if not self._model:
             input_layer = tf.keras.layers.Input(shape=(), dtype=tf.string, name='input_layer')
             preprocessing_layer = hub.KerasLayer(self._hub_preprocessor, name='preprocessing')
@@ -82,9 +82,14 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
             encoder_layer = hub.KerasLayer(self._model_url, trainable=True, name='encoder')
             outputs = encoder_layer(encoder_inputs)
             net = outputs['pooled_output']
+            self._model = tf.keras.Sequential(tf.keras.Model(input_layer, net))
+
+            if extra_layers:
+                for layer_size in extra_layers:
+                    self._model.add(tf.keras.layers.Dense(layer_size, "relu"))
 
             if self._dropout_layer_rate is not None:
-                net = tf.keras.layers.Dropout(self._dropout_layer_rate)(net)
+                self._model.add(tf.keras.layers.Dropout(self._dropout_layer_rate))
 
             dense_layer_dims = num_classes
 
@@ -92,8 +97,7 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
             if num_classes == 2:
                 dense_layer_dims = 1
 
-            net = tf.keras.layers.Dense(dense_layer_dims, activation=None, name='classifier')(net)
-            self._model = tf.keras.Model(input_layer, net)
+            self._model.add(tf.keras.layers.Dense(dense_layer_dims, activation=None, name='classifier'))
 
             self._model.summary(print_fn=print)
 
@@ -101,7 +105,7 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
         return self._model
 
     def train(self, dataset: TextClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, enable_auto_mixed_precision=None, shuffle_files=True):
+              do_eval=True, enable_auto_mixed_precision=None, shuffle_files=True, extra_layers=None):
         """
            Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is
            provided, those weights are loaded before training.
@@ -124,6 +128,10 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
                     enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
                     running with Intel fourth generation Xeon processors, and disabled for other platforms.
                shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
+               extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
+                    layer. This can help increase accuracy when fine-tuning a TFHub model. The input should be a list of
+                    integers representing the number and size of the layers, for example [1024, 512] will insert two
+                    dense layers, the first with 1024 neurons and the second with 512 neurons.
 
            Returns:
                History object from the model.fit() call
@@ -134,7 +142,8 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
                TypeError if the output_dir parameter is not a string
                TypeError if the epochs parameter is not a integer
                TypeError if the initial_checkpoints parameter is not a string
-               NotImplementedError if the specified dataset has more than 2 classes.
+               NotImplementedError if the specified dataset has more than 2 classes
+               TypeError if the extra_layers parameter is not a list of integers
         """
         verify_directory(output_dir)
 
@@ -147,6 +156,16 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
         if initial_checkpoints and not isinstance(initial_checkpoints, str):
             raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
                 type(initial_checkpoints)))
+
+        if extra_layers:
+            if not isinstance(extra_layers, list):
+                raise TypeError("The extra_layers parameter must be a list of ints but found {}".format(
+                    type(extra_layers)))
+            else:
+                for layer in extra_layers:
+                    if not isinstance(layer, int):
+                        raise TypeError("The extra_layers parameter must be a list of ints but found a list containing {}".format(
+                            type(layer)))
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -161,7 +180,7 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
         if dataset_num_classes != self.num_classes:
             self._model = None
 
-        self._model = self._get_hub_model(dataset_num_classes)
+        self._model = self._get_hub_model(dataset_num_classes, extra_layers)
         print("Num dataset classes: ", dataset_num_classes)
 
         loss = tf.keras.losses.BinaryCrossentropy(from_logits=True) if dataset_num_classes == 2 else \

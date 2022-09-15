@@ -28,10 +28,11 @@ from tlt.models import model_factory
 
 
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('model_name,dataset_name',
-                         [['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews'],
-                          ['small_bert/bert_en_uncased_L-2_H-256_A-4', 'glue/sst2']])
-def test_tf_binary_text_classification(model_name, dataset_name):
+@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
+                         [['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews', None, 3],
+                          ['small_bert/bert_en_uncased_L-2_H-256_A-4', 'glue/sst2', None, 3],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews', [512, 128], 5]])
+def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, correct_num_layers):
     """
     Tests basic transfer learning functionality for TensorFlow binary text classification using TF Datasets
     """
@@ -60,8 +61,10 @@ def test_tf_binary_text_classification(model_name, dataset_name):
         assert "model must be trained" in str(e)
 
         # Train
-        history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, do_eval=False)
+        history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, do_eval=False, 
+                              extra_layers=extra_layers)
         assert history is not None
+        assert len(model._model.layers) == correct_num_layers
 
         # Verify that checkpoints were generated
         checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(model_name))
@@ -99,7 +102,7 @@ def test_tf_binary_text_classification(model_name, dataset_name):
         assert (reload_predictions == predictions).all()
 
         # Retrain from checkpoints and verify that we have better accuracy than the original training
-        retrain_model = model_factory.get_model(model_name, framework)
+        retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, 'text_classification')
         retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
                             shuffle_files=False, do_eval=False)
         retrain_metrics = retrain_model.evaluate(dataset)

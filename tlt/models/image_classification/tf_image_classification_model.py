@@ -80,7 +80,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         return self._num_classes
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              enable_auto_mixed_precision=None, shuffle_files=True, seed=None):
+              do_eval=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None):
         """ 
         Trains the model using the specified image classification dataset. The model is compiled and trained for
         the specified number of epochs. If a path to initial checkpoints is provided, those weights are loaded before
@@ -92,6 +92,8 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             epochs (int): Number of epochs to train the model (default: 1)
             initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
                 latest checkpoint will be used.
+            do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                    at the end of each epoch.
             enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
                 uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
                 It is recommended to enable auto mixed precision training when running on platforms that support
@@ -181,7 +183,10 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         else:
             train_dataset = dataset.dataset
 
-        return self._model.fit(train_dataset, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks)
+        validation_data = dataset.validation_subset if do_eval else None
+
+        return self._model.fit(train_dataset, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
+                                   validation_data=validation_data)
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """

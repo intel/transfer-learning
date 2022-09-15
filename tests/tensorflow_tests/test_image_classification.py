@@ -30,10 +30,12 @@ from tlt.utils.file_utils import download_and_extract_tar_file
 
 
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy',
-                         [['efficientnet_b0', 'tf_flowers', 0.34375, 0.5625],
-                          ['resnet_v1_50', 'tf_flowers', 0.40625, 0.6875]])
-def test_tf_image_classification(model_name, dataset_name, train_accuracy, retrain_accuracy):
+@pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy,extra_layers,correct_num_layers',
+                         [['efficientnet_b0', 'tf_flowers', 0.34375, 0.5625, None, 2],
+                          ['resnet_v1_50', 'tf_flowers', 0.40625, 0.6875, None, 2],
+                          ['efficientnet_b0', 'tf_flowers', 0.8125, 0.96875, [1024, 512], 4]])
+def test_tf_image_classification(model_name, dataset_name, train_accuracy, retrain_accuracy, extra_layers,
+                                 correct_num_layers):
     """
     Tests basic transfer learning functionality for TensorFlow image classification models using TF Datasets
     """
@@ -57,9 +59,11 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     assert len(pretrained_metrics) > 0
 
     # Train
-    history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, seed=10, do_eval=False)
+    history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, seed=10, do_eval=False,
+                          extra_layers=extra_layers)
     assert history is not None
     assert history.history['acc'] == [train_accuracy]
+    assert len(model._model.layers) == correct_num_layers
 
     # Verify that checkpoints were generated
     checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(model_name))
@@ -101,7 +105,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, tuning_workspace=output_dir)
 
     # Retrain from checkpoints and verify that we have better accuracy than the original training
-    retrain_model = model_factory.get_model(model_name, framework)
+    retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
     retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
                                           shuffle_files=False, seed=10, do_eval=False)
     assert retrain_history.history['acc'] == [retrain_accuracy]

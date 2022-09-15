@@ -66,23 +66,22 @@ class TFHubImageClassificationModel(TFImageClassificationModel, TFHubModel):
         """
         return self._feature_vector_url
 
-    def _get_hub_model(self, num_classes):
+    def _get_hub_model(self, num_classes, extra_layers=None):
         if not self._model:
             feature_extractor_layer = hub.KerasLayer(self.feature_vector_url,
                                                      input_shape=(self.image_size, self.image_size, 3),
                                                      trainable=self.do_fine_tuning)
 
-            if self.dropout_layer_rate is None:
-                self._model = tf.keras.Sequential([
-                    feature_extractor_layer,
-                    tf.keras.layers.Dense(num_classes)
-                ])
-            else:
-                self._model = tf.keras.Sequential([
-                    feature_extractor_layer,
-                    tf.keras.layers.Dropout(self.dropout_layer_rate),
-                    tf.keras.layers.Dense(num_classes)
-                ])
+            self._model = tf.keras.Sequential([feature_extractor_layer])
+
+            if extra_layers:
+                for layer_size in extra_layers:
+                    self._model.add(tf.keras.layers.Dense(layer_size, "relu"))
+
+            if self.dropout_layer_rate is not None:
+                self._model.add(tf.keras.layers.Dropout(dropout_layer_rate))
+
+            self._model.add(tf.keras.layers.Dense(num_classes))
 
             self._model.summary(print_fn=print)
 
@@ -90,7 +89,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel, TFHubModel):
         return self._model
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None):
+              do_eval=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None, extra_layers=None):
         """ 
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
@@ -114,6 +113,10 @@ class TFHubImageClassificationModel(TFImageClassificationModel, TFHubModel):
                     running with Intel fourth generation Xeon processors, and disabled for other platforms.
                 shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
                 seed (int): Optionally set a seed for reproducibility.
+                extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
+                    layer. This can help increase accuracy when fine-tuning a TFHub model. The input should be a list of
+                    integers representing the number and size of the layers, for example [1024, 512] will insert two
+                    dense layers, the first with 1024 neurons and the second with 512 neurons. 
 
             Returns:
                 History object from the model.fit() call
@@ -124,6 +127,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel, TFHubModel):
                TypeError if the output_dir parameter is not a string
                TypeError if the epochs parameter is not a integer
                TypeError if the initial_checkpoints parameter is not a string
+               TypeError if the extra_layers parameter is not a list of integers
         """
 
         verify_directory(output_dir)
@@ -137,6 +141,16 @@ class TFHubImageClassificationModel(TFImageClassificationModel, TFHubModel):
         if initial_checkpoints and not isinstance(initial_checkpoints, str):
             raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
                 type(initial_checkpoints)))
+        
+        if extra_layers:
+            if not isinstance(extra_layers, list):
+                raise TypeError("The extra_layers parameter must be a list of ints but found {}".format(
+                    type(extra_layers)))
+            else:
+                for layer in extra_layers:
+                    if not isinstance(layer, int):
+                        raise TypeError("The extra_layers parameter must be a list of ints but found a list containing {}".format(
+                            type(layer)))
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -153,7 +167,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel, TFHubModel):
         # Set auto mixed precision
         self.set_auto_mixed_precision(enable_auto_mixed_precision)
 
-        self._model = self._get_hub_model(dataset_num_classes)
+        self._model = self._get_hub_model(dataset_num_classes, extra_layers)
 
         self._model.compile(
             optimizer=self._optimizer,
