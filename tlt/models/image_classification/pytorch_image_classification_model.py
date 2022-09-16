@@ -23,69 +23,78 @@ import time
 import numpy as np
 from pydoc import locate
 from tqdm import tqdm
+import dill
 
 import torch
 import intel_extension_for_pytorch as ipex
 
 from tlt import TLT_BASE_DIR
-from tlt.models.image_classification.pytorch_image_classification_model import PyTorchImageClassificationModel
+from tlt.models.pytorch_model import PyTorchModel
+from tlt.models.image_classification.image_classification_model import ImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 from tlt.utils.file_utils import read_json_file, verify_directory
 from tlt.utils.types import FrameworkType, UseCaseType
 
 
-class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
+class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
     """
-    Class used to represent a Torchvision pretrained model for image classification
+    Class used to represent a PyTorch model for image classification
     """
 
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, model=None):
         """
         Class constructor
         """
-        torchvision_model_map = read_json_file(os.path.join(
-            TLT_BASE_DIR, "models/configs/torchvision_image_classification_models.json"))
-        if model_name not in torchvision_model_map.keys():
-            raise ValueError("The specified Torchvision image classification model ({}) "
-                             "is not supported.".format(model_name))
+        # PyTorch models generally do not enforce a fixed input shape
+        self._image_size = 'variable'
 
-        PyTorchImageClassificationModel.__init__(self, model_name)
-
-        self._classification_layer = torchvision_model_map[model_name]["classification_layer"]
-        self._image_size = torchvision_model_map[model_name]["image_size"]
+        # extra properties that will become configurable in the future
+        self._do_fine_tuning = False
+        self._dropout_layer_rate = None
+        self._learning_rate = 0.005
+        self._device = 'cpu'
+        self._optimizer_class = torch.optim.Adam  # Just the class, it needs to be initialized with the model object
+        self._optimizer = None
+        self._loss = torch.nn.CrossEntropyLoss()
+        self._generate_checkpoints = True
 
         # placeholder for model definition
         self._model = None
         self._num_classes = None
 
-    def _get_hub_model(self, num_classes, ipex_optimize=True):
-        if not self._model:
-            pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
-            self._model = pretrained_model_class(pretrained=True)
+        PyTorchModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.IMAGE_CLASSIFICATION)
+        ImageClassificationModel.__init__(self, self._image_size, self._do_fine_tuning, self._dropout_layer_rate,
+                                          self._model_name, self._framework, self._use_case)
 
-            if not self._do_fine_tuning:
-                for param in self._model.parameters():
-                    param.requires_grad = False
+        if model is None:
+            self._model = None
+        elif isinstance(model, str):
+            self.load_from_directory(model)
+            layers = list(self._model.children())
+            self._num_classes = layers[-1].out_features
+        elif isinstance(model, torch.nn.Module):
+            self._model = model
+            layers = list(self._model.children())
+            self._num_classes = layers[-1].out_features
+        else:
+            raise TypeError("The model input must be a torch.nn.Module, string, or None but found a {}".format(type(model)))
 
-            if len(self._classification_layer) == 2:
-                classifier = getattr(self._model, self._classification_layer[0])[self._classification_layer[1]]
-                num_features = classifier.in_features
-                self._model.classifier[self._classification_layer[1]] = torch.nn.Linear(num_features, num_classes)
-            else:
-                classifier = getattr(self._model, self._classification_layer[0])
-                if self._classification_layer[0] == "heads":
-                    num_features = classifier.head.in_features
-                else:
-                    num_features = classifier.in_features
-                setattr(self._model, self._classification_layer[0], torch.nn.Linear(num_features, num_classes))
+    @property
+    def num_classes(self):
+        """
+        The number of output neurons in the model; equal to the number of classes in the dataset
+        """
+        return self._num_classes
 
-            self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
-
-            if ipex_optimize:
-                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
-        self._num_classes = num_classes
-
-        return self._model, self._optimizer
+    def load_from_directory(self,  model_dir: str):
+        """
+        Load a saved model from the model_dir path
+        """
+        # Verify that the model directory exists
+        verify_directory(model_dir, require_directory_exists=True)
+        model_copy = torch.load(os.path.join(model_dir, 'model.pt'))
+        self._model=dill.loads(model_copy)
+        self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True):
@@ -115,23 +124,21 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
         dataset_num_classes = len(dataset.class_names)
 
-        # If the number of classes doesn't match what was used before, clear out the previous model
+        # Check that the number of classes matches the model outputs
         if dataset_num_classes != self.num_classes:
-            self._model = None
+            raise RuntimeError("The number of model outputs ({}) differs from the number of dataset classes ({})".
+                               format(self.num_classes, dataset_num_classes))
 
-        # If are loading weights, the state dicts need to be loaded before calling ipex.optimize, so get the model
-        # from torchvision, but hold off on the ipex optimize call.
-        ipex_optimize = False if initial_checkpoints else True
-
-        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=ipex_optimize)
+        self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
         if initial_checkpoints:
             checkpoint = torch.load(initial_checkpoints)
             self._model.load_state_dict(checkpoint['model_state_dict'])
             self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
-            # Call ipex.optimize now, since we didn't call it from _get_hub_model()
-            self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+        # Call ipex.optimize
+        self._model.train()
+        self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
         # Start PyTorch training loop
         since = time.time()
@@ -158,7 +165,6 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             print('-' * 10)
 
             # Training phase
-            self._model.train()
             running_loss = 0.0
             running_corrects = 0
 
@@ -244,17 +250,8 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             eval_loader = dataset.data_loader
             data_length = len(dataset.dataset)
 
-        if self._model is None:
-            # The model hasn't been trained yet, use the original ImageNet trained model
-            print("The model has not been trained yet, so evaluation is being done using the original model " + \
-                  "and its classes")
-            pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
-            model = pretrained_model_class(pretrained=True)
-            optimizer = self._optimizer_class(model.parameters(), lr=self._learning_rate)
-            # We shouldn't need ipex.optimize() for evaluation
-        else:
-            model = self._model
-            optimizer = self._optimizer
+        model = self._model
+        optimizer = self._optimizer
 
         # Do the evaluation
         device = torch.device(self._device)
@@ -293,13 +290,29 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         """
         Perform feed-forward inference and predict the classes of the input_samples
         """
-        if self._model is None:
-            print("The model has not been trained yet, so predictions are being done using the original model")
-            pretrained_model_class = locate('torchvision.models.{}'.format(self.model_name))
-            model = pretrained_model_class(pretrained=True)
-            predictions = model(input_samples)
-        else:
-            self._model.eval()
-            predictions = self._model(input_samples)
+        self._model.eval()
+        predictions = self._model(input_samples)
         _, predicted_ids = torch.max(predictions, 1)
         return predicted_ids
+
+    def export(self, output_dir):
+        """
+        Save a serialized version of the model to the output_dir path
+        """
+        if self._model:
+            # Save the model in a format that can be re-loaded for inference
+            verify_directory(output_dir)
+            saved_model_dir = os.path.join(output_dir, self.model_name)
+            if os.path.exists(saved_model_dir) and len(os.listdir(saved_model_dir)):
+                saved_model_dir = os.path.join(saved_model_dir, "{}".format(len(os.listdir(saved_model_dir)) + 1))
+            else:
+                saved_model_dir = os.path.join(saved_model_dir, "1")
+            
+            verify_directory(saved_model_dir)
+            model_copy = dill.dumps(self._model)
+            torch.save(model_copy, os.path.join(saved_model_dir, 'model.pt'))
+            print("Saved model directory:", saved_model_dir)
+
+            return saved_model_dir
+        else:
+            raise ValueError("Unable to export the model, because it hasn't been trained yet")

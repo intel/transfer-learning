@@ -23,8 +23,7 @@ import tensorflow as tf
 import tensorflow_hub as hub
 
 from tlt import TLT_BASE_DIR
-from tlt.models.tfhub_model import TFHubModel
-from tlt.models.text_classification.text_classification_model import TextClassificationModel
+from tlt.models.text_classification.tf_text_classification_model import TFTextClassificationModel
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
 from tlt.utils.file_utils import read_json_file, verify_directory
 from tlt.utils.types import FrameworkType, UseCaseType
@@ -34,7 +33,7 @@ from tlt.utils.types import FrameworkType, UseCaseType
 import tensorflow_text
 
 
-class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
+class TFHubTextClassificationModel(TFTextClassificationModel):
     """
     Class used to represent a TF Hub pretrained model that can be used for binary text classification
     fine tuning.
@@ -61,10 +60,15 @@ class TFHubTextClassificationModel(TextClassificationModel, TFHubModel):
         self._model = None
         self._num_classes = None
 
-        TFHubModel.__init__(self, self._model_url, model_name, FrameworkType.TENSORFLOW,
-                            UseCaseType.TEXT_CLASSIFICATION)
-        TextClassificationModel.__init__(self, model_name, FrameworkType.TENSORFLOW, UseCaseType.TEXT_CLASSIFICATION,
-                                         dropout_layer_rate=self._dropout_layer_rate)
+        TFTextClassificationModel.__init__(self, model_name)
+
+
+    @property
+    def model_url(self):
+        """
+        The public URL used to download the TFHub model
+        """
+        return self._model_url
 
     @property
     def preprocessor_url(self):

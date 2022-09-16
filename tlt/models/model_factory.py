@@ -45,7 +45,9 @@ model_map = {
     FrameworkType.PYTORCH: {
         UseCaseType.IMAGE_CLASSIFICATION: {
             "torchvision": {"module": "tlt.models.image_classification.torchvision_image_classification_model",
-                            "class": "TorchvisionImageClassificationModel"}
+                            "class": "TorchvisionImageClassificationModel"},
+            "Custom": {"module": "tlt.models.image_classification.pytorch_image_classification_model",
+                      "class": "PyTorchImageClassificationModel"}
             }
         }
     }
@@ -78,10 +80,9 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
     if use_case is not None and not isinstance(use_case, UseCaseType):
         use_case = UseCaseType.from_str(use_case)
     
-    if framework == FrameworkType.TENSORFLOW:
-        model_class = locate('{}.{}'.format(model_map[framework][use_case]['Custom']['module'],
-                                                model_map[framework][use_case]['Custom']['class']))
-        return model_class(model_name, model)
+    model_class = locate('{}.{}'.format(model_map[framework][use_case]['Custom']['module'],
+                                        model_map[framework][use_case]['Custom']['class']))
+    return model_class(model_name, model)
 
 
 def get_model(model_name: str, framework: FrameworkType = None):

@@ -120,7 +120,6 @@ Base Classes
    :toctree: _autosummary
    :nosignatures:
 
-    torchvision_model.TorchvisionModel
+    pytorch_model.PyTorchModel
     tf_model.TFModel
-    tfhub_model.TFHubModel
     model.BaseModel

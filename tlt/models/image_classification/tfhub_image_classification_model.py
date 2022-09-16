@@ -25,14 +25,13 @@ import tensorflow as tf
 import tensorflow_hub as hub
 
 from tlt import TLT_BASE_DIR
-from tlt.models.tfhub_model import TFHubModel
 from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 from tlt.utils.file_utils import read_json_file, verify_directory
 from tlt.utils.types import FrameworkType, UseCaseType
 
 
-class TFHubImageClassificationModel(TFImageClassificationModel, TFHubModel):
+class TFHubImageClassificationModel(TFImageClassificationModel):
     """
     Class used to represent a TF Hub pretrained model
     """
@@ -50,14 +49,21 @@ class TFHubImageClassificationModel(TFImageClassificationModel, TFHubModel):
         self._model_url = tfhub_model_map[model_name]["imagenet_model"]
         self._feature_vector_url = tfhub_model_map[model_name]["feature_vector"]
 
-        TFHubModel.__init__(self, self._model_url, model_name, FrameworkType.TENSORFLOW,
-                            UseCaseType.IMAGE_CLASSIFICATION)
         TFImageClassificationModel.__init__(self, model_name=model_name, model=None)
 
         # placeholder for model definition
         self._model = None
         self._num_classes = None
         self._image_size = tfhub_model_map[model_name]["image_size"]
+
+
+    @property
+    def model_url(self):
+        """
+        The public URL used to download the TFHub model
+        """
+        return self._model_url
+
 
     @property
     def feature_vector_url(self):

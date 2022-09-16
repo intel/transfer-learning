@@ -307,8 +307,8 @@ def test_custom_model_train():
      ['85', None, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
      ['85', True, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
      ['143', None, True, '3.1.0', 'efficientnet_b0', ImageClassificationDataset]])
-@patch("tlt.models.tfhub_model.tf.version")
-@patch("tlt.models.tfhub_model.tf.config.optimizer.set_experimental_options")
+@patch("tlt.models.tf_model.tf.version")
+@patch("tlt.models.tf_model.tf.config.optimizer.set_experimental_options")
 @patch("tlt.utils.platform_util.PlatformUtil._get_cpuset")
 @patch("tlt.utils.platform_util.os")
 @patch("tlt.utils.platform_util.system_platform")

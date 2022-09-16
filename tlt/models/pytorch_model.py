@@ -24,9 +24,9 @@ from tlt.models.model import BaseModel
 from tlt.utils.types import FrameworkType, UseCaseType
 
 
-class TorchvisionModel(BaseModel):
+class PyTorchModel(BaseModel):
     """
-    Base class used to represent a Torchvision pretrained model
+    Base class used to represent a PyTorch model
     """
 
     def __init__(self, model_name: str, framework: FrameworkType, use_case: UseCaseType):
@@ -57,9 +57,9 @@ class TorchvisionModel(BaseModel):
                None
 
            Raises:
-               NotImplementedError because this hasn't been implemented yet for torchvision
+               NotImplementedError because this hasn't been implemented yet for PyTorch
            """
-        raise NotImplementedError("Writing an INC config file is not supported torchvision models yet")
+        raise NotImplementedError("Writing an INC config file is not supported PyTorch models yet")
 
     def optimize_graph(self, saved_model_dir, output_dir):
         """
@@ -95,9 +95,9 @@ class TorchvisionModel(BaseModel):
             None
 
         Raises:
-            NotImplementedError because this hasn't been implemented yet for torchvision
+            NotImplementedError because this hasn't been implemented yet for PyTorch
         """
-        raise NotImplementedError("Quantization is not supported for torchvision models in tlt")
+        raise NotImplementedError("Quantization is not supported for PyTorch models in tlt")
 
     def benchmark(self, saved_model_dir, inc_config_path, mode='performance'):
         """
@@ -112,6 +112,6 @@ class TorchvisionModel(BaseModel):
             None
 
         Raises:
-            NotImplementedError because this hasn't been implemented yet for torchvision
+            NotImplementedError because this hasn't been implemented yet for PyTorch
         """
-        raise NotImplementedError("INC benchmarking is not supported for torchvision models in tlt")
+        raise NotImplementedError("INC benchmarking is not supported for PyTorch models in tlt")

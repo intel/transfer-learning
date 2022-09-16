@@ -23,6 +23,10 @@ import pytest
 import shutil
 import tempfile
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as functional
+
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
@@ -92,6 +96,91 @@ def test_pyt_image_classification(model_name, dataset_name):
 
     # Ensure we get not implemented errors for quantization
     inc_config_file_path = os.path.join(output_dir, "pytorch_{}.yaml".format(model_name))
+    with pytest.raises(NotImplementedError) as e:
+        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32)
+
+
+@pytest.mark.pytorch
+def test_pyt_image_classification_custom_model():
+    """
+    Tests basic transfer learning functionality for custom PyTorch image classification models using a torchvision
+    dataset
+    """
+    framework = 'pytorch'
+    use_case = 'image_classification'
+    output_dir = tempfile.mkdtemp()
+    os.environ["TORCH_HOME"] = output_dir
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, 'CIFAR10',
+                                          'torchvision', split=["train"], shuffle_files=False)
+
+    # Define a model
+    class Net(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.conv1 = nn.Conv2d(3, 6, 5)
+            self.pool = nn.MaxPool2d(2, 2)
+            self.conv2 = nn.Conv2d(6, 16, 5)
+            self.fc1 = nn.Linear(16 * 5 * 5, 120)
+            self.fc2 = nn.Linear(120, 84)
+            self.fc3 = nn.Linear(84, 10)
+
+        def forward(self, x):
+            x = self.pool(functional.relu(self.conv1(x)))
+            x = self.pool(functional.relu(self.conv2(x)))
+            x = torch.flatten(x, 1)
+            x = functional.relu(self.fc1(x))
+            x = functional.relu(self.fc2(x))
+            x = self.fc3(x)
+            return x
+
+    net = Net()
+
+    # Get the model
+    model = model_factory.load_model('custom_model', net, framework, use_case)
+    assert model.num_classes == 10
+
+    # Preprocess the dataset
+    dataset.preprocess(image_size='variable', batch_size=32)
+    dataset.shuffle_split(train_pct=0.05, val_pct=0.05, seed=10)
+    assert dataset._validation_type == 'shuffle_split'
+
+    # Train
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
+
+    # Evaluate
+    trained_metrics = model.evaluate(dataset)
+    assert trained_metrics[0] > 0.0  # loss
+    assert trained_metrics[1] > 0.0  # accuracy
+
+    # Predict with a batch
+    images, labels = dataset.get_batch()
+    predictions = model.predict(images)
+    assert len(predictions) == 32
+
+    # Export the saved model
+    saved_model_dir = model.export(output_dir)
+    assert os.path.isdir(saved_model_dir)
+    assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
+
+    # Reload the saved model
+    reload_model = model_factory.load_model('custom_model', saved_model_dir, framework, use_case)
+
+    # Evaluate
+    reload_metrics = reload_model.evaluate(dataset)
+    assert reload_metrics == trained_metrics
+
+    # Ensure we get not implemented errors for graph_optimization
+    with pytest.raises(NotImplementedError) as e:
+        model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
+
+    # Delete the temp output directory
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)
+
+    # Ensure we get not implemented errors for quantization
+    inc_config_file_path = os.path.join(output_dir, "pytorch_{}.yaml".format('custom_model'))
     with pytest.raises(NotImplementedError) as e:
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32)
 
