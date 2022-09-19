@@ -58,7 +58,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         self._model = None
         self._num_classes = None
 
-    def _get_hub_model(self, num_classes, ipex_optimize=True):
+    def _get_hub_model(self, num_classes, ipex_optimize=True, extra_layers=None):
         if not self._model:
             pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
             self._model = pretrained_model_class(pretrained=True)
@@ -68,27 +68,44 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                     param.requires_grad = False
 
             if len(self._classification_layer) == 2:
+                base_model = getattr(self._model, self._classification_layer[0])
                 classifier = getattr(self._model, self._classification_layer[0])[self._classification_layer[1]]
+                self._model.classifier = base_model[0: self._classification_layer[1]]
                 num_features = classifier.in_features
-                self._model.classifier[self._classification_layer[1]] = torch.nn.Linear(num_features, num_classes)
+                if extra_layers:
+                    for layer in extra_layers:
+                        self._model.classifier.append(torch.nn.Linear(num_features, layer))
+                        self._model.classifier.append(torch.nn.ReLU(inplace=True))
+                        num_features = layer    
+                self._model.classifier.append(torch.nn.Linear(num_features, num_classes))
             else:
                 classifier = getattr(self._model, self._classification_layer[0])
                 if self._classification_layer[0] == "heads":
                     num_features = classifier.head.in_features
                 else:
                     num_features = classifier.in_features
-                setattr(self._model, self._classification_layer[0], torch.nn.Linear(num_features, num_classes))
+                
+                if extra_layers:
+                    # assuming its always just the output layer that exists here.
+                    setattr(self._model, self._classification_layer[0], torch.nn.Sequential())
+                    classifier = getattr(self._model, self._classification_layer[0])
+                    for layer in extra_layers:
+                        classifier.append(torch.nn.Linear(num_features, layer))
+                        classifier.append(torch.nn.ReLU(inplace=True))
+                        num_features = layer
+                    classifier.append(torch.nn.Linear(num_features, num_classes))
+                else:
+                    setattr(self._model, self._classification_layer[0], torch.nn.Linear(num_features, num_classes))
 
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
             if ipex_optimize:
                 self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
         self._num_classes = num_classes
-
         return self._model, self._optimizer
 
-    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True):
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None, 
+              do_eval=True, extra_layers=None):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -101,6 +118,10 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 epochs (int): Number of epochs to train the model (default: 1)
                 initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
                     latest checkpoint will be used.
+                extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
+                    layer. This can help increase accuracy when fine-tuning a Pytorch model. The input should be a list of
+                    integers representing the number and size of the layers, for example [1024, 512] will insert two
+                    dense layers, the first with 1024 neurons and the second with 512 neurons.
                 do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
                     at the end of each epoch.
 
@@ -112,6 +133,16 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         if initial_checkpoints and not isinstance(initial_checkpoints, str):
             raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
                 type(initial_checkpoints)))
+           
+        if extra_layers:
+            if not isinstance(extra_layers, list):
+                raise TypeError("The extra_layers parameter must be a list of ints but found {}".format(
+                    type(extra_layers)))
+            else:
+                for layer in extra_layers:
+                    if not isinstance(layer, int):
+                        raise TypeError("The extra_layers parameter must be a list of ints but found a list containing {}".format(
+                            type(layer)))
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -123,7 +154,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         # from torchvision, but hold off on the ipex optimize call.
         ipex_optimize = False if initial_checkpoints else True
 
-        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=ipex_optimize)
+        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=ipex_optimize, extra_layers=extra_layers)
 
         if initial_checkpoints:
             checkpoint = torch.load(initial_checkpoints)

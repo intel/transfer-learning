@@ -33,10 +33,12 @@ from tlt.utils.file_utils import download_and_extract_tar_file
 
 
 @pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,dataset_name',
-                         [['efficientnet_b0', 'CIFAR10'],
-                          ['resnet18', 'CIFAR10']])
-def test_pyt_image_classification(model_name, dataset_name):
+@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
+                         [['efficientnet_b0', 'CIFAR10', None, 2],
+                          ['resnet18', 'CIFAR10', None, 1],
+                         ['efficientnet_b0', 'CIFAR10', [1024, 512], 6],
+                         ['resnet18', 'CIFAR10', [1024, 512], 5]])
+def test_pyt_image_classification(model_name, dataset_name, extra_layers, correct_num_layers):
     """
     Tests basic transfer learning functionality for PyTorch image classification models using a torchvision dataset
     """
@@ -61,8 +63,12 @@ def test_pyt_image_classification(model_name, dataset_name):
     assert len(pretrained_metrics) > 0
 
     # Train
-    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
-
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers)
+    if(isinstance(list(model._model.children())[-1], torch.nn.modules.linear.Linear)):
+        # when this is true, number of initial layers is 1
+        assert correct_num_layers == 1
+    else:
+        assert len(list(model._model.children())[-1]) == correct_num_layers
     # Evaluate
     trained_metrics = model.evaluate(dataset)
     assert trained_metrics[0] <= pretrained_metrics[0]  # loss
