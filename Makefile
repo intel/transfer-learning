@@ -39,7 +39,7 @@ venv_test: $(CURDIR)/tests/requirements-test.txt
 
 test: venv_test
 	@echo "Testing the API..."
-	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test -s
+	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test -s --cov --cov-fail-under=85
 
 lint: venv_test
 	@echo "Style checks..."
