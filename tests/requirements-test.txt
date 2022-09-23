@@ -4,3 +4,4 @@ pillow
 pytest
 pytest-cov
 pytest-xdist
+tox

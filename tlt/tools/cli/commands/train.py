@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
@@ -21,6 +20,7 @@
 import click
 import inspect
 import sys
+
 
 @click.command()
 @click.option("--framework", "-f",
@@ -81,7 +81,7 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     """
     Trains the model
     """
-    session_log = {} # Initialize an empty dictionary to store information about this training session
+    session_log = {}  # Initialize an empty dictionary to store information about this training session
     print("Model name:", model_name)
     session_log["model_name"] = model_name
     print("Framework:", framework)
@@ -132,7 +132,8 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
             else:
                 dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
         else:
-            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
+            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
+                                                  dataset_catalog)
         # TODO: get extra configs like batch size and maybe this doesn't need to be a separate call
         if framework in ['tensorflow', 'pytorch']:
             if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
@@ -142,8 +143,8 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
             dataset.shuffle_split(seed=10)
     except Exception as e:
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "
-                 "dataset name: {}, dataset_catalog: {}):\n{}".format(
-            dataset_dir, model.use_case,  model.framework, dataset_name, dataset_catalog, str(e)))
+                 "dataset name: {}, dataset_catalog: {}):\n{}".format(dataset_dir, model.use_case, model.framework,
+                                                                      dataset_name, dataset_catalog, str(e)))
     # Train the model using the dataset
     try:
         model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints)
@@ -157,7 +158,7 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     # Save the log file
     try:
         import os
-        import json 
+        import json
         json_filename = os.path.join(log_output, "session_log.json")
         session_log["log_path"] = log_output
         json_object = json.dumps(session_log, indent=4)

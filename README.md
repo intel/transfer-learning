@@ -1,4 +1,6 @@
-![Tests](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/unit-test.yml/badge.svg)
+![Tests](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/unit-test.yaml/badge.svg)
+![Style](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/style-test.yaml/badge.svg)
+![Doc Test](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/docs-test.yaml/badge.svg)
 
 # Intel® Transfer Learning Tool Quick Start
 

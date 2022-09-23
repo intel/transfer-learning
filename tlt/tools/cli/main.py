@@ -27,9 +27,11 @@ from tlt.tools.cli.commands.optimize import optimize
 from tlt.tools.cli.commands.quantize import quantize
 from tlt.tools.cli.commands.train import train
 
+
 @click.group('cli')
 def cli_group():
     pass
+
 
 # Add top level commands
 cli_group.add_command(list_group)

@@ -102,8 +102,8 @@ def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_name
         framework = FrameworkType.PYTORCH
         model_path = pytorch_model_path
     else:
-        sys.exit("Evaluation is currently only implemented for TensorFlow saved models and PyTorch .pt models. No such files "
-                 "found in the model directory ({}).".format(model_dir))
+        sys.exit("Evaluation is currently only implemented for TensorFlow saved models and PyTorch .pt models. No such "
+                 "files found in the model directory ({}).".format(model_dir))
 
     if not model_name:
         model_name = os.path.basename(os.path.dirname(model_dir))
@@ -121,7 +121,6 @@ def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_name
         model.load_from_directory(model_dir)
 
         from tlt.datasets import dataset_factory
-        from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
         if not dataset_catalog and not dataset_name:
             if str(model.use_case) == 'text_classification':
@@ -138,7 +137,8 @@ def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_name
             else:
                 dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
         else:
-            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
+            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
+                                                  dataset_catalog)
 
         if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
             dataset.preprocess(image_size=model.image_size, batch_size=32)

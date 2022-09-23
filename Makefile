@@ -41,6 +41,10 @@ test: venv_test
 	@echo "Testing the API..."
 	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test -s
 
+lint: venv_test
+	@echo "Style checks..."
+	@. $(ACTIVATE_TEST) && flake8 tlt/tools
+
 clean:
 	rm -rf tlt_tests
 

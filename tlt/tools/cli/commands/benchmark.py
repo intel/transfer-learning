@@ -107,7 +107,6 @@ def benchmark(model_dir, dataset_dir, inc_config, mode, batch_size, output_dir):
 
     try:
         from tlt.datasets import dataset_factory
-        from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
         dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
 
         # Generate a default inc config file, if one was not provided by the user
