@@ -22,6 +22,7 @@ import os
 import pytest
 import shutil
 import tempfile
+import numpy as np
 
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
@@ -114,6 +115,56 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
         with pytest.raises(NotImplementedError):
             model.write_inc_config_file(inc_config_file_path, dataset, batch_size=batch_size,
                                         tuning_workspace=output_dir)
+
+    finally:
+        # Delete the temp output directory
+        if os.path.exists(output_dir) and os.path.isdir(output_dir):
+            shutil.rmtree(output_dir)
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,lr_decay,accuracy,val_accuracy,lr_final',
+                         [['small_bert/bert_en_uncased_L-2_H-128_A-2', 'glue/sst2', 1, .005, False, False, None, None, 0.005],
+                          ['small_bert/bert_en_uncased_L-2_H-256_A-4', 'glue/sst2', 1, .001, True, True, 0.34375, 0.4256, 0.001],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews', 13, .005, True, True, None, None, 0.001]])
+def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name, epochs, learning_rate, do_eval, lr_decay,
+                                                 accuracy, val_accuracy, lr_final):
+    """
+    Tests transfer learning for TensorFlow binary text classification with different learning rate options
+    """
+    framework = 'tensorflow'
+    output_dir = tempfile.mkdtemp()
+
+    try:
+        # Get the dataset
+        dataset = dataset_factory.get_dataset('/tmp/data', 'text_classification', framework, dataset_name,
+                                              'tf_datasets', split=["train[:4%]"], shuffle_files=False)
+
+        # Get the model
+        model = model_factory.get_model(model_name, framework)
+        model.learning_rate = learning_rate
+        assert model.learning_rate == learning_rate
+
+        # Preprocess the dataset
+        batch_size = 32
+        dataset.preprocess(batch_size)
+        dataset.shuffle_split(seed=10)
+
+        # Train
+        history = model.train(dataset, output_dir=output_dir, epochs=epochs, shuffle_files=False, do_eval=do_eval,
+                              lr_decay=lr_decay, seed=10)
+        assert history is not None
+
+        # TODO: accuracy results are not deterministic yet (AIZOO-1222)
+        # assert history.history['binary_accuracy'][-1] == accuracy
+        # if val_accuracy:
+        #     assert ['val_binary_accuracy'][-1] == val_accuracy
+        # else:
+        #     assert 'val_binary_accuracy' not in history.history
+
+        if do_eval and lr_decay:
+            assert history.history['lr'][-1] <= np.float32(lr_final)
+        else:
+            assert 'lr' not in history.history
 
     finally:
         # Delete the temp output directory

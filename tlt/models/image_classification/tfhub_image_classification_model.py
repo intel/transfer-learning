@@ -95,7 +95,8 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         return self._model
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None, extra_layers=None):
+              do_eval=True, lr_decay=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None,
+              extra_layers=None):
         """ 
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
@@ -110,6 +111,8 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                     latest checkpoint will be used.
                 do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
                     at the end of each epoch.
+                lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
+                    is applied at the end of each epoch.
                 enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
                     uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
                     It is recommended to enable auto mixed precision training when running on platforms that support
@@ -122,7 +125,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                 extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
                     layer. This can help increase accuracy when fine-tuning a TFHub model. The input should be a list of
                     integers representing the number and size of the layers, for example [1024, 512] will insert two
-                    dense layers, the first with 1024 neurons and the second with 512 neurons. 
+                    dense layers, the first with 1024 neurons and the second with 512 neurons.
 
             Returns:
                 History object from the model.fit() call
@@ -136,17 +139,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                TypeError if the extra_layers parameter is not a list of integers
         """
 
-        verify_directory(output_dir)
-
-        if not isinstance(dataset, ImageClassificationDataset):
-            raise TypeError("The dataset must be a ImageClassificationDataset but found a {}".format(type(dataset)))
-
-        if not isinstance(epochs, int):
-            raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
-
-        if initial_checkpoints and not isinstance(initial_checkpoints, str):
-            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
-                type(initial_checkpoints)))
+        self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
         
         if extra_layers:
             if not isinstance(extra_layers, list):
@@ -164,60 +157,18 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         if dataset_num_classes != self.num_classes:
             self._model = None
 
-        if seed is not None:
-            os.environ['PYTHONHASHSEED'] = str(seed)
-            random.seed(seed)
-            np.random.seed(seed)
-            tf.random.set_seed(seed)
+        self._set_seed(seed)
 
         # Set auto mixed precision
         self.set_auto_mixed_precision(enable_auto_mixed_precision)
 
         self._model = self._get_hub_model(dataset_num_classes, extra_layers)
 
-        self._model.compile(
-            optimizer=self._optimizer,
-            loss=self._loss,
-            metrics=['acc'])
+        callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
+                                                                    lr_decay)
 
-        if initial_checkpoints:
-            if os.path.isdir(initial_checkpoints):
-                initial_checkpoints = tf.train.latest_checkpoint(initial_checkpoints)
-
-            self._model.load_weights(initial_checkpoints)
-
-        class CollectBatchStats(tf.keras.callbacks.Callback):
-            def __init__(self):
-                self.batch_losses = []
-                self.batch_acc = []
-
-            def on_train_batch_end(self, batch, logs=None):
-                self.batch_losses.append(logs['loss'])
-                self.batch_acc.append(logs['acc'])
-                self.model.reset_metrics()
-
-        batch_stats_callback = CollectBatchStats()
-
-        callbacks = [batch_stats_callback]
-
-        # Create a callback for generating checkpoints
-        if self._generate_checkpoints:
-            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
-            verify_directory(checkpoint_dir)
-            checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(checkpoint_dir, self.model_name.replace('/', '_')), save_weights_only=True)
-            print("Checkpoint directory:", checkpoint_dir)
-            callbacks.append(checkpoint_callback)
-
-        if dataset._validation_type == 'shuffle_split':
-            train_dataset =  dataset.train_subset
-        else:
-            train_dataset = dataset.dataset
-
-        validation_data = dataset.validation_subset if do_eval else None
-
-        return self._model.fit(train_dataset, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
-                               validation_data=validation_data)
+        return self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
+                               validation_data=val_data)
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """
@@ -245,7 +196,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                 hub.KerasLayer(self._model_url, input_shape=(self._image_size, self._image_size) + (3,))
             ])
             original_model.compile(
-                optimizer=self._optimizer,
+                optimizer=tf.keras.optimizers.Adam(),
                 loss=self._loss,
                 metrics=['acc'])
             return original_model.evaluate(eval_dataset)

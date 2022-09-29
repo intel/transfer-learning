@@ -47,7 +47,6 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         # extra properties that will become configurable in the future
         self._do_fine_tuning = False
         self._dropout_layer_rate = None
-        self._optimizer = tf.keras.optimizers.Adam()
         self._loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         self._generate_checkpoints = True
 
@@ -79,71 +78,8 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         """
         return self._num_classes
 
-    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None):
-        """ 
-        Trains the model using the specified image classification dataset. The model is compiled and trained for
-        the specified number of epochs. If a path to initial checkpoints is provided, those weights are loaded before
-        training.
-
-        Args:
-            dataset (ImageClassificationDataset): Dataset to use when training the model
-            output_dir (str): Path to a writeable directory for checkpoint files
-            epochs (int): Number of epochs to train the model (default: 1)
-            initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
-                latest checkpoint will be used.
-            do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
-                    at the end of each epoch.
-            enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
-                uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
-                It is recommended to enable auto mixed precision training when running on platforms that support
-                bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
-                does not support bfloat16, it can be detrimental to the training performance. If
-                enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
-                running with Intel fourth generation Xeon processors, and disabled for other platforms.
-            shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
-            seed (int): Optionally set a seed for reproducibility.
-
-        Returns:
-            History object from the model.fit() call
-
-        Raises:
-           FileExistsError if the output directory is a file
-           TypeError if the dataset specified is not an ImageClassificationDataset
-           TypeError if the output_dir parameter is not a string
-           TypeError if the epochs parameter is not a integer
-           TypeError if the initial_checkpoints parameter is not a string
-           RuntimeError if the number of model classes is different from the number of dataset classes
-        """
-
-        verify_directory(output_dir)
-
-        if not isinstance(dataset, ImageClassificationDataset):
-            raise TypeError("The dataset must be a ImageClassificationDataset but found a {}".format(type(dataset)))
-
-        if not isinstance(epochs, int):
-            raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
-
-        if initial_checkpoints and not isinstance(initial_checkpoints, str):
-            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
-                type(initial_checkpoints)))
-
-        dataset_num_classes = len(dataset.class_names)
-
-        # Check that the number of classes matches the model outputs
-        if dataset_num_classes != self.num_classes:
-            raise RuntimeError("The number of model outputs ({}) differs from the number of dataset classes ({})".
-                               format(self.num_classes, dataset_num_classes))
-
-        if seed is not None:
-            os.environ['PYTHONHASHSEED'] = str(seed)
-            random.seed(seed)
-            np.random.seed(seed)
-            tf.random.set_seed(seed)
-
-        # Set auto mixed precision
-        self.set_auto_mixed_precision(enable_auto_mixed_precision)
-        
+    def _get_train_callbacks(self, dataset, output_dir, initial_checkpoints, do_eval, lr_decay):
+        self._optimizer = tf.keras.optimizers.Adam(learning_rate=self._learning_rate)
         self._model.compile(
             optimizer=self._optimizer,
             loss=self._loss,
@@ -178,15 +114,84 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             print("Checkpoint directory:", checkpoint_dir)
             callbacks.append(checkpoint_callback)
 
+        # Create a callback for learning rate decay
+        if do_eval and lr_decay:
+            callbacks.append(tf.keras.callbacks.ReduceLROnPlateau(
+                monitor='val_loss',
+                factor=0.2,
+                patience=5,
+                verbose=2,
+                mode='auto',
+                cooldown=1,
+                min_lr=0.0000000001))
+
         if dataset._validation_type == 'shuffle_split':
-            train_dataset =  dataset.train_subset
+            train_dataset = dataset.train_subset
         else:
             train_dataset = dataset.dataset
 
         validation_data = dataset.validation_subset if do_eval else None
 
-        return self._model.fit(train_dataset, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
-                                   validation_data=validation_data)
+        return callbacks, train_dataset, validation_data
+
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
+              do_eval=True, lr_decay=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None):
+        """ 
+        Trains the model using the specified image classification dataset. The model is compiled and trained for
+        the specified number of epochs. If a path to initial checkpoints is provided, those weights are loaded before
+        training.
+
+        Args:
+            dataset (ImageClassificationDataset): Dataset to use when training the model
+            output_dir (str): Path to a writeable directory for checkpoint files
+            epochs (int): Number of epochs to train the model (default: 1)
+            initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
+                latest checkpoint will be used.
+            do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                    at the end of each epoch.
+            lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
+                    is applied at the end of each epoch.
+            enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
+                uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
+                It is recommended to enable auto mixed precision training when running on platforms that support
+                bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                does not support bfloat16, it can be detrimental to the training performance. If
+                enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                running with Intel fourth generation Xeon processors, and disabled for other platforms.
+            shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
+            seed (int): Optionally set a seed for reproducibility.
+
+        Returns:
+            History object from the model.fit() call
+
+        Raises:
+           FileExistsError if the output directory is a file
+           TypeError if the dataset specified is not an ImageClassificationDataset
+           TypeError if the output_dir parameter is not a string
+           TypeError if the epochs parameter is not a integer
+           TypeError if the initial_checkpoints parameter is not a string
+           RuntimeError if the number of model classes is different from the number of dataset classes
+        """
+
+        self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
+
+        dataset_num_classes = len(dataset.class_names)
+
+        # Check that the number of classes matches the model outputs
+        if dataset_num_classes != self.num_classes:
+            raise RuntimeError("The number of model outputs ({}) differs from the number of dataset classes ({})".
+                               format(self.num_classes, dataset_num_classes))
+
+        self._set_seed(seed)
+
+        # Set auto mixed precision
+        self.set_auto_mixed_precision(enable_auto_mixed_precision)
+
+        callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
+                                                                    lr_decay)
+
+        return self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
+                               validation_data=val_data)
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """

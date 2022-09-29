@@ -22,6 +22,7 @@ import os
 import pytest
 import shutil
 import tempfile
+import numpy as np
 from tensorflow import keras
 
 from tlt.datasets import dataset_factory
@@ -310,3 +311,51 @@ class TestImageClassificationCustomDataset:
             model.optimize_graph(saved_model_dir, optimization_output)
             assert os.path.exists(os.path.join(optimization_output, "saved_model.pb"))
 
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,lr_decay,accuracy,val_accuracy,lr_final',
+                         [['efficientnet_b0', 'tf_flowers', 4, 0.001, False, False, 0.875, None, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, False, 0.875, 0.65625, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, True, 0.875, 0.65625, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, False, True, 0.875, None, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 16, 0.005, True, True, 1.0, 0.8125, 1.0000e-03]])
+def test_tf_image_classification_with_lr_options(model_name, dataset_name, epochs, learning_rate, do_eval, lr_decay,
+                                                 accuracy, val_accuracy, lr_final):
+    """
+    Tests learning rate options
+    """
+    framework = 'tensorflow'
+    use_case = 'image_classification'
+    output_dir = tempfile.mkdtemp()
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, dataset_name,
+                                          'tf_datasets', split=["train[:5%]"])
+
+    # Get the model
+    model = model_factory.get_model(model_name, framework)
+    model.learning_rate = learning_rate
+    assert model.learning_rate == learning_rate
+
+    # Preprocess the dataset
+    dataset.preprocess(model.image_size, 32)
+    dataset.shuffle_split(seed=10)
+
+    # Train
+    history = model.train(dataset, output_dir=output_dir, epochs=epochs, shuffle_files=False, seed=10, do_eval=do_eval,
+                          lr_decay=lr_decay)
+
+    assert history is not None
+    assert history.history['acc'][-1] == accuracy
+    if val_accuracy:
+        assert history.history['val_acc'][-1] == val_accuracy
+    else:
+        assert 'val_acc' not in history.history
+    if do_eval and lr_decay:
+        assert history.history['lr'][-1] <= np.float32(lr_final)
+    else:
+        assert 'lr' not in history.history
+
+    # Delete the temp output directory
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)

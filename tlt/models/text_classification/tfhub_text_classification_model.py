@@ -52,7 +52,6 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
 
         # extra properties that should become configurable in the future
         self._dropout_layer_rate = 0.1
-        self._learning_rate = 3e-5
         self._epsilon = 1e-08
         self._generate_checkpoints = True
 
@@ -109,7 +108,8 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
         return self._model
 
     def train(self, dataset: TextClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, enable_auto_mixed_precision=None, shuffle_files=True, extra_layers=None):
+              do_eval=True, lr_decay=True, enable_auto_mixed_precision=None, shuffle_files=True, extra_layers=None,
+              seed=None):
         """
            Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is
            provided, those weights are loaded before training.
@@ -124,6 +124,8 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                     latest checkpoint will be used.
                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
                     at the end of each epoch.
+               lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
+                    is applied at the end of each epoch.
                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
                     uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
                     It is recommended to enable auto mixed precision training when running on platforms that support
@@ -136,6 +138,7 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                     layer. This can help increase accuracy when fine-tuning a TFHub model. The input should be a list of
                     integers representing the number and size of the layers, for example [1024, 512] will insert two
                     dense layers, the first with 1024 neurons and the second with 512 neurons.
+               seed (int): Optionally set a seed for reproducibility.
 
            Returns:
                History object from the model.fit() call
@@ -149,17 +152,7 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                NotImplementedError if the specified dataset has more than 2 classes
                TypeError if the extra_layers parameter is not a list of integers
         """
-        verify_directory(output_dir)
-
-        if not isinstance(dataset, TextClassificationDataset):
-            raise TypeError("The dataset must be a TextClassificationDataset but found a {}".format(type(dataset)))
-
-        if not isinstance(epochs, int):
-            raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
-
-        if initial_checkpoints and not isinstance(initial_checkpoints, str):
-            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
-                type(initial_checkpoints)))
+        self._check_train_inputs(output_dir, dataset, TextClassificationDataset, epochs, initial_checkpoints)
 
         if extra_layers:
             if not isinstance(extra_layers, list):
@@ -177,6 +170,8 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
             raise NotImplementedError("Training is only supported for binary text classification. The specified dataset"
                                       " has {} classes, but expected 2 classes.".format(dataset_num_classes))
 
+        self._set_seed(seed)
+
         # Set auto mixed precision
         self.set_auto_mixed_precision(enable_auto_mixed_precision)
 
@@ -187,60 +182,10 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
         self._model = self._get_hub_model(dataset_num_classes, extra_layers)
         print("Num dataset classes: ", dataset_num_classes)
 
-        loss = tf.keras.losses.BinaryCrossentropy(from_logits=True) if dataset_num_classes == 2 else \
-            tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
+                                                                    lr_decay, dataset_num_classes)
 
-        metrics = tf.metrics.BinaryAccuracy() if dataset_num_classes == 2 else tf.keras.metrics.Accuracy()
-
-        self._model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=self._learning_rate, epsilon=self._epsilon),
-            loss=loss,
-            metrics=metrics)
-
-        if initial_checkpoints:
-            if os.path.isdir(initial_checkpoints):
-                initial_checkpoints = tf.train.latest_checkpoint(initial_checkpoints)
-
-            self._model.load_weights(initial_checkpoints)
-
-        class CollectBatchStats(tf.keras.callbacks.Callback):
-            def __init__(self):
-                self.batch_losses = []
-                self.batch_acc = []
-
-            def on_train_batch_end(self, batch, logs=None):
-                if logs and isinstance(logs, dict):
-
-                    # Find the name of the accuracy key
-                    accuracy_key = None
-                    for log_key in logs.keys():
-                        if 'acc' in log_key:
-                            accuracy_key = log_key
-                            break
-
-                    self.batch_losses.append(logs['loss'])
-
-                    if accuracy_key:
-                        self.batch_acc.append(logs[accuracy_key])
-                self.model.reset_metrics()
-
-        batch_stats_callback = CollectBatchStats()
-
-        callbacks = [batch_stats_callback]
-
-        # Create a callback for generating checkpoints
-        if self._generate_checkpoints:
-            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
-            verify_directory(checkpoint_dir)
-            checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(checkpoint_dir, self.model_name.replace('/', '_')), save_weights_only=True)
-            print("Checkpoint directory:", checkpoint_dir)
-            callbacks.append(checkpoint_callback)
-
-        train_data = dataset.train_subset if dataset.train_subset else dataset.dataset
-        validation_data = dataset.validation_subset if do_eval else None
-
-        return self._model.fit(train_data, validation_data=validation_data, epochs=epochs, shuffle=shuffle_files,
+        return self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=shuffle_files,
                                callbacks=callbacks)
 
     def evaluate(self, dataset: TextClassificationDataset, use_test_set=False):

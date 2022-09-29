@@ -19,6 +19,8 @@
 #
 
 import os
+import random
+import numpy as np
 import tensorflow as tf
 
 from tlt.models.model import BaseModel
@@ -36,6 +38,26 @@ class TFModel(BaseModel):
         self._model = None
         super().__init__(model_name, framework, use_case)
         os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
+
+    def _set_seed(self, seed):
+        if seed is not None:
+            os.environ['PYTHONHASHSEED'] = str(seed)
+            random.seed(seed)
+            np.random.seed(seed)
+            tf.random.set_seed(seed)
+
+    def _check_train_inputs(self, output_dir, dataset, dataset_type, epochs, initial_checkpoints):
+        verify_directory(output_dir)
+
+        if not isinstance(dataset, dataset_type):
+            raise TypeError("The dataset must be a {} but found a {}".format(dataset_type, type(dataset)))
+
+        if not isinstance(epochs, int):
+            raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
+
+        if initial_checkpoints and not isinstance(initial_checkpoints, str):
+            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
+                type(initial_checkpoints)))
 
     def load_from_directory(self, model_dir: str):
         """

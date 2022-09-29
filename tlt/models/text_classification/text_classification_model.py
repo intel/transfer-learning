@@ -33,6 +33,9 @@ class TextClassificationModel(BaseModel):
         self._dropout_layer_rate = dropout_layer_rate
         BaseModel.__init__(self, model_name, framework, use_case)
 
+        # Default learning rate for text models
+        self._learning_rate = 3e-5
+
     @property
     @abc.abstractmethod
     def num_classes(self):
