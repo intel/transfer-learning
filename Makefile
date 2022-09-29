@@ -23,6 +23,7 @@ ACTIVATE_TF = "intel_tf/bin/activate"
 ACTIVATE_PYT = "intel_pyt/bin/activate"
 ACTIVATE_TEST = "tlt_tests/bin/activate"
 ACTIVATE_DOCS = $(ACTIVATE_TEST)
+ACTIVATE_NOTEBOOK = $(ACTIVATE_TEST)
 
 venv_test: $(CURDIR)/tests/requirements-test.txt
 	@echo "Creating a virtualenv tlt_tests..."
@@ -59,6 +60,30 @@ html: venv_docs
 test_docs: html
 	@echo "Testing Sphinx documentation..."
 	@. $(ACTIVATE_DOCS) && $(MAKE) -C docs doctest
+
+venv_notebook: venv_test
+	@echo "Installing notebook dependencies..."
+	@. $(ACTIVATE_NOTEBOOK) && pip install -r $(CURDIR)/notebooks/tensorflow_requirements.txt
+
+test_notebook: venv_notebook
+	@echo "Testing Jupyter notebooks..."
+	@. $(ACTIVATE_NOTEBOOK) && \
+	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
+		--TagRemovePreprocessor.remove_cell_tags remove_for_custom_dataset \
+		--to script $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb && \
+	ipython $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.py && \
+	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
+		--TagRemovePreprocessor.remove_cell_tags remove_for_tf_dataset \
+		--to script $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb && \
+	ipython $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.py && \
+	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
+		--TagRemovePreprocessor.remove_cell_tags remove_for_custom_dataset \
+		--to script $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb && \
+	ipython $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.py && \
+	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
+		--TagRemovePreprocessor.remove_cell_tags remove_for_tv_dataset \
+		--to script $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb && \
+	ipython $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.py
 
 dist: venv_docs
 	@echo "Create binary wheel..."

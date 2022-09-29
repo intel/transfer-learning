@@ -1,0 +1,27 @@
+name: Test Notebooks
+on:
+  pull_request_review:
+    types: [submitted]
+jobs:
+  notebook-test:
+    if: github.event.review.state == 'approved'
+    runs-on: [ aia-devops ]
+    container:
+      image: amr-registry.caas.intel.com/aiops/tlt-dev
+      env:
+        http_proxy: ${{ secrets.HTTP_PROXY }}
+        https_proxy: ${{ secrets.HTTPS_PROXY }}
+        no_proxy: ${{ secrets.NO_PROXY }}
+        DATASET_DIR: /tmp/data
+        OUTPUT_DIR: /tmp/output
+      credentials:
+        username: ${{ secrets.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_TOKEN }}
+      volumes:
+        - /tf_dataset/dataset/transfer_learning:/tmp/data
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install virtualenv
+        run: pip install virtualenv
+      - name: Run Notebook Tests
+        run: make test_notebook
