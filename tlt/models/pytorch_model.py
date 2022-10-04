@@ -18,11 +18,15 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-import abc
+import os
+import dill
+import numpy
+import random
+import torch
 
 from tlt.models.model import BaseModel
 from tlt.utils.types import FrameworkType, UseCaseType
-
+from tlt.utils.file_utils import verify_directory
 
 class PyTorchModel(BaseModel):
     """
@@ -34,12 +38,49 @@ class PyTorchModel(BaseModel):
         Class constructor
         """
         super().__init__(model_name, framework, use_case)
+        self._lr_scheduler = None
+        self._history = {}
 
         # Setup warnings module to set warnings to go to stdout
         import warnings, sys
         def customwarn(message, category, filename, lineno, file=None, line=None):
             sys.stdout.write(warnings.formatwarning(message, category, filename, lineno))
-        warnings.showwarning = customwarn 
+        warnings.showwarning = customwarn
+
+    def _set_seed(self, seed):
+        if seed is not None:
+            os.environ['PYTHONHASHSEED'] = str(seed)
+            random.seed(seed)
+            numpy.random.seed(seed)
+            torch.manual_seed(seed)
+
+    def _check_train_inputs(self, output_dir, dataset, dataset_type, epochs, initial_checkpoints):
+        verify_directory(output_dir)
+
+        if not isinstance(dataset, dataset_type):
+            raise TypeError("The dataset must be a {} but found a {}".format(dataset_type, type(dataset)))
+
+        if not isinstance(epochs, int):
+            raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
+
+        if initial_checkpoints and not isinstance(initial_checkpoints, str):
+            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
+                type(initial_checkpoints)))
+
+    def _update_history(self, key, value):
+        if key not in self._history:
+            self._history[key] = []
+        self._history[key].extend([value])
+
+    def load_from_directory(self, model_dir: str):
+        """
+        Load a saved model from the model_dir path
+        """
+        # Verify that the model directory exists
+        verify_directory(model_dir, require_directory_exists=True)
+        model_copy = torch.load(os.path.join(model_dir, 'model.pt'))
+        self._model = dill.loads(model_copy)
+        self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):
         """

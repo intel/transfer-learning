@@ -189,9 +189,12 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
                                                                     lr_decay)
+        history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
+                                        validation_data=val_data)
 
-        return self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
-                               validation_data=val_data)
+        self._history = history.history
+        
+        return self._history
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """

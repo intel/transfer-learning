@@ -105,7 +105,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         return self._model, self._optimizer
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None, 
-              do_eval=True, extra_layers=None):
+              do_eval=True, lr_decay=True, seed=None, extra_layers=None):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -118,21 +118,20 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 epochs (int): Number of epochs to train the model (default: 1)
                 initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
                     latest checkpoint will be used.
+                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                    at the end of each epoch.
+                lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
+                    is applied at the end of each epoch.
+                seed (int): Optionally set a seed for reproducibility.
                 extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
                     layer. This can help increase accuracy when fine-tuning a Pytorch model. The input should be a list of
                     integers representing the number and size of the layers, for example [1024, 512] will insert two
                     dense layers, the first with 1024 neurons and the second with 512 neurons.
-                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
-                    at the end of each epoch.
 
             Returns:
                 Trained PyTorch model object
         """
-        verify_directory(output_dir)
-
-        if initial_checkpoints and not isinstance(initial_checkpoints, str):
-            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
-                type(initial_checkpoints)))
+        self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
            
         if extra_layers:
             if not isinstance(extra_layers, list):
@@ -141,8 +140,8 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             else:
                 for layer in extra_layers:
                     if not isinstance(layer, int):
-                        raise TypeError("The extra_layers parameter must be a list of ints but found a list containing {}".format(
-                            type(layer)))
+                        raise TypeError("The extra_layers parameter must be a list of ints but found a list "
+                                        "containing {}".format(type(layer)))
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -154,7 +153,10 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         # from torchvision, but hold off on the ipex optimize call.
         ipex_optimize = False if initial_checkpoints else True
 
-        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=ipex_optimize, extra_layers=extra_layers)
+        self._set_seed(seed)
+
+        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=ipex_optimize,
+                                                           extra_layers=extra_layers)
 
         if initial_checkpoints:
             checkpoint = torch.load(initial_checkpoints)
@@ -164,95 +166,9 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             # Call ipex.optimize now, since we didn't call it from _get_hub_model()
             self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
-        # Start PyTorch training loop
-        since = time.time()
+        self._fit(output_dir, dataset, epochs, do_eval, lr_decay)
 
-        device = torch.device(self._device)
-        self._model = self._model.to(device)
-
-        if dataset.train_subset:
-            train_data_loader = dataset.train_loader
-            data_length = len(dataset.train_subset)
-        else:
-            train_data_loader = dataset.data_loader
-            data_length = len(dataset.dataset)
-
-        if do_eval and dataset.validation_subset:
-            validation_data_loader = dataset.validation_loader
-            validation_data_length = len(dataset.validation_subset)
-        else:
-            validation_data_loader = None
-            validation_data_length = 0
-
-        for epoch in range(epochs):
-            print(f'Epoch {epoch}/{epochs - 1}')
-            print('-' * 10)
-
-            # Training phase
-            self._model.train()
-            running_loss = 0.0
-            running_corrects = 0
-
-            # Iterate over data.
-            for inputs, labels in tqdm(train_data_loader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
-                inputs = inputs.to(device)
-                labels = labels.to(device)
-
-                # Zero the parameter gradients
-                self._optimizer.zero_grad()
-
-                # Forward and backward pass
-                with torch.set_grad_enabled(True):
-                    outputs = self._model(inputs)
-                    _, preds = torch.max(outputs, 1)
-                    loss = self._loss(outputs, labels)
-                    loss.backward()
-                    self._optimizer.step()
-
-                # Statistics
-                running_loss += loss.item() * inputs.size(0)
-                running_corrects += torch.sum(preds == labels.data)
-
-            train_epoch_loss = running_loss / data_length
-            train_epoch_acc = float(running_corrects) / data_length
-
-            loss_acc_output = f'Loss: {train_epoch_loss:.4f} - Acc: {train_epoch_acc:.4f}'
-
-            if do_eval and validation_data_loader is not None:
-                self._model.eval()
-                running_loss = 0.0
-                running_corrects = 0
-
-                with torch.no_grad():
-                    for inputs, labels in validation_data_loader:
-                        outputs = self._model(inputs)
-                        _, preds = torch.max(outputs, 1)
-                        loss = self._loss(outputs, labels)
-
-                        running_loss += loss.item() * inputs.size(0)
-                        running_corrects += torch.sum(preds == labels.data)
-
-                eval_epoch_loss = running_loss / validation_data_length
-                eval_epoch_acc = float(running_corrects) / validation_data_length
-
-                loss_acc_output += f' - Val Loss: {eval_epoch_loss:.4f} - Val Acc: {eval_epoch_acc:.4f}'
-
-            print(loss_acc_output)
-
-        time_elapsed = time.time() - since
-        print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
-
-        if self._generate_checkpoints:
-            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
-            verify_directory(checkpoint_dir)
-            torch.save({
-                        'epoch': epochs,
-                        'model_state_dict': self._model.state_dict(),
-                        'optimizer_state_dict': self._optimizer.state_dict(),
-                        'loss': train_epoch_loss,
-                       }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
-
-        return self._model
+        return self._history
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """

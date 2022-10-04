@@ -63,7 +63,7 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
     assert len(pretrained_metrics) > 0
 
     # Train
-    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers)
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers, seed=10)
     if(isinstance(list(model._model.children())[-1], torch.nn.modules.linear.Linear)):
         # when this is true, number of initial layers is 1
         assert correct_num_layers == 1
@@ -153,7 +153,7 @@ def test_pyt_image_classification_custom_model():
     assert dataset._validation_type == 'shuffle_split'
 
     # Train
-    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, seed=10)
 
     # Evaluate
     trained_metrics = model.evaluate(dataset)
@@ -241,7 +241,7 @@ class TestImageClassificationCustomDataset:
         dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
 
         # Train for 1 epoch
-        model.train(dataset, output_dir=self._output_dir, epochs=1, do_eval=False)
+        model.train(dataset, output_dir=self._output_dir, epochs=1, do_eval=False, seed=10)
 
         # Evaluate
         model.evaluate(dataset)
@@ -264,3 +264,40 @@ class TestImageClassificationCustomDataset:
         metrics = reload_model.evaluate(dataset)
         assert len(metrics) > 0
 
+
+@pytest.mark.pytorch
+@pytest.mark.parametrize('model_name,dataset_name,epochs,lr,do_eval,lr_decay,final_lr,final_acc',
+                         [['efficientnet_b0', 'CIFAR10', 10, 0.005, True, True, 0.001, 0.994],
+                          ['resnet18', 'CIFAR10', 1, 0.005, True, False, None, 0.28],
+                          ['efficientnet_b0', 'CIFAR10', 1, 0.001, False, False, None, 0.1992]])
+def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epochs, lr, do_eval, lr_decay, final_lr,
+                                                  final_acc):
+    """
+    Tests transfer learning for PyTorch image classification models using learning rate options
+    """
+    framework = 'pytorch'
+    output_dir = tempfile.mkdtemp()
+    os.environ["TORCH_HOME"] = output_dir
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, dataset_name,
+                                          'torchvision', split=["train"], shuffle_files=False)
+
+    # Get the model
+    model = model_factory.get_model(model_name, framework)
+    model.learning_rate = lr
+
+    # Preprocess the dataset
+    dataset.preprocess(image_size='variable', batch_size=32)
+    dataset.shuffle_split(train_pct=0.05, val_pct=0.05, seed=10)
+    assert dataset._validation_type == 'shuffle_split'
+
+    # Train
+    history = model.train(dataset, output_dir=output_dir, epochs=epochs, do_eval=do_eval, lr_decay=lr_decay, seed=10)
+
+    if final_lr:
+        assert model._lr_scheduler.optimizer.param_groups[0]['lr'] == final_lr
+    else:
+        assert model._lr_scheduler is None
+
+    assert history['Acc'][-1] == final_acc

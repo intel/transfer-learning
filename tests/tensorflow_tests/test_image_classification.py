@@ -63,7 +63,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, seed=10, do_eval=False,
                           extra_layers=extra_layers)
     assert history is not None
-    assert history.history['acc'] == [train_accuracy]
+    assert history['acc'] == [train_accuracy]
     assert len(model._model.layers) == correct_num_layers
 
     # Verify that checkpoints were generated
@@ -109,7 +109,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
     retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
                                           shuffle_files=False, seed=10, do_eval=False)
-    assert retrain_history.history['acc'] == [retrain_accuracy]
+    assert retrain_history['acc'] == [retrain_accuracy]
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
@@ -259,7 +259,7 @@ class TestImageClassificationCustomDataset:
         history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False, seed=10,
                               do_eval=False)
         assert history is not None
-        assert history.history['acc'] == [train_accuracy]
+        assert history['acc'] == [train_accuracy]
 
         # Verify that checkpoints were generated
         checkpoint_dir = os.path.join(self._output_dir, "{}_checkpoints".format(model_name))
@@ -292,7 +292,7 @@ class TestImageClassificationCustomDataset:
         retrain_history = retrain_model.train(dataset, output_dir=self._output_dir, epochs=1,
                                               initial_checkpoints=checkpoint_dir, shuffle_files=False, seed=10,
                                               do_eval=False)
-        assert retrain_history.history['acc'] == [retrain_accuracy]
+        assert retrain_history['acc'] == [retrain_accuracy]
 
         # Test benchmarking, quantization, and graph optimization with ResNet50
         if model_name == "resnet_v1_50":
@@ -346,15 +346,15 @@ def test_tf_image_classification_with_lr_options(model_name, dataset_name, epoch
                           lr_decay=lr_decay)
 
     assert history is not None
-    assert history.history['acc'][-1] == accuracy
+    assert history['acc'][-1] == accuracy
     if val_accuracy:
-        assert history.history['val_acc'][-1] == val_accuracy
+        assert history['val_acc'][-1] == val_accuracy
     else:
-        assert 'val_acc' not in history.history
+        assert 'val_acc' not in history
     if do_eval and lr_decay:
-        assert history.history['lr'][-1] <= np.float32(lr_final)
+        assert history['lr'][-1] <= np.float32(lr_final)
     else:
-        assert 'lr' not in history.history
+        assert 'lr' not in history
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):

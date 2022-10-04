@@ -125,7 +125,7 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
 @pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,lr_decay,accuracy,val_accuracy,lr_final',
                          [['small_bert/bert_en_uncased_L-2_H-128_A-2', 'glue/sst2', 1, .005, False, False, None, None, 0.005],
                           ['small_bert/bert_en_uncased_L-2_H-256_A-4', 'glue/sst2', 1, .001, True, True, 0.34375, 0.4256, 0.001],
-                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews', 13, .005, True, True, None, None, 0.001]])
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews', 15, .005, True, True, None, None, 0.001]])
 def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name, epochs, learning_rate, do_eval, lr_decay,
                                                  accuracy, val_accuracy, lr_final):
     """
@@ -155,16 +155,16 @@ def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name,
         assert history is not None
 
         # TODO: accuracy results are not deterministic yet (AIZOO-1222)
-        # assert history.history['binary_accuracy'][-1] == accuracy
+        # assert history['binary_accuracy'][-1] == accuracy
         # if val_accuracy:
-        #     assert ['val_binary_accuracy'][-1] == val_accuracy
+        #     assert history['val_binary_accuracy'][-1] == val_accuracy
         # else:
-        #     assert 'val_binary_accuracy' not in history.history
+        #     assert 'val_binary_accuracy' not in history
 
         if do_eval and lr_decay:
-            assert history.history['lr'][-1] <= np.float32(lr_final)
+            assert history['lr'][-1] <= np.float32(lr_final)
         else:
-            assert 'lr' not in history.history
+            assert 'lr' not in history
 
     finally:
         # Delete the temp output directory

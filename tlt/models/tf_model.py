@@ -38,6 +38,7 @@ class TFModel(BaseModel):
         self._model = None
         super().__init__(model_name, framework, use_case)
         os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
+        self._history = {}
 
     def _set_seed(self, seed):
         if seed is not None:

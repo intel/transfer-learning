@@ -20,8 +20,6 @@
 
 import os
 import time
-import numpy as np
-from pydoc import locate
 from tqdm import tqdm
 import dill
 
@@ -51,11 +49,11 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         # extra properties that will become configurable in the future
         self._do_fine_tuning = False
         self._dropout_layer_rate = None
-        self._learning_rate = 0.005
         self._device = 'cpu'
         self._optimizer_class = torch.optim.Adam  # Just the class, it needs to be initialized with the model object
         self._optimizer = None
         self._loss = torch.nn.CrossEntropyLoss()
+        self._lr_scheduler = None
         self._generate_checkpoints = True
 
         # placeholder for model definition
@@ -86,61 +84,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         """
         return self._num_classes
 
-    def load_from_directory(self,  model_dir: str):
-        """
-        Load a saved model from the model_dir path
-        """
-        # Verify that the model directory exists
-        verify_directory(model_dir, require_directory_exists=True)
-        model_copy = torch.load(os.path.join(model_dir, 'model.pt'))
-        self._model=dill.loads(model_copy)
-        self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
-
-    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True):
-        """
-            Trains the model using the specified image classification dataset. The first time training is called, it
-            will get the model from torchvision and add on a fully-connected dense layer with linear activation
-            based on the number of classes in the specified dataset. The model and optimizer are defined and trained
-            for the specified number of epochs.
-
-            Args:
-                dataset (ImageClassificationDataset): Dataset to use when training the model
-                output_dir (str): Path to a writeable directory for output files
-                epochs (int): Number of epochs to train the model (default: 1)
-                initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
-                    latest checkpoint will be used.
-                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
-                    at the end of each epoch.
-
-            Returns:
-                Trained PyTorch model object
-        """
-        verify_directory(output_dir)
-
-        if initial_checkpoints and not isinstance(initial_checkpoints, str):
-            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
-                type(initial_checkpoints)))
-
-        dataset_num_classes = len(dataset.class_names)
-
-        # Check that the number of classes matches the model outputs
-        if dataset_num_classes != self.num_classes:
-            raise RuntimeError("The number of model outputs ({}) differs from the number of dataset classes ({})".
-                               format(self.num_classes, dataset_num_classes))
-
-        self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
-
-        if initial_checkpoints:
-            checkpoint = torch.load(initial_checkpoints)
-            self._model.load_state_dict(checkpoint['model_state_dict'])
-            self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-
-        # Call ipex.optimize
-        self._model.train()
-        self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
-
-        # Start PyTorch training loop
+    def _fit(self, output_dir, dataset, epochs, do_eval, lr_decay):
+        """Main PyTorch training loop"""
         since = time.time()
 
         device = torch.device(self._device)
@@ -160,6 +105,11 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             validation_data_loader = None
             validation_data_length = 0
 
+        if lr_decay:
+            self._lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self._optimizer, factor=0.2, patience=5,
+                                                                            cooldown=1, min_lr=0.0000000001)
+
+        self._history = {}
         for epoch in range(epochs):
             print(f'Epoch {epoch}/{epochs - 1}')
             print('-' * 10)
@@ -190,6 +140,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
             train_epoch_loss = running_loss / data_length
             train_epoch_acc = float(running_corrects) / data_length
+            self._update_history('Loss', train_epoch_loss)
+            self._update_history('Acc', train_epoch_acc)
 
             loss_acc_output = f'Loss: {train_epoch_loss:.4f} - Acc: {train_epoch_acc:.4f}'
 
@@ -209,8 +161,16 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
                 eval_epoch_loss = running_loss / validation_data_length
                 eval_epoch_acc = float(running_corrects) / validation_data_length
+                self._update_history('Val Loss', eval_epoch_loss)
+                self._update_history('Val Acc', eval_epoch_acc)
 
                 loss_acc_output += f' - Val Loss: {eval_epoch_loss:.4f} - Val Acc: {eval_epoch_acc:.4f}'
+
+                if lr_decay:
+                    lr = self._lr_scheduler.optimizer.param_groups[0]['lr']
+                    self._update_history('LR', lr)
+                    loss_acc_output += f' - LR: {lr:.4f}'
+                    self._lr_scheduler.step(eval_epoch_loss)
 
             print(loss_acc_output)
 
@@ -221,13 +181,60 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
             verify_directory(checkpoint_dir)
             torch.save({
-                        'epoch': epochs,
-                        'model_state_dict': self._model.state_dict(),
-                        'optimizer_state_dict': self._optimizer.state_dict(),
-                        'loss': train_epoch_loss,
-                       }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
+                'epoch': epochs,
+                'model_state_dict': self._model.state_dict(),
+                'optimizer_state_dict': self._optimizer.state_dict(),
+                'loss': train_epoch_loss,
+            }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
-        return self._model
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
+              do_eval=True, lr_decay=True, seed=None):
+        """
+            Trains the model using the specified image classification dataset. The first time training is called, it
+            will get the model from torchvision and add on a fully-connected dense layer with linear activation
+            based on the number of classes in the specified dataset. The model and optimizer are defined and trained
+            for the specified number of epochs.
+
+            Args:
+                dataset (ImageClassificationDataset): Dataset to use when training the model
+                output_dir (str): Path to a writeable directory for output files
+                epochs (int): Number of epochs to train the model (default: 1)
+                initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
+                    latest checkpoint will be used.
+                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                    at the end of each epoch.
+                lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
+                    is applied at the end of each epoch.
+                seed (int): Optionally set a seed for reproducibility.
+
+            Returns:
+                Trained PyTorch model object
+        """
+        self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
+
+        dataset_num_classes = len(dataset.class_names)
+
+        # Check that the number of classes matches the model outputs
+        if dataset_num_classes != self.num_classes:
+            raise RuntimeError("The number of model outputs ({}) differs from the number of dataset classes ({})".
+                               format(self.num_classes, dataset_num_classes))
+
+        self._set_seed(seed)
+
+        self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
+
+        if initial_checkpoints:
+            checkpoint = torch.load(initial_checkpoints)
+            self._model.load_state_dict(checkpoint['model_state_dict'])
+            self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+        # Call ipex.optimize
+        self._model.train()
+        self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+
+        self._fit(output_dir, dataset, epochs, do_eval, lr_decay)
+
+        return self._history
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """
