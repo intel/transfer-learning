@@ -216,6 +216,8 @@ def test_tfhub_model_train(model_name, dataset_type, get_hub_model_patch, class_
         mock_dataset.class_names = class_names
         mock_model = MagicMock()
         expected_return_value = {"result": True}
+        mock_history = MagicMock()
+        mock_history.history = expected_return_value
 
         def mock_fit(dataset, epochs, shuffle, callbacks, validation_data=None):
             assert dataset is not None
@@ -228,7 +230,7 @@ def test_tfhub_model_train(model_name, dataset_type, get_hub_model_patch, class_
             else:
                 assert validation_data is None
 
-            return expected_return_value
+            return mock_history
 
         mock_model.fit = mock_fit
         mock_get_hub_model.return_value = mock_model
@@ -264,6 +266,8 @@ def test_custom_model_train():
     mock_dataset.class_names = ['1', '2', '3']
     model._model = MagicMock()
     expected_return_value = {"result": True}
+    mock_history = MagicMock()
+    mock_history.history = expected_return_value
 
     def mock_fit(dataset, epochs, shuffle, callbacks, validation_data=None):
         assert dataset is not None
@@ -271,7 +275,7 @@ def test_custom_model_train():
         assert isinstance(shuffle, bool)
         assert len(callbacks) > 0
 
-        return expected_return_value
+        return mock_history
 
     model._model.fit = mock_fit
 
