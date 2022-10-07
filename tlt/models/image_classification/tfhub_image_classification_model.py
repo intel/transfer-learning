@@ -19,7 +19,6 @@
 #
 
 import os
-import random
 import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -27,8 +26,7 @@ import tensorflow_hub as hub
 from tlt import TLT_BASE_DIR
 from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-from tlt.utils.file_utils import read_json_file, verify_directory
-from tlt.utils.types import FrameworkType, UseCaseType
+from tlt.utils.file_utils import read_json_file
 
 
 class TFHubImageClassificationModel(TFImageClassificationModel):
@@ -56,14 +54,12 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         self._num_classes = None
         self._image_size = tfhub_model_map[model_name]["image_size"]
 
-
     @property
     def model_url(self):
         """
         The public URL used to download the TFHub model
         """
         return self._model_url
-
 
     @property
     def feature_vector_url(self):
@@ -85,7 +81,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                     self._model.add(tf.keras.layers.Dense(layer_size, "relu"))
 
             if self.dropout_layer_rate is not None:
-                self._model.add(tf.keras.layers.Dropout(dropout_layer_rate))
+                self._model.add(tf.keras.layers.Dropout(self.dropout_layer_rate))
 
             self._model.add(tf.keras.layers.Dense(num_classes))
 
@@ -97,7 +93,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, lr_decay=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None,
               extra_layers=None):
-        """ 
+        """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
             in the specified dataset. The model is compiled and trained for the specified number of epochs. If a
@@ -140,7 +136,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         """
 
         self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
-        
+
         if extra_layers:
             if not isinstance(extra_layers, list):
                 raise TypeError("The extra_layers parameter must be a list of ints but found {}".format(
@@ -148,9 +144,8 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
             else:
                 for layer in extra_layers:
                     if not isinstance(layer, int):
-                        raise TypeError("The extra_layers parameter must be a list of ints but found a list containing {}".format(
-                            type(layer)))
-
+                        raise TypeError("The extra_layers parameter must be a list of ints",
+                                        "but found a list containing {}".format(type(layer)))
         dataset_num_classes = len(dataset.class_names)
 
         # If the number of classes doesn't match what was used before, clear out the previous model
@@ -168,10 +163,8 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                                                                     lr_decay)
 
         history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
-                               validation_data=val_data)
-
+                                  validation_data=val_data)
         self._history = history.history
-
         return self._history
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
@@ -194,7 +187,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
 
         if self._model is None:
             # The model hasn't been trained yet, use the original ImageNet trained model
-            print("The model has not been trained yet, so evaluation is being done using the original model " + \
+            print("The model has not been trained yet, so evaluation is being done using the original model ",
                   "and its classes")
             original_model = tf.keras.Sequential([
                 hub.KerasLayer(self._model_url, input_shape=(self._image_size, self._image_size) + (3,))
@@ -221,4 +214,3 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
             predictions = self._model.predict(input_samples)
         predicted_ids = np.argmax(predictions, axis=-1)
         return predicted_ids
-

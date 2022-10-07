@@ -30,7 +30,7 @@ class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
     This class represents a custom text classification dataset in the .csv format that can be used with TensorFlow
     models. Note that this dataset class expects a .csv file with two columns where the first column is the label and
     the second column is the text/sentence to classify.
-    
+
     For example, a comma separated value file will look similar to the snippet below:
 
     .. code-block:: text
@@ -39,7 +39,7 @@ class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
         class_b,<text>
         class_a,<text>
         ...
-        
+
     If the .csv files has more columns, the select_cols or exclude_cols parameters can be used to filter out which
     columns will be parsed.
 

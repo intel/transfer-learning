@@ -52,6 +52,7 @@ KNOWN_CPU_TYPES = [
     }
 ]
 
+
 class CPUInfo():
     """CPU information class."""
 
@@ -237,7 +238,6 @@ class PlatformUtil:
                        x[CPU_FAMILY_STR] == self.cpu_family]
         if len(cpu_matches) > 0:
             self.cpu_type = cpu_matches[0]
-
 
     def _get_list_from_string_ranges(self, str_ranges):
         """

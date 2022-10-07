@@ -19,8 +19,6 @@
 #
 
 import os
-import time
-import numpy as np
 from pydoc import locate
 from tqdm import tqdm
 
@@ -30,8 +28,7 @@ import intel_extension_for_pytorch as ipex
 from tlt import TLT_BASE_DIR
 from tlt.models.image_classification.pytorch_image_classification_model import PyTorchImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-from tlt.utils.file_utils import read_json_file, verify_directory
-from tlt.utils.types import FrameworkType, UseCaseType
+from tlt.utils.file_utils import read_json_file
 
 
 class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
@@ -76,7 +73,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                     for layer in extra_layers:
                         self._model.classifier.append(torch.nn.Linear(num_features, layer))
                         self._model.classifier.append(torch.nn.ReLU(inplace=True))
-                        num_features = layer    
+                        num_features = layer
                 self._model.classifier.append(torch.nn.Linear(num_features, num_classes))
             else:
                 classifier = getattr(self._model, self._classification_layer[0])
@@ -84,7 +81,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                     num_features = classifier.head.in_features
                 else:
                     num_features = classifier.in_features
-                
+
                 if extra_layers:
                     # assuming its always just the output layer that exists here.
                     setattr(self._model, self._classification_layer[0], torch.nn.Sequential())
@@ -104,7 +101,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         self._num_classes = num_classes
         return self._model, self._optimizer
 
-    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None, 
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, lr_decay=True, seed=None, extra_layers=None):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
@@ -124,15 +121,16 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                     is applied at the end of each epoch.
                 seed (int): Optionally set a seed for reproducibility.
                 extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
-                    layer. This can help increase accuracy when fine-tuning a Pytorch model. The input should be a list of
-                    integers representing the number and size of the layers, for example [1024, 512] will insert two
-                    dense layers, the first with 1024 neurons and the second with 512 neurons.
+                    layer. This can help increase accuracy when fine-tuning a Pytorch model.
+                    The input should be a list of integers representing the number and size of the layers,
+                    for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the
+                    second with 512 neurons.
 
             Returns:
                 Trained PyTorch model object
         """
         self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
-           
+
         if extra_layers:
             if not isinstance(extra_layers, list):
                 raise TypeError("The extra_layers parameter must be a list of ints but found {}".format(
@@ -193,7 +191,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
         if self._model is None:
             # The model hasn't been trained yet, use the original ImageNet trained model
-            print("The model has not been trained yet, so evaluation is being done using the original model " + \
+            print("The model has not been trained yet, so evaluation is being done using the original model ",
                   "and its classes")
             pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
             model = pretrained_model_class(pretrained=True)

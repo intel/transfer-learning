@@ -42,15 +42,15 @@ dataset_map = {
             "torchvision": {"module": "tlt.datasets.image_classification.torchvision_image_classification_dataset",
                             "class": "TorchvisionImageClassificationDataset"},
             "custom": {"module": "tlt.datasets.image_classification.pytorch_custom_image_classification_dataset",
-                            "class": "PyTorchCustomImageClassificationDataset"}
+                       "class": "PyTorchCustomImageClassificationDataset"}
         }
     }
 }
 
 
 def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkType, dataset_name=None, **kwargs):
-    """A factory method for loading a custom dataset. 
-    
+    """A factory method for loading a custom dataset.
+
     Image classification datasets expect a directory of images organized with subfolders for each image class. Each
     subfolder should contain .jpg images for the class. The name of the subfolder will be used as the class label.
 
@@ -70,7 +70,7 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
         class_a,<text>
         class_b,<text>
         class_a,<text>
-        ... 
+        ...
 
     Args:
         dataset_dir (str): directory containing the dataset
@@ -157,7 +157,7 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
         if framework is FrameworkType.TENSORFLOW:
             dataset_catalog = "tf_datasets"
         elif framework is FrameworkType.PYTORCH and \
-            use_case in [UseCaseType.IMAGE_CLASSIFICATION, UseCaseType.OBJECT_DETECTION]:
+                use_case in [UseCaseType.IMAGE_CLASSIFICATION, UseCaseType.OBJECT_DETECTION]:
             dataset_catalog = "torchvision"
         else:
             dataset_catalog = "huggingface"

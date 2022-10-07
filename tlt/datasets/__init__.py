@@ -17,5 +17,3 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-
-from tlt.datasets import dataset_factory

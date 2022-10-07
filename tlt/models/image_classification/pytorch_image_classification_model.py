@@ -26,11 +26,10 @@ import dill
 import torch
 import intel_extension_for_pytorch as ipex
 
-from tlt import TLT_BASE_DIR
 from tlt.models.pytorch_model import PyTorchModel
 from tlt.models.image_classification.image_classification_model import ImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-from tlt.utils.file_utils import read_json_file, verify_directory
+from tlt.utils.file_utils import verify_directory
 from tlt.utils.types import FrameworkType, UseCaseType
 
 
@@ -75,7 +74,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             layers = list(self._model.children())
             self._num_classes = layers[-1].out_features
         else:
-            raise TypeError("The model input must be a torch.nn.Module, string, or None but found a {}".format(type(model)))
+            raise TypeError("The model input must be a torch.nn.Module, string or",
+                            "None but found a {}". format(type(model)))
 
     @property
     def num_classes(self):
@@ -314,7 +314,6 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 saved_model_dir = os.path.join(saved_model_dir, "{}".format(len(os.listdir(saved_model_dir)) + 1))
             else:
                 saved_model_dir = os.path.join(saved_model_dir, "1")
-            
             verify_directory(saved_model_dir)
             model_copy = dill.dumps(self._model)
             torch.save(model_copy, os.path.join(saved_model_dir, 'model.pt'))

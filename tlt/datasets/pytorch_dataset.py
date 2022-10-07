@@ -136,9 +136,9 @@ class PyTorchDataset(BaseDataset):
         generator = torch.Generator().manual_seed(seed) if seed else None
         dataset_indices = torch.randperm(length, generator=generator).tolist()
         self._train_indices = dataset_indices[:train_size]
-        self._validation_indices = dataset_indices[train_size:train_size+val_size]
+        self._validation_indices = dataset_indices[train_size:train_size + val_size]
         if test_pct:
-            self._test_indices = dataset_indices[train_size+val_size:train_size+val_size+test_size]
+            self._test_indices = dataset_indices[train_size + val_size:train_size + val_size + test_size]
         else:
             self._test_indices = None
         self._validation_type = 'shuffle_split'
@@ -151,25 +151,27 @@ class PyTorchDataset(BaseDataset):
             worker_seed = torch.initial_seed() % 2**32
             np.random.seed(worker_seed)
             random.seed(worker_seed)
-            
+
         if self._dataset:
-            self._data_loader = loader(self.dataset, batch_size=batch_size, shuffle=self._shuffle, 
+            self._data_loader = loader(self.dataset, batch_size=batch_size, shuffle=self._shuffle,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
         else:
             self._data_loader = None
         if self._train_indices:
-            self._train_loader = loader(self.train_subset, batch_size=batch_size, shuffle=self._shuffle, 
+            self._train_loader = loader(self.train_subset, batch_size=batch_size, shuffle=self._shuffle,
                                         num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
         else:
             self._train_loader = None
         if self._validation_indices:
             self._validation_loader = loader(self.validation_subset, batch_size=batch_size, shuffle=self._shuffle,
-                                             num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
+                                             num_workers=self._num_workers, worker_init_fn=seed_worker,
+                                             generator=generator)
         else:
             self._validation_loader = None
         if self._test_indices:
             self._test_loader = loader(self.test_subset, batch_size=batch_size, shuffle=self._shuffle,
-                                       num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
+                                       num_workers=self._num_workers, worker_init_fn=seed_worker,
+                                       generator=generator)
         else:
             self._test_loader = None
 

@@ -20,7 +20,6 @@
 
 import copy
 import os
-import random
 import numpy as np
 import tensorflow as tf
 import yaml
@@ -69,7 +68,6 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             self._image_size = self._model.input.shape[1]
         else:
             raise TypeError("The model input must be a keras Model, string, or None but found a {}".format(type(model)))
-
 
     @property
     def num_classes(self):
@@ -136,7 +134,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, lr_decay=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None):
-        """ 
+        """
         Trains the model using the specified image classification dataset. The model is compiled and trained for
         the specified number of epochs. If a path to initial checkpoints is provided, those weights are loaded before
         training.
@@ -190,10 +188,8 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
                                                                     lr_decay)
         history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
-                                        validation_data=val_data)
-
+                                  validation_data=val_data)
         self._history = history.history
-        
         return self._history
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
@@ -231,7 +227,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         """
         Writes an INC compatible config file to the specified path usings args from the specified dataset and
         parameters. This is currently only supported for TF custom image classification datasets.
-        
+
         Args:
             config_file_path (str): Destination path on where to write the .yaml config file.
             dataset (BaseDataset): A tlt dataset object
@@ -308,15 +304,15 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
                 tuning_workspace = os.path.join(output_dir_env_var, 'nc_workspace')
 
         if "quantization" in config_template.keys() and "calibration" in config_template["quantization"].keys() and \
-            "dataloader" in config_template["quantization"]["calibration"].keys():
+           "dataloader" in config_template["quantization"]["calibration"].keys():
             dataloader_configs.append(config_template["quantization"]["calibration"]["dataloader"])
 
         if "evaluation" in config_template.keys():
             if "accuracy" in config_template["evaluation"].keys() and \
-                            "dataloader" in config_template["evaluation"]["accuracy"].keys():
+               "dataloader" in config_template["evaluation"]["accuracy"].keys():
                 dataloader_configs.append(config_template["evaluation"]["accuracy"]["dataloader"])
             if "performance" in config_template["evaluation"].keys() and \
-                            "dataloader" in config_template["evaluation"]["performance"].keys():
+               "dataloader" in config_template["evaluation"]["performance"].keys():
                 dataloader_configs.append(config_template["evaluation"]["performance"]["dataloader"])
 
         transform_config = {
@@ -420,7 +416,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         graph_optimizer = Graph_Optimization()
         graph_optimizer.model = saved_model_dir
         optimized_graph = graph_optimizer()
-        
+
         # If optimization was successful, save the model
         if optimized_graph:
             optimized_graph.save(output_dir)
@@ -428,8 +424,8 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
     def quantize(self, saved_model_dir, output_dir, inc_config_path):
         """
         Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
-        using the specified config file. The quantized model is written to the output directory.
-        
+        using the specified config file. The quantized model is written to the output directory
+
         Args:
             saved_model_dir (str): Source directory for the model to quantize.
             output_dir (str): Writable output directory to save the quantized model
@@ -475,7 +471,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
     def benchmark(self, saved_model_dir, inc_config_path, mode='performance'):
         """
         Use INC to benchmark the specified model for performance or accuracy.
-        
+
         Args:
             saved_model_dir (str): Path to the directory where the saved model is located
             inc_config_path (str): Path to an INC config file (.yaml)
@@ -510,4 +506,3 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         evaluator = Benchmark(inc_config_path)
         evaluator.model = saved_model_dir
         return evaluator(mode)
-
