@@ -28,6 +28,7 @@ from tlt.models.model import BaseModel
 from tlt.utils.types import FrameworkType, UseCaseType
 from tlt.utils.file_utils import verify_directory
 
+
 class PyTorchModel(BaseModel):
     """
     Base class used to represent a PyTorch model
@@ -42,7 +43,9 @@ class PyTorchModel(BaseModel):
         self._history = {}
 
         # Setup warnings module to set warnings to go to stdout
-        import warnings, sys
+        import warnings
+        import sys
+
         def customwarn(message, category, filename, lineno, file=None, line=None):
             sys.stdout.write(warnings.formatwarning(message, category, filename, lineno))
         warnings.showwarning = customwarn
@@ -120,7 +123,8 @@ class PyTorchModel(BaseModel):
         Raises:
             NotImplementedError because this hasn't been implemented yet for PyTorch
         """
-        raise NotImplementedError("Only TensorFlow graph optimization is currently supported by the Intel Neural Compressor (INC)")
+        raise NotImplementedError("Only TensorFlow graph optimization is currently supported by the \
+                                                                      Intel Neural Compressor (INC)")
 
     def quantize(self, saved_model_dir, output_dir, inc_config_path):
         """

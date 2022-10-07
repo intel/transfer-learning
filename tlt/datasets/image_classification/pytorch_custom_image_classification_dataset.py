@@ -37,7 +37,7 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
           ├── class_a
           ├── class_b
           └── class_c
-        
+
     Args:
         dataset_dir (str): Directory where the data is located. It should contain subdirectories with images for
                            each class.

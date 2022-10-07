@@ -59,7 +59,6 @@ class BaseModel(abc.ABC):
         """
         return self._use_case
 
-
     @property
     def learning_rate(self):
         """

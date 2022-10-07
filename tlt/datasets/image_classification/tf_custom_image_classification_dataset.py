@@ -88,7 +88,6 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         self._validation_subset = None
         self._test_subset = None
 
-
     @property
     def class_names(self):
         """

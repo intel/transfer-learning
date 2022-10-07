@@ -25,12 +25,11 @@ import tensorflow_hub as hub
 from tlt import TLT_BASE_DIR
 from tlt.models.text_classification.tf_text_classification_model import TFTextClassificationModel
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
-from tlt.utils.file_utils import read_json_file, verify_directory
-from tlt.utils.types import FrameworkType, UseCaseType
+from tlt.utils.file_utils import read_json_file
 
 # Note that tensorflow_text isn't used directly but the import is required to register ops used by the
 # BERT text preprocessor
-import tensorflow_text
+import tensorflow_text  # noqa: F401
 
 
 class TFHubTextClassificationModel(TFTextClassificationModel):
@@ -60,7 +59,6 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
         self._num_classes = None
 
         TFTextClassificationModel.__init__(self, model_name)
-
 
     @property
     def model_url(self):
@@ -113,7 +111,7 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
         """
            Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is
            provided, those weights are loaded before training.
-           
+
            Args:
                dataset (TextClassificationDataset): The dataset to use for training. If a train subset has been
                                                     defined, that subset will be used to fit the model. Otherwise, the
@@ -161,7 +159,7 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
             else:
                 for layer in extra_layers:
                     if not isinstance(layer, int):
-                        raise TypeError("The extra_layers parameter must be a list of ints but found a list containing {}".format(
+                        raise TypeError("extra_layers must be a list of ints but found a list containing {}".format(
                             type(layer)))
 
         dataset_num_classes = len(dataset.class_names)
@@ -186,7 +184,7 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                                                                     lr_decay, dataset_num_classes)
 
         history = self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=shuffle_files,
-                               callbacks=callbacks)
+                                  callbacks=callbacks)
 
         self._history = history.history
 
@@ -194,11 +192,11 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
 
     def evaluate(self, dataset: TextClassificationDataset, use_test_set=False):
         """
-           If there is a validation set, evaluation will be done on it (by default) or on the test set (by setting 
+           If there is a validation set, evaluation will be done on it (by default) or on the test set (by setting
            use_test_set=True). Otherwise, the entire non-partitioned dataset will be used for evaluation.
-        
+
            Args:
-               dataset (TextClassificationDataset): The dataset to use for evaluation. 
+               dataset (TextClassificationDataset): The dataset to use for evaluation.
                use_test_set (bool): Specify if the test partition of the dataset should be used for evaluation.
                                     [default: False)
 
@@ -231,7 +229,7 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
     def predict(self, input_samples):
         """
            Generates predictions for the specified input samples.
-        
+
            Args:
                input_samples (str, list, numpy array, tensor, tf.data dataset or a generator keras.utils.Sequence):
                     Input samples to use to predict. These will be sent to the tf.keras.Model predict() function.

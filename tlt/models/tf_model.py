@@ -83,8 +83,8 @@ class TFModel(BaseModel):
 
     def set_auto_mixed_precision(self, enable_auto_mixed_precision):
         """
-        Enable auto mixed precision for training. Mixed precision uses both 16-bit and 32-bit floating point types to 
-        make training run faster and use less memory. If enable_auto_mixed_precision is set to None, auto mixed 
+        Enable auto mixed precision for training. Mixed precision uses both 16-bit and 32-bit floating point types to
+        make training run faster and use less memory. If enable_auto_mixed_precision is set to None, auto mixed
         precision will be enabled when running with Intel fourth generation Xeon processors, and disabled for other
         platforms.
         """
@@ -125,7 +125,7 @@ class TFModel(BaseModel):
            Exports a trained model as a saved_model.pb file. The file will be written to the output directory in a
            directory with the model's name, and a unique numbered directory (compatible with TF serving). The directory
            number will increment each time the model is exported.
-        
+
            Args:
                output_dir (str): A writeable output directory.
 

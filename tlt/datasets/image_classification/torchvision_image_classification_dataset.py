@@ -26,6 +26,7 @@ from tlt.datasets.image_classification.image_classification_dataset import Image
 
 DATASETS = ["CIFAR10", "Food101", "CIFAR100", "Country211", "DTD", "FGVCAircraft", "RenderedSST2"]
 
+
 class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchDataset):
     """
     An image classification dataset from the torchvision catalog
@@ -57,20 +58,20 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
             if split[0] == 'train':
                 try:
                     self._dataset = dataset_class(dataset_dir, split='train', download=True)
-                except:
+                except TypeError:
                     self._dataset = dataset_class(dataset_dir, train=True, download=True)
             elif split[0] == 'validation':
                 try:
                     self._dataset = dataset_class(dataset_dir, split='val', download=True)
-                except:
+                except TypeError:
                     raise ValueError('No validation split was found for this dataset: {}'.format(dataset_name))
             elif split[0] == 'test':
                 try:
                     self._dataset = dataset_class(dataset_dir, split='test', download=True)
-                except:
+                except TypeError:
                     try:
                         self._dataset = dataset_class(dataset_dir, train=False, download=True)
-                    except:
+                    except TypeError:
                         raise ValueError('No test split was found for this dataset: {}'.format(dataset_name))
             self._validation_type = 'recall'  # Train & evaluate on the whole dataset
         else:
@@ -78,7 +79,7 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
             if 'train' in split:
                 try:
                     self._dataset = dataset_class(dataset_dir, split='train', download=True)
-                except:
+                except TypeError:
                     self._dataset = dataset_class(dataset_dir, train=True, download=True)
                 self._train_indices = range(len(self._dataset))
             if 'validation' in split:
@@ -88,26 +89,26 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
                     if self._dataset:
                         current_length = len(self._dataset)
                         self._dataset = torch.utils.data.ConcatDataset([self._dataset, validation_data])
-                        self._validation_indices = range(current_length, current_length+validation_length)
+                        self._validation_indices = range(current_length, current_length + validation_length)
                     else:
                         self._dataset = validation_data
                         self._validation_indices = range(validation_length)
-                except:
+                except ValueError:
                     raise ValueError('No validation split was found for this dataset: {}'.format(dataset_name))
             if 'test' in split:
                 try:
                     test_data = dataset_class(dataset_dir, split='test', download=True)
-                except:
+                except TypeError:
                     try:
                         test_data = dataset_class(dataset_dir, train=False, download=True)
-                    except:
+                    except ValueError:
                         raise ValueError('No test split was found for this dataset: {}'.format(dataset_name))
                 finally:
                     test_length = len(test_data)
                     if self._dataset:
                         current_length = len(self._dataset)
                         self._dataset = torch.utils.data.ConcatDataset([self._dataset, test_data])
-                        self._test_indices = range(current_length, current_length+test_length)
+                        self._test_indices = range(current_length, current_length + test_length)
                     else:
                         self._dataset = test_data
                         self._validation_indices = range(test_length)

@@ -30,16 +30,16 @@ model_map = {
     FrameworkType.TENSORFLOW: {
         UseCaseType.IMAGE_CLASSIFICATION: {
             "TFHub": {"module": "tlt.models.image_classification.tfhub_image_classification_model",
-                     "class": "TFHubImageClassificationModel"},
+                      "class": "TFHubImageClassificationModel"},
             "Custom": {"module": "tlt.models.image_classification.tf_image_classification_model",
-                      "class": "TFImageClassificationModel"}
+                       "class": "TFImageClassificationModel"}
         },
         UseCaseType.TEXT_CLASSIFICATION: {
             "TFHub": {
                 "module": "tlt.models.text_classification.tfhub_text_classification_model",
                 "class": "TFHubTextClassificationModel"},
             "Custom": {"module": "tlt.models.text_classification.tf_text_classification_model",
-                      "class": "TFTextClassificationModel"}
+                       "class": "TFTextClassificationModel"}
         }
     },
     FrameworkType.PYTORCH: {
@@ -47,10 +47,10 @@ model_map = {
             "torchvision": {"module": "tlt.models.image_classification.torchvision_image_classification_model",
                             "class": "TorchvisionImageClassificationModel"},
             "Custom": {"module": "tlt.models.image_classification.pytorch_image_classification_model",
-                      "class": "PyTorchImageClassificationModel"}
-            }
+                       "class": "PyTorchImageClassificationModel"}
         }
     }
+}
 
 
 def load_model(model_name: str, model, framework: FrameworkType = None, use_case: UseCaseType = None):
@@ -79,7 +79,7 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
 
     if use_case is not None and not isinstance(use_case, UseCaseType):
         use_case = UseCaseType.from_str(use_case)
-    
+
     model_class = locate('{}.{}'.format(model_map[framework][use_case]['Custom']['module'],
                                         model_map[framework][use_case]['Custom']['class']))
     return model_class(model_name, model)
@@ -119,14 +119,14 @@ def get_model(model_name: str, framework: FrameworkType = None):
         raise ValueError("Multiple frameworks support {}. Please specify a framework type.".format(model_name))
 
     model_framework_str = list(model_dict.keys())[0]
-    model_framework_enum = FrameworkType.from_str(model_framework_str)
+    model_fw_enum = FrameworkType.from_str(model_framework_str)
     model_hub = model_dict[model_framework_str]["model_hub"]
 
-    if model_framework_enum in model_map:
-        if model_use_case in model_map[model_framework_enum]:
-            if model_hub in model_map[model_framework_enum][model_use_case]:
-                model_class = locate('{}.{}'.format(model_map[model_framework_enum][model_use_case][model_hub]['module'],
-                                                    model_map[model_framework_enum][model_use_case][model_hub]['class']))
+    if model_fw_enum in model_map:
+        if model_use_case in model_map[model_fw_enum]:
+            if model_hub in model_map[model_fw_enum][model_use_case]:
+                model_class = locate('{}.{}'.format(model_map[model_fw_enum][model_use_case][model_hub]['module'],
+                                                    model_map[model_fw_enum][model_use_case][model_hub]['class']))
                 return model_class(model_name)
 
     raise NotImplementedError("Not implemented yet: {} {}".format(model_framework_str, model_name))
@@ -168,9 +168,9 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
         models[str(use_case)] = {}
 
     # Read configs into the models dictionary
-    for config_filename in [x for x in os.listdir(config_directory) if os.path.isfile(os.path.join(config_directory, x))]:
+    for config_file in [x for x in os.listdir(config_directory) if os.path.isfile(os.path.join(config_directory, x))]:
         # Figure out which framework this config is, and filter it out, if necessary
-        config_framework = FrameworkType.PYTORCH if 'torch' in config_filename else FrameworkType.TENSORFLOW
+        config_framework = FrameworkType.PYTORCH if 'torch' in config_file else FrameworkType.TENSORFLOW
 
         if framework is not None and framework != config_framework:
             continue
@@ -178,20 +178,20 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
         # Figure out which use case this config file is for
         config_use_case = None
         for uc in UseCaseType:
-            if str(uc) in config_filename:
+            if str(uc) in config_file:
                 config_use_case = str(uc)
                 break
 
         if config_use_case is None:
             raise NameError("The config file {} does not match any of the supported use case types".format(
-                config_filename))
+                config_file))
 
         # Filter the config file out, by use case, if necessary
         if use_case is not None and str(use_case) != config_use_case:
             continue
 
         # If it hasn't been filtered out, then read the config from the json file
-        config_dict = read_json_file(os.path.join(config_directory, config_filename))
+        config_dict = read_json_file(os.path.join(config_directory, config_file))
 
         for model_name in config_dict.keys():
             if model_name not in models[str(config_use_case)].keys():
@@ -252,4 +252,3 @@ def get_model_info(model_name, framework=None):
             return UseCaseType.from_str(model_use_case), models[model_use_case][model_name]
 
     return None, {}
-
