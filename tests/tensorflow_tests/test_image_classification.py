@@ -234,10 +234,10 @@ class TestImageClassificationCustomDataset:
                 shutil.rmtree(dir)
 
     @pytest.mark.tensorflow
-    @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy',
-                             [['efficientnet_b0', 0.6875, 0.78125],
-                              ['resnet_v1_50', 0.59375, 0.6875]])
-    def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy):
+    @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy,add_aug',
+                             [['efficientnet_b0', 0.6875, 0.78125, False],
+                              ['resnet_v1_50', 0.59375, 0.6875, False]])
+    def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy, add_aug):
         """
         Tests the full workflow for TF image classification using a custom dataset
         """
@@ -257,7 +257,7 @@ class TestImageClassificationCustomDataset:
 
         # Train for 1 epoch
         history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False, seed=10,
-                              do_eval=False)
+                              do_eval=False, add_aug=add_aug)
         assert history is not None
         assert history['acc'] == [train_accuracy]
 
@@ -291,7 +291,7 @@ class TestImageClassificationCustomDataset:
         retrain_model = model_factory.get_model(model_name, framework)
         retrain_history = retrain_model.train(dataset, output_dir=self._output_dir, epochs=1,
                                               initial_checkpoints=checkpoint_dir, shuffle_files=False, seed=10,
-                                              do_eval=False)
+                                              do_eval=False, add_aug=add_aug)
         assert retrain_history['acc'] == [retrain_accuracy]
 
         # Test benchmarking, quantization, and graph optimization with ResNet50
@@ -310,6 +310,8 @@ class TestImageClassificationCustomDataset:
             os.makedirs(optimization_output)
             model.optimize_graph(saved_model_dir, optimization_output)
             assert os.path.exists(os.path.join(optimization_output, "saved_model.pb"))
+            
+
 
 
 @pytest.mark.tensorflow

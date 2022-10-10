@@ -219,10 +219,10 @@ class TestImageClassificationCustomDataset:
                 shutil.rmtree(dir)
 
     @pytest.mark.pytorch
-    @pytest.mark.parametrize('model_name',
-                             ['efficientnet_b0',
-                              'resnet18'])
-    def test_custom_dataset_workflow(self, model_name):
+    @pytest.mark.parametrize('model_name,add_aug',
+                             [['efficientnet_b0', True],
+                              ['resnet18', False]])
+    def test_custom_dataset_workflow(self, model_name, add_aug):
         """
         Tests the full workflow for PYT image classification using a custom dataset
         """
@@ -237,7 +237,7 @@ class TestImageClassificationCustomDataset:
         model = model_factory.get_model(model_name, framework)
 
         # Preprocess the dataset and split to get small subsets for training and validation
-        dataset.preprocess(model.image_size, 32)
+        dataset.preprocess(model.image_size, 32, add_aug=add_aug)
         dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
 
         # Train for 1 epoch

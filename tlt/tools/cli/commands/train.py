@@ -76,8 +76,11 @@ import sys
               type=click.Path(dir_okay=True),
               help="Optional path to checkpoint weights to load to resume training. If the path provided is a "
                    "directory, the latest checkpoint from the directory will be used.")
+@click.option("--add-aug", "--add_aug",
+              is_flag=True,
+              help="Boolean option to include data augmentation during training.")
 def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimiter, class_names, dataset_name,
-          dataset_catalog, epochs, init_checkpoints):
+          dataset_catalog, epochs, init_checkpoints, add_aug):
     """
     Trains the model
     """
@@ -97,6 +100,8 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     if init_checkpoints:
         print("Initial checkpoints:", init_checkpoints)
         session_log["init_checkpoints"] = init_checkpoints
+    if add_aug:
+        session_log["add_aug"] = add_aug
     print("Dataset dir:", dataset_dir)
     session_log["dataset_dir"] = dataset_dir
     if dataset_file:
@@ -137,9 +142,15 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
         # TODO: get extra configs like batch size and maybe this doesn't need to be a separate call
         if framework in ['tensorflow', 'pytorch']:
             if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
-                dataset.preprocess(image_size=model.image_size, batch_size=32)
+                if framework == 'tensorflow':
+                    dataset.preprocess(image_size=model.image_size, batch_size=32)
+                else:
+                    dataset.preprocess(image_size=model.image_size, batch_size=32, add_aug=add_aug)
             else:
-                dataset.preprocess(batch_size=32)
+                if framework == 'tensorflow':
+                    dataset.preprocess(batch_size=32)
+                else:
+                    dataset.preprocess(batch_size=32, add_aug=add_aug)
             dataset.shuffle_split(seed=10)
     except Exception as e:
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "
@@ -147,7 +158,11 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
                                                                       dataset_name, dataset_catalog, str(e)))
     # Train the model using the dataset
     try:
-        model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints)
+        if framework == 'tensorflow':
+            model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
+                        add_aug=add_aug)
+        else:
+            model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints)
     except Exception as e:
         sys.exit("There was an error during model training:\n{}".format(str(e)))
     # Save the trained model

@@ -175,13 +175,14 @@ class PyTorchDataset(BaseDataset):
         else:
             self._test_loader = None
 
-    def preprocess(self, image_size='variable', batch_size=32):
+    def preprocess(self, image_size='variable', batch_size=32, add_aug=False):
         """
         Preprocess the dataset to resize, normalize, and batch the images
 
             Args:
                 image_size (int or 'variable'): desired square image size (if 'variable', does not alter image size)
                 batch_size (int): desired batch size (default 32)
+                add_aug (bool): Boolean specifying whether augmentations (RandomHorizontalFlip) should be applied on dataset.
             Raises:
                 ValueError if the dataset is not defined or has already been processed
         """
@@ -199,15 +200,17 @@ class PyTorchDataset(BaseDataset):
         if not image_size == 'variable' and not (isinstance(image_size, int) and image_size >= 1):
             raise ValueError("Input image_size must be either a positive int or 'variable'")
 
-        def get_transform(image_size):
+        def get_transform(image_size, add_aug):
             transforms = []
             if isinstance(image_size, int):
                 transforms.append(T.Resize([image_size, image_size]))
+            if add_aug:
+                transforms.append(T.RandomHorizontalFlip())
             transforms.append(T.ToTensor())
             transforms.append(T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]))
 
             return T.Compose(transforms)
 
-        self._dataset.transform = get_transform(image_size)
+        self._dataset.transform = get_transform(image_size, add_aug)
         self._make_data_loaders(batch_size=batch_size)
         self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
