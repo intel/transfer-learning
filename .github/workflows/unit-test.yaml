@@ -22,5 +22,7 @@ jobs:
       - name: Install virtualenv
         run: pip install virtualenv
       - name: Run Unit Test
+        shell: bash
+        continue-on-error: false
         run: make test
         
