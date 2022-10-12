@@ -219,10 +219,11 @@ class TestImageClassificationCustomDataset:
                 shutil.rmtree(dir)
 
     @pytest.mark.pytorch
-    @pytest.mark.parametrize('model_name,add_aug',
-                             [['efficientnet_b0', True],
-                              ['resnet18', False]])
-    def test_custom_dataset_workflow(self, model_name, add_aug):
+    @pytest.mark.parametrize('model_name,add_aug,ipex_optimize',
+                             [['efficientnet_b0', True, True],
+                              ['resnet18', False, True],
+                              ['resnet18', False, False]])
+    def test_custom_dataset_workflow(self, model_name, add_aug, ipex_optimize):
         """
         Tests the full workflow for PYT image classification using a custom dataset
         """
@@ -241,7 +242,7 @@ class TestImageClassificationCustomDataset:
         dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
 
         # Train for 1 epoch
-        model.train(dataset, output_dir=self._output_dir, epochs=1, do_eval=False, seed=10)
+        model.train(dataset, output_dir=self._output_dir, epochs=1, do_eval=False, seed=10, ipex_optimize=ipex_optimize)
 
         # Evaluate
         model.evaluate(dataset)
@@ -264,6 +265,19 @@ class TestImageClassificationCustomDataset:
         metrics = reload_model.evaluate(dataset)
         assert len(metrics) > 0
 
+        # Test benchmarking and quantization with non-IPEX ResNet18
+        if model_name == "resnet18" and not ipex_optimize:
+            inc_config_file_path = os.path.join(self._output_dir, "pyt_{}.yaml".format(model_name))
+            nc_workspace = os.path.join(self._output_dir, "nc_workspace")
+            model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, overwrite=True,
+                                        accuracy_criterion_relative=0.1, exit_policy_max_trials=10,
+                                        exit_policy_timeout=0, tuning_workspace=nc_workspace)
+            model.benchmark(saved_model_dir, inc_config_file_path, model_type='fp32')
+            quantization_output = os.path.join(self._output_dir, "quantized", model_name)
+            os.makedirs(quantization_output, exist_ok=True)
+            model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
+            assert os.path.exists(os.path.join(quantization_output, "model.pt"))
+            model.benchmark(quantization_output, inc_config_file_path, model_type='int8')
 
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name,epochs,lr,do_eval,lr_decay,final_lr,final_acc',
@@ -301,3 +315,4 @@ def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epoc
         assert model._lr_scheduler is None
 
     assert history['Acc'][-1] == final_acc
+

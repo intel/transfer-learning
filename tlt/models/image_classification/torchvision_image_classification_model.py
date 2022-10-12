@@ -102,7 +102,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         return self._model, self._optimizer
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, lr_decay=True, seed=None, extra_layers=None):
+              do_eval=True, lr_decay=True, seed=None, extra_layers=None, ipex_optimize=True):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -125,6 +125,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                     The input should be a list of integers representing the number and size of the layers,
                     for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the
                     second with 512 neurons.
+                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.
 
             Returns:
                 Trained PyTorch model object
@@ -147,13 +148,14 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         if dataset_num_classes != self.num_classes:
             self._model = None
 
-        # If are loading weights, the state dicts need to be loaded before calling ipex.optimize, so get the model
-        # from torchvision, but hold off on the ipex optimize call.
-        ipex_optimize = False if initial_checkpoints else True
-
         self._set_seed(seed)
 
-        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=ipex_optimize,
+        # IPEX optimization can be suppressed with input ipex_optimize=False or
+        # If are loading weights, the state dicts need to be loaded before calling ipex.optimize, so get the model
+        # from torchvision, but hold off on the ipex optimize call.
+        optimize = ipex_optimize and (False if initial_checkpoints else True)
+
+        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=optimize,
                                                            extra_layers=extra_layers)
 
         if initial_checkpoints:
@@ -162,7 +164,8 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
             # Call ipex.optimize now, since we didn't call it from _get_hub_model()
-            self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+            if ipex_optimize:
+                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
         self._fit(output_dir, dataset, epochs, do_eval, lr_decay)
 

@@ -182,7 +182,7 @@ class PyTorchDataset(BaseDataset):
             Args:
                 image_size (int or 'variable'): desired square image size (if 'variable', does not alter image size)
                 batch_size (int): desired batch size (default 32)
-                add_aug (bool): Boolean specifying whether augmentations (RandomHorizontalFlip) should be applied on dataset.
+                add_aug (bool): Boolean specifying whether augmentations (RandomHorizontalFlip) should be applied
             Raises:
                 ValueError if the dataset is not defined or has already been processed
         """

@@ -18,10 +18,12 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+import copy
 import os
 import time
 from tqdm import tqdm
 import dill
+import yaml
 
 import torch
 import intel_extension_for_pytorch as ipex
@@ -29,6 +31,8 @@ import intel_extension_for_pytorch as ipex
 from tlt.models.pytorch_model import PyTorchModel
 from tlt.models.image_classification.image_classification_model import ImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
+from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset \
+    import PyTorchCustomImageClassificationDataset
 from tlt.utils.file_utils import verify_directory
 from tlt.utils.types import FrameworkType, UseCaseType
 
@@ -188,7 +192,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, lr_decay=True, seed=None):
+              do_eval=True, lr_decay=True, seed=None, ipex_optimize=True):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -206,6 +210,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
                     is applied at the end of each epoch.
                 seed (int): Optionally set a seed for reproducibility.
+                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.
 
             Returns:
                 Trained PyTorch model object
@@ -228,9 +233,10 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             self._model.load_state_dict(checkpoint['model_state_dict'])
             self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
-        # Call ipex.optimize
         self._model.train()
-        self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+        # Call ipex.optimize
+        if ipex_optimize:
+            self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
         self._fit(output_dir, dataset, epochs, do_eval, lr_decay)
 
@@ -239,7 +245,6 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """
         Evaluate the accuracy of the model on a dataset.
-
         If there is a validation set, evaluation will be done on it (by default) or on the test set
         (by setting use_test_set=True). Otherwise, the entire non-partitioned dataset will be
         used for evaluation.
@@ -322,3 +327,273 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             return saved_model_dir
         else:
             raise ValueError("Unable to export the model, because it hasn't been trained yet")
+
+    def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False,
+                              resize_interpolation='bicubic', accuracy_criterion_relative=0.01, exit_policy_timeout=0,
+                              exit_policy_max_trials=50, tuning_random_seed=9527,
+                              tuning_workspace=''):
+        """
+        Writes an INC compatible config file to the specified path usings args from the specified dataset and
+        parameters.
+
+        Args:
+            config_file_path (str): Destination path on where to write the .yaml config file.
+            dataset (BaseDataset): A tlt dataset object
+            batch_size (int): Batch size to use for quantization and evaluation
+            overwrite (bool): Specify whether or not to overwrite the config_file_path, if it already exists
+                              (default: False)
+            resize_interpolation (str): Interpolation type. Select from: 'bilinear', 'nearest', 'bicubic'
+                                        (default: bicubic)
+            accuracy_criterion_relative (float): Relative accuracy loss (default: 0.01, which is 1%)
+            exit_policy_timeout (int): Tuning timeout in seconds (default: 0). Tuning processing finishes when the
+                                       timeout or max_trials is reached. A tuning timeout of 0 means that the tuning
+                                       phase stops when the accuracy criterion is met.
+            exit_policy_max_trials (int): Maximum number of tuning trials (default: 50). Tuning processing finishes when
+                                          the timeout or or max_trials is reached.
+            tuning_random_seed (int): Random seed for deterministic tuning (default: 9527).
+            tuning_workspace (dir): Path the INC nc_workspace folder. If the string is empty and the OUTPUT_DIR env var
+                                    is set, that output directory will be used. If the string is empty and the
+                                    OUTPUT_DIR env var is not set, the default INC nc_workspace location will be used.
+        Returns:
+            None
+        Raises:
+            FileExistsError if the config file already exists and overwrite is set to False.
+            ValueError if the parameters are not within the expected values
+            NotImplementedError if the dataset type is not TFCustomImageClassificationDataset.
+        """
+        if os.path.isfile(config_file_path) and not overwrite:
+            raise FileExistsError('A file already exists at: {}. Provide a new file path or set overwrite=True',
+                                  config_file_path)
+
+        # We can setup the a custom dataset to use the ImageFolder dataset option in INC.
+        # They don't have a PyTorch Dataset option, so for now, we only support custom datasets for quantization
+        if dataset is not PyTorchCustomImageClassificationDataset \
+                and type(dataset) != PyTorchCustomImageClassificationDataset:
+            raise NotImplementedError('quantization has only been implemented for PyTorch image classification models '
+                                      'with custom datasets')
+
+        if batch_size and not isinstance(batch_size, int) or batch_size < 1:
+            raise ValueError('Invalid value for batch size ({}). Expected a positive integer.'.format(batch_size))
+
+        if resize_interpolation not in ['bilinear', 'nearest', 'bicubic']:
+            raise ValueError('Invalid value for resize interpolation ({}). Expected one of the following values: '
+                             'bilinear, nearest, bicubic'.format(resize_interpolation))
+
+        if accuracy_criterion_relative and not isinstance(accuracy_criterion_relative, float) or \
+                not (0.0 <= accuracy_criterion_relative <= 1.0):
+            raise ValueError('Invalid value for the accuracy criterion ({}). Expected a float value between 0.0 '
+                             'and 1.0'.format(accuracy_criterion_relative))
+
+        if exit_policy_timeout and not isinstance(exit_policy_timeout, int) or exit_policy_timeout < 0:
+            raise ValueError('Invalid value for the exit policy timeout ({}). Expected a positive integer or 0.'.
+                             format(exit_policy_timeout))
+
+        if exit_policy_max_trials and not isinstance(exit_policy_max_trials, int) or exit_policy_max_trials < 1:
+            raise ValueError('Invalid value for max trials ({}). Expected an integer greater than 0.'.
+                             format(exit_policy_timeout))
+
+        if tuning_random_seed and not isinstance(tuning_random_seed, int) or tuning_random_seed < 0:
+            raise ValueError('Invalid value for tuning random seed ({}). Expected a positive integer.'.
+                             format(tuning_random_seed))
+
+        if not isinstance(tuning_workspace, str):
+            raise ValueError('Invalid value for the nc_workspace directory. Expected a string.')
+
+        # Get the image recognition INC template
+        config_template = ImageClassificationModel.get_inc_config_template_dict(self)
+
+        # Collect the different data loaders into a list, so that we can update them all the with the data transforms
+        dataloader_configs = []
+
+        # If tuning_workspace is undefined, use the OUTPUT_DIR, if the env var exists
+        if not tuning_workspace:
+            output_dir_env_var = os.getenv('OUTPUT_DIR', '')
+
+            if output_dir_env_var:
+                tuning_workspace = os.path.join(output_dir_env_var, 'nc_workspace')
+
+        print("tuning_workspace:", tuning_workspace)
+
+        if "quantization" in config_template.keys() and "calibration" in config_template["quantization"].keys() \
+                and "dataloader" in config_template["quantization"]["calibration"].keys():
+            dataloader_configs.append(config_template["quantization"]["calibration"]["dataloader"])
+
+        if "evaluation" in config_template.keys():
+            if "accuracy" in config_template["evaluation"].keys() and \
+                    "dataloader" in config_template["evaluation"]["accuracy"].keys():
+                dataloader_configs.append(config_template["evaluation"]["accuracy"]["dataloader"])
+            if "performance" in config_template["evaluation"].keys() and \
+                    "dataloader" in config_template["evaluation"]["performance"].keys():
+                dataloader_configs.append(config_template["evaluation"]["performance"]["dataloader"])
+
+        transform_config = {
+            "Resize": {
+                "size": self._image_size
+            },
+            "CenterCrop": {
+                "size": self._image_size
+            },
+            "ToTensor": {},
+            "Normalize": {
+                "mean": [0.485, 0.456, 0.406],
+                "std": [0.229, 0.224, 0.225]
+            }
+        }
+
+        del config_template["evaluation"]["accuracy"]["postprocess"]
+
+        config_template["quantization"]["approach"] = "post_training_dynamic_quant"
+
+        # Update the data loader configs
+        for dataloader_config in dataloader_configs:
+            # Set the transform configs for resizing and rescaling
+            dataloader_config["transform"] = copy.deepcopy(transform_config)
+
+            # Update dataset directory for the custom dataset
+            if "dataset" in dataloader_config.keys() and "ImageFolder" in dataloader_config["dataset"].keys():
+                dataloader_config["dataset"]["ImageFolder"]["root"] = dataset.dataset_dir
+
+            dataloader_config["batch_size"] = batch_size
+
+        if "tuning" in config_template.keys():
+            config_template["tuning"]["accuracy_criterion"]["relative"] = accuracy_criterion_relative
+
+            if exit_policy_timeout is None:
+                config_template["tuning"]["exit_policy"].pop('timeout', None)
+            else:
+                config_template["tuning"]["exit_policy"]["timeout"] = exit_policy_timeout
+
+            if exit_policy_max_trials is None:
+                config_template["tuning"]["exit_policy"].pop('max_trials', None)
+            else:
+                config_template["tuning"]["exit_policy"]["max_trials"] = exit_policy_max_trials
+
+            if tuning_random_seed is None:
+                config_template["tuning"].pop('random_seed', None)
+            else:
+                config_template["tuning"]["random_seed"] = tuning_random_seed
+
+            if tuning_workspace:
+                if "workspace" not in config_template["tuning"].keys():
+                    config_template["tuning"]["workspace"] = {}
+
+                config_template["tuning"]["workspace"]["path"] = tuning_workspace
+            else:
+                # No tuning_workspace is defined, so remove it from the config
+                if "workspace" in config_template["tuning"].keys():
+                    config_template["tuning"]["workspace"].pop("path", None)
+
+                    if len(config_template["tuning"]["workspace"].keys()) == 0:
+                        config_template["tuning"].pop("workspace", None)
+
+        # Create the directory where the file will be written, if it doesn't already exist
+        if not os.path.exists(os.path.dirname(config_file_path)):
+            os.makedirs(os.path.dirname(config_file_path))
+
+        # Write the config file
+        with open(config_file_path, "w") as config_file:
+            yaml.dump(config_template, config_file, sort_keys=False)
+
+    def quantize(self, saved_model_dir, output_dir, inc_config_path):
+        """
+        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
+        using the specified config file. The quantized model is written to the output directory.
+
+        Args:
+            saved_model_dir (str): Source directory for the model to quantize.
+            output_dir (str): Writable output directory to save the quantized model
+            inc_config_path (str): Path to an INC config file (.yaml)
+
+        Returns:
+            None
+
+        Raises:
+            NotADirectoryError if the model is not a directory
+            FileNotFoundError if a model.pt is not found in the model or if the inc_config_path file
+            is not found.
+            FileExistsError if the output_dir already has a model.pt file
+        """
+        # The saved model directory should exist and contain a model.pt file
+        if not os.path.isdir(saved_model_dir):
+            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
+        if not os.path.isfile(os.path.join(saved_model_dir, "model.pt")):
+            raise FileNotFoundError("The saved model directory ({}) should have a model.pt file".format(
+                saved_model_dir))
+
+        # Verify that the config file exists
+        if not os.path.isfile(inc_config_path):
+            raise FileNotFoundError("The config file was not found at: {}".format(inc_config_path))
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        else:
+            # Verify that the output directory doesn't already have a saved_model.pb file
+            if os.path.exists(os.path.join(output_dir, "model.pt")):
+                raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "model.pt"))
+
+        from neural_compressor.experimental import Quantization
+        from neural_compressor.utils.utility import set_backend
+        set_backend('pytorch')
+        quantizer = Quantization(inc_config_path)
+        quantizer.model = self._model
+        quantized_model = quantizer.fit()
+
+        # If quantization was successful, save the model
+        if quantized_model:
+            quantized_model.save(output_dir)
+            import subprocess
+            # Change the model filename from best_model.pt to model.pt to match our convention
+            p = subprocess.Popen(["mv", output_dir + "/best_model.pt", output_dir + "/model.pt"],
+                                 stdout=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+
+    def benchmark(self, saved_model_dir, inc_config_path, mode='performance', model_type='fp32'):
+        """
+        Use INC to benchmark the specified model for performance or accuracy. You must specify whether the
+        input model is fp32 or int8. IPEX int8 models are not supported yet.
+
+        Args:
+            saved_model_dir (str): Path to the directory where the saved model is located
+            inc_config_path (str): Path to an INC config file (.yaml)
+            mode (str): Performance or accuracy (defaults to performance)
+            model_type (str): Floating point (fp32) or quantized integer (int8) model type
+        Returns:
+            None
+        Raises:
+            NotADirectoryError if the saved_model_dir is not a directory
+            FileNotFoundError if a model.pt is not found in the saved_model_dir or if the inc_config_path file
+            is not found.
+            ValueError if an unexpected mode is provided
+        """
+        # The saved model directory should exist and contain a model.pt file
+        if not os.path.isdir(saved_model_dir):
+            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
+        if not os.path.isfile(os.path.join(saved_model_dir, "model.pt")):
+            raise FileNotFoundError("The saved model directory ({}) should have a model.pt file".format(
+                saved_model_dir))
+
+        # Validate mode
+        if mode not in ['performance', 'accuracy']:
+            raise ValueError("Invalid mode: {}. Expected mode to be 'performance' or 'accuracy'.".format(mode))
+
+        # Verify that the config file exists
+        if not os.path.isfile(inc_config_path):
+            raise FileNotFoundError("The config file was not found at: {}".format(inc_config_path))
+
+        from neural_compressor.experimental import Benchmark, common
+        from neural_compressor.utils.utility import set_backend
+
+        set_backend('pytorch')
+
+        if model_type == "fp32":
+            evaluator = Benchmark(inc_config_path)
+            evaluator.model = self._model
+            return evaluator(mode)
+        elif model_type == "int8":
+            try:
+                from neural_compressor.utils.pytorch import load
+                evaluator = Benchmark(inc_config_path)
+                evaluator.model = common.Model(load(os.path.join(saved_model_dir, 'model.pt'), self._model))
+                return evaluator(mode)
+            except AssertionError:
+                raise NotImplementedError("This model type is not yet supported by INC benchmarking")

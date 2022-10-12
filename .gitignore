@@ -11,4 +11,5 @@ build/
 docs/_build/
 nc_workspace
 _autosummary
+.coverage
 
