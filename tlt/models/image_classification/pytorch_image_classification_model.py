@@ -115,7 +115,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
         self._history = {}
         for epoch in range(epochs):
-            print(f'Epoch {epoch}/{epochs - 1}')
+            print(f'Epoch {epoch + 1}/{epochs}')
             print('-' * 10)
 
             # Training phase
@@ -155,7 +155,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 running_corrects = 0
 
                 with torch.no_grad():
-                    for inputs, labels in validation_data_loader:
+                    print("Performing Evaluation")
+                    for inputs, labels in tqdm(validation_data_loader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
                         outputs = self._model(inputs)
                         _, preds = torch.max(outputs, 1)
                         loss = self._loss(outputs, labels)

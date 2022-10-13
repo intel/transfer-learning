@@ -131,11 +131,12 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         validation_data = dataset.validation_subset if do_eval else None
 
         if add_aug:
-            data_augmentation = tf.keras.Sequential(
-                [tf.keras.layers.RandomFlip("horizontal_and_vertical",
-                                            input_shape=(self._image_size, self._image_size, 3), seed=seed),
-                 tf.keras.layers.RandomRotation(0.5, seed=seed),
-                 tf.keras.layers.RandomZoom(0.3, seed=seed)])
+
+            data_augmentation = tf.keras.Sequential([tf.keras.layers.RandomFlip("horizontal_and_vertical",
+                                                     input_shape=(self._image_size, self._image_size, 3), seed=seed),
+                                                     tf.keras.layers.RandomRotation(0.5, seed=seed),
+                                                     tf.keras.layers.RandomZoom(0.3, seed=seed)
+                                                     ])
             train_dataset = train_dataset.map(lambda x, y: (data_augmentation(x, training=True), y),
                                               num_parallel_calls=tf.data.AUTOTUNE)
 
