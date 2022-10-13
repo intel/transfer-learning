@@ -88,7 +88,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         """
         return self._num_classes
 
-    def _fit(self, output_dir, dataset, epochs, do_eval, lr_decay):
+    def _fit(self, output_dir, dataset, epochs, do_eval, early_stopping, lr_decay):
         """Main PyTorch training loop"""
         since = time.time()
 
@@ -108,6 +108,11 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         else:
             validation_data_loader = None
             validation_data_length = 0
+
+        # For early stopping, if enabled
+        patience = 10
+        trigger_time = 0
+        last_loss = 1.0
 
         if lr_decay:
             self._lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self._optimizer, factor=0.2, patience=5,
@@ -177,6 +182,19 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                     loss_acc_output += f' - LR: {lr:.4f}'
                     self._lr_scheduler.step(eval_epoch_loss)
 
+            if early_stopping:
+                if eval_epoch_loss >= last_loss:
+                    trigger_time += 1
+
+                    if trigger_time >= patience:
+                        # Stop Early
+                        print("Early stopping has been triggered after " + str(epoch) + " epochs.")
+                        break
+                else:
+                    trigger_time = 0
+
+                last_loss = eval_epoch_loss
+
             print(loss_acc_output)
 
         time_elapsed = time.time() - since
@@ -193,7 +211,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, lr_decay=True, seed=None, ipex_optimize=True):
+              do_eval=True, early_stopping=False, lr_decay=True, seed=None, ipex_optimize=True):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -207,6 +225,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
                     latest checkpoint will be used.
                 do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                early_stopping (bool): Enable early stopping if convergence is reached while training
                     at the end of each epoch.
                 lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
                     is applied at the end of each epoch.
@@ -239,7 +258,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         if ipex_optimize:
             self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
-        self._fit(output_dir, dataset, epochs, do_eval, lr_decay)
+        self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
 
         return self._history
 

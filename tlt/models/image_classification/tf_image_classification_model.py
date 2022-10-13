@@ -76,7 +76,8 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         """
         return self._num_classes
 
-    def _get_train_callbacks(self, dataset, output_dir, initial_checkpoints, do_eval, add_aug, lr_decay, seed):
+    def _get_train_callbacks(self, dataset, output_dir, initial_checkpoints, do_eval, early_stopping, add_aug,
+                             lr_decay, seed):
         self._optimizer = tf.keras.optimizers.Adam(learning_rate=self._learning_rate)
         self._model.compile(
             optimizer=self._optimizer,
@@ -102,6 +103,10 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         batch_stats_callback = CollectBatchStats()
 
         callbacks = [batch_stats_callback]
+
+        if early_stopping:
+            stop_early_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
+            callbacks.append(stop_early_callback)
 
         # Create a callback for generating checkpoints
         if self._generate_checkpoints:
@@ -147,8 +152,8 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         return callbacks, train_dataset, validation_data
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, lr_decay=True, enable_auto_mixed_precision=None, add_aug=False, shuffle_files=True,
-              seed=None):
+              do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
+              add_aug=False, shuffle_files=True, seed=None):
         """
         Trains the model using the specified image classification dataset. The model is compiled and trained for
         the specified number of epochs. If a path to initial checkpoints is provided, those weights are loaded before
@@ -162,6 +167,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
                 latest checkpoint will be used.
             do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
                     at the end of each epoch.
+            early_stopping (bool): Enable early stopping if convergence is reached while training
             lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
                     is applied at the end of each epoch.
             enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
@@ -203,7 +209,8 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         self.set_auto_mixed_precision(enable_auto_mixed_precision)
 
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
-                                                                    add_aug, lr_decay, seed)
+                                                                    early_stopping, add_aug, lr_decay, seed)
+
         history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
                                   validation_data=val_data)
         self._history = history.history

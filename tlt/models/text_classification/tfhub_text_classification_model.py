@@ -106,8 +106,8 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
         return self._model
 
     def train(self, dataset: TextClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, lr_decay=True, enable_auto_mixed_precision=None, shuffle_files=True, extra_layers=None,
-              seed=None):
+              do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
+              shuffle_files=True, extra_layers=None, seed=None):
         """
            Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is
            provided, those weights are loaded before training.
@@ -121,6 +121,8 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
                     latest checkpoint will be used.
                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                    at the end of each epoch.
+               early_stopping (bool): Enable early stopping if convergence is reached while training
                     at the end of each epoch.
                lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
                     is applied at the end of each epoch.
@@ -181,7 +183,7 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
         print("Num dataset classes: ", dataset_num_classes)
 
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
-                                                                    lr_decay, dataset_num_classes)
+                                                                    early_stopping, lr_decay, dataset_num_classes)
 
         history = self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=shuffle_files,
                                   callbacks=callbacks)

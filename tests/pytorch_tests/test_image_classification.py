@@ -280,12 +280,13 @@ class TestImageClassificationCustomDataset:
             model.benchmark(quantization_output, inc_config_file_path, model_type='int8')
 
 @pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,dataset_name,epochs,lr,do_eval,lr_decay,final_lr,final_acc',
-                         [['efficientnet_b0', 'CIFAR10', 10, 0.005, True, True, 0.001, 0.994],
-                          ['resnet18', 'CIFAR10', 1, 0.005, True, False, None, 0.28],
-                          ['efficientnet_b0', 'CIFAR10', 1, 0.001, False, False, None, 0.1992]])
-def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epochs, lr, do_eval, lr_decay, final_lr,
-                                                  final_acc):
+@pytest.mark.parametrize('model_name,dataset_name,epochs,lr,do_eval,early_stopping,lr_decay,final_lr,final_acc',
+                         [['efficientnet_b0', 'CIFAR10', 10, 0.005, True, False, True, 0.001, 0.994],
+                          ['resnet18', 'CIFAR10', 1, 0.005, True, False, False, None, 0.28],
+                          ['efficientnet_b0', 'CIFAR10', 1, 0.001, False, False, False, None, 0.1992],
+                          ['efficientnet_b0', 'CIFAR10', 10, 0.001, True, True, True, 0.0002, 0.8908]])
+def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epochs, lr, do_eval, early_stopping,
+                                                  lr_decay, final_lr, final_acc):
     """
     Tests transfer learning for PyTorch image classification models using learning rate options
     """
@@ -307,7 +308,8 @@ def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epoc
     assert dataset._validation_type == 'shuffle_split'
 
     # Train
-    history = model.train(dataset, output_dir=output_dir, epochs=epochs, do_eval=do_eval, lr_decay=lr_decay, seed=10)
+    history = model.train(dataset, output_dir=output_dir, epochs=epochs, do_eval=do_eval, early_stopping=early_stopping,
+                          lr_decay=lr_decay, seed=10)
 
     if final_lr:
         assert model._lr_scheduler.optimizer.param_groups[0]['lr'] == final_lr

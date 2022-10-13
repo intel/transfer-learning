@@ -315,14 +315,16 @@ class TestImageClassificationCustomDataset:
 
 
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,lr_decay,accuracy,val_accuracy,lr_final',
-                         [['efficientnet_b0', 'tf_flowers', 4, 0.001, False, False, 0.875, None, 0.001],
-                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, False, 0.875, 0.65625, 0.001],
-                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, True, 0.875, 0.65625, 0.001],
-                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, False, True, 0.875, None, 0.001],
-                          ['efficientnet_b0', 'tf_flowers', 16, 0.005, True, True, 1.0, 0.8125, 1.0000e-03]])
-def test_tf_image_classification_with_lr_options(model_name, dataset_name, epochs, learning_rate, do_eval, lr_decay,
-                                                 accuracy, val_accuracy, lr_final):
+@pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,early_stopping,lr_decay,accuracy,\
+                          val_accuracy,lr_final',
+                         [['efficientnet_b0', 'tf_flowers', 4, 0.001, False, False, False, 0.875, None, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, False, False, 0.875, 0.65625, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, False, True, 0.875, 0.65625, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, False, False, True, 0.875, None, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 16, 0.005, True, False, True, 1.0, 0.8125, 1.0000e-03],
+                          ['efficientnet_b0', 'tf_flowers', 25, 0.001, True, True, False, 1.0, 0.8125, 0.0002]])
+def test_tf_image_classification_with_lr_options(model_name, dataset_name, epochs, learning_rate, do_eval, early_stopping,
+                                                 lr_decay, accuracy, val_accuracy, lr_final):
     """
     Tests learning rate options
     """
@@ -345,7 +347,7 @@ def test_tf_image_classification_with_lr_options(model_name, dataset_name, epoch
 
     # Train
     history = model.train(dataset, output_dir=output_dir, epochs=epochs, shuffle_files=False, seed=10, do_eval=do_eval,
-                          lr_decay=lr_decay)
+                          early_stopping=early_stopping, lr_decay=lr_decay)
 
     assert history is not None
     assert history['acc'][-1] == accuracy

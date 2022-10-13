@@ -92,8 +92,8 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         return self._model
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, lr_decay=True, enable_auto_mixed_precision=None, add_aug=False, shuffle_files=True,
-              seed=None, extra_layers=None):
+              do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
+              add_aug=False, shuffle_files=True, seed=None, extra_layers=None):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
@@ -107,6 +107,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                 initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
                     latest checkpoint will be used.
                 do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                early_stopping (bool): Enable early stopping if convergence is reached while training
                     at the end of each epoch.
                 lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
                     is applied at the end of each epoch.
@@ -163,7 +164,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         self._model = self._get_hub_model(dataset_num_classes, extra_layers)
 
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
-                                                                    add_aug, lr_decay, seed)
+                                                                    early_stopping, add_aug, lr_decay, seed)
 
         history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
                                   validation_data=val_data)

@@ -67,7 +67,8 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
     def num_classes(self):
         return self._num_classes
 
-    def _get_train_callbacks(self, dataset, output_dir, initial_checkpoints, do_eval, lr_decay, dataset_num_classes):
+    def _get_train_callbacks(self, dataset, output_dir, initial_checkpoints, do_eval, early_stopping,
+                             lr_decay, dataset_num_classes):
         loss = tf.keras.losses.BinaryCrossentropy(from_logits=True) if dataset_num_classes == 2 else \
             tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
@@ -108,6 +109,10 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
 
         callbacks = [batch_stats_callback]
 
+        if early_stopping:
+            stop_early_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
+            callbacks.append(stop_early_callback)
+
         # Create a callback for generating checkpoints
         if self._generate_checkpoints:
             checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
@@ -134,7 +139,8 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         return callbacks, train_data, validation_data
 
     def train(self, dataset: TextClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, lr_decay=True, enable_auto_mixed_precision=None, shuffle_files=True, seed=None):
+              do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
+              shuffle_files=True, seed=None):
         """
            Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is
            provided, those weights are loaded before training.
@@ -149,6 +155,8 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
                     latest checkpoint will be used.
                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
                     at the end of each epoch.
+               early_stopping (bool): Enable early stopping if convergence is reached while training at the end of each
+                    epoch.
                lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
                     is applied at the end of each epoch.
                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
@@ -186,7 +194,7 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         self.set_auto_mixed_precision(enable_auto_mixed_precision)
 
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
-                                                                    lr_decay, dataset_num_classes)
+                                                                    early_stopping, lr_decay, dataset_num_classes)
 
         history = self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=shuffle_files,
                                   callbacks=callbacks)

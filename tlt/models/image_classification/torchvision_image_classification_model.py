@@ -102,7 +102,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         return self._model, self._optimizer
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, lr_decay=True, seed=None, extra_layers=None, ipex_optimize=True):
+              do_eval=True, early_stopping=False, lr_decay=True, seed=None, extra_layers=None, ipex_optimize=True):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -117,6 +117,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                     latest checkpoint will be used.
                 do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
                     at the end of each epoch.
+                early_stopping (bool): Enable early stopping if convergence is reached while training
                 lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
                     is applied at the end of each epoch.
                 seed (int): Optionally set a seed for reproducibility.
@@ -167,7 +168,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             if ipex_optimize:
                 self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
-        self._fit(output_dir, dataset, epochs, do_eval, lr_decay)
+        self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
 
         return self._history
 
