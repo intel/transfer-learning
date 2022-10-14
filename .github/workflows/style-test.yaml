@@ -4,9 +4,12 @@ on:
     types: [submitted]
   # run the workflow if changes pushed to main or release branches
   push:
-    branches: '**'
-    paths: '**'
-
+    branches:
+      - '**'
+    tags:
+      - '**'
+    paths:
+      - '**'
 # installs dependencies and runs the linter
 jobs:
   style-test:

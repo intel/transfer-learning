@@ -2,9 +2,20 @@ name: Test Notebooks
 on:
   pull_request_review:
     types: [submitted]
+  # run the workflow if changes pushed to main or release branches
+  push:
+    branches:
+      - main
+      - r0.1
+    tags:
+      - '**'
+    paths:
+      - '**'
 jobs:
   notebook-test:
-    if: github.event.review.state == 'approved'
+    if: github.event.review.state == 'approved' ||
+        github.event.pull_request.merged == true ||
+        github.event_name == 'push'
     runs-on: [ aia-devops ]
     container:
       image: amr-registry.caas.intel.com/aiops/tlt-dev
