@@ -318,3 +318,53 @@ def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epoc
 
     assert history['Acc'][-1] == final_acc
 
+@pytest.mark.pytorch
+def test_pyt_freeze():
+    """
+    Tests layer freezing functionality for PyTorch image classification models using a torchvision dataset
+    """
+    dataset_name = 'CIFAR10'
+    framework = 'pytorch'
+    layer_name = 'features'
+    model_name = 'efficientnet_b0'
+    output_dir = tempfile.mkdtemp()
+    os.environ["TORCH_HOME"] = output_dir
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, dataset_name,
+                                          'torchvision', split=["train"], shuffle_files=False)
+    # Get the model
+    model = model_factory.get_model(model_name, framework)
+
+    # Preprocess the dataset
+    dataset.preprocess(image_size='variable', batch_size=32)
+    dataset.shuffle_split(train_pct=0.05, val_pct=0.05, seed=10)
+
+    # Train
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
+
+    # Check that everything in the layer is unfrozen
+    model.unfreeze("features")
+
+    # Unfreeze everything in the layer
+    for (name, module) in model._model.named_children():
+        if name == layer_name:
+            for layer in module.children():
+                for param in layer.parameters():
+                    assert param.requires_grad is True
+
+    # Check that everything in the layer is frozen
+    model.freeze("features")
+
+    # Freeze everything in the layer
+    for (name, module) in model._model.named_children():
+        if name == layer_name:
+            for layer in module.children():
+                for param in layer.parameters():
+                    assert param.requires_grad is False
+
+    # Test functionality of ls_modules()
+    trainable_params = model.ls_modules()
+    assert trainable_params == 12810  # Number of trainable params in efficientnet_b0
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)

@@ -252,3 +252,90 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             predictions = self._model(input_samples)
         _, predicted_ids = torch.max(predictions, 1)
         return predicted_ids
+
+    def ls_modules(self, verbose=False):
+        """
+        Lists all of the modules (e.g. features, avgpool, or classifier) and layers
+        (ReLU, MaxPool2d, Dropout, Linear, etc) in a given PyTorch model
+        Args:
+            verbose (bool): True/False option set by default to be False, displays only a high-level
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be summarized.')
+        else:
+            model = self._model
+
+        if verbose:
+            # Display a detailed summary of the entire model
+            print("\nDisplaying detailed model summary:\n")
+            print(model)
+
+            # Display all of the top level modules as well as their submodules
+            print("\nDisplaying module and submodule names:\n")
+            for (name, module) in model.named_modules():
+                print(name)
+
+        # Display a high-level list of the modules e.g. features, avgpool, classifier
+        print("\nDisplaying top level module names:\n")
+        num_params = 0  # Track the number of params in each layer
+        frozen = '(frozen)'  # Check if the layer contains trainable params
+        for (name, module) in model.named_children():
+            for layer in module.children():
+                for param in layer.parameters():
+                    num_params += 1
+                    if param.requires_grad:
+                        frozen = '(trainable / unfrozen - freeze to make untrainable)'
+                    else:
+                        frozen = '(untrainable / frozen - unfreeze to make trainable)'
+            if num_params == 0:
+                frozen = '(not trainable)'
+            print('{} - {} parameters {}'.format(name, num_params, frozen))
+            num_params = 0
+
+        trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        print('Trainable parameters:', trainable_params)
+
+        return trainable_params
+
+    def freeze(self, layer_name):
+        """
+        Freezes the model's layer using a layer name
+        Args:
+            layer_name (string): The layer name that will be frozen in the model
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be summarized.')
+        else:
+            model = self._model
+
+        # Freeze everything in the layer
+        for (name, module) in model.named_children():
+            if name == layer_name:
+                for layer in module.children():
+                    for param in layer.parameters():
+                        param.requires_grad = False
+
+        return
+
+    def unfreeze(self, layer_name):
+        """
+        Unfreezes the model's layer using a layer name
+        Args:
+            layer_name (string): The layer name that will be frozen in the model
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be summarized.')
+        else:
+            model = self._model
+
+        # Unfreeze everything in the layer
+        for (name, module) in model.named_children():
+            if name == layer_name:
+                for layer in module.children():
+                    for param in layer.parameters():
+                        param.requires_grad = True
+
+        return
