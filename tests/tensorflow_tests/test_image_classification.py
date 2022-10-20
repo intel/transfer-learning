@@ -235,8 +235,8 @@ class TestImageClassificationCustomDataset:
 
     @pytest.mark.tensorflow
     @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy,add_aug',
-                             [['efficientnet_b0', 0.6875, 0.78125, False],
-                              ['resnet_v1_50', 0.59375, 0.6875, False]])
+                             [['efficientnet_b0', 0.9375, 0.9375, False],
+                              ['resnet_v1_50', 1.0, 1.0, False]])
     def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy, add_aug):
         """
         Tests the full workflow for TF image classification using a custom dataset
@@ -245,7 +245,8 @@ class TestImageClassificationCustomDataset:
         use_case = 'image_classification'
 
         # Get the dataset
-        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework)
+        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework,
+                                               shuffle_files=False)
         assert ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips'] == dataset.class_names
 
         # Get the model
