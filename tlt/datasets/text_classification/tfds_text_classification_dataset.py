@@ -32,7 +32,7 @@ class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
     """
     Base class for a text classification dataset from the TensorFlow datasets catalog
     """
-    def __init__(self, dataset_dir, dataset_name, split=["train"], shuffle_files=True):
+    def __init__(self, dataset_dir, dataset_name, split=["train"], shuffle_files=False):
         if not isinstance(split, list):
             raise ValueError("Value of split argument must be a list.")
 

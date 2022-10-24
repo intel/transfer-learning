@@ -31,7 +31,7 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
     """
     An image classification dataset from the torchvision catalog
     """
-    def __init__(self, dataset_dir, dataset_name, split=['train'], download=True, num_workers=0, shuffle_files=True):
+    def __init__(self, dataset_dir, dataset_name, split=['train'], download=True, num_workers=0, shuffle_files=False):
         """
         Class constructor
         """

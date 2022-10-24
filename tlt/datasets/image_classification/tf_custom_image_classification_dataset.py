@@ -44,7 +44,7 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         dataset_name (str): optional; Name of the dataset. If no dataset name is given, the dataset_dir folder name
                             will be used as the dataset name.
         color_mode (str): optional; Specify the color mode as "greyscale", "rgb", or "rgba". Defaults to "rgb".
-        shuffle_files (bool): optional; Whether to shuffle the data. Defaults to True.
+        shuffle_files (bool): optional; Whether to shuffle the data. Defaults to False.
         seed (int): optional; Random seed for shuffling
 
     Raises:
@@ -52,7 +52,7 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
 
     """
 
-    def __init__(self, dataset_dir, dataset_name=None, color_mode="rgb", shuffle_files=True, seed=None):
+    def __init__(self, dataset_dir, dataset_name=None, color_mode="rgb", shuffle_files=False, seed=None):
         """
         Class constructor
         """
