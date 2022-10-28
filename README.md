@@ -17,8 +17,8 @@
 
 Requirements:
 * Linux system (or WSL2 on Windows)
+* Python3 (3.7, 3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
 * git
-* python3
 * `apt-get install build-essential python3-dev`
 * To run use quantization functions: `apt-get install libgl1 libglib2.0-0`
 
@@ -31,7 +31,7 @@ Requirements:
 
 1. Create and activate a Python3 virtual environment using `virtualenv`:
    ```
-   python3 -m virtualenv tlt_env
+   virtualenv -p python3 tlt_env
    source tlt_env/bin/activate
    ```
 

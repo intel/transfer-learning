@@ -5,7 +5,7 @@ Use the instructions below to install the dependencies required to run the
 
 System Requirements:
 * Ubuntu 20.04
-* Python 3.7, 3.8, 3.9, or 3.10
+* Python3 (3.7, 3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
 * git
 
 ## Build and Install Intel® Transfer Learning Tool
@@ -24,7 +24,7 @@ the native framework notebooks.
 
    You can use virtualenv:
    ```
-   python3 -m venv intel-pyt-venv
+   virtualenv -p python3 intel-pyt-venv
    source intel-pyt-venv/bin/activate
    ```
    Or Anaconda:
@@ -69,7 +69,7 @@ the native framework notebooks.
 
    You can use virtualenv:
    ```
-   python3 -m venv intel-tf-venv
+   virtualenv -p python3 intel-tf-venv
    source intel-tf-venv/bin/activate
    ```
    Or Anaconda:

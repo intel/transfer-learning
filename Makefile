@@ -27,7 +27,7 @@ ACTIVATE_NOTEBOOK = $(ACTIVATE_TEST)
 
 venv_test: $(CURDIR)/tests/requirements-test.txt
 	@echo "Creating a virtualenv tlt_tests..."
-	@test -d tlt_tests || virtualenv -p python tlt_tests
+	@test -d tlt_tests || virtualenv -p python3 tlt_tests
 
 	@echo "Building the TLT API in tlt_tests env..."
 	@. $(ACTIVATE_TEST) && pip install --editable .[tensorflow,pytorch]
