@@ -36,8 +36,8 @@ from tlt.utils.file_utils import download_and_extract_tar_file
 @pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
                          [['efficientnet_b0', 'CIFAR10', None, 2],
                           ['resnet18', 'CIFAR10', None, 1],
-                         ['efficientnet_b0', 'CIFAR10', [1024, 512], 6],
-                         ['resnet18', 'CIFAR10', [1024, 512], 5]])
+                          ['efficientnet_b0', 'CIFAR10', [1024, 512], 6],
+                          ['resnet18', 'CIFAR10', [1024, 512], 5]])
 def test_pyt_image_classification(model_name, dataset_name, extra_layers, correct_num_layers):
     """
     Tests basic transfer learning functionality for PyTorch image classification models using a torchvision dataset
@@ -64,7 +64,7 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
 
     # Train
     model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers, seed=10)
-    if(isinstance(list(model._model.children())[-1], torch.nn.modules.linear.Linear)):
+    if isinstance(list(model._model.children())[-1], torch.nn.modules.linear.Linear):
         # when this is true, number of initial layers is 1
         assert correct_num_layers == 1
     else:
@@ -93,7 +93,7 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
     assert reload_metrics == trained_metrics
 
     # Ensure we get not implemented errors for graph_optimization
-    with pytest.raises(NotImplementedError) as e:
+    with pytest.raises(NotImplementedError):
         model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
 
     # Delete the temp output directory
@@ -102,7 +102,7 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
 
     # Ensure we get not implemented errors for quantization
     inc_config_file_path = os.path.join(output_dir, "pytorch_{}.yaml".format(model_name))
-    with pytest.raises(NotImplementedError) as e:
+    with pytest.raises(NotImplementedError):
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32)
 
 
@@ -178,7 +178,7 @@ def test_pyt_image_classification_custom_model():
     assert reload_metrics == trained_metrics
 
     # Ensure we get not implemented errors for graph_optimization
-    with pytest.raises(NotImplementedError) as e:
+    with pytest.raises(NotImplementedError):
         model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
 
     # Delete the temp output directory
@@ -187,7 +187,7 @@ def test_pyt_image_classification_custom_model():
 
     # Ensure we get not implemented errors for quantization
     inc_config_file_path = os.path.join(output_dir, "pytorch_{}.yaml".format('custom_model'))
-    with pytest.raises(NotImplementedError) as e:
+    with pytest.raises(NotImplementedError):
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32)
 
 
@@ -231,7 +231,8 @@ class TestImageClassificationCustomDataset:
         use_case = 'image_classification'
 
         # Get the dataset
-        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework, shuffle_files=False)
+        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework,
+                                               shuffle_files=False)
         assert ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips'] == dataset.class_names
 
         # Get the model
@@ -279,6 +280,7 @@ class TestImageClassificationCustomDataset:
             assert os.path.exists(os.path.join(quantization_output, "model.pt"))
             model.benchmark(quantization_output, inc_config_file_path, model_type='int8')
 
+
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name,epochs,lr,do_eval,early_stopping,lr_decay,final_lr,final_acc',
                          [['efficientnet_b0', 'CIFAR10', 10, 0.005, True, False, True, 0.001, 0.994],
@@ -317,6 +319,7 @@ def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epoc
         assert model._lr_scheduler is None
 
     assert history['Acc'][-1] == final_acc
+
 
 @pytest.mark.pytorch
 def test_pyt_freeze():

@@ -40,6 +40,12 @@ except ModuleNotFoundError as e:
     print("WARNING: Unable to import TorchvisionImageClassificationModel and TorchvisionImageClassificationDataset. "
           "Torch may not be installed")
 
+try:
+    from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset
+except ModuleNotFoundError:
+    print("WARNING: Unable to import HFTextClassificationDataset. HuggingFace's `tranformers` API may not be installed \
+           in the current env")
+
 
 @pytest.mark.pytorch
 def test_torchvision_efficientnet_b0():
@@ -142,45 +148,45 @@ def test_torchvision_efficientnet_b0_train():
     """
     model = model_factory.get_model('efficientnet_b0', 'pytorch')
     model._generate_checkpoints = False
-    
+
     with patch('tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset') \
             as mock_dataset:
         with patch('tlt.models.image_classification.torchvision_image_classification_model.'
                    'TorchvisionImageClassificationModel._get_hub_model') as mock_get_hub_model:
-                mock_dataset.train_subset = [1, 2, 3]
-                mock_dataset.validation_subset = [4, 5, 6]
-                mock_dataset.__class__ = TorchvisionImageClassificationDataset
-                mock_model = MagicMock()
-                mock_optimizer = MagicMock()
-                expected_return_value_model = mock_model
-                expected_return_value_history_val = {'Acc': [0.0], 'Loss': [0.0], 'Val Acc': [0.0], 'Val Loss': [0.0]}
-                expected_return_value_history_no_val = {'Acc': [0.0], 'Loss': [0.0]}
+            mock_dataset.train_subset = [1, 2, 3]
+            mock_dataset.validation_subset = [4, 5, 6]
+            mock_dataset.__class__ = TorchvisionImageClassificationDataset
+            mock_model = MagicMock()
+            mock_optimizer = MagicMock()
+            expected_return_value_model = mock_model
+            expected_return_value_history_val = {'Acc': [0.0], 'Loss': [0.0], 'Val Acc': [0.0], 'Val Loss': [0.0]}
+            expected_return_value_history_no_val = {'Acc': [0.0], 'Loss': [0.0]}
 
-                def mock_to(device):
-                    assert device == torch.device("cpu")
-                    return expected_return_value_model
+            def mock_to(device):
+                assert device == torch.device("cpu")
+                return expected_return_value_model
 
-                def mock_train():
-                    return None 
+            def mock_train():
+                return None
 
-                mock_model.to = mock_to
-                mock_model.train = mock_train
-                mock_get_hub_model.return_value = (mock_model, mock_optimizer)
+            mock_model.to = mock_to
+            mock_model.train = mock_train
+            mock_get_hub_model.return_value = (mock_model, mock_optimizer)
 
-                # Train and eval (eval should be called)
-                return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, lr_decay=False)
-                assert return_val == expected_return_value_history_val
-                mock_model.eval.assert_called_once()
+            # Train and eval (eval should be called)
+            return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, lr_decay=False)
+            assert return_val == expected_return_value_history_val
+            mock_model.eval.assert_called_once()
 
-                # Train without eval (eval should not be called)
-                mock_model.eval.reset_mock()
-                return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=False, lr_decay=False)
-                assert return_val == expected_return_value_history_no_val
-                mock_model.eval.assert_not_called()
+            # Train without eval (eval should not be called)
+            mock_model.eval.reset_mock()
+            return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=False, lr_decay=False)
+            assert return_val == expected_return_value_history_no_val
+            mock_model.eval.assert_not_called()
 
-                # Try to train with eval, but no validation subset (eval should not be called)
-                mock_dataset.validation_subset = None
-                mock_model.eval.reset_mock()
-                return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, lr_decay=False)
-                assert return_val == expected_return_value_history_no_val
-                mock_model.eval.assert_not_called()
+            # Try to train with eval, but no validation subset (eval should not be called)
+            mock_dataset.validation_subset = None
+            mock_model.eval.reset_mock()
+            return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, lr_decay=False)
+            assert return_val == expected_return_value_history_no_val
+            mock_model.eval.assert_not_called()

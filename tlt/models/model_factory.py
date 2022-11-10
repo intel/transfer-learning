@@ -48,6 +48,10 @@ model_map = {
                             "class": "TorchvisionImageClassificationModel"},
             "Custom": {"module": "tlt.models.image_classification.pytorch_image_classification_model",
                        "class": "PyTorchImageClassificationModel"}
+        },
+        UseCaseType.TEXT_CLASSIFICATION: {
+            "huggingface": {"module": "tlt.models.text_classification.hf_text_classification_model",
+                            "class": "HFTextClassificationModel"},
         }
     }
 }
@@ -170,7 +174,7 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
     # Read configs into the models dictionary
     for config_file in [x for x in os.listdir(config_directory) if os.path.isfile(os.path.join(config_directory, x))]:
         # Figure out which framework this config is, and filter it out, if necessary
-        config_framework = FrameworkType.PYTORCH if 'torch' in config_file else FrameworkType.TENSORFLOW
+        config_framework = FrameworkType.TENSORFLOW if 'tf' in config_file else FrameworkType.PYTORCH
 
         if framework is not None and framework != config_framework:
             continue

@@ -31,14 +31,20 @@ from tlt.datasets.dataset_factory import get_dataset, load_dataset
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
     from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset
-except ModuleNotFoundError as e:
+except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageClassificationDataset. Torch may not be installed")
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
     from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset
-except ModuleNotFoundError as e:
+except ModuleNotFoundError:
     print("WARNING: Unable to import PyTorchCustomImageClassificationDataset. Torch may not be installed")
+
+try:
+    from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset
+except ModuleNotFoundError:
+    print("WARNING: Unable to import HFTextClassificationDataset. HuggingFace's 'tranformers' API may not be installed \
+            in the current env")
 
 
 @pytest.mark.pytorch
@@ -49,6 +55,7 @@ def test_torchvision_subset():
     data = get_dataset('/tmp/data', 'image_classification', 'pytorch', 'CIFAR10', 'torchvision', split=["test"])
     assert type(data) == TorchvisionImageClassificationDataset
     assert len(data.dataset) < 50000
+
 
 @pytest.mark.pytorch
 def test_defined_split():
@@ -73,6 +80,7 @@ def test_defined_split():
     assert len(data.test_subset) == 12000
     assert data._validation_type == 'shuffle_split'
 
+
 @pytest.mark.pytorch
 def test_shuffle_split():
     """
@@ -84,6 +92,7 @@ def test_shuffle_split():
     assert len(data.validation_subset) == 12500
     assert data.test_subset is None
     assert data._validation_type == 'shuffle_split'
+
 
 @pytest.mark.pytorch
 def test_shuffle_split_deterministic_tv():
@@ -177,7 +186,7 @@ def test_batching_error(dataset_dir, dataset_name, dataset_catalog, class_names)
         with pytest.raises(Exception) as e:
             tlt_dataset.preprocess(256, 32)
         assert 'Data has already been preprocessed: {}'.\
-                   format(tlt_dataset._preprocessed) == str(e.value)
+            format(tlt_dataset._preprocessed) == str(e.value)
     finally:
         ic_dataset.cleanup()
 
@@ -232,6 +241,7 @@ class ImageClassificationDatasetForTest:
             print("Deleting temp directory:", self._dataset_dir)
             shutil.rmtree(self._dataset_dir)
             # TODO: Should we delete torchvision directories too?
+
 
 # Metadata about torchvision datasets
 torchvision_metadata = {
@@ -365,7 +375,118 @@ class TestImageClassificationDataset:
         dataset_size = dataset_size / tlt_dataset.info['preprocessing_info']['batch_size']
 
         # The PyTorch loaders are what gets batched and they can be off by 1 from the floor value
-        assert math.floor(dataset_size * default_train_pct) <= len(tlt_dataset.train_loader) <= math.ceil(dataset_size * default_train_pct)
-        assert math.floor(dataset_size * default_val_pct) <= len(tlt_dataset.validation_loader) <= math.ceil(dataset_size * default_val_pct)
+        assert math.floor(
+            dataset_size * default_train_pct) <= len(tlt_dataset.train_loader) <= math.ceil(dataset_size * default_train_pct)
+        assert math.floor(
+            dataset_size * default_val_pct) <= len(tlt_dataset.validation_loader) <= math.ceil(dataset_size * default_val_pct)
         assert tlt_dataset.test_loader is None
         assert tlt_dataset._validation_type == 'shuffle_split'
+
+# =======================================================================================
+
+# Testing for Text classification use case
+
+
+hf_metadata = {
+    'imdb': {
+        'class_names': ['neg', 'pos'],
+        'size': 25000
+    }
+}
+
+
+class TextClassificationDatasetForTest:
+    def __init__(self, dataset_dir, dataset_name=None, dataset_catalog=None, class_names=None):
+        """
+        This class wraps initialization for text classification datasets from Hugging Face.
+
+        For a text classification dataset from Hugging Face catalog, provide the dataset_dir, dataset_name, and \
+        dataset_catalog. The dataset factory will be used to load the specified dataset.
+        """
+        use_case = 'text_classification'
+        framework = 'pytorch'
+
+        if dataset_name and dataset_catalog:
+            self._dataset_catalog = dataset_catalog
+            self._tlt_dataset = get_dataset(dataset_dir, use_case, framework, dataset_name, dataset_catalog)
+
+        self._dataset_dir = dataset_dir
+
+    @property
+    def tlt_dataset(self):
+        """
+        Returns the tlt dataset object
+        """
+        return self._tlt_dataset
+
+
+# Dataset parameters used to define datasets that will be initialized and tested using TestTextClassificationDataset
+# The parameters are: dataset_dir, dataset_name, dataset_catalog, dataset_classes which map to the constructor
+# parameters for TextClassificationDatasetForTest, which initializes the dataset using the dataset factory.
+dataset_params = [("/tmp/data", "imdb", "huggingface", ['neg', 'pos'])]
+
+
+@pytest.fixture(scope="class", params=dataset_params)
+def text_classification_data(request):
+    params = request.param
+
+    tc_dataset = TextClassificationDatasetForTest(*params)
+
+    dataset_dir, dataset_name, dataset_catalog, class_names = params
+
+    # Return the tlt dataset along with metadata that tests might need
+    return (tc_dataset.tlt_dataset, dataset_dir, dataset_name, dataset_catalog, class_names)
+
+
+@pytest.mark.pytorch
+class TestTextClassificationDataset:
+    """
+    This class contains text classification dataset tests that only require the dataset to be initialized once. These
+    tests will be run once for each of the datasets defined in the dataset_params list.
+    """
+
+    @pytest.mark.pytorch
+    def test_tlt_dataset(self, text_classification_data):
+        """
+        Tests whether a matching TLT dataset object is returned
+        """
+        tlt_dataset, _, _, _, _ = text_classification_data
+        assert type(tlt_dataset) == HFTextClassificationDataset
+
+    @pytest.mark.pytorch
+    def test_class_names_and_size(self, text_classification_data):
+        """
+        Verify the class type, dataset class names, and dataset length after initializaion
+        """
+        tlt_dataset, _, dataset_name, _, class_names = text_classification_data
+        assert tlt_dataset.class_names == class_names
+        assert len(tlt_dataset.dataset) == hf_metadata[dataset_name]['size']
+
+    @pytest.mark.pytorch
+    @pytest.mark.parametrize('batch_size',
+                             ['foo',  # A string
+                              -17,  # A negative int
+                              20.5,  # A float
+                              ])
+    def test_invalid_batch_size_type(self, batch_size, text_classification_data):
+        """
+        Ensures that a ValueError is raised when an invalid batch size type is passed
+        """
+        tlt_dataset, _, _, _, _ = text_classification_data
+        with pytest.raises(ValueError):
+            tlt_dataset.preprocess('', batch_size)
+
+    @pytest.mark.pytorch
+    def test_shuffle_split_errors(self, text_classification_data):
+        """
+        Checks that splitting into train, validation, and test subsets will error if inputs are wrong
+        """
+        tlt_dataset, _, _, _, _ = text_classification_data
+        with pytest.raises(ValueError) as sum_err_message:
+            tlt_dataset.shuffle_split(train_pct=.5, val_pct=.5, test_pct=.2)
+
+        with pytest.raises(ValueError) as float_err_message:
+            tlt_dataset.shuffle_split(train_pct=1, val_pct=0)
+
+        assert 'Sum of percentage arguments must be less than or equal to 1.' == str(sum_err_message.value)
+        assert 'Percentage arguments must be floats.' == str(float_err_message.value)

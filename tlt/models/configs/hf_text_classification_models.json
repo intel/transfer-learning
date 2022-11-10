@@ -1,0 +1,17 @@
+{
+    "bert-base-cased": {
+        "model_hub": "huggingface",
+        "hub_name": "bert-base-cased",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "distilbert-base-uncased": {
+        "model_hub": "huggingface",
+        "hub_name": "distilbert-base-uncased",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "clinical-bert": {
+        "model_hub": "huggingface",
+        "hub_name": "emilyalsentzer/Bio_ClinicalBERT",
+        "original_dataset": "Publicly Available Clinical BERT Embeddings"
+    }
+}

@@ -43,6 +43,10 @@ dataset_map = {
                             "class": "TorchvisionImageClassificationDataset"},
             "custom": {"module": "tlt.datasets.image_classification.pytorch_custom_image_classification_dataset",
                        "class": "PyTorchCustomImageClassificationDataset"}
+        },
+        UseCaseType.TEXT_CLASSIFICATION: {
+            "huggingface": {"module": "tlt.datasets.text_classification.hf_text_classification_dataset",
+                            "class": "HFTextClassificationDataset"}
         }
     }
 }
@@ -118,7 +122,7 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
 
 
 def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkType,
-                dataset_name=None, dataset_catalog=None, **kwargs):
+                dataset_name: str = None, dataset_catalog: str = None, **kwargs):
     """
     A factory method for using a dataset from a catalog.
 
@@ -130,7 +134,7 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
         dataset_catalog (str): optional; catalog from which to download the dataset. If a dataset name is
                                provided and no dataset catalog is given, it will default to use tf_datasets
                                for a TensorFlow model, torchvision for PyTorch CV models, and huggingface
-                               datasets for HuggingFace models.
+                               datasets for PyTorch NLP models or HuggingFace models.
         **kwargs: optional; additional keyword arguments for the framework or dataset_catalog
 
     Returns:
@@ -156,13 +160,11 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
         # Try to assume a dataset catalog based on the other information that we have
         if framework is FrameworkType.TENSORFLOW:
             dataset_catalog = "tf_datasets"
-        elif framework is FrameworkType.PYTORCH and \
-                use_case in [UseCaseType.IMAGE_CLASSIFICATION, UseCaseType.OBJECT_DETECTION]:
-            dataset_catalog = "torchvision"
-        else:
-            dataset_catalog = "huggingface"
-
-        print("Using dataset catalog '{}', since no dataset catalog was specified".format(dataset_catalog))
+        elif framework is FrameworkType.PYTORCH:
+            if use_case in [UseCaseType.IMAGE_CLASSIFICATION, UseCaseType.OBJECT_DETECTION]:
+                dataset_catalog = "torchvision"
+            elif use_case is UseCaseType.TEXT_CLASSIFICATION:
+                dataset_catalog = "huggingface"
 
     if framework in dataset_map.keys():
         if use_case in dataset_map[framework].keys():
