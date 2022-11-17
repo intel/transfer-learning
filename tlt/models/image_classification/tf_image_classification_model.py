@@ -219,13 +219,16 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         return self._model.evaluate(eval_dataset)
 
-    def predict(self, input_samples):
+    def predict(self, input_samples, return_scores=False):
         """
-        Perform feed-forward inference and predict the classes of the input_samples
+        Perform feed-forward inference and predict the classes of the input_samples.
+
+        Use return_scores=True for full probability vectors, or just the highest scoring classes will be returned.
         """
         predictions = self._model.predict(input_samples)
-        predicted_ids = np.argmax(predictions, axis=-1)
-        return predicted_ids
+        if not return_scores:
+            return np.argmax(predictions, axis=-1)
+        return predictions
 
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False,
                               resize_interpolation='bicubic', accuracy_criterion_relative=0.01, exit_policy_timeout=0,

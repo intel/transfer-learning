@@ -238,9 +238,11 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
         return [epoch_loss, epoch_acc]
 
-    def predict(self, input_samples):
+    def predict(self, input_samples, return_scores=False):
         """
-        Perform feed-forward inference and predict the classes of the input_samples
+        Perform feed-forward inference and predict the classes of the input_samples.
+
+        Use return_scores=True for full probability vectors, or just the highest scoring classes will be returned.
         """
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
@@ -250,8 +252,10 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         else:
             self._model.eval()
             predictions = self._model(input_samples)
-        _, predicted_ids = torch.max(predictions, 1)
-        return predicted_ids
+        if not return_scores:
+            _, predicted_ids = torch.max(predictions, 1)
+            return predicted_ids
+        return predictions
 
     def ls_modules(self, verbose=False):
         """

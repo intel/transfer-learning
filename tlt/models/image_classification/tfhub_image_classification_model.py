@@ -202,9 +202,11 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         else:
             return self._model.evaluate(eval_dataset)
 
-    def predict(self, input_samples):
+    def predict(self, input_samples, return_scores=False):
         """
-        Perform feed-forward inference and predict the classes of the input_samples
+        Perform feed-forward inference and predict the classes of the input_samples.
+
+        Use return_scores=True for full probability vectors, or just the highest scoring classes will be returned.
         """
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
@@ -214,5 +216,6 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
             predictions = original_model.predict(input_samples)
         else:
             predictions = self._model.predict(input_samples)
-        predicted_ids = np.argmax(predictions, axis=-1)
-        return predicted_ids
+        if not return_scores:
+            return np.argmax(predictions, axis=-1)
+        return predictions

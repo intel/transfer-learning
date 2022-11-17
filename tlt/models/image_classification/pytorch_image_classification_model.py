@@ -318,14 +318,18 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
         return [epoch_loss, epoch_acc]
 
-    def predict(self, input_samples):
+    def predict(self, input_samples, return_scores=False):
         """
-        Perform feed-forward inference and predict the classes of the input_samples
+        Perform feed-forward inference and predict the classes of the input_samples.
+
+        Use return_scores=True for full probability vectors, or just the highest scoring classes will be returned.
         """
         self._model.eval()
         predictions = self._model(input_samples)
-        _, predicted_ids = torch.max(predictions, 1)
-        return predicted_ids
+        if not return_scores:
+            _, predicted_ids = torch.max(predictions, 1)
+            return predicted_ids
+        return predictions
 
     def export(self, output_dir):
         """

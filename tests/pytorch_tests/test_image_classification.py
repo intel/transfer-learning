@@ -78,6 +78,8 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
     images, labels = dataset.get_batch()
     predictions = model.predict(images)
     assert len(predictions) == 32
+    prediction_scores = model.predict(images, return_scores=True)
+    assert prediction_scores.shape == torch.Size([32, 10])  # CIFAR has 10 classes
 
     # Export the saved model
     saved_model_dir = model.export(output_dir)
@@ -164,6 +166,8 @@ def test_pyt_image_classification_custom_model():
     images, labels = dataset.get_batch()
     predictions = model.predict(images)
     assert len(predictions) == 32
+    prediction_scores = model.predict(images, return_scores=True)
+    assert prediction_scores.shape == torch.Size([32, 10])  # CIFAR has 10 classes
 
     # Export the saved model
     saved_model_dir = model.export(output_dir)
