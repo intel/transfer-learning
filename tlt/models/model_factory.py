@@ -27,23 +27,27 @@ from tlt.utils.types import FrameworkType, UseCaseType
 
 
 model_map = {
-    FrameworkType.TENSORFLOW: {
-        UseCaseType.IMAGE_CLASSIFICATION: {
+    FrameworkType.TENSORFLOW:
+    {
+        UseCaseType.IMAGE_CLASSIFICATION:
+        {
             "TFHub": {"module": "tlt.models.image_classification.tfhub_image_classification_model",
                       "class": "TFHubImageClassificationModel"},
             "Custom": {"module": "tlt.models.image_classification.tf_image_classification_model",
                        "class": "TFImageClassificationModel"}
         },
-        UseCaseType.TEXT_CLASSIFICATION: {
-            "TFHub": {
-                "module": "tlt.models.text_classification.tfhub_text_classification_model",
-                "class": "TFHubTextClassificationModel"},
+        UseCaseType.TEXT_CLASSIFICATION:
+        {
+            "TFHub": {"module": "tlt.models.text_classification.tfhub_text_classification_model",
+                      "class": "TFHubTextClassificationModel"},
             "Custom": {"module": "tlt.models.text_classification.tf_text_classification_model",
                        "class": "TFTextClassificationModel"}
         }
     },
-    FrameworkType.PYTORCH: {
-        UseCaseType.IMAGE_CLASSIFICATION: {
+    FrameworkType.PYTORCH:
+    {
+        UseCaseType.IMAGE_CLASSIFICATION:
+        {
             "torchvision": {"module": "tlt.models.image_classification.torchvision_image_classification_model",
                             "class": "TorchvisionImageClassificationModel"},
             "Custom": {"module": "tlt.models.image_classification.pytorch_image_classification_model",

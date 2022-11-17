@@ -220,9 +220,9 @@ class TestImageClassificationCustomDataset:
 
     @pytest.mark.pytorch
     @pytest.mark.parametrize('model_name,add_aug,ipex_optimize',
-                             [['efficientnet_b0', True, True],
-                              ['resnet18', False, True],
-                              ['resnet18', False, False]])
+                             [['efficientnet_b0', ['hflip'], True],
+                              ['resnet18', ['rotate'], True],
+                              ['resnet18', [], False]])
     def test_custom_dataset_workflow(self, model_name, add_aug, ipex_optimize):
         """
         Tests the full workflow for PYT image classification using a custom dataset

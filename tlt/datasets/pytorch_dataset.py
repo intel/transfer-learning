@@ -175,14 +175,16 @@ class PyTorchDataset(BaseDataset):
         else:
             self._test_loader = None
 
-    def preprocess(self, image_size='variable', batch_size=32, add_aug=False):
+    def preprocess(self, image_size='variable', batch_size=32, add_aug=list()):
         """
-        Preprocess the dataset to resize, normalize, and batch the images
+        Preprocess the dataset to resize, normalize, and batch the images. Apply augmentation
+        if specified.
 
             Args:
                 image_size (int or 'variable'): desired square image size (if 'variable', does not alter image size)
                 batch_size (int): desired batch size (default 32)
-                add_aug (bool): Boolean specifying whether augmentations (RandomHorizontalFlip) should be applied
+                add_aug (list[str]): Choice of augmentations (RandomHorizontalFlip, RandomRotation) to be applied during
+                                     training.
             Raises:
                 ValueError if the dataset is not defined or has already been processed
         """
@@ -204,8 +206,15 @@ class PyTorchDataset(BaseDataset):
             transforms = []
             if isinstance(image_size, int):
                 transforms.append(T.Resize([image_size, image_size]))
-            if add_aug:
-                transforms.append(T.RandomHorizontalFlip())
+            if add_aug != []:
+                aug_dict = {'hflip': T.RandomHorizontalFlip(),
+                            'rotate': T.RandomRotation(0.5)}
+                aug_list = ['hflip', 'rotate']
+                for option in add_aug:
+                    if option not in aug_list:
+                        raise ValueError("Unsupported augmentation for PyTorch:{}. \
+                        Supported augmentations are {}".format(option, aug_list))
+                    transforms.append(aug_dict[option])
             transforms.append(T.ToTensor())
             transforms.append(T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]))
 

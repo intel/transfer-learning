@@ -93,7 +93,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
-              add_aug=False, shuffle_files=True, seed=None, extra_layers=None):
+              shuffle_files=True, seed=None, extra_layers=None):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
@@ -118,8 +118,6 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                     does not support bfloat16, it can be detrimental to the training performance. If
                     enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
                     running with Intel fourth generation Xeon processors, and disabled for other platforms.
-                add_aug (bool): Boolean specifying whether augmentations (RandomFlip, RandomRotation, RandomZoom)
-                    should be applied on dataset.
                 shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
                 seed (int): Optionally set a seed for reproducibility.
                 extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
@@ -164,7 +162,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         self._model = self._get_hub_model(dataset_num_classes, extra_layers)
 
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
-                                                                    early_stopping, add_aug, lr_decay, seed)
+                                                                    early_stopping, lr_decay)
 
         history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
                                   validation_data=val_data)

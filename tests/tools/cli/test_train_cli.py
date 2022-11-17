@@ -76,10 +76,7 @@ def test_train_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_
         assert model_mock.train.called
 
         # Verify that preprocess was called with the right arguments
-        if str(framework) == 'tensorflow':
-            data_mock.preprocess.assert_called_once_with(image_size=dummy_image_size, batch_size=32)
-        else:
-            data_mock.preprocess.assert_called_once_with(image_size=dummy_image_size, batch_size=32, add_aug=False)
+        data_mock.preprocess.assert_called_once_with(image_size=dummy_image_size, batch_size=32, add_aug=[])
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0
@@ -136,10 +133,7 @@ def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mo
         assert model_mock.train.called
 
         # Verify preprocess was called with the right arguments
-        if str(framework) == 'tensorflow':
-            data_mock.preprocess.assert_called_once_with(batch_size=32)
-        else:
-            data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=False)
+        data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[])
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0
@@ -149,8 +143,8 @@ def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mo
 
 @pytest.mark.common
 @pytest.mark.parametrize('model_name,framework,add_aug',
-                         [['efficientnet_b0', FrameworkType.TENSORFLOW, True],
-                          ['bert_en_uncased_L-12_H-768_A-12', FrameworkType.PYTORCH, False]])
+                         [['efficientnet_b0', FrameworkType.TENSORFLOW, 'rotate'],
+                          ['resnet50', FrameworkType.PYTORCH, 'zoom']])
 @patch("tlt.models.model_factory.get_model")
 @patch("tlt.datasets.dataset_factory.load_dataset")
 @patch("inspect.getfullargspec")
@@ -188,10 +182,7 @@ def test_train_add_augmentation(mock_inspect, mock_load_dataset, mock_get_model,
         assert model_mock.train.called
         
         # Verify preprocess was called with the right arguments
-        if str(framework) == 'tensorflow':
-            data_mock.preprocess.assert_called_once_with(batch_size=32)
-        else:
-            data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=add_aug)
+        data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[])
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0
@@ -237,14 +228,9 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
 
         # Verify that train and preprocess were called with the right arguments
-        if str(framework) == 'tensorflow':
-            model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
-                                                 initial_checkpoints=init_checkpoints, add_aug=False)
-            data_mock.preprocess.assert_called_once_with(batch_size=32)
-        else:
-            model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
+        model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
                                                  initial_checkpoints=init_checkpoints)
-            data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=False)
+        data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[])
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0

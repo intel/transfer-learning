@@ -192,11 +192,6 @@ def test_tf_image_classification_custom_model():
     reload_metrics = reload_model.evaluate(dataset)
     assert reload_metrics == trained_metrics
 
-    # Optimize the graph
-    optimized_model_dir = os.path.join(output_dir, "optimized")
-    model.optimize_graph(saved_model_dir, optimized_model_dir)
-    assert os.path.isfile(os.path.join(optimized_model_dir, "saved_model.pb"))
-
     # Retrain from checkpoints and verify that we have better accuracy than the original training
     retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
     retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
@@ -234,10 +229,10 @@ class TestImageClassificationCustomDataset:
                 shutil.rmtree(dir)
 
     @pytest.mark.tensorflow
-    @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy,add_aug',
-                             [['efficientnet_b0', 0.9375, 0.9375, False],
-                              ['resnet_v1_50', 1.0, 1.0, False]])
-    def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy, add_aug):
+    @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy',
+                             [['efficientnet_b0', 0.9375, 0.9375],
+                              ['resnet_v1_50', 1.0, 1.0]])
+    def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy):
         """
         Tests the full workflow for TF image classification using a custom dataset
         """
@@ -258,7 +253,7 @@ class TestImageClassificationCustomDataset:
 
         # Train for 1 epoch
         history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False, seed=10,
-                              do_eval=False, add_aug=add_aug)
+                              do_eval=False)
         assert history is not None
         assert history['acc'] == [train_accuracy]
 
@@ -292,7 +287,7 @@ class TestImageClassificationCustomDataset:
         retrain_model = model_factory.get_model(model_name, framework)
         retrain_history = retrain_model.train(dataset, output_dir=self._output_dir, epochs=1,
                                               initial_checkpoints=checkpoint_dir, shuffle_files=False, seed=10,
-                                              do_eval=False, add_aug=add_aug)
+                                              do_eval=False)
         assert retrain_history['acc'] == [retrain_accuracy]
 
         # Test benchmarking, quantization, and graph optimization with ResNet50
@@ -307,13 +302,6 @@ class TestImageClassificationCustomDataset:
             model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
             assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
             model.benchmark(quantization_output, inc_config_file_path)
-            optimization_output = os.path.join(self._output_dir, "optimized", model_name)
-            os.makedirs(optimization_output)
-            model.optimize_graph(saved_model_dir, optimization_output)
-            assert os.path.exists(os.path.join(optimization_output, "saved_model.pb"))
-            
-
-
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,early_stopping,lr_decay,accuracy,\
