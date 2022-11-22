@@ -70,7 +70,7 @@ def test_pyt_text_classification(model_name, dataset_name):
 
     # Reload the saved model
     reload_model = model_factory.get_model(model_name, framework)
-    reload_model.load_from_directory(saved_model_dir)
+    reload_model.load_from_directory(saved_model_dir, num_classes=len(dataset.class_names))
 
     # Evaluate
     reload_metrics = reload_model.evaluate(dataset)

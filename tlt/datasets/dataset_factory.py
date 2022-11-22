@@ -46,7 +46,9 @@ dataset_map = {
         },
         UseCaseType.TEXT_CLASSIFICATION: {
             "huggingface": {"module": "tlt.datasets.text_classification.hf_text_classification_dataset",
-                            "class": "HFTextClassificationDataset"}
+                            "class": "HFTextClassificationDataset"},
+            "custom": {"module": "tlt.datasets.text_classification.hf_custom_text_classification_dataset",
+                       "class": "HFCustomTextClassificationDataset"}
         }
     }
 }

@@ -93,7 +93,7 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
     return model_class(model_name, model)
 
 
-def get_model(model_name: str, framework: FrameworkType = None):
+def get_model(model_name: str, framework: FrameworkType = None, **kwargs):
     """A factory method for creating models.
 
         Args:
@@ -135,7 +135,7 @@ def get_model(model_name: str, framework: FrameworkType = None):
             if model_hub in model_map[model_fw_enum][model_use_case]:
                 model_class = locate('{}.{}'.format(model_map[model_fw_enum][model_use_case][model_hub]['module'],
                                                     model_map[model_fw_enum][model_use_case][model_hub]['class']))
-                return model_class(model_name)
+                return model_class(model_name, **kwargs)
 
     raise NotImplementedError("Not implemented yet: {} {}".format(model_framework_str, model_name))
 

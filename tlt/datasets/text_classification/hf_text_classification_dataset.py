@@ -134,67 +134,12 @@ class HFTextClassificationDataset(TextClassificationDataset, HFDataset):
         """
         Returns a list of class labels
         """
-        return self.dataset.features['label'].names
+        try:
+            names = self.dataset.features['label'].names
+        except KeyError:
+            names = self.dataset.features['labels'].names
 
-    @property
-    def train_subset(self):
-        train_ds = None
-
-        if self._validation_type == 'shuffle_split':
-            train_ds = self._dataset.select(self._train_indices)
-        elif self._validation_type == 'defined_split':
-            if 'train' in self._split:
-                train_ds = self._dataset.select(self._train_indices)
-            else:
-                raise ValueError("train split not specified")
-        elif self._validation_type == 'recall':
-            train_ds = self._dataset
-
-        train_ds = train_ds.rename_column("label", "labels")
-        train_ds.set_format("torch")
-
-        return train_ds
-
-    @property
-    def test_subset(self):
-        test_ds = None
-
-        if self._validation_type == 'shuffle_split':
-            if self._test_indices:
-                test_ds = self._dataset.select(self._test_indices)
-            else:
-                raise ValueError("test_pct not defined in shuffle_split() method")
-        elif self._validation_type == 'defined_split':
-            if 'test' in self._split:
-                test_ds = self._dataset.select(self._test_indices)
-            else:
-                raise ValueError("test split not specified")
-        elif self._validation_type == 'recall':
-            test_ds = self._dataset
-
-        test_ds = test_ds.rename_column("label", "labels")
-        test_ds.set_format("torch")
-
-        return test_ds
-
-    @property
-    def validation_subset(self):
-        validation_ds = None
-
-        if self._validation_type == 'shuffle_split':
-            validation_ds = self._dataset.select(self._validation_indices)
-        elif self._validation_type == 'defined_split':
-            if 'validation' in self._split:
-                validation_ds = self._dataset.select(self._validation_indices)
-            else:
-                raise ValueError("validation split not specified")
-        elif self._validation_type == 'recall':
-            validation_ds = self._dataset
-
-        validation_ds = validation_ds.rename_column("label", "labels")
-        validation_ds.set_format("torch")
-
-        return validation_ds
+        return names
 
     @property
     def info(self):

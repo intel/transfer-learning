@@ -20,19 +20,22 @@
 
 import os
 import torch
+import numpy as np
+import intel_extension_for_pytorch as ipex
 from tqdm import tqdm
+from torch.utils.data import DataLoader
+
+# Hugging Face imports
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
+    EvalPrediction,
+    TrainingArguments,
+    Trainer,
     get_scheduler
 )
 
-import intel_extension_for_pytorch as ipex
-
-from datasets import load_metric
 from datasets.arrow_dataset import Dataset
-
-from torch.utils.data import DataLoader
 
 from tlt import TLT_BASE_DIR
 from tlt.utils.file_utils import read_json_file
@@ -40,13 +43,14 @@ from tlt.utils.types import FrameworkType, UseCaseType
 from tlt.models.hf_model import HFModel
 from tlt.models.text_classification.text_classification_model import TextClassificationModel
 from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset
+from tlt.datasets.text_classification.hf_custom_text_classification_dataset import HFCustomTextClassificationDataset
 
 
 MODEL_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "models/configs")
 
 
 class HFTextClassificationModel(TextClassificationModel, HFModel):
-    def __init__(self, model_name: str, model=None):
+    def __init__(self, model_name: str, model=None, **kwargs):
 
         # extra properties that will become configurable in the future
         self._model_name = model_name
@@ -56,7 +60,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         self._device = 'cpu'
         self._optimizer_class = torch.optim.AdamW  # Just the class, it needs to be initialized with the model object
         self._optimizer = None
-        self._loss = torch.nn.CrossEntropyLoss()
+        self._loss_criterion = torch.nn.CrossEntropyLoss()
         self._lr_scheduler = None
         self._generate_checkpoints = True
         self._tokenizer = None
@@ -67,24 +71,11 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
         # model definition
         config_dict = read_json_file(os.path.join(MODEL_CONFIG_DIR, "hf_text_classification_models.json"))
-
-        self._model = AutoModelForSequenceClassification.from_pretrained(config_dict[model_name]["hub_name"])
+        self.hub_name = config_dict[self._model_name]["hub_name"]
+        self._model = None
         self._num_classes = None
-
-        if not self._model:
-            if model is None:
-                self._model = None
-            elif isinstance(model, str):
-                self.load_from_directory(model)
-                layers = list(self._model.children())
-                self._num_classes = layers[-1].out_features
-            elif isinstance(model, torch.nn.Module):
-                self._model = model
-                layers = list(self._model.children())
-                self._num_classes = layers[-1].out_features
-            else:
-                raise TypeError("The model input must be a torch.nn.Module, string or",
-                                "None but found a {}". format(type(model)))
+        self._trainer = None
+        self._history = None
 
     @property
     def num_classes(self):
@@ -94,11 +85,11 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         return self._num_classes
 
     def _fit(self, dataset, output_dir, epochs, do_eval, ipex_optimize):
-
         train_data_loader = None
         validation_data_loader = None
 
-        if isinstance(dataset, HFTextClassificationDataset):
+        if isinstance(dataset, HFTextClassificationDataset) or \
+                isinstance(dataset, HFCustomTextClassificationDataset):
             if not dataset._preprocessed:
                 raise ValueError("dataset is not preprocessed yet")
             self._tokenizer = dataset._tokenizer
@@ -106,14 +97,14 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             # Get the data loader objects
             train_data_loader = dataset.train_loader
             validation_data_loader = dataset.validation_loader
-            train_data_length = len(train_data_loader)
+            train_data_length = len(dataset.train_subset)
         elif isinstance(dataset, Dataset):
             self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
 
             # Create new data loader objects
             train_data_loader = DataLoader(dataset, batch_size=16)
             validation_data_loader = DataLoader(dataset, batch_size=16)
-            train_data_length = len(train_data_loader)
+            train_data_length = len(dataset)
         else:
             raise ValueError("Invalid dataset type: {}".format(type(dataset)))
 
@@ -124,6 +115,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
         if ipex_optimize:
             self._model = ipex.optimize(self._model)
+
         # Training loop
         self._model.to(self._device)
         self._model.train()
@@ -134,32 +126,34 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
             # Training phase
             running_loss = 0.0
-            accuracy_metric = load_metric("accuracy")
+            running_corrects = 0
 
             # Iterate over data.
             for data_batch in tqdm(train_data_loader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
-                data_batch = {k: v.to(self._device) for k, v in data_batch.items()}
+                inputs = {k: v.to(self._device) for k, v in data_batch.items() if k != 'labels'}
+                labels = data_batch['labels']
+
+                # zero the parameter gradients
+                self._optimizer.zero_grad()
 
                 # Forward pass
-                outputs = self._model(**data_batch)
-                loss = outputs.loss
+                outputs = self._model(**inputs)
+                loss = self._loss_criterion(outputs.logits, labels)
 
                 # Backward pass
                 loss.backward()
                 self._optimizer.step()
                 lr_scheduler.step()
-                self._optimizer.zero_grad()
 
                 # Statistics
-                labels = data_batch['labels']
                 predictions = torch.argmax(outputs.logits, dim=-1)
 
-                running_loss += loss.item() * len(labels)
-                accuracy_metric.add_batch(predictions=predictions, references=labels)
+                running_loss += loss.item()
+                running_corrects += torch.sum(predictions == labels).item()
 
             # At the epoch end
             train_epoch_loss = running_loss / train_data_length
-            train_epoch_acc = accuracy_metric.compute()['accuracy']
+            train_epoch_acc = running_corrects / train_data_length
 
             self._update_history('Loss', train_epoch_loss)
             self._update_history('Acc', train_epoch_acc)
@@ -174,6 +168,11 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
                 loss_acc_output += f' - Val Loss: {eval_epoch_loss:.4f} - Val Acc: {eval_epoch_acc:.4f}'
 
+                # Put the model back to train mode
+                self._model.train()
+
+            print(loss_acc_output)
+
     def train(
         self,
         dataset,
@@ -183,9 +182,15 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         initial_checkpoints=None,
         do_eval: bool = True,
         device: str = "cpu",
-        ipex_optimize: bool = True
+        ipex_optimize: bool = True,
+        use_trainer: bool = False
     ):
 
+        if not self._model:
+            self._num_classes = len(dataset.class_names)
+            self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
+                                                                             num_labels=self._num_classes,
+                                                                             force_download=False)
         self._device = device
         self.train_data_loader = None
         self.validation_data_loader = None
@@ -193,37 +198,86 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         # Initialize the optimizer class and create a learning rate scheduler
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=learning_rate)
 
-        # Call the _fit method to train the model with native PyTorch API
-        self._fit(dataset, output_dir, epochs, do_eval, ipex_optimize)
+        if use_trainer:
+            training_args = TrainingArguments(
+                output_dir=output_dir,
+                do_eval=do_eval,
+                do_train=True,
+                no_cuda=True,
+                overwrite_output_dir=True,
+                per_device_train_batch_size=dataset.info['preprocessing_info']['batch_size'],
+                evaluation_strategy="epoch",
+                num_train_epochs=epochs,
+                max_steps=75,
+            )
+
+            def compute_metrics(p: EvalPrediction):
+                preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
+                preds = np.argmax(preds, axis=1)
+                return {"accuracy": (preds == p.label_ids).astype(np.float32).mean().item()}
+
+            # Initialize our Trainer
+            self._trainer = Trainer(
+                model=self._model,
+                args=training_args,
+                train_dataset=dataset.train_subset,
+                eval_dataset=dataset.validation_subset,
+                compute_metrics=compute_metrics,
+                tokenizer=self._tokenizer
+            )
+
+            self._trainer.train()
+            if do_eval:
+                self._history = self._trainer.evaluate()
+                print("Val Acc: {:.5f}".format(self._history.get("eval_accuracy")))
+        else:
+            self._trainer = None
+            # Call the _fit method to train the model with native PyTorch API
+            self._fit(dataset, output_dir, epochs, do_eval, ipex_optimize)
 
         return self._history
 
     def evaluate(self, dataset_or_dataloader):
-        if isinstance(dataset_or_dataloader, Dataset):
-            dataloader = DataLoader(dataset_or_dataloader, batch_size=16)
-        elif isinstance(dataset_or_dataloader, DataLoader):
-            dataloader = dataset_or_dataloader
-        elif isinstance(dataset_or_dataloader, HFTextClassificationDataset):
-            dataloader = dataset_or_dataloader.validation_loader
+        if self._trainer:
+            results = self._trainer.evaluate()
+            validation_loss = None
+            validation_accuracy = results.get("eval_accuracy")
+            print("Val Acc: {:.5f}".format(validation_accuracy))
+        else:
+            if isinstance(dataset_or_dataloader, Dataset):
+                dataloader = DataLoader(dataset_or_dataloader, batch_size=16)
+                validation_data_length = len(dataset_or_dataloader)
+            elif isinstance(dataset_or_dataloader, DataLoader):
+                dataloader = dataset_or_dataloader
+                validation_data_length = len(dataloader) * dataloader.batch_size
+            elif isinstance(dataset_or_dataloader, HFTextClassificationDataset) or \
+                    isinstance(dataset_or_dataloader, HFCustomTextClassificationDataset):
+                dataloader = dataset_or_dataloader.validation_loader
+                validation_data_length = len(dataset_or_dataloader)
 
-        self._model.eval()
-        running_loss = 0.0
-        accuracy_metric = load_metric("accuracy")
-        for data_batch in tqdm(dataloader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
-            data_batch = {k: v.to(self._device) for k, v in data_batch.items()}
+            if not self._model:
+                num_classes = len(dataset_or_dataloader.class_names)
+                self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
+                                                                                 num_labels=num_classes)
 
-            outputs = self._model(**data_batch)
-            loss = outputs.loss
+            self._model.eval()
+            running_loss = 0.0
+            running_corrects = 0
+            for data_batch in tqdm(dataloader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
+                inputs = {k: v.to(self._device) for k, v in data_batch.items() if k != 'labels'}
+                labels = data_batch['labels']
 
-            # Statistics
-            labels = data_batch['labels']
-            predictions = torch.argmax(outputs.logits, dim=-1)
+                outputs = self._model(**inputs)
+                loss = self._loss_criterion(outputs.logits, labels)
 
-            running_loss += loss.item() * len(labels)
-            accuracy_metric.add_batch(predictions=predictions, references=labels)
+                # Statistics
+                predictions = torch.argmax(outputs.logits, dim=-1)
 
-        validation_loss = running_loss / len(dataloader)
-        validation_accuracy = accuracy_metric.compute()['accuracy']
+                running_loss += loss.item()
+                running_corrects += torch.sum(predictions == labels).item()
+
+            validation_loss = running_loss / validation_data_length
+            validation_accuracy = running_corrects / validation_data_length
 
         return (validation_loss, validation_accuracy)
 
@@ -265,15 +319,20 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
         print('Model saved at {}'.format(path_to_dir_name))
 
-    def load_from_directory(self, model_dir: str):
+    def load_from_directory(self, model_dir: str, num_classes: int):
         """
         Loads a saved pytorch model from the given model_dir directory
 
         Args:
             model_dir(str): Path to the saved model directory
+            num_classes(int): Number of class labels
         """
 
         saved_model_file_path = os.path.join(model_dir, 'pytorch_model.bin')
 
         state_dict = torch.load(saved_model_file_path)
+
+        if not self._model:
+            self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
+                                                                             num_labels=num_classes)
         self._model.load_state_dict(state_dict)

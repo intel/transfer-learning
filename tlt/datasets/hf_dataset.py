@@ -34,7 +34,7 @@ class HFDataset(BaseDataset):
     """
 
     def __init__(self, dataset_dir, dataset_name="", dataset_catalog=""):
-        BaseDataset.__init__(dataset_dir, dataset_name, dataset_catalog)
+        BaseDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog)
 
     def get_batch(self, subset='all'):
         """
@@ -66,7 +66,8 @@ class HFDataset(BaseDataset):
         model_name: str,
         batch_size: int = 32,
         padding: str = "max_length",
-        truncation: bool = True
+        truncation: bool = True,
+        max_length: int = 64
     ) -> None:
         """
         Preprocess the textual dataset to apply padding, truncation and tokenize.
@@ -75,8 +76,10 @@ class HFDataset(BaseDataset):
                 model_name (str): Name of the model to get a matching tokenizer.
                 batch_size (int): Number of batches to split the data.
                 padding (str): desired padding. (default: "max_length")
+                max_length (int): desired max length. (default: 64)
                 truncation (bool): Boolean specifying to truncate the word tokens to match with the
                 longest sentence. (default: True)
+                max_length (int): Maximum sequence length
             Raises:
                 ValueError if data has already been preprocessed (or) non integer batch size given (or)
                 given dataset hasn't been implemented into the API yet.
@@ -89,7 +92,7 @@ class HFDataset(BaseDataset):
         if self._preprocessed:
             raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))
 
-        # Get the column names of the textual data for the tokenizer
+        # Get the column names of the dataset for the tokenizer
         dataset_columns = self._dataset.column_names
         text_column_name = None
         text_column_name_2 = None
@@ -98,23 +101,38 @@ class HFDataset(BaseDataset):
             text_column_name = 'text'
         elif 'sentence' in dataset_columns:
             text_column_name = 'sentence'
+        elif 'symptoms' in dataset_columns:
+            text_column_name = 'symptoms'
         elif 'sentence1' and 'sentence2' in dataset_columns:
             text_column_name = 'sentence1'
             text_column_name_2 = 'sentence2'
 
-        self._tokenizer = AutoTokenizer.from_pretrained(model_name)
+        # Get the tokenizer
+        self._tokenizer = AutoTokenizer.from_pretrained(model_name, force_download=True)
 
+        # Define a tokenize function to map the text to the tokenizer
         def tokenize_function(examples):
             # Define the tokenizer args, depending on if the data has 2 textual columns or just 1
-            args = ((examples[text_column_name],) if text_column_name_2 is None
-                    else (examples[text_column_name], examples[text_column_name_2]))
-            return self._tokenizer(*args, padding=padding, truncation=truncation)
+            args = None
+            if text_column_name_2 is None:
+                args = (examples[text_column_name],)
+            else:
+                args = (examples[text_column_name], examples[text_column_name_2])
+
+            result = self._tokenizer(*args, padding=padding, max_length=max_length, truncation=truncation)
+            return result
 
         self._dataset = self._dataset.map(tokenize_function, batched=True)
 
         # Remove the raw text from the tokenized dataset
         raw_text_columns = [text_column_name, text_column_name_2] if text_column_name_2 else [text_column_name]
         self._dataset = self._dataset.remove_columns(raw_text_columns)
+
+        # Rename column "label" to "labels"
+        self._dataset = self._dataset.rename_column("label", "labels")
+
+        # Set format to torch
+        self._dataset.set_format("torch")
 
         self._preprocessed = {
             'padding': padding,
@@ -194,13 +212,65 @@ class HFDataset(BaseDataset):
                 self._validation_loader = loader(self.validation_subset, batch_size=batch_size, shuffle=self._shuffle,
                                                  num_workers=self._num_workers, worker_init_fn=seed_worker,
                                                  generator=generator)
-        elif self._validation_type == 'recall':
+        elif self._validation_type in ['recall', 'custom']:
+
             self._data_loader = loader(self._dataset, batch_size=batch_size, shuffle=self._shuffle,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
 
             self._train_loader = self._data_loader
             self._test_loader = self._data_loader
             self._validation_loader = self._data_loader
+
+    @property
+    def train_subset(self):
+        train_ds = None
+
+        if self._validation_type == 'shuffle_split':
+            train_ds = self._dataset.select(self._train_indices)
+        elif self._validation_type == 'defined_split':
+            if 'train' in self._split:
+                train_ds = self._dataset.select(self._train_indices)
+            else:
+                raise ValueError("train split not specified")
+        elif self._validation_type in ['recall', 'custom']:
+            train_ds = self._dataset
+
+        return train_ds
+
+    @property
+    def test_subset(self):
+        test_ds = None
+
+        if self._validation_type == 'shuffle_split':
+            if self._test_indices:
+                test_ds = self._dataset.select(self._test_indices)
+            else:
+                raise ValueError("test_pct not defined in shuffle_split() method")
+        elif self._validation_type == 'defined_split':
+            if 'test' in self._split:
+                test_ds = self._dataset.select(self._test_indices)
+            else:
+                raise ValueError("test split not specified")
+        elif self._validation_type in ['recall', 'custom']:
+            test_ds = self._dataset
+
+        return test_ds
+
+    @property
+    def validation_subset(self):
+        validation_ds = None
+
+        if self._validation_type == 'shuffle_split':
+            validation_ds = self._dataset.select(self._validation_indices)
+        elif self._validation_type == 'defined_split':
+            if 'validation' in self._split:
+                validation_ds = self._dataset.select(self._validation_indices)
+            else:
+                raise ValueError("validation split not specified")
+        elif self._validation_type in ['recall', 'custom']:
+            validation_ds = self._dataset
+
+        return validation_ds
 
     @property
     def train_loader(self):
