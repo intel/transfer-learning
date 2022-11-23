@@ -141,6 +141,7 @@ def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mo
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
 
+
 @pytest.mark.common
 @pytest.mark.parametrize('model_name,framework,add_aug',
                          [['efficientnet_b0', FrameworkType.TENSORFLOW, 'rotate'],
@@ -158,7 +159,6 @@ def test_train_add_augmentation(mock_inspect, mock_load_dataset, mock_get_model,
     tmp_dir = tempfile.mkdtemp()
     dataset_dir = os.path.join(tmp_dir, 'data')
     output_dir = os.path.join(tmp_dir, 'output')
-    dummy_image_size = 100
 
     try:
         for new_dir in [output_dir, dataset_dir]:
@@ -180,7 +180,7 @@ def test_train_add_augmentation(mock_inspect, mock_load_dataset, mock_get_model,
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
         assert data_mock.shuffle_split.called
         assert model_mock.train.called
-        
+
         # Verify preprocess was called with the right arguments
         data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[])
 
@@ -189,6 +189,7 @@ def test_train_add_augmentation(mock_inspect, mock_load_dataset, mock_get_model,
     finally:
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
+
 
 @pytest.mark.common
 @pytest.mark.parametrize('model_name,framework,init_checkpoints',
@@ -265,7 +266,7 @@ def test_train_dataset_catalog(mock_get_dataset, mock_get_model, model_name, fra
         data_mock = MagicMock()
         mock_get_model.return_value = model_mock
         mock_get_dataset.return_value = data_mock
-        model_mock.export.return_value = output_dir 
+        model_mock.export.return_value = output_dir
 
         # Call the train command
         result = runner.invoke(train,
@@ -347,8 +348,7 @@ class TestTrainArgs:
         assert "'{}' is not one of 'tensorflow', 'pytorch'".format(framework) in result.output
 
     @pytest.mark.common
-    @pytest.mark.parametrize('dataset_catalog',
-                         ['foo', 'benchmark', '0'])
+    @pytest.mark.parametrize('dataset_catalog', ['foo', 'benchmark', '0'])
     def test_train_invalid_dataset_catalog(self, dataset_catalog):
         """
         Verifies that train command fails if the dataset catalog value is invalid

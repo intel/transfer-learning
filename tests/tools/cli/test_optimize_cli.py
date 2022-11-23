@@ -175,8 +175,8 @@ def test_optimize_model_dir_does_not_exist():
 @patch("tlt.models.model_factory.get_model")
 def test_optimize_output_dir(mock_get_model):
     """
-    Verifies that the optimize command increments the output directory for the optimized model each time the optimization
-    command is called
+    Verifies that the optimize command increments the output directory for the optimized model each time
+    the optimization command is called
     """
     runner = CliRunner()
 
@@ -188,11 +188,11 @@ def test_optimize_output_dir(mock_get_model):
     try:
         os.makedirs(model_dir)
         Path(os.path.join(model_dir, 'saved_model.pb')).touch()
-        
+
         model_mock = MagicMock()
         mock_get_model.return_value = model_mock
 
-        for i in range (1, 5):
+        for i in range(1, 5):
             # Call the optimize command
             result = runner.invoke(optimize,
                                    ["--model-dir", model_dir, "--output-dir", output_dir])
@@ -207,4 +207,3 @@ def test_optimize_output_dir(mock_get_model):
     finally:
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
-

@@ -31,19 +31,19 @@ from tlt.datasets.dataset_factory import get_dataset, load_dataset
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlt.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
-except ModuleNotFoundError as e:
+except ModuleNotFoundError:
     print("WARNING: Unable to import TFImageClassificationDataset. TensorFlow may not be installed")
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlt.datasets.text_classification.tfds_text_classification_dataset import TFDSTextClassificationDataset
-except ModuleNotFoundError as e:
+except ModuleNotFoundError:
     print("WARNING: Unable to import TFDSTextClassificationDataset. TensorFlow may not be installed")
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
-    from tlt.datasets.image_classification.tf_custom_image_classification_dataset import TFCustomImageClassificationDataset
-except ModuleNotFoundError as e:
+    from tlt.datasets.image_classification.tf_custom_image_classification_dataset import TFCustomImageClassificationDataset  # noqa: E501
+except ModuleNotFoundError:
     print("WARNING: Unable to import TFCustomImageClassificationDataset. TensorFlow may not be installed")
 
 
@@ -53,7 +53,7 @@ def test_tf_flowers_10pct():
     Checks that a 10% tf_flowers subset can be loaded
     """
     flowers = get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers',
-                                          'tf_datasets', split=["train[:10%]"])
+                          'tf_datasets', split=["train[:10%]"])
     assert type(flowers) == TFImageClassificationDataset
     assert len(flowers.dataset) < 3670
 
@@ -193,7 +193,7 @@ def test_shuffle_split_deterministic_custom():
 @pytest.mark.parametrize('dataset_dir,use_case,dataset_name,dataset_catalog,class_names,batch_size',
                          [['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None, 32],
                           ['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None, 1],
-                          ['/tmp/data', 'image_classification',  None, None, ['foo', 'bar'], 8],
+                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar'], 8],
                           ['/tmp/data', 'image_classification', None, None, ['foo', 'bar'], 1],
                           ['/tmp/data', 'text_classification', 'glue/cola', 'tf_datasets', None, 1],
                           ['/tmp/data', 'text_classification', 'glue/cola', 'tf_datasets', None, 32]])
@@ -318,7 +318,7 @@ def test_custom_text_classification_csv(dataset_name, delimiter):
 
         # Get a batch and verify that the text labels have been mapped to numerical values
         _, label_value = dataset.get_batch()
-        assert_array_equal([1, 0] * int(batch_size/2), label_value)
+        assert_array_equal([1, 0] * int(batch_size / 2), label_value)
 
     finally:
         # Clean up after the test by deleting the temp dataset directory
@@ -377,14 +377,14 @@ def test_custom_text_classification_extra_columns():
 
 
 class DatasetForTest:
-    def __init__ (self, dataset_dir, use_case, dataset_name=None, dataset_catalog=None, class_names=None):
+    def __init__(self, dataset_dir, use_case, dataset_name=None, dataset_catalog=None, class_names=None):
         """
         This class wraps initialization for datasets (either from TFDS or custom).
-        
+
         For a custom dataset, provide a dataset dir and class names. A temporary directory will be created with
         dummy folders for the specified class names and 50 images in each folder. The dataset factory will be used to
         load the custom dataset from the dataset directory.
-        
+
         For a dataset from a catalog, provide the dataset_dir, dataset_name, and dataset_catalog.
         The dataset factory will be used to load the specified dataset.
         """
@@ -392,7 +392,7 @@ class DatasetForTest:
 
         if dataset_name and dataset_catalog:
             self._dataset_catalog = dataset_catalog
-            self._tlt_dataset = get_dataset(dataset_dir, use_case,  framework, dataset_name, dataset_catalog)
+            self._tlt_dataset = get_dataset(dataset_dir, use_case, framework, dataset_name, dataset_catalog)
         elif class_names:
             self._dataset_catalog = "custom"
             dataset_dir = tempfile.mkdtemp(dir=dataset_dir)
@@ -428,6 +428,7 @@ class DatasetForTest:
             print("Deleting temp directory:", self._dataset_dir)
             shutil.rmtree(self._dataset_dir)
         # TODO: Should we delete tfds directories too?
+
 
 # Metadata about tfds datasets
 tfds_metadata = {
@@ -489,7 +490,7 @@ class TestImageClassificationDataset:
                 assert type(tlt_dataset) == TFImageClassificationDataset
             elif use_case == 'text_classification':
                 assert type(tlt_dataset) == TFDSTextClassificationDataset
-                
+
             assert len(tlt_dataset.class_names) == len(tfds_metadata[dataset_name]['class_names'])
             assert len(tlt_dataset.dataset) == tfds_metadata[dataset_name]['size']
 

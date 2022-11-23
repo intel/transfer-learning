@@ -45,6 +45,7 @@ test: venv_test
 lint: venv_test
 	@echo "Style checks..."
 	@. $(ACTIVATE_TEST) && flake8 tlt
+	@. $(ACTIVATE_TEST) && flake8 tests
 
 clean:
 	rm -rf tlt_tests

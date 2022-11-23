@@ -30,7 +30,7 @@ try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlt.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
     from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel
-except ModuleNotFoundError as e:
+except ModuleNotFoundError:
     TFHubImageClassificationModel = None
     TFImageClassificationModel = None
     print("WARNING: Unable to import TFHubImageClassificationModel or TFImageClassificationModel. "
@@ -41,7 +41,7 @@ try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlt.models.text_classification.tfhub_text_classification_model import TFHubTextClassificationModel
     from tlt.models.text_classification.tf_text_classification_model import TFTextClassificationModel
-except ModuleNotFoundError as e:
+except ModuleNotFoundError:
     TFHubTextClassificationModel = None
     TFTextClassificationModel = None
     print("WARNING: Unable to import TFHubTextClassificationModel. TensorFlow may not be installed")
@@ -326,7 +326,7 @@ def test_tfhub_auto_mixed_precision(mock_subprocess, mock_platform, mock_os, moc
     CPU types like SKX (cpu model 143).  The default auto mixed precision setting is used when
     enable_auto_mixed_precision=None. Auto mixed precision was enabled for TF 2.9.0 and later, so don't expect the call
     to set the config for earlier TF versions.
-    
+
     If enable_auto_mixed_precision is set to True/False, then that's what should be used, regardless of CPU type.
     """
     mock_get_cpuset.return_value = platform_config.CPUSET

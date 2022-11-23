@@ -285,8 +285,7 @@ class TestEvalArgs:
             shutil.rmtree(self._tmp_dir)
 
     @pytest.mark.common
-    @pytest.mark.parametrize('dataset_catalog',
-                         ['foo', 'benchmark', '0'])
+    @pytest.mark.parametrize('dataset_catalog', ['foo', 'benchmark', '0'])
     def test_eval_invalid_dataset_catalog(self, dataset_catalog):
         """
         Verifies that eval command fails if the dataset catalog value is invalid

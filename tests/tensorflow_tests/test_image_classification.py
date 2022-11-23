@@ -104,7 +104,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
 
     # Test generating an INC config file (not implemented yet for TFDS)
     inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))
-    with pytest.raises(NotImplementedError) as e:
+    with pytest.raises(NotImplementedError):
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, tuning_workspace=output_dir)
 
     # Retrain from checkpoints and verify that we have better accuracy than the original training
@@ -116,6 +116,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
+
 
 @pytest.mark.tensorflow
 def test_tf_image_classification_custom_model():
@@ -134,20 +135,20 @@ def test_tf_image_classification_custom_model():
 
     # Define a custom model
     alexnet = keras.models.Sequential([
-        keras.layers.Conv2D(filters=96, kernel_size=(11,11), strides=(4,4), activation='relu',
-                            input_shape=(image_size,image_size,3)),
+        keras.layers.Conv2D(filters=96, kernel_size=(11, 11), strides=(4, 4), activation='relu',
+                            input_shape=(image_size, image_size, 3)),
         keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(3,3), strides=(2,2)),
-        keras.layers.Conv2D(filters=256, kernel_size=(5,5), strides=(1,1), activation='relu', padding="same"),
+        keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+        keras.layers.Conv2D(filters=256, kernel_size=(5, 5), strides=(1, 1), activation='relu', padding="same"),
         keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(3,3), strides=(2,2)),
-        keras.layers.Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), activation='relu', padding="same"),
+        keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+        keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
         keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), activation='relu', padding="same"),
+        keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
         keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=256, kernel_size=(3,3), strides=(1,1), activation='relu', padding="same"),
+        keras.layers.Conv2D(filters=256, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
         keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(3,3), strides=(2,2)),
+        keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
         keras.layers.Flatten(),
         keras.layers.Dense(4096, activation='relu'),
         keras.layers.Dropout(0.5),
@@ -307,6 +308,7 @@ class TestImageClassificationCustomDataset:
             assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
             model.benchmark(quantization_output, inc_config_file_path)
 
+
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,early_stopping,lr_decay,accuracy,\
                           val_accuracy,lr_final',
@@ -316,13 +318,12 @@ class TestImageClassificationCustomDataset:
                           ['efficientnet_b0', 'tf_flowers', 4, 0.001, False, False, True, 0.875, None, 0.001],
                           ['efficientnet_b0', 'tf_flowers', 16, 0.005, True, False, True, 1.0, 0.8125, 1.0000e-03],
                           ['efficientnet_b0', 'tf_flowers', 25, 0.001, True, True, False, 1.0, 0.8125, 0.0002]])
-def test_tf_image_classification_with_lr_options(model_name, dataset_name, epochs, learning_rate, do_eval, early_stopping,
-                                                 lr_decay, accuracy, val_accuracy, lr_final):
+def test_tf_image_classification_with_lr_options(model_name, dataset_name, epochs, learning_rate, do_eval,
+                                                 early_stopping, lr_decay, accuracy, val_accuracy, lr_final):
     """
     Tests learning rate options
     """
     framework = 'tensorflow'
-    use_case = 'image_classification'
     output_dir = tempfile.mkdtemp()
 
     # Get the dataset

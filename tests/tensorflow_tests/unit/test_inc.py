@@ -31,8 +31,8 @@ from tlt.models import model_factory
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
-    from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel
-except ModuleNotFoundError as e:
+    from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel  # noqa: F401
+except ModuleNotFoundError:
     print("WARNING: Unable to import TFImageClassificationModel. TensorFlow may not be installed")
 
 
@@ -48,7 +48,7 @@ def test_tf_image_classification_config_file_overwrite():
         with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             config_file = os.path.join(temp_dir, "config.yaml")
-            batch_size=24
+            batch_size = 24
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
             nc_workspace = os.path.join(temp_dir, "nc_workspace")
             model.write_inc_config_file(config_file, mock_dataset, batch_size=batch_size, tuning_workspace=nc_workspace)
@@ -306,8 +306,7 @@ def test_tf_image_classification_quantization_model_does_not_exist():
         with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
-            with patch('neural_compressor.experimental.Quantization') as mock_q:
-
+            with patch('neural_compressor.experimental.Quantization'):
 
                 # Generate a random name that wouldn't exist
                 random_dir = str(uuid.uuid4())
@@ -322,7 +321,7 @@ def test_tf_image_classification_quantization_model_does_not_exist():
                 with pytest.raises(FileNotFoundError):
                     model.quantize(saved_model_dir, output_dir, dummy_config_file)
 
-            with patch('neural_compressor.experimental.Benchmark') as mock_bench:
+            with patch('neural_compressor.experimental.Benchmark'):
                 # It's not a directory, so we expect an error
                 with pytest.raises(NotADirectoryError):
                     model.benchmark(random_dir, dummy_config_file)
@@ -377,8 +376,7 @@ def test_tf_image_classification_optimize_graph_model_does_not_exist():
         with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
-            with patch('neural_compressor.experimental.Graph_Optimization') as mock_o:
-
+            with patch('neural_compressor.experimental.Graph_Optimization'):
 
                 # Generate a random name that wouldn't exist
                 random_dir = str(uuid.uuid4())
@@ -393,7 +391,7 @@ def test_tf_image_classification_optimize_graph_model_does_not_exist():
                 with pytest.raises(FileNotFoundError):
                     model.optimize_graph(saved_model_dir, output_dir)
 
-            with patch('neural_compressor.experimental.Benchmark') as mock_bench:
+            with patch('neural_compressor.experimental.Benchmark'):
                 # It's not a directory, so we expect an error
                 with pytest.raises(NotADirectoryError):
                     model.benchmark(random_dir, dummy_config_file)

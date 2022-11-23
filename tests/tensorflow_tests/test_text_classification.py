@@ -22,7 +22,6 @@ import os
 import pytest
 import shutil
 import tempfile
-import numpy as np
 
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
@@ -62,7 +61,8 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
         assert "model must be trained" in str(e)
 
         # Train
-        history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, do_eval=False, 
+        history = model.train(dataset, output_dir=output_dir, epochs=1,
+                              shuffle_files=False, do_eval=False,
                               extra_layers=extra_layers)
         assert history is not None
         assert len(model._model.layers) == correct_num_layers
@@ -121,13 +121,19 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
         if os.path.exists(output_dir) and os.path.isdir(output_dir):
             shutil.rmtree(output_dir)
 
+
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,lr_decay,accuracy,val_accuracy,lr_final',
-                         [['small_bert/bert_en_uncased_L-2_H-128_A-2', 'glue/sst2', 1, .005, False, False, None, None, 0.005],
-                          ['small_bert/bert_en_uncased_L-2_H-256_A-4', 'glue/sst2', 1, .001, True, True, 0.34375, 0.4256, 0.001],
-                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews', 15, .005, True, True, None, None, 0.001]])
-def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name, epochs, learning_rate, do_eval, lr_decay,
-                                                 accuracy, val_accuracy, lr_final):
+@pytest.mark.parametrize('model_name, dataset_name, epochs, learning_rate, do_eval, \
+                         lr_decay, accuracy, val_accuracy, lr_final',
+                         [['small_bert/bert_en_uncased_L-2_H-128_A-2', 'glue/sst2', 1,
+                           .005, False, False, None, None, 0.005],
+                          ['small_bert/bert_en_uncased_L-2_H-256_A-4', 'glue/sst2',
+                           1, .001, True, True, 0.34375, 0.4256, 0.001],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews',
+                           15, .005, True, True, None, None, 0.001]])
+def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name,
+                                                       epochs, learning_rate, do_eval,
+                                                       lr_decay, accuracy, val_accuracy, lr_final):
     """
     Tests transfer learning for TensorFlow binary text classification with different learning rate options
     """

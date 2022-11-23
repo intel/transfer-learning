@@ -30,13 +30,13 @@ from tlt.datasets.dataset_factory import get_dataset, load_dataset
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
-    from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset
+    from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset  # noqa: E501
 except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageClassificationDataset. Torch may not be installed")
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
-    from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset
+    from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset  # noqa: E501
 except ModuleNotFoundError:
     print("WARNING: Unable to import PyTorchCustomImageClassificationDataset. Torch may not be installed")
 
@@ -369,16 +369,16 @@ class TestImageClassificationDataset:
         default_val_pct = 0.25
 
         # Get the full dataset size
-        dataset_size = torchvision_metadata[dataset_name]['size'] if dataset_name else len(dataset_classes) * 50
+        ds_size = torchvision_metadata[dataset_name]['size'] if dataset_name else len(dataset_classes) * 50
 
         # Divide by the batch size that was used to preprocess earlier
-        dataset_size = dataset_size / tlt_dataset.info['preprocessing_info']['batch_size']
+        ds_size = ds_size / tlt_dataset.info['preprocessing_info']['batch_size']
 
         # The PyTorch loaders are what gets batched and they can be off by 1 from the floor value
         assert math.floor(
-            dataset_size * default_train_pct) <= len(tlt_dataset.train_loader) <= math.ceil(dataset_size * default_train_pct)
+            ds_size * default_train_pct) <= len(tlt_dataset.train_loader) <= math.ceil(ds_size * default_train_pct)
         assert math.floor(
-            dataset_size * default_val_pct) <= len(tlt_dataset.validation_loader) <= math.ceil(dataset_size * default_val_pct)
+            ds_size * default_val_pct) <= len(tlt_dataset.validation_loader) <= math.ceil(ds_size * default_val_pct)
         assert tlt_dataset.test_loader is None
         assert tlt_dataset._validation_type == 'shuffle_split'
 

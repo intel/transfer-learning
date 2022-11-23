@@ -28,20 +28,20 @@ from tlt.utils.types import FrameworkType, UseCaseType
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
     import torch
-except ModuleNotFoundError as e:
+except ModuleNotFoundError:
     print("WARNING: Unable to import torch. Torch may not be installed")
 
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
-    from tlt.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel
-    from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset
-except ModuleNotFoundError as e:
+    from tlt.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel  # noqa: E501
+    from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset  # noqa: E501
+except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageClassificationModel and TorchvisionImageClassificationDataset. "
           "Torch may not be installed")
 
 try:
-    from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset
+    from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset  # noqa: F401, E501
 except ModuleNotFoundError:
     print("WARNING: Unable to import HFTextClassificationDataset. HuggingFace's `tranformers` API may not be installed \
            in the current env")
@@ -149,8 +149,7 @@ def test_torchvision_efficientnet_b0_train():
     model = model_factory.get_model('efficientnet_b0', 'pytorch')
     model._generate_checkpoints = False
 
-    with patch('tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset') \
-            as mock_dataset:
+    with patch('tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset') as mock_dataset:  # noqa: E501
         with patch('tlt.models.image_classification.torchvision_image_classification_model.'
                    'TorchvisionImageClassificationModel._get_hub_model') as mock_get_hub_model:
             mock_dataset.train_subset = [1, 2, 3]
