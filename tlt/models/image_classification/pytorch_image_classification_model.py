@@ -19,6 +19,7 @@
 #
 
 import copy
+import inspect
 import os
 import time
 from tqdm import tqdm
@@ -42,7 +43,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
     Class used to represent a PyTorch model for image classification
     """
 
-    def __init__(self, model_name: str, model=None):
+    def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
         """
         Class constructor
         """
@@ -53,9 +54,6 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         self._do_fine_tuning = False
         self._dropout_layer_rate = None
         self._device = 'cpu'
-        self._optimizer_class = torch.optim.Adam  # Just the class, it needs to be initialized with the model object
-        self._optimizer = None
-        self._loss = torch.nn.CrossEntropyLoss()
         self._lr_scheduler = None
         self._generate_checkpoints = True
 
@@ -66,6 +64,15 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         PyTorchModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.IMAGE_CLASSIFICATION)
         ImageClassificationModel.__init__(self, self._image_size, self._do_fine_tuning, self._dropout_layer_rate,
                                           self._model_name, self._framework, self._use_case)
+
+        # set up the configurable optimizer and loss functions
+        self._check_optimizer_loss(optimizer, loss)
+        self._optimizer_class = optimizer if optimizer else torch.optim.Adam
+        self._opt_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(self._optimizer_class).args}
+        self._optimizer = None  # This gets initialized later
+        self._loss_class = loss if loss else torch.nn.CrossEntropyLoss
+        self._loss_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(self._loss_class).args}
+        self._loss = self._loss_class(**self._loss_args)
 
         if model is None:
             self._model = None

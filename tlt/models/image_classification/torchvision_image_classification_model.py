@@ -36,7 +36,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
     Class used to represent a Torchvision pretrained model for image classification
     """
 
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, **kwargs):
         """
         Class constructor
         """
@@ -46,7 +46,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             raise ValueError("The specified Torchvision image classification model ({}) "
                              "is not supported.".format(model_name))
 
-        PyTorchImageClassificationModel.__init__(self, model_name)
+        PyTorchImageClassificationModel.__init__(self, model_name, **kwargs)
 
         self._classification_layer = torchvision_model_map[model_name]["classification_layer"]
         self._image_size = torchvision_model_map[model_name]["image_size"]

@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+import inspect
 import os
 import torch
 import numpy as np
@@ -50,7 +51,7 @@ MODEL_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "models/configs")
 
 
 class HFTextClassificationModel(TextClassificationModel, HFModel):
-    def __init__(self, model_name: str, model=None, **kwargs):
+    def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
 
         # extra properties that will become configurable in the future
         self._model_name = model_name
@@ -58,9 +59,6 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         self._do_fine_tuning = False
         self._dropout_layer_rate = None
         self._device = 'cpu'
-        self._optimizer_class = torch.optim.AdamW  # Just the class, it needs to be initialized with the model object
-        self._optimizer = None
-        self._loss_criterion = torch.nn.CrossEntropyLoss()
         self._lr_scheduler = None
         self._generate_checkpoints = True
         self._tokenizer = None
@@ -68,6 +66,15 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         TextClassificationModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.TEXT_CLASSIFICATION,
                                          self._dropout_layer_rate)
         HFModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.TEXT_CLASSIFICATION)
+
+        # set up the configurable optimizer and loss functions
+        self._check_optimizer_loss(optimizer, loss)
+        self._optimizer_class = optimizer if optimizer else torch.optim.AdamW
+        self._opt_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(self._optimizer_class).args}
+        self._optimizer = None  # This gets initialized later
+        self._loss_class = loss if loss else torch.nn.CrossEntropyLoss
+        self._loss_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(self._loss_class).args}
+        self._loss = self._loss_class(**self._loss_args)
 
         # model definition
         config_dict = read_json_file(os.path.join(MODEL_CONFIG_DIR, "hf_text_classification_models.json"))
@@ -120,6 +127,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         self._model.to(self._device)
         self._model.train()
         self._history = {}
+
         for epoch in range(epochs):
             print(f'Epoch {epoch+1}/{epochs}')
             print('-' * 10)
@@ -138,7 +146,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
                 # Forward pass
                 outputs = self._model(**inputs)
-                loss = self._loss_criterion(outputs.logits, labels)
+                loss = self._loss(outputs.logits, labels)
 
                 # Backward pass
                 loss.backward()
@@ -196,7 +204,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         self.validation_data_loader = None
 
         # Initialize the optimizer class and create a learning rate scheduler
-        self._optimizer = self._optimizer_class(self._model.parameters(), lr=learning_rate)
+        self._optimizer = self._optimizer_class(self._model.parameters(), lr=learning_rate, **self._opt_args)
 
         if use_trainer:
             training_args = TrainingArguments(
@@ -268,7 +276,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
                 labels = data_batch['labels']
 
                 outputs = self._model(**inputs)
-                loss = self._loss_criterion(outputs.logits, labels)
+                loss = self._loss(outputs.logits, labels)
 
                 # Statistics
                 predictions = torch.argmax(outputs.logits, dim=-1)

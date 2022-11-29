@@ -357,3 +357,56 @@ def test_tfhub_auto_mixed_precision(mock_subprocess, mock_platform, mock_os, moc
     else:
         # We expect that the auto mixed prercision config is not called (due to TF version unsupported)
         assert not mock_set_experimental_options.called
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,use_case,dataset_type,optimizer,loss',
+                         [['efficientnet_b0', 'image_classification', ImageClassificationDataset,
+                           keras.optimizers.Adagrad, keras.losses.MeanSquaredError],
+                          ['custom', 'image_classification', ImageClassificationDataset,
+                           keras.optimizers.SGD, keras.losses.CategoricalCrossentropy],
+                          ['bert_en_wwm_uncased_L-24_H-1024_A-16', 'text_classification', TextClassificationDataset,
+                           keras.optimizers.RMSprop, keras.losses.BinaryCrossentropy]])
+def test_tf_optimizer_loss(model_name, use_case, dataset_type, optimizer, loss):
+    """
+    Tests initializing and training a model with configurable optimizers and loss functions
+    """
+
+    if model_name == 'custom':
+        model = model_factory.load_model(model_name, ALEXNET, 'tensorflow', use_case, optimizer=optimizer, loss=loss)
+    else:
+        model = model_factory.get_model(model_name, 'tensorflow', optimizer=optimizer, loss=loss)
+
+    model._generate_checkpoints = False
+    model._get_hub_model = MagicMock()
+    model._model = MagicMock()
+    model._model.fit = MagicMock()
+    assert model._optimizer_class == optimizer
+    assert model._loss_class == loss
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = dataset_type
+    if dataset_type == TextClassificationDataset:
+        mock_dataset.class_names = ['a', 'b']
+    else:
+        mock_dataset.class_names = ['a', 'b', 'c']
+
+    # Train is called and optimizer and loss objects should match the input types
+    model.train(mock_dataset, output_dir="/tmp/output/tf")
+    assert model._optimizer_class == optimizer
+    assert type(model._optimizer) == optimizer
+    assert model._loss_class == loss
+    assert type(model._loss) == loss
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,loss',
+                         [['efficientnet_b0', 1],
+                          ['efficientnet_b0', 'foo'],
+                          ['bert_en_wwm_uncased_L-24_H-1024_A-16', keras.optimizers.Adam]])
+def test_tf_loss_wrong_type(model_name, loss):
+    """
+    Tests that an exception is thrown when the input loss function is the wrong type
+    """
+    with pytest.raises(TypeError):
+        model_factory.get_model(model_name, 'tensorflow', loss=loss)

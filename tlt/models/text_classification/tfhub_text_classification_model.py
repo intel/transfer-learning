@@ -38,7 +38,7 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
     fine tuning.
     """
 
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, **kwargs):
         tfhub_model_map = read_json_file(os.path.join(
             TLT_BASE_DIR, "models/configs/tfhub_text_classification_models.json"))
         if model_name not in tfhub_model_map.keys():
@@ -58,7 +58,7 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
         self._model = None
         self._num_classes = None
 
-        TFTextClassificationModel.__init__(self, model_name)
+        TFTextClassificationModel.__init__(self, model_name, **kwargs)
 
     @property
     def model_url(self):

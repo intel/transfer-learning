@@ -34,7 +34,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
     Class used to represent a TF Hub pretrained model
     """
 
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, **kwargs):
         """
         Class constructor
         """
@@ -47,7 +47,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         self._model_url = tfhub_model_map[model_name]["imagenet_model"]
         self._feature_vector_url = tfhub_model_map[model_name]["feature_vector"]
 
-        TFImageClassificationModel.__init__(self, model_name=model_name, model=None)
+        TFImageClassificationModel.__init__(self, model_name=model_name, model=None, **kwargs)
 
         # placeholder for model definition
         self._model = None
@@ -195,7 +195,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                 hub.KerasLayer(self._model_url, input_shape=(self._image_size, self._image_size) + (3,))
             ])
             original_model.compile(
-                optimizer=tf.keras.optimizers.Adam(),
+                optimizer=self._optimizer_class(),
                 loss=self._loss,
                 metrics=['acc'])
             return original_model.evaluate(eval_dataset)

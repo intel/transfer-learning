@@ -61,7 +61,7 @@ model_map = {
 }
 
 
-def load_model(model_name: str, model, framework: FrameworkType = None, use_case: UseCaseType = None):
+def load_model(model_name: str, model, framework: FrameworkType = None, use_case: UseCaseType = None, **kwargs):
     """A factory method for loading an existing model.
 
         Args:
@@ -69,6 +69,12 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
             model (model or str): model object or directory with a saved_model.pb or model.pt file to load
             framework (str or FrameworkType): framework
             use_case (str or UseCaseType): use case
+            kwargs: optional; additional keyword arguments for optimizer and loss function configuration.
+                The `optimizer` and `loss` arguments can be set to Optimizer and Loss classes, depending on the model's
+                framework (examples: `optimizer=tf.keras.optimizers.Adam` for TensorFlow,
+                `loss=torch.nn.CrossEntropyLoss` for PyTorch). Additional keywords for those classes' initialization
+                can then be provided to further configure the objects when they are created (example: `amsgrad=True`
+                for the PyTorch Adam optimizer). Refer to the framework documentation for the function you want to use.
 
         Returns:
             model object
@@ -90,7 +96,7 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
 
     model_class = locate('{}.{}'.format(model_map[framework][use_case]['Custom']['module'],
                                         model_map[framework][use_case]['Custom']['class']))
-    return model_class(model_name, model)
+    return model_class(model_name, model, **kwargs)
 
 
 def get_model(model_name: str, framework: FrameworkType = None, **kwargs):
@@ -99,6 +105,12 @@ def get_model(model_name: str, framework: FrameworkType = None, **kwargs):
         Args:
             model_name (str): name of model
             framework (str or FrameworkType): framework
+            kwargs: optional; additional keyword arguments for optimizer and loss function configuration.
+                The `optimizer` and `loss` arguments can be set to Optimizer and Loss classes, depending on the model's
+                framework (examples: `optimizer=tf.keras.optimizers.Adam` for TensorFlow,
+                `loss=torch.nn.CrossEntropyLoss` for PyTorch). Additional keywords for those classes' initialization
+                can then be provided to further configure the objects when they are created (example: `amsgrad=True`
+                for the PyTorch Adam optimizer). Refer to the framework documentation for the function you want to use.
 
         Returns:
             model object

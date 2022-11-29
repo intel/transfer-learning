@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+import inspect
 import os
 import random
 import numpy as np
@@ -59,6 +60,18 @@ class TFModel(BaseModel):
         if initial_checkpoints and not isinstance(initial_checkpoints, str):
             raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
                 type(initial_checkpoints)))
+
+    def _check_optimizer_loss(self, optimizer, loss):
+        if optimizer is not None and (not inspect.isclass(optimizer) or
+                                      tf.keras.optimizers.Optimizer not in inspect.getmro(optimizer)):
+            raise TypeError("The optimizer input must be a class (not an instance) of type "
+                            "tf.keras.optimizers.Optimizer or None but found a {}. "
+                            "Example: tf.keras.optimizers.SGD".format(optimizer))
+        if loss is not None and (not inspect.isclass(loss) or
+                                 tf.keras.losses.Loss not in inspect.getmro(loss)):
+            raise TypeError("The loss input must be class (not an instance) of type "
+                            "tf.keras.losses.Loss or None but found a {}. "
+                            "Example: tf.keras.losses.BinaryCrossentropy".format(loss))
 
     def load_from_directory(self, model_dir: str):
         """

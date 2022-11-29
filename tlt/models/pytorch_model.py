@@ -18,14 +18,13 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-# Module imports
+import inspect
 import os
 import dill
 import numpy
 import random
 import torch
 
-# TLK imports
 from tlt.models.model import BaseModel
 from tlt.utils.types import FrameworkType, UseCaseType
 from tlt.utils.file_utils import verify_directory
@@ -68,6 +67,17 @@ class PyTorchModel(BaseModel):
         if initial_checkpoints and not isinstance(initial_checkpoints, str):
             raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
                 type(initial_checkpoints)))
+
+    def _check_optimizer_loss(self, optimizer, loss):
+        if optimizer is not None and (not inspect.isclass(optimizer) or
+                                      torch.optim.Optimizer not in inspect.getmro(optimizer)):
+            raise TypeError("The optimizer input must be a class (not an instance) of type torch.optim.Optimizer or "
+                            "None but found a {}. Example: torch.optim.AdamW".format(type(optimizer)))
+        if loss is not None and (not inspect.isclass(loss) or
+                                 torch.nn.modules.loss._Loss not in inspect.getmro(loss)):
+            raise TypeError("The optimizer input must be a class (not an instance) of type "
+                            "torch.nn.modules.loss._Loss or None but found a {}. "
+                            "Example: torch.nn.CrossEntropyLoss".format(type(loss)))
 
     def _update_history(self, key, value):
         if key not in self._history:

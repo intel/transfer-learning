@@ -47,7 +47,7 @@ def test_pyt_text_classification(model_name, dataset_name):
 
     # Preprocess the dataset
     dataset.preprocess(model_name, batch_size=32)
-    dataset.shuffle_split(train_pct=0.05, val_pct=0.05, seed=10)
+    dataset.shuffle_split(train_pct=0.01, val_pct=0.01, seed=10)
     assert dataset._validation_type == 'shuffle_split'
 
     # Evaluate before training

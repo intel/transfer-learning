@@ -19,6 +19,7 @@
 #
 
 import os
+import inspect
 import tensorflow as tf
 
 from tlt.models.tf_model import TFModel
@@ -38,7 +39,7 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
     fine tuning.
     """
 
-    def __init__(self, model_name: str, model=None):
+    def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
         # extra properties that should become configurable in the future
         self._dropout_layer_rate = 0.1
         self._epsilon = 1e-08
@@ -51,6 +52,18 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         TFModel.__init__(self, model_name, FrameworkType.TENSORFLOW, UseCaseType.TEXT_CLASSIFICATION)
         TextClassificationModel.__init__(self, model_name, FrameworkType.TENSORFLOW, UseCaseType.TEXT_CLASSIFICATION,
                                          dropout_layer_rate=self._dropout_layer_rate)
+
+        # set up the configurable optimizer and loss functions
+        self._check_optimizer_loss(optimizer, loss)
+        self._optimizer_class = optimizer if optimizer else tf.keras.optimizers.Adam
+        self._opt_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(self._optimizer_class).args}
+        self._optimizer = None  # This gets initialized later
+        self._loss_class = loss  # This can be None, default function is defined later
+        if self._loss_class:
+            self._loss_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(self._loss_class).args}
+        else:
+            self._loss_args = {}
+        self._loss = None  # This gets initialized later
 
         if model is None:
             self._model = None
@@ -69,14 +82,17 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
 
     def _get_train_callbacks(self, dataset, output_dir, initial_checkpoints, do_eval, early_stopping,
                              lr_decay, dataset_num_classes):
-        loss = tf.keras.losses.BinaryCrossentropy(from_logits=True) if dataset_num_classes == 2 else \
-            tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        if self._loss_class is None:
+            self._loss = tf.keras.losses.BinaryCrossentropy(from_logits=True) if dataset_num_classes == 2 else \
+                tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        else:
+            self._loss = self._loss_class(**self._loss_args)
 
         metrics = tf.metrics.BinaryAccuracy() if dataset_num_classes == 2 else tf.keras.metrics.Accuracy()
 
-        self._model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=self._learning_rate, epsilon=self._epsilon),
-            loss=loss, metrics=metrics)
+        self._optimizer = self._optimizer_class(learning_rate=self._learning_rate, epsilon=self._epsilon,
+                                                **self._opt_args)
+        self._model.compile(optimizer=self._optimizer, loss=self._loss, metrics=metrics)
 
         if initial_checkpoints:
             if os.path.isdir(initial_checkpoints):

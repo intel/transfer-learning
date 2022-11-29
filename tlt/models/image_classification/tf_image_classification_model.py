@@ -19,6 +19,7 @@
 #
 
 import copy
+import inspect
 import os
 import numpy as np
 import tensorflow as tf
@@ -37,7 +38,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
     Class used to represent a TF custom pretrained model
     """
 
-    def __init__(self, model_name: str, model=None):
+    def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
         """
         Class constructor
         """
@@ -46,7 +47,6 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         # extra properties that will become configurable in the future
         self._do_fine_tuning = False
         self._dropout_layer_rate = None
-        self._loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
         self._generate_checkpoints = True
 
         # placeholder for model definition
@@ -55,6 +55,17 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         TFModel.__init__(self, model_name, FrameworkType.TENSORFLOW, UseCaseType.IMAGE_CLASSIFICATION)
         ImageClassificationModel.__init__(self, self._image_size, self._do_fine_tuning, self._dropout_layer_rate,
                                           self._model_name, self._framework, self._use_case)
+
+        # set up the configurable optimizer and loss functions
+        self._check_optimizer_loss(optimizer, loss)
+        config = {'from_logits': True}
+        config.update(kwargs)
+        self._optimizer_class = optimizer if optimizer else tf.keras.optimizers.Adam
+        self._opt_args = {k: v for k, v in config.items() if k in inspect.getfullargspec(self._optimizer_class).args}
+        self._optimizer = None  # This gets initialized later
+        self._loss_class = loss if loss else tf.keras.losses.SparseCategoricalCrossentropy
+        self._loss_args = {k: v for k, v in config.items() if k in inspect.getfullargspec(self._loss_class).args}
+        self._loss = self._loss_class(**self._loss_args)
 
         if model is None:
             self._model = None
@@ -78,7 +89,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
     def _get_train_callbacks(self, dataset, output_dir, initial_checkpoints, do_eval, early_stopping,
                              lr_decay):
-        self._optimizer = tf.keras.optimizers.Adam(learning_rate=self._learning_rate)
+        self._optimizer = self._optimizer_class(learning_rate=self._learning_rate, **self._opt_args)
         self._model.compile(
             optimizer=self._optimizer,
             loss=self._loss,
