@@ -36,9 +36,8 @@ except ModuleNotFoundError:
     print("WARNING: Unable to import TFImageClassificationModel. TensorFlow may not be installed")
 
 from tlt.datasets import dataset_factory
-from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
-from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset
+from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset  # noqa: E501
 
 # Load a custom PyTorch dataset that can be re-used for tests
 dataset_dir = tempfile.mkdtemp()
@@ -48,8 +47,9 @@ if not os.path.exists(custom_dataset_path):
     download_and_extract_tar_file(download_url, dataset_dir)
 # Load the dataset from the custom dataset path
 dataset = dataset_factory.load_dataset(dataset_dir=custom_dataset_path,
-                                       use_case='image_classification', 
+                                       use_case='image_classification',
                                        framework='pytorch')
+
 
 @pytest.mark.tensorflow
 def test_tf_image_classification_config_file_overwrite():
@@ -488,6 +488,7 @@ def test_tf_image_classification_inc_benchmark_mode(mode, valid):
         if os.path.exists(saved_model_dir):
             shutil.rmtree(saved_model_dir)
 
+
 @pytest.mark.pytorch
 def test_pyt_image_classification_config_file_overwrite():
     """
@@ -497,11 +498,10 @@ def test_pyt_image_classification_config_file_overwrite():
     try:
         temp_dir = tempfile.mkdtemp()
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             mock_dataset.__class__ = PyTorchCustomImageClassificationDataset
             config_file = os.path.join(temp_dir, "config.yaml")
-            batch_size=24
+            batch_size = 4
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
             nc_workspace = os.path.join(temp_dir, "nc_workspace")
             model.write_inc_config_file(config_file, dataset, batch_size=batch_size, tuning_workspace=nc_workspace)
@@ -534,8 +534,7 @@ def test_pyt_image_classification_config_file_batch_size(batch_size, valid):
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
@@ -567,8 +566,7 @@ def test_pyt_image_classification_config_file_resize_interpolation(resize_interp
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
@@ -600,8 +598,7 @@ def test_pyt_image_classification_config_file_accuracy_criterion(accuracy_criter
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
@@ -634,8 +631,7 @@ def test_pyt_image_classification_config_file_timeout(timeout, valid):
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
@@ -667,8 +663,7 @@ def test_pyt_image_classification_config_file_max_trials(max_trials, valid):
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
@@ -700,8 +695,7 @@ def test_pyt_image_classification_config_file_seed(seed, valid):
         temp_dir = tempfile.mkdtemp()
         nc_workspace = os.path.join(temp_dir, "nc_workspace")
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             config_file = os.path.join(temp_dir, "config.yaml")
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
@@ -732,8 +726,7 @@ def test_pyt_image_classification_quantization():
         Path(dummy_config_file).touch()
 
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             with patch('neural_compressor.experimental.Quantization') as mock_q:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
@@ -756,11 +749,9 @@ def test_pyt_image_classification_quantization_model_does_not_exist():
         dummy_config_file = os.path.join(output_dir, "config.yaml")
         Path(dummy_config_file).touch()
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
-            with patch('neural_compressor.experimental.Quantization') as mock_q:
-
+            with patch('neural_compressor.experimental.Quantization'):
 
                 # Generate a random name that wouldn't exist
                 random_dir = str(uuid.uuid4())
@@ -775,7 +766,7 @@ def test_pyt_image_classification_quantization_model_does_not_exist():
                 with pytest.raises(FileNotFoundError):
                     model.quantize(saved_model_dir, output_dir, dummy_config_file)
 
-            with patch('neural_compressor.experimental.Benchmark') as mock_bench:
+            with patch('neural_compressor.experimental.Benchmark'):
                 # It's not a directory, so we expect an error
                 with pytest.raises(NotADirectoryError):
                     model.benchmark(random_dir, dummy_config_file)
@@ -789,6 +780,7 @@ def test_pyt_image_classification_quantization_model_does_not_exist():
             shutil.rmtree(output_dir)
         if os.path.exists(saved_model_dir):
             shutil.rmtree(saved_model_dir)
+
 
 @pytest.mark.pytorch
 def test_pyt_image_classification_inc_benchmark():
@@ -805,8 +797,7 @@ def test_pyt_image_classification_inc_benchmark():
         Path(dummy_config_file).touch()
 
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             with patch('neural_compressor.experimental.Benchmark') as mock_bench:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
@@ -817,6 +808,7 @@ def test_pyt_image_classification_inc_benchmark():
             shutil.rmtree(output_dir)
         if os.path.exists(saved_model_dir):
             shutil.rmtree(saved_model_dir)
+
 
 @pytest.mark.pytorch
 @pytest.mark.parametrize('mode,valid',
@@ -838,8 +830,7 @@ def test_pyt_image_classification_inc_benchmark_mode(mode, valid):
         Path(dummy_config_file).touch()
 
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
-        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') \
-                as mock_dataset:
+        with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             with patch('neural_compressor.experimental.Benchmark') as mock_bench:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
