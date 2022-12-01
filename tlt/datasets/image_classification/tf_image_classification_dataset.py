@@ -87,16 +87,16 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
         """
         return self._dataset
 
-    def preprocess(self, image_size, batch_size, add_aug=list()):
+    def preprocess(self, image_size, batch_size, add_aug=None):
         """
         Preprocess the dataset to convert to float32, resize, and batch the images
 
             Args:
                 image_size (int): desired square image size
                 batch_size (int): desired batch size
-                add_aug (list[str]): Choice of augmentations (RandomHorizontalandVerticalFlip,
-                RandomHorizontalFlip, RandomVerticalFlip, RandomZoom, RandomRotation) to be applied during
-                training.
+                add_aug (None or list[str]): Choice of augmentations (RandomHorizontalandVerticalFlip,
+                                             RandomHorizontalFlip, RandomVerticalFlip, RandomZoom, RandomRotation) to
+                                             be applied during training
 
             Raises:
                 ValueError if the dataset is not defined or has already been processed
@@ -130,7 +130,7 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
             setattr(self, subset, getattr(self, subset).prefetch(tf.data.AUTOTUNE))
         self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
 
-        if add_aug != []:
+        if add_aug is not None:
             seed = 10
             aug_dict = {
                 'hvflip': tf.keras.layers.RandomFlip("horizontal_and_vertical",
