@@ -64,6 +64,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 for param in self._model.parameters():
                     param.requires_grad = False
 
+            # Do not apply a softmax activation to the final layer as with TF because loss can be affected
             if len(self._classification_layer) == 2:
                 base_model = getattr(self._model, self._classification_layer[0])
                 classifier = getattr(self._model, self._classification_layer[0])[self._classification_layer[1]]
@@ -83,7 +84,6 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                     num_features = classifier.in_features
 
                 if extra_layers:
-                    # assuming its always just the output layer that exists here.
                     setattr(self._model, self._classification_layer[0], torch.nn.Sequential())
                     classifier = getattr(self._model, self._classification_layer[0])
                     for layer in extra_layers:
@@ -92,7 +92,8 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                         num_features = layer
                     classifier.append(torch.nn.Linear(num_features, num_classes))
                 else:
-                    setattr(self._model, self._classification_layer[0], torch.nn.Linear(num_features, num_classes))
+                    classifier = torch.nn.Sequential(torch.nn.Linear(num_features, num_classes))
+                    setattr(self._model, self._classification_layer[0], classifier)
 
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
@@ -238,12 +239,26 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
         return [epoch_loss, epoch_acc]
 
-    def predict(self, input_samples, return_scores=False):
+    def predict(self, input_samples, return_type='class'):
         """
         Perform feed-forward inference and predict the classes of the input_samples.
 
-        Use return_scores=True for full probability vectors, or just the highest scoring classes will be returned.
+        Args:
+            input_samples (tensor): Input tensor with one or more samples to perform inference on
+            return_type (str): Using 'class' will return the highest scoring class (default), using 'scores' will
+                               return the raw output/logits of the last layer of the network, using 'probabilities' will
+                               return the output vector after applying a softmax function (so results sum to 1)
+
+        Returns:
+            List of classes, probability vectors, or raw score vectors
+
+        Raises:
+            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
+        return_types = ['class', 'probabilities', 'scores']
+        if not isinstance(return_type, str) or return_type not in return_types:
+            raise ValueError('Invalid return_type ({}). Expected one of {}.'.format(return_type, return_types))
+
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
             pretrained_model_class = locate('torchvision.models.{}'.format(self.model_name))
@@ -251,11 +266,15 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             predictions = model(input_samples)
         else:
             self._model.eval()
-            predictions = self._model(input_samples)
-        if not return_scores:
+            with torch.no_grad():
+                predictions = self._model(input_samples)
+        if return_type == 'class':
             _, predicted_ids = torch.max(predictions, 1)
             return predicted_ids
-        return predictions
+        elif return_type == 'probabilities':
+            return torch.nn.functional.softmax(predictions)
+        else:
+            return predictions
 
     def ls_modules(self, verbose=False):
         """

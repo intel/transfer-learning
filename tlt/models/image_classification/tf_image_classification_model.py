@@ -230,16 +230,33 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         return self._model.evaluate(eval_dataset)
 
-    def predict(self, input_samples, return_scores=False):
+    def predict(self, input_samples, return_type='class'):
         """
         Perform feed-forward inference and predict the classes of the input_samples.
 
-        Use return_scores=True for full probability vectors, or just the highest scoring classes will be returned.
+        Args:
+            input_samples (tensor): Input tensor with one or more samples to perform inference on
+            return_type (str): Using 'class' will return the highest scoring class (default), using 'scores' will
+                               return the raw output/logits of the last layer of the network, using 'probabilities' will
+                               return the output vector after applying a softmax function (so results sum to 1)
+
+        Returns:
+            List of classes, probability vectors, or raw score vectors
+
+        Raises:
+            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
+        return_types = ['class', 'probabilities', 'scores']
+        if not isinstance(return_type, str) or return_type not in return_types:
+            raise ValueError('Invalid return_type ({}). Expected one of {}.'.format(return_type, return_types))
+
         predictions = self._model.predict(input_samples)
-        if not return_scores:
+        if return_type == 'class':
             return np.argmax(predictions, axis=-1)
-        return predictions
+        elif return_type == 'probabilities':
+            return tf.nn.softmax(predictions)
+        else:
+            return predictions
 
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False,
                               resize_interpolation='bicubic', accuracy_criterion_relative=0.01, exit_policy_timeout=0,

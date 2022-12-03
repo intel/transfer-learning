@@ -325,18 +325,36 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
         return [epoch_loss, epoch_acc]
 
-    def predict(self, input_samples, return_scores=False):
+    def predict(self, input_samples, return_type='class'):
         """
         Perform feed-forward inference and predict the classes of the input_samples.
 
-        Use return_scores=True for full probability vectors, or just the highest scoring classes will be returned.
+        Args:
+            input_samples (tensor): Input tensor with one or more samples to perform inference on
+            return_type (str): Using 'class' will return the highest scoring class (default), using 'scores' will
+                               return the raw output/logits of the last layer of the network, using 'probabilities' will
+                               return the output vector after applying a softmax function (so results sum to 1)
+
+        Returns:
+            List of classes, probability vectors, or raw score vectors
+
+        Raises:
+            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
+        return_types = ['class', 'probabilities', 'scores']
+        if not isinstance(return_type, str) or return_type not in return_types:
+            raise ValueError('Invalid return_type ({}). Expected one of {}.'.format(return_type, return_types))
+
         self._model.eval()
-        predictions = self._model(input_samples)
-        if not return_scores:
+        with torch.no_grad():
+            predictions = self._model(input_samples)
+        if return_type == 'class':
             _, predicted_ids = torch.max(predictions, 1)
             return predicted_ids
-        return predictions
+        elif return_type == 'probabilities':
+            return torch.nn.functional.softmax(predictions)
+        else:
+            return predictions
 
     def export(self, output_dir):
         """

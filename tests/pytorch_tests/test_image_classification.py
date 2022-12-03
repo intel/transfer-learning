@@ -19,6 +19,7 @@
 #
 
 import os
+import numpy as np
 import pytest
 import shutil
 import tempfile
@@ -64,11 +65,8 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
 
     # Train
     model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers, seed=10)
-    if isinstance(list(model._model.children())[-1], torch.nn.modules.linear.Linear):
-        # when this is true, number of initial layers is 1
-        assert correct_num_layers == 1
-    else:
-        assert len(list(model._model.children())[-1]) == correct_num_layers
+    assert len(list(model._model.children())[-1]) == correct_num_layers
+
     # Evaluate
     trained_metrics = model.evaluate(dataset)
     assert trained_metrics[0] <= pretrained_metrics[0]  # loss
@@ -78,8 +76,9 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
     images, labels = dataset.get_batch()
     predictions = model.predict(images)
     assert len(predictions) == 32
-    prediction_scores = model.predict(images, return_scores=True)
-    assert prediction_scores.shape == torch.Size([32, 10])  # CIFAR has 10 classes
+    probabilities = model.predict(images, return_type='probabilities')
+    assert probabilities.shape == torch.Size([32, 10])  # CIFAR has 10 classes
+    np.testing.assert_almost_equal(torch.sum(probabilities), np.float32(32), decimal=4)
 
     # Export the saved model
     saved_model_dir = model.export(output_dir)
@@ -166,8 +165,9 @@ def test_pyt_image_classification_custom_model():
     images, labels = dataset.get_batch()
     predictions = model.predict(images)
     assert len(predictions) == 32
-    prediction_scores = model.predict(images, return_scores=True)
-    assert prediction_scores.shape == torch.Size([32, 10])  # CIFAR has 10 classes
+    probabilities = model.predict(images, return_type='probabilities')
+    assert probabilities.shape == torch.Size([32, 10])  # CIFAR has 10 classes
+    np.testing.assert_almost_equal(torch.sum(probabilities), np.float32(32), decimal=4)
 
     # Export the saved model
     saved_model_dir = model.export(output_dir)
