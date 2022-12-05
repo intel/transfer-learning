@@ -81,8 +81,17 @@ import sys
               multiple=True,
               default=[],
               help="Choice of data augmentation to be applied during training.")
+@click.option("--early-stopping", "--early_stopping",
+              type=click.BOOL,
+              default=False,
+              help="Enable early stopping if convergence is reached while training (bool)")
+@click.option("--lr-decay", "--lr_decay",
+              type=click.BOOL,
+              default=False,
+              help="If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at "
+              "the end of each epoch.")
 def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimiter, class_names, dataset_name,
-          dataset_catalog, epochs, init_checkpoints, add_aug):
+          dataset_catalog, epochs, init_checkpoints, add_aug, early_stopping, lr_decay):
     """
     Trains the model
     """
@@ -113,6 +122,12 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
         class_names = class_names.split(",")
         print("Class names:", class_names)
         session_log["class_names"] = class_names
+    if early_stopping:
+        session_log["early_stopping"] = early_stopping
+        print("Early Stopping:", str(early_stopping))
+    if lr_decay:
+        session_log["lr_decay"] = lr_decay
+        print("lr_decay:", lr_decay)
     print("Output directory:", output_dir, flush=True)
     session_log["output_directory"] = output_dir
     from tlt.models import model_factory
@@ -147,14 +162,15 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
                 dataset.preprocess(image_size=model.image_size, batch_size=32, add_aug=list(add_aug))
             else:
                 dataset.preprocess(batch_size=32, add_aug=list(add_aug))
-            dataset.shuffle_split(seed=10)
+            dataset.shuffle_split()
     except Exception as e:
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "
                  "dataset name: {}, dataset_catalog: {}):\n{}".format(dataset_dir, model.use_case, model.framework,
                                                                       dataset_name, dataset_catalog, str(e)))
     # Train the model using the dataset
     try:
-        model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints)
+        model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
+                    early_stopping=early_stopping, lr_decay=lr_decay)
     except Exception as e:
         sys.exit("There was an error during model training:\n{}".format(str(e)))
     # Save the trained model

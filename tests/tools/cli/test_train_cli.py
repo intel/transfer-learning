@@ -230,8 +230,63 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
 
         # Verify that train and preprocess were called with the right arguments
         model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
-                                                 initial_checkpoints=init_checkpoints)
+                                                 initial_checkpoints=init_checkpoints, early_stopping=False,
+                                                 lr_decay=False)
         data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[])
+
+        # Verify that the train command exit code is successful
+        assert result.exit_code == 0
+    finally:
+        if os.path.exists(tmp_dir):
+            shutil.rmtree(tmp_dir)
+
+
+@pytest.mark.common
+@pytest.mark.parametrize('model_name,framework,epochs,early_stopping, lr_decay',
+                         [['efficientnet_b0', FrameworkType.TENSORFLOW, 15, True, False],
+                          ['resnet50', FrameworkType.PYTORCH, 15, True, True],
+                          ['efficientnet_b0', FrameworkType.TENSORFLOW, 15, False, True],
+                          ['resnet50', FrameworkType.PYTORCH, 15, False, False]])
+@patch("tlt.models.model_factory.get_model")
+@patch("tlt.datasets.dataset_factory.load_dataset")
+@patch("inspect.getfullargspec")
+def test_train_features(mock_inspect, mock_load_dataset, mock_get_model, model_name, framework, epochs, early_stopping, lr_decay):  # noqa: E501
+    """
+    Tests the train command with early stopping. Actual calls for the model and dataset are mocked out. The test
+    verifies that the proper args are passed to the model train() method.
+    """
+    runner = CliRunner()
+
+    tmp_dir = tempfile.mkdtemp()
+    dataset_dir = os.path.join(tmp_dir, 'data')
+    output_dir = os.path.join(tmp_dir, 'output')
+
+    try:
+        for new_dir in [output_dir, dataset_dir]:
+            os.makedirs(new_dir)
+
+        model_mock = MagicMock()
+        data_mock = MagicMock()
+        mock_get_model.return_value = model_mock
+        mock_load_dataset.return_value = data_mock
+        model_mock.export.return_value = output_dir
+
+        # Call the train command
+        result = runner.invoke(train,
+                               ["--framework", str(framework), "--model-name", model_name, "--dataset_dir", dataset_dir,
+                                "--output-dir", output_dir, "--epochs", epochs, "--early_stopping", early_stopping,
+                                "--lr_decay", lr_decay])
+
+        # Verify that the expected calls were made
+        mock_get_model.assert_called_once_with(model_name, str(framework))
+        mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
+        assert data_mock.shuffle_split.called
+        assert model_mock.train.called
+
+        # Verify that train and preprocess were called with the right arguments
+        model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=15,
+                                                 initial_checkpoints=None, early_stopping=early_stopping,
+                                                 lr_decay=lr_decay)
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0
