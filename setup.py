@@ -31,7 +31,7 @@ long_description = (this_directory / "README.md").read_text()
 
 def get_framework_requirements(framework_name):
     """ Gets framework related requirements from its requirements.txt file """
-    with open('{}-requirements.txt'.format(framework_name)) as f:
+    with open('{}_requirements.txt'.format(framework_name)) as f:
         requirements = f.read().splitlines()
 
     if os.environ.get("EXCLUDE_FRAMEWORK", default="False") == "True":
@@ -48,7 +48,7 @@ EXTRA_PACKAGES = {
 
 setup(name="intel-transfer-learning-tool",
       description="Intel® Transfer Learning Tool",
-      version="0.1.0",
+      version="0.2.0",
       long_description=long_description,
       long_description_content_type='text/markdown',
       packages=find_packages(),
