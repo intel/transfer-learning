@@ -27,27 +27,90 @@ from tlt.utils.types import FrameworkType, UseCaseType
 
 
 model_map = {
-    FrameworkType.TENSORFLOW: {
-        UseCaseType.IMAGE_CLASSIFICATION: {
+    FrameworkType.TENSORFLOW:
+    {
+        UseCaseType.IMAGE_CLASSIFICATION:
+        {
             "TFHub": {"module": "tlt.models.image_classification.tfhub_image_classification_model",
-                     "class": "TFHubImageClassificationModel"}
+                      "class": "TFHubImageClassificationModel"},
+            "Custom": {"module": "tlt.models.image_classification.tf_image_classification_model",
+                       "class": "TFImageClassificationModel"}
+        },
+        UseCaseType.TEXT_CLASSIFICATION:
+        {
+            "TFHub": {"module": "tlt.models.text_classification.tfhub_text_classification_model",
+                      "class": "TFHubTextClassificationModel"},
+            "Custom": {"module": "tlt.models.text_classification.tf_text_classification_model",
+                       "class": "TFTextClassificationModel"}
         }
     },
-    FrameworkType.PYTORCH: {
-        UseCaseType.IMAGE_CLASSIFICATION: {
+    FrameworkType.PYTORCH:
+    {
+        UseCaseType.IMAGE_CLASSIFICATION:
+        {
             "torchvision": {"module": "tlt.models.image_classification.torchvision_image_classification_model",
-                            "class": "TorchvisionImageClassificationModel"}
-            }
+                            "class": "TorchvisionImageClassificationModel"},
+            "Custom": {"module": "tlt.models.image_classification.pytorch_image_classification_model",
+                       "class": "PyTorchImageClassificationModel"}
+        },
+        UseCaseType.TEXT_CLASSIFICATION: {
+            "huggingface": {"module": "tlt.models.text_classification.hf_text_classification_model",
+                            "class": "HFTextClassificationModel"},
         }
     }
+}
 
 
-def get_model(model_name: str, framework: FrameworkType = None):
+def load_model(model_name: str, model, framework: FrameworkType = None, use_case: UseCaseType = None, **kwargs):
+    """A factory method for loading an existing model.
+
+        Args:
+            model_name (str): name of model
+            model (model or str): model object or directory with a saved_model.pb or model.pt file to load
+            framework (str or FrameworkType): framework
+            use_case (str or UseCaseType): use case
+            kwargs: optional; additional keyword arguments for optimizer and loss function configuration.
+                The `optimizer` and `loss` arguments can be set to Optimizer and Loss classes, depending on the model's
+                framework (examples: `optimizer=tf.keras.optimizers.Adam` for TensorFlow,
+                `loss=torch.nn.CrossEntropyLoss` for PyTorch). Additional keywords for those classes' initialization
+                can then be provided to further configure the objects when they are created (example: `amsgrad=True`
+                for the PyTorch Adam optimizer). Refer to the framework documentation for the function you want to use.
+
+        Returns:
+            model object
+
+        Examples:
+            >>> from tensorflow.keras import Sequential, Input
+            >>> from tensorflow.keras.layers import Dense
+            >>> from tlt.models.model_factory import load_model
+            >>> my_model = Sequential([Input(shape=(3,)), Dense(4, activation='relu'), Dense(5, activation='softmax')])
+            >>> model = load_model('my_model', my_model, 'tensorflow', 'image_classification')
+
+    """
+
+    if not isinstance(framework, FrameworkType):
+        framework = FrameworkType.from_str(framework)
+
+    if use_case is not None and not isinstance(use_case, UseCaseType):
+        use_case = UseCaseType.from_str(use_case)
+
+    model_class = locate('{}.{}'.format(model_map[framework][use_case]['Custom']['module'],
+                                        model_map[framework][use_case]['Custom']['class']))
+    return model_class(model_name, model, **kwargs)
+
+
+def get_model(model_name: str, framework: FrameworkType = None, **kwargs):
     """A factory method for creating models.
 
         Args:
             model_name (str): name of model
             framework (str or FrameworkType): framework
+            kwargs: optional; additional keyword arguments for optimizer and loss function configuration.
+                The `optimizer` and `loss` arguments can be set to Optimizer and Loss classes, depending on the model's
+                framework (examples: `optimizer=tf.keras.optimizers.Adam` for TensorFlow,
+                `loss=torch.nn.CrossEntropyLoss` for PyTorch). Additional keywords for those classes' initialization
+                can then be provided to further configure the objects when they are created (example: `amsgrad=True`
+                for the PyTorch Adam optimizer). Refer to the framework documentation for the function you want to use.
 
         Returns:
             model object
@@ -76,15 +139,15 @@ def get_model(model_name: str, framework: FrameworkType = None):
         raise ValueError("Multiple frameworks support {}. Please specify a framework type.".format(model_name))
 
     model_framework_str = list(model_dict.keys())[0]
-    model_framework_enum = FrameworkType.from_str(model_framework_str)
+    model_fw_enum = FrameworkType.from_str(model_framework_str)
     model_hub = model_dict[model_framework_str]["model_hub"]
 
-    if model_framework_enum in model_map:
-        if model_use_case in model_map[model_framework_enum]:
-            if model_hub in model_map[model_framework_enum][model_use_case]:
-                model_class = locate('{}.{}'.format(model_map[model_framework_enum][model_use_case][model_hub]['module'],
-                                                    model_map[model_framework_enum][model_use_case][model_hub]['class']))
-                return model_class(model_name)
+    if model_fw_enum in model_map:
+        if model_use_case in model_map[model_fw_enum]:
+            if model_hub in model_map[model_fw_enum][model_use_case]:
+                model_class = locate('{}.{}'.format(model_map[model_fw_enum][model_use_case][model_hub]['module'],
+                                                    model_map[model_fw_enum][model_use_case][model_hub]['class']))
+                return model_class(model_name, **kwargs)
 
     raise NotImplementedError("Not implemented yet: {} {}".format(model_framework_str, model_name))
 
@@ -125,9 +188,9 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
         models[str(use_case)] = {}
 
     # Read configs into the models dictionary
-    for config_filename in [x for x in os.listdir(config_directory) if os.path.isfile(os.path.join(config_directory, x))]:
+    for config_file in [x for x in os.listdir(config_directory) if os.path.isfile(os.path.join(config_directory, x))]:
         # Figure out which framework this config is, and filter it out, if necessary
-        config_framework = FrameworkType.PYTORCH if 'torch' in config_filename else FrameworkType.TENSORFLOW
+        config_framework = FrameworkType.TENSORFLOW if 'tf' in config_file else FrameworkType.PYTORCH
 
         if framework is not None and framework != config_framework:
             continue
@@ -135,20 +198,20 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
         # Figure out which use case this config file is for
         config_use_case = None
         for uc in UseCaseType:
-            if str(uc) in config_filename:
+            if str(uc) in config_file:
                 config_use_case = str(uc)
                 break
 
         if config_use_case is None:
             raise NameError("The config file {} does not match any of the supported use case types".format(
-                config_filename))
+                config_file))
 
         # Filter the config file out, by use case, if necessary
         if use_case is not None and str(use_case) != config_use_case:
             continue
 
         # If it hasn't been filtered out, then read the config from the json file
-        config_dict = read_json_file(os.path.join(config_directory, config_filename))
+        config_dict = read_json_file(os.path.join(config_directory, config_file))
 
         for model_name in config_dict.keys():
             if model_name not in models[str(config_use_case)].keys():
@@ -209,4 +272,3 @@ def get_model_info(model_name, framework=None):
             return UseCaseType.from_str(model_use_case), models[model_use_case][model_name]
 
     return None, {}
-

@@ -18,4 +18,4 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-from tlt.datasets.image_classification import image_classification_dataset
+from tlt.datasets.image_classification import image_classification_dataset  # noqa: F401

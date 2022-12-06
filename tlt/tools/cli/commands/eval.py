@@ -43,6 +43,20 @@ from tlt.utils.types import FrameworkType
               help="Dataset directory for a custom dataset, or if a dataset name "
                    "and catalog are being provided, the dataset directory is the "
                    "location where the dataset will be downloaded.")
+@click.option("--dataset-file", "--dataset_file",
+              required=False,
+              type=str,
+              help="Name of a file in the dataset directory to load. Used for loading a .csv file for text "
+                   "classification evaluation.")
+@click.option("--delimiter",
+              required=False,
+              type=str,
+              default=",",
+              help="Delimiter used when loading a dataset from a csv file. [default: ,]")
+@click.option("--class-names", "--class_names",
+              required=False,
+              type=str,
+              help="Comma separated string of class names for a text classification dataset being loaded from .csv")
 @click.option("--dataset-name", "--dataset_name",
               required=False,
               type=str,
@@ -54,12 +68,19 @@ from tlt.utils.types import FrameworkType
                    "If a dataset name is provided and no dataset catalog is given, it will default to use "
                    "tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets "
                    "for HuggingFace models.")
-def eval(model_dir, model_name, dataset_dir, dataset_name, dataset_catalog):
+def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_names, dataset_name, dataset_catalog):
     """
     Evaluates a model that has already been trained
     """
     print("Model directory:", model_dir)
     print("Dataset directory:", dataset_dir)
+
+    if dataset_file:
+        print("Dataset file:", dataset_file)
+
+    if class_names:
+        class_names = class_names.split(",")
+        print("Class names:", class_names)
 
     if dataset_name:
         print("Dataset name:", dataset_name)
@@ -81,8 +102,8 @@ def eval(model_dir, model_name, dataset_dir, dataset_name, dataset_catalog):
         framework = FrameworkType.PYTORCH
         model_path = pytorch_model_path
     else:
-        sys.exit("Evaluation is currently only implemented for TensorFlow saved models and PyTorch .pt models. No such files "
-                 "found in the model directory ({}).".format(model_dir))
+        sys.exit("Evaluation is currently only implemented for TensorFlow saved models and PyTorch .pt models. No such "
+                 "files found in the model directory ({}).".format(model_dir))
 
     if not model_name:
         model_name = os.path.basename(os.path.dirname(model_dir))
@@ -100,12 +121,24 @@ def eval(model_dir, model_name, dataset_dir, dataset_name, dataset_catalog):
         model.load_from_directory(model_dir)
 
         from tlt.datasets import dataset_factory
-        from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
         if not dataset_catalog and not dataset_name:
-            dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+            if str(model.use_case) == 'text_classification':
+                if not dataset_file:
+                    raise ValueError("Loading a text classification dataset requires --dataset-file to specify the "
+                                     "file name of the .csv file to load from the --dataset-dir.")
+                if not class_names:
+                    raise ValueError("Loading a text classification dataset requires --class-names to specify a list "
+                                     "of the class labels for the dataset.")
+
+                dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
+                                                       class_names=class_names, csv_file_name=dataset_file,
+                                                       delimiter=delimiter)
+            else:
+                dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
         else:
-            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name, dataset_catalog)
+            dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
+                                                  dataset_catalog)
 
         if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
             dataset.preprocess(image_size=model.image_size, batch_size=32)

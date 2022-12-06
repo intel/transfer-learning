@@ -269,7 +269,7 @@ def test_quantize_output_dir(mock_get_model, mock_load_dataset):
         inc_config = os.path.join(tmp_dir, 'inc_config.yaml')
         Path(inc_config).touch()
 
-        for i in range (1, 5):
+        for i in range(1, 5):
             # Call the quantize command
             result = runner.invoke(quantize,
                                    ["--model-dir", model_dir, "--dataset_dir", dataset_dir,
@@ -336,8 +336,7 @@ class TestQuantizationArgs:
         assert "Invalid value for '--max-trials'" in result.output
 
     @pytest.mark.common
-    @pytest.mark.parametrize('timeout',
-                         [-1, -5, 'foo'])
+    @pytest.mark.parametrize('timeout', [-1, -5, 'foo'])
     def test_quantize_invalid_timeout(self, timeout):
         """
         Verifies that quantize command fails if the timeout is invalid (should be an integer >= 0)
@@ -361,7 +360,7 @@ class TestQuantizationArgs:
                              [1.3, -5, 'foo'])
     def test_quantize_invalid_accuracy_criterion(self, accuracy_criterion):
         """
-        Verifies that quantize command fails if the accuracy criterion value is invalid (should be a float between 0 and 1.0
+        Verifies quantize command fails if the accuracy criterion value is invalid (should be a float between 0 and 1.0)
         """
 
         # Create the model file

@@ -133,7 +133,6 @@ def quantize(model_dir, dataset_dir, inc_config, batch_size, accuracy_criterion,
     try:
 
         from tlt.datasets import dataset_factory
-        from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
         dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
 

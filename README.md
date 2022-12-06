@@ -1,4 +1,7 @@
-![Tests](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/unit-test.yml/badge.svg)
+![Style](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/style-test.yaml/badge.svg)
+![Tests](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/unit-test.yaml/badge.svg)
+![Doc Test](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/docs-test.yaml/badge.svg)
+![Notebook Test](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/notebook-test.yaml/badge.svg)
 
 # Intel® Transfer Learning Tool Quick Start
 
@@ -8,13 +11,15 @@
 |----------|-----------|----------|---------------|
 | Image Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 |
 | Image Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) |
+| Binary Text Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets from .csv files <li> [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/overview#image_classification): [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config), [glue/sst2](https://www.tensorflow.org/datasets/catalog/glue#gluesst2), [imdb_reviews](https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config) |
+| Binary Text Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | <li> Custom datasets <li> Text Classification datasets from [Hugging Face Dataset catalog](https://huggingface.co/datasets) |
    
 ## Build and Install
 
 Requirements:
 * Linux system (or WSL2 on Windows)
+* Python3 (3.7, 3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
 * git
-* python3
 * `apt-get install build-essential python3-dev`
 * To run use quantization functions: `apt-get install libgl1 libglib2.0-0`
 
@@ -27,7 +32,7 @@ Requirements:
 
 1. Create and activate a Python3 virtual environment using `virtualenv`:
    ```
-   python3 -m virtualenv tlt_env
+   virtualenv -p python3 tlt_env
    source tlt_env/bin/activate
    ```
 
@@ -41,11 +46,17 @@ Requirements:
    and installing the wheel:
    ```
    python setup.py bdist_wheel --universal
-   pip install dist/tlt-0.0.1-py2.py3-none-any.whl[tensorflow,pytorch]
+   pip install dist/intel_transfer_learning_tool-0.1.0-py3-none-any.whl[tensorflow,pytorch]
+
+   # Required for TensorFlow text classification
+   pip install tensorflow-text==2.9.0
    ```
    Or for developers, do an editable install:
    ```
    pip install --editable .[tensorflow,pytorch]
+
+   # Required for TensorFlow text classification
+   pip install tensorflow-text==2.9.0
    ```
 
 ## Getting Started with the CLI

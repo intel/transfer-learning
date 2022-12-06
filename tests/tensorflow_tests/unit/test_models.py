@@ -19,8 +19,8 @@
 #
 
 import pytest
-
 from unittest.mock import MagicMock, patch
+from tensorflow import keras
 
 from test_utils import platform_config
 from tlt.models import model_factory
@@ -29,15 +29,56 @@ from tlt.utils.types import FrameworkType, UseCaseType
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlt.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
-except ModuleNotFoundError as e:
+    from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel
+except ModuleNotFoundError:
     TFHubImageClassificationModel = None
-    print("WARNING: Unable to import TFHubImageClassificationModel. TensorFlow may not be installed")
+    TFImageClassificationModel = None
+    print("WARNING: Unable to import TFHubImageClassificationModel or TFImageClassificationModel. "
+          "TensorFlow may not be installed")
+
+
+try:
+    # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
+    from tlt.models.text_classification.tfhub_text_classification_model import TFHubTextClassificationModel
+    from tlt.models.text_classification.tf_text_classification_model import TFTextClassificationModel
+except ModuleNotFoundError:
+    TFHubTextClassificationModel = None
+    TFTextClassificationModel = None
+    print("WARNING: Unable to import TFHubTextClassificationModel. TensorFlow may not be installed")
 
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
+from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
+
+
+# Define a custom model
+ALEXNET = keras.models.Sequential([
+    keras.layers.Conv2D(filters=96, kernel_size=(11, 11), strides=(4, 4), activation='relu',
+                        input_shape=(227, 227, 3)),
+    keras.layers.BatchNormalization(),
+    keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+    keras.layers.Conv2D(filters=256, kernel_size=(5, 5), strides=(1, 1), activation='relu', padding="same"),
+    keras.layers.BatchNormalization(),
+    keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+    keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
+    keras.layers.BatchNormalization(),
+    keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
+    keras.layers.BatchNormalization(),
+    keras.layers.Conv2D(filters=256, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
+    keras.layers.BatchNormalization(),
+    keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+    keras.layers.Flatten(),
+    keras.layers.Dense(4096, activation='relu'),
+    keras.layers.Dropout(0.5),
+    keras.layers.Dense(4096, activation='relu'),
+    keras.layers.Dropout(0.5),
+    keras.layers.Dense(3, activation='softmax')
+])
+
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,expected_class,expected_image_size',
-                         [['efficientnet_b0', TFHubImageClassificationModel, 224]])
+                         [['efficientnet_b0', TFHubImageClassificationModel, 224],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', TFHubTextClassificationModel, None]])
 def test_tfhub_model_load(model_name, expected_class, expected_image_size):
     """
     Checks that a model can be downloaded form TF Hub
@@ -49,8 +90,24 @@ def test_tfhub_model_load(model_name, expected_class, expected_image_size):
 
 
 @pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,use_case,expected_class,expected_image_size,expected_num_classes',
+                         [['alexnet', 'image_classification', TFImageClassificationModel, 227, 3],
+                          ['alexnet', 'text_classification', TFTextClassificationModel, None, 3]])
+def test_custom_model_load(model_name, use_case, expected_class, expected_image_size, expected_num_classes):
+    """
+    Checks that a custom model can be loaded
+    """
+    model = model_factory.load_model(model_name, ALEXNET, 'tensorflow', use_case)
+    assert type(model) == expected_class
+    assert model.num_classes == expected_num_classes
+    if use_case == 'image_classification':
+        assert model.image_size == expected_image_size
+
+
+@pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,use_case',
-                         [['efficientnet_b0', 'image_classification']])
+                         [['efficientnet_b0', 'image_classification'],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'text_classification']])
 def test_get_supported_models(model_name, use_case):
     """
     Call get supported models and checks to make sure the dictionary has keys for each use case,
@@ -139,8 +196,12 @@ def test_get_supported_models_bad_use_case(bad_use_case):
 @pytest.mark.parametrize('model_name,dataset_type,get_hub_model_patch,class_names',
                          [['efficientnet_b0', ImageClassificationDataset,
                            'tlt.models.image_classification.tfhub_image_classification_model.'
-                           'TFHubImageClassificationModel._get_hub_model', ['a', 'b', 'c']]])
-def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_patch, class_names):
+                           'TFHubImageClassificationModel._get_hub_model', ['a', 'b', 'c']],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2',
+                           TextClassificationDataset, 'tlt.models.text_classification.tfhub_text_classification_model.'
+                           'TFHubTextClassificationModel._get_hub_model', ['a', 'b']]
+                          ])
+def test_tfhub_model_train(model_name, dataset_type, get_hub_model_patch, class_names):
     """
     Tests calling train on an TFHub model with a mock dataset and mock model and verifies we get back the return
     value from the fit function.
@@ -150,11 +211,13 @@ def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_pat
     with patch(get_hub_model_patch) as mock_get_hub_model:
         mock_dataset = MagicMock()
         mock_dataset.__class__ = dataset_type
-        print(type(mock_dataset))
+        mock_dataset.validation_subset = [1, 2, 3]
 
         mock_dataset.class_names = class_names
         mock_model = MagicMock()
         expected_return_value = {"result": True}
+        mock_history = MagicMock()
+        mock_history.history = expected_return_value
 
         def mock_fit(dataset, epochs, shuffle, callbacks, validation_data=None):
             assert dataset is not None
@@ -162,13 +225,62 @@ def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_pat
             assert isinstance(shuffle, bool)
             assert len(callbacks) > 0
 
-            return expected_return_value
+            if eval_expected:
+                assert validation_data is not None
+            else:
+                assert validation_data is None
+
+            return mock_history
 
         mock_model.fit = mock_fit
         mock_get_hub_model.return_value = mock_model
 
-        return_val = model.train(mock_dataset, output_dir="/tmp/output")
+        # Test train with eval
+        eval_expected = True
+        return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=True)
         assert return_val == expected_return_value
+
+        # Test train without eval
+        eval_expected = False
+        return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=False)
+        assert return_val == expected_return_value
+
+        # Test train with eval, but no validation subset
+        eval_expected = False
+        mock_dataset.validation_subset = None
+        return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=True)
+        assert return_val == expected_return_value
+
+
+@pytest.mark.tensorflow
+def test_custom_model_train():
+    """
+    Tests calling train on a custom TF model with a mock dataset and mock model and verifies we get back the return
+    value from the fit function.
+    """
+    model = model_factory.load_model('custom_model', ALEXNET, 'tensorflow', 'image_classification')
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = ImageClassificationDataset
+
+    mock_dataset.class_names = ['1', '2', '3']
+    model._model = MagicMock()
+    expected_return_value = {"result": True}
+    mock_history = MagicMock()
+    mock_history.history = expected_return_value
+
+    def mock_fit(dataset, epochs, shuffle, callbacks, validation_data=None):
+        assert dataset is not None
+        assert isinstance(epochs, int)
+        assert isinstance(shuffle, bool)
+        assert len(callbacks) > 0
+
+        return mock_history
+
+    model._model.fit = mock_fit
+
+    return_val = model.train(mock_dataset, output_dir="/tmp/output")
+    assert return_val == expected_return_value
 
 
 @pytest.mark.tensorflow
@@ -181,6 +293,12 @@ def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_pat
      ['143', True, True, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
      ['123', True, True, '2.9.0', 'efficientnet_b0', ImageClassificationDataset],
      ['85', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
+     ['85', None, False, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['143', None, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['123', None, False, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['85', True, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['143', True, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
+     ['123', True, True, '2.9.0', 'bert_en_wwm_uncased_L-24_H-1024_A-16', TextClassificationDataset],
      ['85', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
      ['143', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
      ['123', True, True, '2.10.0', 'efficientnet_b0', ImageClassificationDataset],
@@ -193,8 +311,8 @@ def test_tfhub_efficientnet_b0_train(model_name, dataset_type, get_hub_model_pat
      ['85', None, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
      ['85', True, None, '2.8.0', 'efficientnet_b0', ImageClassificationDataset],
      ['143', None, True, '3.1.0', 'efficientnet_b0', ImageClassificationDataset]])
-@patch("tlt.models.tfhub_model.tf.version")
-@patch("tlt.models.tfhub_model.tf.config.optimizer.set_experimental_options")
+@patch("tlt.models.tf_model.tf.version")
+@patch("tlt.models.tf_model.tf.config.optimizer.set_experimental_options")
 @patch("tlt.utils.platform_util.PlatformUtil._get_cpuset")
 @patch("tlt.utils.platform_util.os")
 @patch("tlt.utils.platform_util.system_platform")
@@ -208,7 +326,7 @@ def test_tfhub_auto_mixed_precision(mock_subprocess, mock_platform, mock_os, moc
     CPU types like SKX (cpu model 143).  The default auto mixed precision setting is used when
     enable_auto_mixed_precision=None. Auto mixed precision was enabled for TF 2.9.0 and later, so don't expect the call
     to set the config for earlier TF versions.
-    
+
     If enable_auto_mixed_precision is set to True/False, then that's what should be used, regardless of CPU type.
     """
     mock_get_cpuset.return_value = platform_config.CPUSET
@@ -239,3 +357,56 @@ def test_tfhub_auto_mixed_precision(mock_subprocess, mock_platform, mock_os, moc
     else:
         # We expect that the auto mixed prercision config is not called (due to TF version unsupported)
         assert not mock_set_experimental_options.called
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,use_case,dataset_type,optimizer,loss',
+                         [['efficientnet_b0', 'image_classification', ImageClassificationDataset,
+                           keras.optimizers.Adagrad, keras.losses.MeanSquaredError],
+                          ['custom', 'image_classification', ImageClassificationDataset,
+                           keras.optimizers.SGD, keras.losses.CategoricalCrossentropy],
+                          ['bert_en_wwm_uncased_L-24_H-1024_A-16', 'text_classification', TextClassificationDataset,
+                           keras.optimizers.RMSprop, keras.losses.BinaryCrossentropy]])
+def test_tf_optimizer_loss(model_name, use_case, dataset_type, optimizer, loss):
+    """
+    Tests initializing and training a model with configurable optimizers and loss functions
+    """
+
+    if model_name == 'custom':
+        model = model_factory.load_model(model_name, ALEXNET, 'tensorflow', use_case, optimizer=optimizer, loss=loss)
+    else:
+        model = model_factory.get_model(model_name, 'tensorflow', optimizer=optimizer, loss=loss)
+
+    model._generate_checkpoints = False
+    model._get_hub_model = MagicMock()
+    model._model = MagicMock()
+    model._model.fit = MagicMock()
+    assert model._optimizer_class == optimizer
+    assert model._loss_class == loss
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = dataset_type
+    if dataset_type == TextClassificationDataset:
+        mock_dataset.class_names = ['a', 'b']
+    else:
+        mock_dataset.class_names = ['a', 'b', 'c']
+
+    # Train is called and optimizer and loss objects should match the input types
+    model.train(mock_dataset, output_dir="/tmp/output/tf")
+    assert model._optimizer_class == optimizer
+    assert type(model._optimizer) == optimizer
+    assert model._loss_class == loss
+    assert type(model._loss) == loss
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,loss',
+                         [['efficientnet_b0', 1],
+                          ['efficientnet_b0', 'foo'],
+                          ['bert_en_wwm_uncased_L-24_H-1024_A-16', keras.optimizers.Adam]])
+def test_tf_loss_wrong_type(model_name, loss):
+    """
+    Tests that an exception is thrown when the input loss function is the wrong type
+    """
+    with pytest.raises(TypeError):
+        model_factory.get_model(model_name, 'tensorflow', loss=loss)

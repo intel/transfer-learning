@@ -1,10 +1,21 @@
-name: Unit Test
+name: Test Notebooks
 on:
   pull_request_review:
     types: [submitted]
+  # run the workflow if changes pushed to main or release branches
+  push:
+    branches:
+      - main
+      - r0.1
+    tags:
+      - '**'
+    paths:
+      - '**'
 jobs:
-  unit-test:
-    if: github.event.review.state == 'approved'
+  notebook-test:
+    if: github.event.review.state == 'approved' ||
+        github.event.pull_request.merged == true ||
+        github.event_name == 'push'
     runs-on: [ aia-devops ]
     container:
       image: amr-registry.caas.intel.com/aiops/tlt-dev
@@ -12,6 +23,8 @@ jobs:
         http_proxy: ${{ secrets.HTTP_PROXY }}
         https_proxy: ${{ secrets.HTTPS_PROXY }}
         no_proxy: ${{ secrets.NO_PROXY }}
+        DATASET_DIR: /tmp/data
+        OUTPUT_DIR: /tmp/output
       credentials:
         username: ${{ secrets.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_TOKEN }}
@@ -21,6 +34,5 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install virtualenv
         run: pip install virtualenv
-      - name: Run Unit Test
-        run: make test
-        
+      - name: Run Notebook Tests
+        run: make test_notebook

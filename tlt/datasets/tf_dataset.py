@@ -106,7 +106,7 @@ class TFDataset(BaseDataset):
         self._train_subset = self._dataset.take(train_size)
         self._validation_subset = self._dataset.skip(train_size).take(val_size)
         if test_pct:
-            self._test_subset = self._dataset.skip(train_size+val_size)
+            self._test_subset = self._dataset.skip(train_size + val_size)
         else:
             self._test_subset = None
         self._validation_type = 'shuffle_split'

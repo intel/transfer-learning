@@ -52,6 +52,7 @@ KNOWN_CPU_TYPES = [
     }
 ]
 
+
 class CPUInfo():
     """CPU information class."""
 
@@ -238,7 +239,6 @@ class PlatformUtil:
         if len(cpu_matches) > 0:
             self.cpu_type = cpu_matches[0]
 
-
     def _get_list_from_string_ranges(self, str_ranges):
         """
         Converts a string of numbered ranges (comma separated numbers or ranges) to an
@@ -254,7 +254,7 @@ class PlatformUtil:
                 start, end = section.split("-")
                 section_list = range(int(start), int(end) + 1)
                 result_list += section_list
-            elif(len(section)):
+            elif (len(section)):
                 # This section is either empty or just a single number and not a range
                 result_list.append(int(section))
 

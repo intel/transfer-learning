@@ -334,6 +334,29 @@
         "classification_layer": ["fc"],
         "image_size": 224,
         "original_dataset": "IMAGENET1K_V2"   
-    }
-    
+    },
+    "vit_b_16": {
+    	"model_hub": "torchvision",
+	"classification_layer": ["heads"],
+	"image_size": 224,
+	"original_dataset": "IMAGENET1K_V2"
+    },
+    "vit_b_32": {
+	"model_hub": "torchvision",
+	"classification_layer": ["heads"],
+	"image_size": 224,
+	"original_dataset": "IMAGENET1K_V2"
+    },
+    "vit_l_16": {
+	"model_hub": "torchvision",
+	"classification_layer": ["heads"],
+	"image_size": 224,
+	"original_dataset": "IMAGENET1K_V2"
+    },
+    "vit_l_32": {
+	"model_hub": "torchvision",
+	"classification_layer": ["heads"],
+	"image_size": 224,
+	"original_dataset": "IMAGENET1K_V2"
+    }	    
 }

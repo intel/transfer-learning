@@ -31,13 +31,19 @@ from tlt.datasets.dataset_factory import get_dataset, load_dataset
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlt.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
-except ModuleNotFoundError as e:
+except ModuleNotFoundError:
     print("WARNING: Unable to import TFImageClassificationDataset. TensorFlow may not be installed")
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
-    from tlt.datasets.image_classification.tf_custom_image_classification_dataset import TFCustomImageClassificationDataset
-except ModuleNotFoundError as e:
+    from tlt.datasets.text_classification.tfds_text_classification_dataset import TFDSTextClassificationDataset
+except ModuleNotFoundError:
+    print("WARNING: Unable to import TFDSTextClassificationDataset. TensorFlow may not be installed")
+
+try:
+    # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
+    from tlt.datasets.image_classification.tf_custom_image_classification_dataset import TFCustomImageClassificationDataset  # noqa: E501
+except ModuleNotFoundError:
     print("WARNING: Unable to import TFCustomImageClassificationDataset. TensorFlow may not be installed")
 
 
@@ -47,14 +53,15 @@ def test_tf_flowers_10pct():
     Checks that a 10% tf_flowers subset can be loaded
     """
     flowers = get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers',
-                                          'tf_datasets', split=["train[:10%]"])
+                          'tf_datasets', split=["train[:10%]"])
     assert type(flowers) == TFImageClassificationDataset
     assert len(flowers.dataset) < 3670
 
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,train_split,val_split,test_split,train_len,val_len,test_len',
-                         [['beans', 'image_classification', 'train', 'validation', None, 1034, 133, 0]])
+                         [['beans', 'image_classification', 'train', 'validation', None, 1034, 133, 0],
+                          ['glue/cola', 'text_classification', 'train', 'validation', 'test', 8551, 1043, 1063]])
 def test_defined_split(dataset_name, use_case, train_split, val_split, test_split, train_len, val_len, test_len):
     """
     Checks that dataset can be loaded into train, validation, and test subsets based on TFDS splits and then
@@ -97,7 +104,8 @@ def test_defined_split(dataset_name, use_case, train_split, val_split, test_spli
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,train_split,train_len,val_len',
-                         [['tf_flowers', 'image_classification', 'train[:30%]', 825, 275]])
+                         [['tf_flowers', 'image_classification', 'train[:30%]', 825, 275],
+                          ['glue/cola', 'text_classification', 'train[:10%]', 641, 213]])
 def test_shuffle_split(dataset_name, use_case, train_split, train_len, val_len):
     """
     Checks that dataset can be split into train, validation, and test subsets. The expected train subset length is
@@ -113,7 +121,8 @@ def test_shuffle_split(dataset_name, use_case, train_split, train_len, val_len):
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,image_size',
-                         [['tf_flowers', 'image_classification', 224]])
+                         [['tf_flowers', 'image_classification', 224],
+                          ['glue/cola', 'text_classification', None]])
 def test_shuffle_split_deterministic_tfds(dataset_name, use_case, image_size):
     """
     Checks that tfds datasets can be split into train, validation, and test subsets in a way that is reproducible
@@ -184,8 +193,10 @@ def test_shuffle_split_deterministic_custom():
 @pytest.mark.parametrize('dataset_dir,use_case,dataset_name,dataset_catalog,class_names,batch_size',
                          [['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None, 32],
                           ['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None, 1],
-                          ['/tmp/data', 'image_classification',  None, None, ['foo', 'bar'], 8],
-                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar'], 1]])
+                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar'], 8],
+                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar'], 1],
+                          ['/tmp/data', 'text_classification', 'glue/cola', 'tf_datasets', None, 1],
+                          ['/tmp/data', 'text_classification', 'glue/cola', 'tf_datasets', None, 32]])
 def test_batching(dataset_dir, use_case, dataset_name, dataset_catalog, class_names, batch_size):
     """
     Checks that dataset can be batched with valid positive integer values
@@ -207,7 +218,8 @@ def test_batching(dataset_dir, use_case, dataset_name, dataset_catalog, class_na
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_dir,use_case,dataset_name,dataset_catalog,class_names',
                          [['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None],
-                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar']]])
+                          ['/tmp/data', 'image_classification', None, None, ['foo', 'bar']],
+                          ['/tmp/data', 'text_classification', 'glue/cola', 'tf_datasets', None]])
 def test_batching_error(dataset_dir, use_case, dataset_name, dataset_catalog, class_names):
     """
     Checks that preprocessing cannot be run twice
@@ -233,15 +245,146 @@ def test_batching_error(dataset_dir, use_case, dataset_name, dataset_catalog, cl
         ic_dataset.cleanup()
 
 
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('dataset_name,use_case,expected_class_names',
+                         [['glue/cola', 'text_classification', ['unacceptable', 'acceptable']],
+                          ['glue/sst2', 'text_classification', ['negative', 'positive']],
+                          ['imdb_reviews', 'text_classification', ['neg', 'pos']]])
+def test_supported_tfds_datasets(dataset_name, use_case, expected_class_names):
+    """
+    Verifies that we are able to load supported datasets and get class names
+    """
+    dataset = get_dataset('/tmp/data', use_case, 'tensorflow', dataset_name, 'tf_datasets', split=["train[:10%]"])
+
+    assert dataset.class_names == expected_class_names
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('dataset_name,use_case',
+                         [['glue', 'text_classification'],
+                          ['sst2', 'text_classification'],
+                          ['taco', 'text_classification']])
+def test_unsupported_tfds_datasets(dataset_name, use_case):
+    """
+    Verifies that unsupported datasets get the proper error
+    """
+
+    with pytest.raises(ValueError) as e:
+        get_dataset('/tmp/data', use_case, 'tensorflow', dataset_name, 'tf_datasets', split=["train[:10%]"])
+
+    assert "Dataset name is not supported" in str(e)
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('dataset_name,delimiter',
+                         [['foo', ':'],
+                          [None, '\t'],
+                          ['potato', ',']])
+def test_custom_text_classification_csv(dataset_name, delimiter):
+    """
+    Tests load_dataset with a text classification csv file. Verifies that the csv file gets loaded into the dataset
+    and that the map function is properly applied to the data.
+    """
+    dataset_dir = tempfile.mkdtemp()
+    csv_file_name = "test.csv"
+    default_dataset_name = "test"
+    use_case = "text_classification"
+    framework = "tensorflow"
+    class_names = ['neg', 'pos']
+    batch_size = 20
+
+    try:
+        # Write dummy csv file
+        csv_lines = ['pos{}hello\n'.format(delimiter), 'neg{}bye\n'.format(delimiter)] * batch_size
+        with open(os.path.join(dataset_dir, csv_file_name), 'w') as f:
+            f.writelines(csv_lines)
+
+        def map_func(x):
+            return int(x == 'pos')
+
+        dataset = load_dataset(dataset_dir, use_case, framework, dataset_name, csv_file_name=csv_file_name,
+                               label_map_func=map_func, class_names=class_names, delimiter=delimiter,
+                               shuffle_files=False)
+
+        assert len(dataset._dataset) == len(csv_lines)
+        assert dataset.class_names == class_names
+
+        if dataset_name:
+            assert dataset.dataset_name == dataset_name
+        else:
+            assert dataset.dataset_name == default_dataset_name
+
+        dataset.preprocess(batch_size=batch_size)
+
+        # Get a batch and verify that the text labels have been mapped to numerical values
+        _, label_value = dataset.get_batch()
+        assert_array_equal([1, 0] * int(batch_size / 2), label_value)
+
+    finally:
+        # Clean up after the test by deleting the temp dataset directory
+        if os.path.exists(dataset_dir):
+            shutil.rmtree(dataset_dir)
+
+
+def test_custom_text_classification_extra_columns():
+    """
+    Tests load_dataset with a text classification csv file that has 3 columns and uses select_cols and exclude_cols to
+    make the resulting dataset only have 2 columns.
+    """
+    dataset_dir = tempfile.mkdtemp()
+    csv_file_name = "test.csv"
+    use_case = "text_classification"
+    framework = "tensorflow"
+    class_names = ['neg', 'pos']
+    batch_size = 20
+    delimiter = ","
+
+    try:
+        # Write dummy csv file with 3 columns
+        csv_lines = ['pos{0}hello{0}other\n'.format(delimiter), 'neg{0}bye{0}other\n'.format(delimiter)] * batch_size
+        with open(os.path.join(dataset_dir, csv_file_name), 'w') as f:
+            f.writelines(csv_lines)
+
+        def str_to_int(x):
+            return int(x == 'pos')
+
+        # Call load_dataset with exclude_cols
+        dataset = load_dataset(dataset_dir, use_case, framework, dataset_name=None, csv_file_name=csv_file_name,
+                               class_names=class_names, delimiter=delimiter, exclude_cols=[2],
+                               shuffle_files=False, label_map_func=str_to_int)
+
+        assert len(dataset._dataset) == len(csv_lines)
+        dataset.preprocess(batch_size=batch_size)
+
+        # The batch should have 2 columns, since one was excluded using 'exclude_cols'
+        assert len(dataset.get_batch()) == 2
+
+        # Call load_dataset with select_cols
+        dataset = load_dataset(dataset_dir, use_case, framework, dataset_name=None, csv_file_name=csv_file_name,
+                               class_names=class_names, delimiter=delimiter, select_cols=[0, 1], shuffle_files=False,
+                               label_map_func=str_to_int)
+
+        assert len(dataset._dataset) == len(csv_lines)
+        dataset.preprocess(batch_size=batch_size)
+
+        # We should only have 2 columns, since 'select_cols' was used
+        assert len(dataset.get_batch()) == 2
+
+    finally:
+        # Clean up after the test by deleting the temp dataset directory
+        if os.path.exists(dataset_dir):
+            shutil.rmtree(dataset_dir)
+
+
 class DatasetForTest:
-    def __init__ (self, dataset_dir, use_case, dataset_name=None, dataset_catalog=None, class_names=None):
+    def __init__(self, dataset_dir, use_case, dataset_name=None, dataset_catalog=None, class_names=None):
         """
         This class wraps initialization for datasets (either from TFDS or custom).
-        
+
         For a custom dataset, provide a dataset dir and class names. A temporary directory will be created with
         dummy folders for the specified class names and 50 images in each folder. The dataset factory will be used to
         load the custom dataset from the dataset directory.
-        
+
         For a dataset from a catalog, provide the dataset_dir, dataset_name, and dataset_catalog.
         The dataset factory will be used to load the specified dataset.
         """
@@ -249,7 +392,7 @@ class DatasetForTest:
 
         if dataset_name and dataset_catalog:
             self._dataset_catalog = dataset_catalog
-            self._tlt_dataset = get_dataset(dataset_dir, use_case,  framework, dataset_name, dataset_catalog)
+            self._tlt_dataset = get_dataset(dataset_dir, use_case, framework, dataset_name, dataset_catalog)
         elif class_names:
             self._dataset_catalog = "custom"
             dataset_dir = tempfile.mkdtemp(dir=dataset_dir)
@@ -286,6 +429,7 @@ class DatasetForTest:
             shutil.rmtree(self._dataset_dir)
         # TODO: Should we delete tfds directories too?
 
+
 # Metadata about tfds datasets
 tfds_metadata = {
     'tf_flowers': {
@@ -302,7 +446,8 @@ tfds_metadata = {
 # The parameters are: dataset_dir, use_case, dataset_name, dataset_catalog, and class_names, which map to the
 # constructor parameters for DatasetForTest, which initializes the datasets using the dataset factory.
 dataset_params = [("/tmp/data", 'image_classification', "tf_flowers", "tf_datasets", None),
-                  ("/tmp/data", 'image_classification', None, None, ["a", "b", "c"])]
+                  ("/tmp/data", 'image_classification', None, None, ["a", "b", "c"]),
+                  ("/tmp/data", 'text_classification', "glue/cola", "tf_datasets", None)]
 
 
 @pytest.fixture(scope="class", params=dataset_params)
@@ -345,7 +490,7 @@ class TestImageClassificationDataset:
                 assert type(tlt_dataset) == TFImageClassificationDataset
             elif use_case == 'text_classification':
                 assert type(tlt_dataset) == TFDSTextClassificationDataset
-                
+
             assert len(tlt_dataset.class_names) == len(tfds_metadata[dataset_name]['class_names'])
             assert len(tlt_dataset.dataset) == tfds_metadata[dataset_name]['size']
 

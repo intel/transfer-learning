@@ -21,7 +21,6 @@
 import os
 import pytest
 import shutil
-import uuid
 import tempfile
 
 from pathlib import Path
@@ -31,8 +30,8 @@ from tlt.models import model_factory
 
 try:
     # Do PyTorch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
-    from tlt.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel
-except ModuleNotFoundError as e:
+    from tlt.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel  # noqa: F401, E501
+except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageClassificationModel. PyTorch or torchvision may not be installed")
 
 
@@ -49,11 +48,11 @@ def test_torchvision_image_classification_optimize_graph_not_implemented():
         model = model_factory.get_model('resnet50', 'pytorch')
         # The torchvision model is not present until training, so call _get_hub_model()
         model._get_hub_model(3)
-        # Graph optimization is not enabled for PyTorch, so this should fail 
-        with patch('neural_compressor.experimental.Graph_Optimization') as mock_o:
+        # Graph optimization is not enabled for PyTorch, so this should fail
+        with patch('neural_compressor.experimental.Graph_Optimization'):
             with pytest.raises(NotImplementedError):
                 model.optimize_graph(saved_model_dir, output_dir)
-        
+
         # Verify that the installed version of INC throws a SystemError
         from neural_compressor.experimental import Graph_Optimization, common
         from neural_compressor.utils.utility import set_backend
@@ -61,10 +60,9 @@ def test_torchvision_image_classification_optimize_graph_not_implemented():
         graph_optimizer = Graph_Optimization()
         with pytest.raises(SystemExit):
             graph_optimizer.model = common.Model(model._model)
-    
-    finally:    
+
+    finally:
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)
         if os.path.exists(saved_model_dir):
             shutil.rmtree(saved_model_dir)
-

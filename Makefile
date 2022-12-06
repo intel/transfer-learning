@@ -23,20 +23,29 @@ ACTIVATE_TF = "intel_tf/bin/activate"
 ACTIVATE_PYT = "intel_pyt/bin/activate"
 ACTIVATE_TEST = "tlt_tests/bin/activate"
 ACTIVATE_DOCS = $(ACTIVATE_TEST)
+ACTIVATE_NOTEBOOK = $(ACTIVATE_TEST)
 
 venv_test: $(CURDIR)/tests/requirements-test.txt
 	@echo "Creating a virtualenv tlt_tests..."
-	@test -d tlt_tests || virtualenv -p python tlt_tests
+	@test -d tlt_tests || virtualenv -p python3 tlt_tests
 
 	@echo "Building the TLT API in tlt_tests env..."
 	@. $(ACTIVATE_TEST) && pip install --editable .[tensorflow,pytorch]
+
+	@echo "Required for TensorFlow text classification..."
+	@. $(ACTIVATE_TEST) && pip install tensorflow-text==2.9.0
 
 	@echo "Installing test dependencies..."
 	@. $(ACTIVATE_TEST) && pip install -r $(CURDIR)/tests/requirements-test.txt
 
 test: venv_test
 	@echo "Testing the API..."
-	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test -s
+	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test -s --cov --cov-fail-under=85
+
+lint: venv_test
+	@echo "Style checks..."
+	@. $(ACTIVATE_TEST) && flake8 tlt
+	@. $(ACTIVATE_TEST) && flake8 tests
 
 clean:
 	rm -rf tlt_tests
@@ -53,7 +62,31 @@ test_docs: html
 	@echo "Testing Sphinx documentation..."
 	@. $(ACTIVATE_DOCS) && $(MAKE) -C docs doctest
 
-dist:
+venv_notebook: venv_test
+	@echo "Installing notebook dependencies..."
+	@. $(ACTIVATE_NOTEBOOK) && pip install -r $(CURDIR)/notebooks/tensorflow_requirements.txt
+
+test_notebook: venv_notebook
+	@echo "Testing Jupyter notebooks..."
+	@. $(ACTIVATE_NOTEBOOK) && \
+	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
+		--TagRemovePreprocessor.remove_cell_tags remove_for_custom_dataset \
+		--to script $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb && \
+	ipython $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.py && \
+	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
+		--TagRemovePreprocessor.remove_cell_tags remove_for_tf_dataset \
+		--to script $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb && \
+	ipython $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.py && \
+	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
+		--TagRemovePreprocessor.remove_cell_tags remove_for_custom_dataset \
+		--to script $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb && \
+	ipython $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.py && \
+	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
+		--TagRemovePreprocessor.remove_cell_tags remove_for_tv_dataset \
+		--to script $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb && \
+	ipython $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.py
+
+dist: venv_docs
 	@echo "Create binary wheel..."
 	@. $(ACTIVATE_DOCS) && python setup.py bdist_wheel
 

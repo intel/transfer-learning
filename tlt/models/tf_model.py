@@ -18,7 +18,10 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+import inspect
 import os
+import random
+import numpy as np
 import tensorflow as tf
 
 from tlt.models.model import BaseModel
@@ -27,23 +30,48 @@ from tlt.utils.platform_util import PlatformUtil
 from tlt.utils.types import FrameworkType, UseCaseType
 
 
-class TFHubModel(BaseModel):
+class TFModel(BaseModel):
     """
-    Base class used to represent a TF Hub pretrained model
+    Base class used to represent a TF pretrained model
     """
 
-    def __init__(self, model_url: str,  model_name: str, framework: FrameworkType, use_case: UseCaseType):
+    def __init__(self, model_name: str, framework: FrameworkType, use_case: UseCaseType):
         self._model = None
-        self._model_url = model_url
         super().__init__(model_name, framework, use_case)
         os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
+        self._history = {}
 
-    @property
-    def model_url(self):
-        """
-        The public URL used to download the TFHub model
-        """
-        return self._model_url
+    def _set_seed(self, seed):
+        if seed is not None:
+            os.environ['PYTHONHASHSEED'] = str(seed)
+            random.seed(seed)
+            np.random.seed(seed)
+            tf.random.set_seed(seed)
+
+    def _check_train_inputs(self, output_dir, dataset, dataset_type, epochs, initial_checkpoints):
+        verify_directory(output_dir)
+
+        if not isinstance(dataset, dataset_type):
+            raise TypeError("The dataset must be a {} but found a {}".format(dataset_type, type(dataset)))
+
+        if not isinstance(epochs, int):
+            raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
+
+        if initial_checkpoints and not isinstance(initial_checkpoints, str):
+            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
+                type(initial_checkpoints)))
+
+    def _check_optimizer_loss(self, optimizer, loss):
+        if optimizer is not None and (not inspect.isclass(optimizer) or
+                                      tf.keras.optimizers.Optimizer not in inspect.getmro(optimizer)):
+            raise TypeError("The optimizer input must be a class (not an instance) of type "
+                            "tf.keras.optimizers.Optimizer or None but found a {}. "
+                            "Example: tf.keras.optimizers.SGD".format(optimizer))
+        if loss is not None and (not inspect.isclass(loss) or
+                                 tf.keras.losses.Loss not in inspect.getmro(loss)):
+            raise TypeError("The loss input must be class (not an instance) of type "
+                            "tf.keras.losses.Loss or None but found a {}. "
+                            "Example: tf.keras.losses.BinaryCrossentropy".format(loss))
 
     def load_from_directory(self, model_dir: str):
         """
@@ -68,8 +96,8 @@ class TFHubModel(BaseModel):
 
     def set_auto_mixed_precision(self, enable_auto_mixed_precision):
         """
-        Enable auto mixed precision for training. Mixed precision uses both 16-bit and 32-bit floating point types to 
-        make training run faster and use less memory. If enable_auto_mixed_precision is set to None, auto mixed 
+        Enable auto mixed precision for training. Mixed precision uses both 16-bit and 32-bit floating point types to
+        make training run faster and use less memory. If enable_auto_mixed_precision is set to None, auto mixed
         precision will be enabled when running with Intel fourth generation Xeon processors, and disabled for other
         platforms.
         """
@@ -110,7 +138,7 @@ class TFHubModel(BaseModel):
            Exports a trained model as a saved_model.pb file. The file will be written to the output directory in a
            directory with the model's name, and a unique numbered directory (compatible with TF serving). The directory
            number will increment each time the model is exported.
-        
+
            Args:
                output_dir (str): A writeable output directory.
 

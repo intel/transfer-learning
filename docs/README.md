@@ -8,6 +8,7 @@ Install `tlt` and it's dependencies for developers as described [here](/README.m
 python3 -m virtualenv tlt_env
 source tlt_env/bin/activate
 python -m pip install --editable .[tensorflow,pytorch]
+python -m pip install tensorflow-text==2.9.0
 ```
 
 Install pandoc, Sphinx and a few other tools required to build docs

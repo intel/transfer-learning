@@ -5,8 +5,13 @@ Use the instructions below to install the dependencies required to run the
 
 System Requirements:
 * Ubuntu 20.04
-* Python 3.7, 3.8, 3.9, or 3.10
+* Python3 (3.7, 3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
 * git
+
+## Build and Install Intel® Transfer Learning Tool
+This is required for the TLT tutorial notebooks. Follow the instructions in the
+main [README](/README.md#build-and-install). You can skip this step if you are only running
+the native framework notebooks.
 
 ## PyTorch Environment
 
@@ -15,11 +20,11 @@ System Requirements:
    git clone https://github.com/intel-innersource/frameworks.ai.transfer-learning.git transfer_learning
    export TLT_REPO=$(pwd)/transfer_learning
    ```
-2. Create a Python3 virtual environment and install required packages.
+2. Activate the TLT environment or create a new Python3 virtual environment and install required packages.
 
    You can use virtualenv:
    ```
-   python3 -m venv intel-pyt-venv
+   virtualenv -p python3 intel-pyt-venv
    source intel-pyt-venv/bin/activate
    ```
    Or Anaconda:
@@ -60,11 +65,11 @@ System Requirements:
    git clone https://github.com/intel-innersource/frameworks.ai.transfer-learning.git transfer_learning
    export TLT_REPO=$(pwd)/transfer_learning
    ```
-2. Create a Python3 virtual environment and install required packages.
+2. Activate the TLT environment or create a new Python3 virtual environment and install required packages.
 
    You can use virtualenv:
    ```
-   python3 -m venv intel-tf-venv
+   virtualenv -p python3 intel-tf-venv
    source intel-tf-venv/bin/activate
    ```
    Or Anaconda:

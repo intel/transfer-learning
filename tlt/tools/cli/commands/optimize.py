@@ -19,7 +19,6 @@
 #
 
 import click
-import datetime
 import os
 import sys
 
@@ -30,8 +29,8 @@ from tlt.utils.types import FrameworkType
 @click.option("--model-dir", "--model_dir",
               required=True,
               type=click.Path(exists=True, file_okay=False),
-              help="Model directory to reload for graph optimization. The model directory should contain a saved_model.pb "
-                   "TensorFlow model.")
+              help="Model directory to reload for graph optimization. The model directory should contain a "
+                   "saved_model.pb TensorFlow model.")
 @click.option("--output-dir", "--output_dir",
               required=True,
               type=click.Path(file_okay=False),
@@ -52,7 +51,7 @@ def optimize(model_dir, output_dir):
         sys.exit("Error while verifying the output directory: {}", str(e))
 
     saved_model_path = os.path.join(model_dir, "saved_model.pb")
-    pytorch_model_path = os.path.join(model_dir, "model.pt")
+    # pytorch_model_path = os.path.join(model_dir, "model.pt")
     if os.path.isfile(saved_model_path):
         framework = FrameworkType.TENSORFLOW
     else:

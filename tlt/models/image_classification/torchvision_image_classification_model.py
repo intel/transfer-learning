@@ -19,8 +19,6 @@
 #
 
 import os
-import time
-import numpy as np
 from pydoc import locate
 from tqdm import tqdm
 
@@ -28,19 +26,17 @@ import torch
 import intel_extension_for_pytorch as ipex
 
 from tlt import TLT_BASE_DIR
-from tlt.models.torchvision_model import TorchvisionModel
-from tlt.models.image_classification.image_classification_model import ImageClassificationModel
+from tlt.models.image_classification.pytorch_image_classification_model import PyTorchImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-from tlt.utils.file_utils import read_json_file, verify_directory
-from tlt.utils.types import FrameworkType, UseCaseType
+from tlt.utils.file_utils import read_json_file
 
 
-class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionModel):
+class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
     """
     Class used to represent a Torchvision pretrained model for image classification
     """
 
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, **kwargs):
         """
         Class constructor
         """
@@ -50,35 +46,16 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
             raise ValueError("The specified Torchvision image classification model ({}) "
                              "is not supported.".format(model_name))
 
+        PyTorchImageClassificationModel.__init__(self, model_name, **kwargs)
+
         self._classification_layer = torchvision_model_map[model_name]["classification_layer"]
         self._image_size = torchvision_model_map[model_name]["image_size"]
-
-        # extra properties that will become configurable in the future
-        self._do_fine_tuning = False
-        self._dropout_layer_rate = None
-        self._learning_rate = 0.005
-        self._device = 'cpu'
-        self._optimizer_class = torch.optim.Adam  # Just the class, it needs to be initialized with the model object
-        self._optimizer = None
-        self._loss = torch.nn.CrossEntropyLoss()
-        self._generate_checkpoints = True
 
         # placeholder for model definition
         self._model = None
         self._num_classes = None
 
-        TorchvisionModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.IMAGE_CLASSIFICATION)
-        ImageClassificationModel.__init__(self, self._image_size, self._do_fine_tuning, self._dropout_layer_rate,
-                                          self._model_name, self._framework, self._use_case)
-
-    @property
-    def num_classes(self):
-        """
-        The number of output neurons in the model; equal to the number of classes in the dataset
-        """
-        return self._num_classes
-
-    def _get_hub_model(self, num_classes, ipex_optimize=True):
+    def _get_hub_model(self, num_classes, ipex_optimize=True, extra_layers=None):
         if not self._model:
             pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
             self._model = pretrained_model_class(pretrained=True)
@@ -87,33 +64,46 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
                 for param in self._model.parameters():
                     param.requires_grad = False
 
+            # Do not apply a softmax activation to the final layer as with TF because loss can be affected
             if len(self._classification_layer) == 2:
+                base_model = getattr(self._model, self._classification_layer[0])
                 classifier = getattr(self._model, self._classification_layer[0])[self._classification_layer[1]]
+                self._model.classifier = base_model[0: self._classification_layer[1]]
                 num_features = classifier.in_features
-                self._model.classifier[self._classification_layer[1]] = torch.nn.Linear(num_features, num_classes)
+                if extra_layers:
+                    for layer in extra_layers:
+                        self._model.classifier.append(torch.nn.Linear(num_features, layer))
+                        self._model.classifier.append(torch.nn.ReLU(inplace=True))
+                        num_features = layer
+                self._model.classifier.append(torch.nn.Linear(num_features, num_classes))
             else:
                 classifier = getattr(self._model, self._classification_layer[0])
-                num_features = classifier.in_features
-                setattr(self._model, self._classification_layer[0], torch.nn.Linear(num_features, num_classes))
+                if self._classification_layer[0] == "heads":
+                    num_features = classifier.head.in_features
+                else:
+                    num_features = classifier.in_features
+
+                if extra_layers:
+                    setattr(self._model, self._classification_layer[0], torch.nn.Sequential())
+                    classifier = getattr(self._model, self._classification_layer[0])
+                    for layer in extra_layers:
+                        classifier.append(torch.nn.Linear(num_features, layer))
+                        classifier.append(torch.nn.ReLU(inplace=True))
+                        num_features = layer
+                    classifier.append(torch.nn.Linear(num_features, num_classes))
+                else:
+                    classifier = torch.nn.Sequential(torch.nn.Linear(num_features, num_classes))
+                    setattr(self._model, self._classification_layer[0], classifier)
 
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
             if ipex_optimize:
                 self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
         self._num_classes = num_classes
-
         return self._model, self._optimizer
 
-    def load_from_directory(self,  model_dir: str):
-        """
-        Load a saved model from the model_dir path
-        """
-        # Verify that the model directory exists
-        verify_directory(model_dir, require_directory_exists=True)
-        self._model = torch.load(os.path.join(model_dir, 'model.pt'))
-        self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
-
-    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None):
+    def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
+              do_eval=True, early_stopping=False, lr_decay=True, seed=None, extra_layers=None, ipex_optimize=True):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -126,15 +116,33 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
                 epochs (int): Number of epochs to train the model (default: 1)
                 initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
                     latest checkpoint will be used.
+                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                    at the end of each epoch.
+                early_stopping (bool): Enable early stopping if convergence is reached while training
+                lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
+                    is applied at the end of each epoch.
+                seed (int): Optionally set a seed for reproducibility.
+                extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
+                    layer. This can help increase accuracy when fine-tuning a Pytorch model.
+                    The input should be a list of integers representing the number and size of the layers,
+                    for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the
+                    second with 512 neurons.
+                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.
 
             Returns:
                 Trained PyTorch model object
         """
-        verify_directory(output_dir)
+        self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
 
-        if initial_checkpoints and not isinstance(initial_checkpoints, str):
-            raise TypeError("The initial_checkpoints parameter must be a string but found a {}".format(
-                type(initial_checkpoints)))
+        if extra_layers:
+            if not isinstance(extra_layers, list):
+                raise TypeError("The extra_layers parameter must be a list of ints but found {}".format(
+                    type(extra_layers)))
+            else:
+                for layer in extra_layers:
+                    if not isinstance(layer, int):
+                        raise TypeError("The extra_layers parameter must be a list of ints but found a list "
+                                        "containing {}".format(type(layer)))
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -142,11 +150,15 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
         if dataset_num_classes != self.num_classes:
             self._model = None
 
+        self._set_seed(seed)
+
+        # IPEX optimization can be suppressed with input ipex_optimize=False or
         # If are loading weights, the state dicts need to be loaded before calling ipex.optimize, so get the model
         # from torchvision, but hold off on the ipex optimize call.
-        ipex_optimize = False if initial_checkpoints else True
+        optimize = ipex_optimize and (False if initial_checkpoints else True)
 
-        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=ipex_optimize)
+        self._model, self._optimizer = self._get_hub_model(dataset_num_classes, ipex_optimize=optimize,
+                                                           extra_layers=extra_layers)
 
         if initial_checkpoints:
             checkpoint = torch.load(initial_checkpoints)
@@ -154,68 +166,12 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
             self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
             # Call ipex.optimize now, since we didn't call it from _get_hub_model()
-            self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+            if ipex_optimize:
+                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
-        # Start PyTorch training loop
-        since = time.time()
+        self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
 
-        device = torch.device(self._device)
-        self._model = self._model.to(device)
-
-        if dataset.train_subset:
-            train_data_loader = dataset.train_loader
-            data_length = len(dataset.train_subset)
-        else:
-            train_data_loader = dataset.data_loader
-            data_length = len(dataset.dataset)
-
-        for epoch in range(epochs):
-            print(f'Epoch {epoch}/{epochs - 1}')
-            print('-' * 10)
-
-            # Training phase
-            self._model.train()
-            running_loss = 0.0
-            running_corrects = 0
-
-            # Iterate over data.
-            for inputs, labels in tqdm(train_data_loader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
-                inputs = inputs.to(device)
-                labels = labels.to(device)
-
-                # Zero the parameter gradients
-                self._optimizer.zero_grad()
-
-                # Forward and backward pass
-                with torch.set_grad_enabled(True):
-                    outputs = self._model(inputs)
-                    _, preds = torch.max(outputs, 1)
-                    loss = self._loss(outputs, labels)
-                    loss.backward()
-                    self._optimizer.step()
-
-                # Statistics
-                running_loss += loss.item() * inputs.size(0)
-                running_corrects += torch.sum(preds == labels.data)
-
-            epoch_loss = running_loss / data_length
-            epoch_acc = float(running_corrects) / data_length
-
-        print(f'Training Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
-        time_elapsed = time.time() - since
-        print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
-
-        if self._generate_checkpoints:
-            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
-            verify_directory(checkpoint_dir)
-            torch.save({
-                        'epoch': epochs,
-                        'model_state_dict': self._model.state_dict(),
-                        'optimizer_state_dict': self._optimizer.state_dict(),
-                        'loss': epoch_loss,
-                       }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
-
-        return self._model
+        return self._history
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """
@@ -235,12 +191,12 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
             eval_loader = dataset.validation_loader
             data_length = len(dataset.validation_subset)
         else:
-            eval_dataset = dataset.data_loader
+            eval_loader = dataset.data_loader
             data_length = len(dataset.dataset)
 
         if self._model is None:
             # The model hasn't been trained yet, use the original ImageNet trained model
-            print("The model has not been trained yet, so evaluation is being done using the original model " + \
+            print("The model has not been trained yet, so evaluation is being done using the original model ",
                   "and its classes")
             pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
             model = pretrained_model_class(pretrained=True)
@@ -283,10 +239,26 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
 
         return [epoch_loss, epoch_acc]
 
-    def predict(self, input_samples):
+    def predict(self, input_samples, return_type='class'):
         """
-        Perform feed-forward inference and predict the classes of the input_samples
+        Perform feed-forward inference and predict the classes of the input_samples.
+
+        Args:
+            input_samples (tensor): Input tensor with one or more samples to perform inference on
+            return_type (str): Using 'class' will return the highest scoring class (default), using 'scores' will
+                               return the raw output/logits of the last layer of the network, using 'probabilities' will
+                               return the output vector after applying a softmax function (so results sum to 1)
+
+        Returns:
+            List of classes, probability vectors, or raw score vectors
+
+        Raises:
+            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
+        return_types = ['class', 'probabilities', 'scores']
+        if not isinstance(return_type, str) or return_type not in return_types:
+            raise ValueError('Invalid return_type ({}). Expected one of {}.'.format(return_type, return_types))
+
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
             pretrained_model_class = locate('torchvision.models.{}'.format(self.model_name))
@@ -294,27 +266,99 @@ class TorchvisionImageClassificationModel(ImageClassificationModel, TorchvisionM
             predictions = model(input_samples)
         else:
             self._model.eval()
-            predictions = self._model(input_samples)
-        _, predicted_ids = torch.max(predictions, 1)
-        return predicted_ids
-
-    def export(self, output_dir):
-        """
-        Save a serialized version of the model to the output_dir path
-        """
-        if self._model:
-            # Save the model in a format that can be re-loaded for inference
-            verify_directory(output_dir)
-            saved_model_dir = os.path.join(output_dir, self.model_name)
-            if os.path.exists(saved_model_dir) and len(os.listdir(saved_model_dir)):
-                saved_model_dir = os.path.join(saved_model_dir, "{}".format(len(os.listdir(saved_model_dir)) + 1))
-            else:
-                saved_model_dir = os.path.join(saved_model_dir, "1")
-            
-            verify_directory(saved_model_dir)
-            torch.save(self._model, os.path.join(saved_model_dir, 'model.pt'))
-            print("Saved model directory:", saved_model_dir)
-
-            return saved_model_dir
+            with torch.no_grad():
+                predictions = self._model(input_samples)
+        if return_type == 'class':
+            _, predicted_ids = torch.max(predictions, 1)
+            return predicted_ids
+        elif return_type == 'probabilities':
+            return torch.nn.functional.softmax(predictions)
         else:
-            raise ValueError("Unable to export the model, because it hasn't been trained yet")
+            return predictions
+
+    def ls_modules(self, verbose=False):
+        """
+        Lists all of the modules (e.g. features, avgpool, or classifier) and layers
+        (ReLU, MaxPool2d, Dropout, Linear, etc) in a given PyTorch model
+        Args:
+            verbose (bool): True/False option set by default to be False, displays only a high-level
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be summarized.')
+        else:
+            model = self._model
+
+        if verbose:
+            # Display a detailed summary of the entire model
+            print("\nDisplaying detailed model summary:\n")
+            print(model)
+
+            # Display all of the top level modules as well as their submodules
+            print("\nDisplaying module and submodule names:\n")
+            for (name, module) in model.named_modules():
+                print(name)
+
+        # Display a high-level list of the modules e.g. features, avgpool, classifier
+        print("\nDisplaying top level module names:\n")
+        num_params = 0  # Track the number of params in each layer
+        frozen = '(frozen)'  # Check if the layer contains trainable params
+        for (name, module) in model.named_children():
+            for layer in module.children():
+                for param in layer.parameters():
+                    num_params += 1
+                    if param.requires_grad:
+                        frozen = '(trainable / unfrozen - freeze to make untrainable)'
+                    else:
+                        frozen = '(untrainable / frozen - unfreeze to make trainable)'
+            if num_params == 0:
+                frozen = '(not trainable)'
+            print('{} - {} parameters {}'.format(name, num_params, frozen))
+            num_params = 0
+
+        trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        print('Trainable parameters:', trainable_params)
+
+        return trainable_params
+
+    def freeze(self, layer_name):
+        """
+        Freezes the model's layer using a layer name
+        Args:
+            layer_name (string): The layer name that will be frozen in the model
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be summarized.')
+        else:
+            model = self._model
+
+        # Freeze everything in the layer
+        for (name, module) in model.named_children():
+            if name == layer_name:
+                for layer in module.children():
+                    for param in layer.parameters():
+                        param.requires_grad = False
+
+        return
+
+    def unfreeze(self, layer_name):
+        """
+        Unfreezes the model's layer using a layer name
+        Args:
+            layer_name (string): The layer name that will be frozen in the model
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be summarized.')
+        else:
+            model = self._model
+
+        # Unfreeze everything in the layer
+        for (name, module) in model.named_children():
+            if name == layer_name:
+                for layer in module.children():
+                    for param in layer.parameters():
+                        param.requires_grad = True
+
+        return

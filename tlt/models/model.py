@@ -36,6 +36,7 @@ class BaseModel(abc.ABC):
         self._model_name = model_name
         self._framework = framework
         self._use_case = use_case
+        self._learning_rate = 0.001
 
     @property
     def model_name(self):
@@ -58,6 +59,17 @@ class BaseModel(abc.ABC):
         """
         return self._use_case
 
+    @property
+    def learning_rate(self):
+        """
+        Learning rate for the model
+        """
+        return self._learning_rate
+
+    @learning_rate.setter
+    def learning_rate(self, value):
+        self._learning_rate = value
+
     @abc.abstractmethod
     def load_from_directory(self, model_dir: str):
         """
@@ -66,7 +78,7 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def train(self, dataset: BaseDataset, output_dir, epochs=1, initial_checkpoints=None):
+    def train(self, dataset: BaseDataset, output_dir, epochs=1, initial_checkpoints=None, do_eval=True):
         """
         Train the model using the specified dataset
         """

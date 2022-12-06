@@ -44,7 +44,7 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         dataset_name (str): optional; Name of the dataset. If no dataset name is given, the dataset_dir folder name
                             will be used as the dataset name.
         color_mode (str): optional; Specify the color mode as "greyscale", "rgb", or "rgba". Defaults to "rgb".
-        shuffle_files (bool): optional; Whether to shuffle the data. Defaults to True.
+        shuffle_files (bool): optional; Whether to shuffle the data. Defaults to False.
         seed (int): optional; Random seed for shuffling
 
     Raises:
@@ -52,7 +52,7 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
 
     """
 
-    def __init__(self, dataset_dir, dataset_name=None, color_mode="rgb", shuffle_files=True, seed=None):
+    def __init__(self, dataset_dir, dataset_name=None, color_mode="rgb", shuffle_files=False, seed=None):
         """
         Class constructor
         """
@@ -71,12 +71,13 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
             "color_mode": color_mode
         }
         self._preprocessed = None
+        self._seed = seed
 
         self._dataset = tf.keras.utils.image_dataset_from_directory(
             self._dataset_dir,
             batch_size=None,
             shuffle=shuffle_files,
-            seed=seed,
+            seed=self._seed,
             color_mode=color_mode)
         self._class_names = self._dataset.class_names
 
@@ -87,7 +88,6 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         self._train_subset = None
         self._validation_subset = None
         self._test_subset = None
-
 
     @property
     def class_names(self):
@@ -110,13 +110,16 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         """
         return self._dataset
 
-    def preprocess(self, image_size, batch_size):
+    def preprocess(self, image_size, batch_size, add_aug=None):
         """
         Preprocess the dataset to convert to float32, resize, and batch the images
 
             Args:
                 image_size (int): desired square image size
                 batch_size (int): desired batch size
+                add_aug (None or list[str]): Choice of augmentations (RandomHorizontalandVerticalFlip,
+                                             RandomHorizontalFlip, RandomVerticalFlip, RandomZoom, RandomRotation) to be
+                                             applied during training
 
             Raises:
                 ValueError if the dataset is not defined or has already been processed
@@ -150,3 +153,26 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
             setattr(self, subset, getattr(self, subset).batch(batch_size))
             setattr(self, subset, getattr(self, subset).prefetch(tf.data.AUTOTUNE))
         self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
+
+        if add_aug is not None:
+            aug_dict = {
+                'hvflip': tf.keras.layers.RandomFlip("horizontal_and_vertical",
+                                                     input_shape=(image_size, image_size, 3), seed=self._seed),
+                'hflip': tf.keras.layers.RandomFlip("horizontal",
+                                                    input_shape=(image_size, image_size, 3), seed=self._seed),
+                'vflip': tf.keras.layers.RandomFlip("vertical",
+                                                    input_shape=(image_size, image_size, 3), seed=self._seed),
+                'rotate': tf.keras.layers.RandomRotation(0.5, seed=self._seed),
+                'zoom': tf.keras.layers.RandomZoom(0.3, seed=self._seed)}
+            aug_list = ['hvflip', 'hflip', 'vflip', 'rotate', 'zoom']
+
+            data_augmentation = tf.keras.Sequential()
+
+            for option in add_aug:
+                if option not in aug_list:
+                    raise ValueError("Unsupported augmentation for TensorFlow:{}. \
+                        Supported augmentations are {}".format(option, aug_list))
+                data_augmentation.add(aug_dict[option])
+
+            self._dataset = self._dataset.map(lambda x, y: (data_augmentation(x, training=True), y),
+                                              num_parallel_calls=tf.data.AUTOTUNE)

@@ -17,6 +17,9 @@ conda create --name tlt_tests python=3.9
 # Install tlt for TensorFlow and/or PyTorch
 pip3 install --editable .[tensorflow,pytorch]
 
+# Required for TensorFlow text classification
+pip install tensorflow-text==2.9.0
+
 # Install the test requirements
 pip3 install -r tests/requirements-test.txt
 ```
