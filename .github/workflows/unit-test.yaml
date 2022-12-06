@@ -7,6 +7,7 @@ on:
     branches:
       - main
       - r0.1
+      - r0.2
     tags:
       - '**'
     paths:
