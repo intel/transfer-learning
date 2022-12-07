@@ -576,7 +576,7 @@ class TestImageClassificationDataset:
         assert 'recall' == tlt_dataset._validation_type
 
         # Perform shuffle split with default percentages
-        tlt_dataset.shuffle_split(seed=10)
+        tlt_dataset.shuffle_split(shuffle_files=False)
         default_train_pct = 0.75
         default_val_pct = 0.25
 

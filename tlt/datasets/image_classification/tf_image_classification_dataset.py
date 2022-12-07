@@ -31,7 +31,7 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
     An image classification dataset from the TensorFlow datasets catalog
     """
     def __init__(self, dataset_dir, dataset_name, split=["train"],
-                 as_supervised=True, shuffle_files=False):
+                 as_supervised=True, shuffle_files=True):
         """
         Class constructor
         """
@@ -101,34 +101,14 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
             Raises:
                 ValueError if the dataset is not defined or has already been processed
         """
-        if not isinstance(batch_size, int) or batch_size < 1:
-            raise ValueError("batch_size should be a positive integer")
-
-        if not isinstance(image_size, int) or image_size < 1:
-            raise ValueError("image_size should be a positive integer")
-
-        # NOTE: Should this be part of init? If we get image_size and batch size during init,
-        # then we don't need a separate call to preprocess.
-        def preprocess_image(image, label):
-            image = tf.image.convert_image_dtype(image, tf.float32)
-            image = tf.image.resize_with_pad(image, image_size, image_size)
-            return (image, label)
-
-        if not (self._dataset or self._train_subset or self._validation_subset or self._test_subset):
-            raise ValueError("Unable to preprocess, because the dataset hasn't been defined.")
         if self._preprocessed:
             raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))
-
-        # Get the non-None splits
-        split_list = ['_dataset', '_train_subset', '_validation_subset', '_test_subset']
-        subsets = [s for s in split_list if getattr(self, s, None)]
-        for subset in subsets:
-            if not self._preprocessed:
-                setattr(self, subset, getattr(self, subset).map(preprocess_image))
-                setattr(self, subset, getattr(self, subset).cache())
-            setattr(self, subset, getattr(self, subset).batch(batch_size))
-            setattr(self, subset, getattr(self, subset).prefetch(tf.data.AUTOTUNE))
-        self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
+        if not isinstance(batch_size, int) or batch_size < 1:
+            raise ValueError("batch_size should be a positive integer")
+        if not isinstance(image_size, int) or image_size < 1:
+            raise ValueError("image_size should be a positive integer")
+        if not (self._dataset or self._train_subset or self._validation_subset or self._test_subset):
+            raise ValueError("Unable to preprocess, because the dataset hasn't been defined.")
 
         if add_aug is not None:
             seed = 10
@@ -151,5 +131,20 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
                     Supported augmentations are {}".format(option, aug_list))
                 data_augmentation.add(aug_dict[option])
 
-            self._dataset = self._dataset.map(lambda x, y: (data_augmentation(x, training=True), y),
-                                              num_parallel_calls=tf.data.AUTOTUNE)
+        def preprocess_image(image, label):
+            image = tf.image.convert_image_dtype(image, tf.float32)
+            image = tf.image.resize_with_pad(image, image_size, image_size)
+            return (image, label)
+
+        # Get the non-None splits
+        split_list = ['_dataset', '_train_subset', '_validation_subset', '_test_subset']
+        subsets = [s for s in split_list if getattr(self, s, None)]
+        for subset in subsets:
+            setattr(self, subset, getattr(self, subset).map(preprocess_image))
+            setattr(self, subset, getattr(self, subset).cache())
+            setattr(self, subset, getattr(self, subset).batch(batch_size))
+            setattr(self, subset, getattr(self, subset).prefetch(tf.data.AUTOTUNE))
+            if add_aug is not None and subset in ['_dataset', '_train_subset']:
+                setattr(self, subset, getattr(self, subset).map(lambda x, y: (data_augmentation(x, training=True), y),
+                                                                num_parallel_calls=tf.data.AUTOTUNE))
+        self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}

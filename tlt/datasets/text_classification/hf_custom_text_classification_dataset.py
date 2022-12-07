@@ -20,7 +20,7 @@ class HFCustomTextClassificationDataset(TextClassificationDataset, HFDataset):
         label_map_func: callable = Any,
         header: Optional[Union[int, List[int], None]] = "infer",
         delimiter: Optional[str] = ",",
-        shuffle_files: Optional[bool] = False,
+        shuffle_files: Optional[bool] = True,
         num_workers: Optional[int] = 0,
         usecols: List[int] = None
     ):

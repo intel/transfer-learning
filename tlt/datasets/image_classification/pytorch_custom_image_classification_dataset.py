@@ -44,6 +44,7 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
         dataset_name (str): optional; Name of the dataset. If no dataset name is given, the dataset_dir folder name
                             will be used as the dataset name.
         num_workers (int): optional; Number of processes to use for data loading, default is 0
+        shuffle_files (bool): optional; Whether to shuffle the data. Defaults to True.
 
     Raises:
         FileNotFoundError if dataset directory does not exist
