@@ -287,10 +287,10 @@ class TestImageClassificationCustomDataset:
 
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name,epochs,lr,do_eval,early_stopping,lr_decay,final_lr,final_acc',
-                         [['efficientnet_b0', 'CIFAR10', 10, 0.005, True, False, True, 0.001, 0.994],
-                          ['resnet18', 'CIFAR10', 1, 0.005, True, False, False, None, 0.28],
-                          ['efficientnet_b0', 'CIFAR10', 1, 0.001, False, False, False, None, 0.1992],
-                          ['efficientnet_b0', 'CIFAR10', 10, 0.001, True, True, True, 0.0002, 0.8908]])
+                         [['efficientnet_b0', 'CIFAR10', 10, 0.005, True, False, True, 0.001, 0.9888],
+                          ['resnet18', 'CIFAR10', 1, 0.005, True, False, False, None, 0.2688],
+                          ['efficientnet_b0', 'CIFAR10', 1, 0.001, False, False, False, None, 0.1976],
+                          ['efficientnet_b0', 'CIFAR10', 10, 0.001, True, True, True, 0.0002, 0.8768]])
 def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epochs, lr, do_eval, early_stopping,
                                                   lr_decay, final_lr, final_acc):
     """
@@ -309,8 +309,8 @@ def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epoc
     model.learning_rate = lr
 
     # Preprocess the dataset
+    dataset.shuffle_split(train_pct=0.05, val_pct=0.05, shuffle_files=False)
     dataset.preprocess(image_size='variable', batch_size=32)
-    dataset.shuffle_split(train_pct=0.05, val_pct=0.05, seed=10)
     assert dataset._validation_type == 'shuffle_split'
 
     # Train

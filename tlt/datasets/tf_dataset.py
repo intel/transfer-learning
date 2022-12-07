@@ -18,6 +18,8 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+import tensorflow as tf
+
 from tlt.datasets.dataset import BaseDataset
 
 
@@ -80,7 +82,7 @@ class TFDataset(BaseDataset):
         else:
             raise ValueError("Unable to return a batch, because the dataset or subset hasn't been defined.")
 
-    def shuffle_split(self, train_pct=.75, val_pct=.25, test_pct=0., seed=None):
+    def shuffle_split(self, train_pct=.75, val_pct=.25, test_pct=0., shuffle_files=True, seed=None):
         """
         Randomly split the dataset into train, validation, and test subsets with a pseudo-random seed option.
 
@@ -88,6 +90,7 @@ class TFDataset(BaseDataset):
                 train_pct (float): default .75, percentage of dataset to use for training
                 val_pct (float):  default .25, percentage of dataset to use for validation
                 test_pct (float): default 0.0, percentage of dataset to use for testing
+                shuffle_files (bool): default True, optionally control whether shuffling occurs
                 seed (None or int): default None, can be set for pseudo-randomization
 
             Raises:
@@ -98,8 +101,20 @@ class TFDataset(BaseDataset):
         if train_pct + val_pct + test_pct > 1.0:
             raise ValueError("Sum of percentage arguments must be less than or equal to 1.")
 
-        length = len(self._dataset)
-        self._dataset.shuffle(length, seed=seed)
+        cardinality = self._dataset.cardinality()
+        length = len(self._dataset)  # Length is different from cardinality if batched
+        batched = self._preprocessed and 'batch_size' in self._preprocessed
+
+        if shuffle_files:
+            # A batched TF dataset has to be unbatched for the shuffle command to apply to all files
+            if batched:
+                self._dataset = self._dataset.unbatch()
+            self._dataset = self._dataset.shuffle(cardinality, reshuffle_each_iteration=False, seed=seed)
+            if batched:
+                self._dataset = self._dataset.cache()
+                self._dataset = self._dataset.batch(self._preprocessed['batch_size'])
+                self._dataset = self._dataset.prefetch(tf.data.AUTOTUNE)
+
         train_size = int(train_pct * length)
         val_size = int(val_pct * length)
 

@@ -111,7 +111,7 @@ class PyTorchDataset(BaseDataset):
         else:
             raise ValueError("Unable to return a batch, because the dataset or subset hasn't been defined.")
 
-    def shuffle_split(self, train_pct=.75, val_pct=.25, test_pct=0., seed=None):
+    def shuffle_split(self, train_pct=.75, val_pct=.25, test_pct=0., shuffle_files=True, seed=None):
         """
         Randomly split the dataset into train, validation, and test subsets with a pseudo-random seed option.
 
@@ -119,6 +119,7 @@ class PyTorchDataset(BaseDataset):
                 train_pct (float): default .75, percentage of dataset to use for training
                 val_pct (float):  default .25, percentage of dataset to use for validation
                 test_pct (float): default 0.0, percentage of dataset to use for testing
+                shuffle_files (bool): default True, optionally control whether shuffling occurs
                 seed (None or int): default None, can be set for pseudo-randomization
 
             Raises:
@@ -134,7 +135,10 @@ class PyTorchDataset(BaseDataset):
         val_size = int(val_pct * length)
         test_size = int(test_pct * length)
         generator = torch.Generator().manual_seed(seed) if seed else None
-        dataset_indices = torch.randperm(length, generator=generator).tolist()
+        if shuffle_files:
+            dataset_indices = torch.randperm(length, generator=generator).tolist()
+        else:
+            dataset_indices = range(length)
         self._train_indices = dataset_indices[:train_size]
         self._validation_indices = dataset_indices[train_size:train_size + val_size]
         if test_pct:
