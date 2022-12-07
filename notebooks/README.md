@@ -26,6 +26,12 @@ and [Intel Extension for PyTorch](https://github.com/intel/intel-extension-for-p
 | [Object Detection with PyTorch & torchvision](/notebooks/object_detection/pytorch_object_detection) | CV: Object Detection | PyTorch |Demonstrates transfer learning with multiple [torchvision](https://pytorch.org/vision/stable/index.html) object detection models, a public image dataset, and a customized torchvision dataset |
 | [Video Classification with PyTorch & torchvision](/notebooks/video_classification/pytorch_video_classification) | CV: Video Classification | PyTorch | Demonstrates transfer learning with multiple [torchvision](https://pytorch.org/vision/stable/index.html) video classification models using the HMBD51 torchvision compatible dataset |
 
+## Transfer Learning Tool End-to-End Pipelines
+
+| Notebook | Domain: Use Case | Framework| Description |
+| ---------| ---------|----------|-------------|
+| [Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API](/notebooks/image_classification/e2e_workflows/Medical_Imaging_Classification.ipynb) | CV: Image Classification | TensorFlow and the TLT API | Demonstrates how to use the TLT API to do transfer learning for image classification using a TensorFlow model for a medical imaging classification application. |
+| [Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API](/notebooks/image_classification/e2e_workflows/Remote_Sensing_Image_Scene_Classification.ipynb) | CV: Image Classification | TensorFlow and the TLT API | Demonstrates how to use the TLT API to do transfer learning for image classification using a TensorFlow model for a remote sensing image scene classification application. |
 
 ## Environment setup and running the notebooks
 
