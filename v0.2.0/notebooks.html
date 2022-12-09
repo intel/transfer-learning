@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Example Notebooks &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API" href="notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning.html" />
+    <link rel="prev" title="tlt.models.model.BaseModel" href="_autosummary/tlt.models.model.BaseModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Example Notebooks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning.html">Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/TLT_TF_Image_Classification_Transfer_Learning.html">Transfer Learning for Image Classification using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/TLT_TF_Text_Classification_Transfer_Learning.html">Text Classification fine tuning using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-setup-and-running-the-notebooks">Environment Setup and Running the Notebooks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#build-and-install-intel-transfer-learning-tool">Build and Install Intel® Transfer Learning Tool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pytorch-environment">PyTorch Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow-environment">TensorFlow Environment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Example Notebooks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/notebooks.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="example-notebooks">
+<h1>Example Notebooks<a class="headerlink" href="#example-notebooks" title="Permalink to this heading">¶</a></h1>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Jupyter Notebooks</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 60.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Notebook</p></th>
+<th class="head"><p>Use Case</p></th>
+<th class="head"><p>Framework</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning.html"><span class="doc">Image Classification with PyTorch using the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>PyTorch &amp; TLT</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/TLT_TF_Image_Classification_Transfer_Learning.html"><span class="doc">Image Classification with TF using the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>TensorFlow &amp; TLT</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="notebooks/TLT_TF_Text_Classification_Transfer_Learning.html"><span class="doc">Text Classification with TF using the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Text Classification</p></td>
+<td><p>TensorFlow &amp; TLT</p></td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+</div>
+<section id="environment-setup-and-running-the-notebooks">
+<h2>Environment Setup and Running the Notebooks<a class="headerlink" href="#environment-setup-and-running-the-notebooks" title="Permalink to this heading">¶</a></h2>
+<p>Use the instructions below to install the dependencies required to run the
+<a class="reference internal" href="#pytorch-environment"><span class="std std-doc">PyTorch</span></a> or <a class="reference internal" href="#tensorflow-environment"><span class="std std-doc">TensorFlow</span></a> notebooks.</p>
+<p>System Requirements:</p>
+<ul class="simple">
+<li><p>Ubuntu 20.04</p></li>
+<li><p>Python3 (3.7, 3.8, 3.9, or 3.10), Pip/Conda and Virtualenv</p></li>
+<li><p>git</p></li>
+</ul>
+<section id="build-and-install-intel-transfer-learning-tool">
+<h3>Build and Install Intel® Transfer Learning Tool<a class="headerlink" href="#build-and-install-intel-transfer-learning-tool" title="Permalink to this heading">¶</a></h3>
+<p>This is required for the TLT tutorial notebooks. Follow the instructions in the
+main <span class="xref myst">README</span>. You can skip this step if you are only running
+the native framework notebooks.</p>
+</section>
+<section id="pytorch-environment">
+<h3>PyTorch Environment<a class="headerlink" href="#pytorch-environment" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Get a clone of this Transfer Learning repository from GitHub:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/intel-innersource/frameworks.ai.transfer-learning.git transfer_learning
+export TLT_REPO=$(pwd)/transfer_learning
+</pre></div>
+</div>
+</li>
+<li><p>Activate the TLT environment or create a new Python3 virtual environment and install required packages.</p>
+<p>You can use virtualenv:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="o">-</span><span class="n">p</span> <span class="n">python3</span> <span class="n">intel</span><span class="o">-</span><span class="n">pyt</span><span class="o">-</span><span class="n">venv</span>
+<span class="n">source</span> <span class="n">intel</span><span class="o">-</span><span class="n">pyt</span><span class="o">-</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>Or Anaconda:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">intel</span><span class="o">-</span><span class="n">pyt</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.8</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">intel</span><span class="o">-</span><span class="n">pyt</span>
+</pre></div>
+</div>
+<p>Then, from inside the activated virtualenv or conda environment run these steps:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>pip install --upgrade pip
+pip install -r ${TLT_REPO}/notebooks/pytorch_requirements.txt
+</pre></div>
+</div>
+</li>
+<li><p>Set environment variables for the path to the dataset folder and an output directory.
+The dataset and output directories can be empty. The notebook will download the dataset to
+the dataset directory, if it is empty. Subsequent runs will reuse the dataset.
+If the <code class="docutils literal notranslate"><span class="pre">DATASET_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">OUTPUT_DIR</span></code> variables are not defined, the notebooks will
+default to use <code class="docutils literal notranslate"><span class="pre">~/dataset</span></code> and <code class="docutils literal notranslate"><span class="pre">~/output</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export DATASET_DIR=&lt;directory to download the dataset&gt;
+export OUTPUT_DIR=&lt;output directory for the saved model&gt;
+
+mkdir -p $DATASET_DIR
+mkdir -p $OUTPUT_DIR
+</pre></div>
+</div>
+</li>
+<li><p>Navigate to the notebook directory in your clone of the Transfer Learning repo, and then start the
+<a class="reference external" href="https://jupyter.readthedocs.io/en/latest/running.html#starting-the-notebook-server">notebook server</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd ${TLT_REPO}/notebooks
+PYTHONPATH=${TLT_REPO} jupyter notebook --port 8888
+</pre></div>
+</div>
+</li>
+<li><p>Copy and paste the URL from the terminal to your browser to view and run any of the
+PyTorch notebooks.</p></li>
+</ol>
+</section>
+<section id="tensorflow-environment">
+<h3>TensorFlow Environment<a class="headerlink" href="#tensorflow-environment" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Get a clone of this Transfer Learning repository from GitHub:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/intel-innersource/frameworks.ai.transfer-learning.git transfer_learning
+export TLT_REPO=$(pwd)/transfer_learning
+</pre></div>
+</div>
+</li>
+<li><p>Activate the TLT environment or create a new Python3 virtual environment and install required packages.</p>
+<p>You can use virtualenv:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="o">-</span><span class="n">p</span> <span class="n">python3</span> <span class="n">intel</span><span class="o">-</span><span class="n">tf</span><span class="o">-</span><span class="n">venv</span>
+<span class="n">source</span> <span class="n">intel</span><span class="o">-</span><span class="n">tf</span><span class="o">-</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>Or Anaconda:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">intel</span><span class="o">-</span><span class="n">tf</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.8</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">intel</span><span class="o">-</span><span class="n">tf</span>
+</pre></div>
+</div>
+<p>Then, from inside the activated virtualenv or conda environment run these steps:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>pip install --upgrade pip
+pip install -r ${TLT_REPO}/notebooks/tensorflow_requirements.txt
+pip install tensorflow-text==2.9.0
+</pre></div>
+</div>
+</li>
+<li><p>Set environment variables for the path to the dataset folder and an output directory.
+The dataset and output directories can be empty. The notebook will download the dataset to
+the dataset directory, if it is empty. Subsequent runs will reuse the dataset.
+If the <code class="docutils literal notranslate"><span class="pre">DATASET_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">OUTPUT_DIR</span></code> variables are not defined, the notebooks will
+default to use <code class="docutils literal notranslate"><span class="pre">~/dataset</span></code> and <code class="docutils literal notranslate"><span class="pre">~/output</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export DATASET_DIR=&lt;directory to download the dataset&gt;
+export OUTPUT_DIR=&lt;output directory for the saved model&gt;
+
+mkdir -p $DATASET_DIR
+mkdir -p $OUTPUT_DIR
+</pre></div>
+</div>
+</li>
+<li><p>Navigate to the notebook directory in your clone of the Transfer Learning repo, and then start the
+<a class="reference external" href="https://jupyter.readthedocs.io/en/latest/running.html#starting-the-notebook-server">notebook server</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd ${TLT_REPO}/notebooks
+PYTHONPATH=${TLT_REPO} jupyter notebook --port 8888
+</pre></div>
+</div>
+</li>
+<li><p>Copy and paste the URL from the terminal to your browser to view and run any of the
+TensorFlow notebooks.</p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="_autosummary/tlt.models.model.BaseModel.html" class="btn btn-neutral float-left" title="tlt.models.model.BaseModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning.html" class="btn btn-neutral float-right" title="Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Intel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

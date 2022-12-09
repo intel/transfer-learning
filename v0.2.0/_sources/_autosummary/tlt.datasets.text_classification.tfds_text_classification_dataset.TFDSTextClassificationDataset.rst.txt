@@ -1,0 +1,40 @@
+﻿tlt.datasets.text\_classification.tfds\_text\_classification\_dataset.TFDSTextClassificationDataset
+===================================================================================================
+
+.. currentmodule:: tlt.datasets.text_classification.tfds_text_classification_dataset
+
+.. autoclass:: TFDSTextClassificationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFDSTextClassificationDataset.__init__
+      ~TFDSTextClassificationDataset.get_batch
+      ~TFDSTextClassificationDataset.get_str_label
+      ~TFDSTextClassificationDataset.preprocess
+      ~TFDSTextClassificationDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFDSTextClassificationDataset.class_names
+      ~TFDSTextClassificationDataset.dataset
+      ~TFDSTextClassificationDataset.dataset_catalog
+      ~TFDSTextClassificationDataset.dataset_dir
+      ~TFDSTextClassificationDataset.dataset_name
+      ~TFDSTextClassificationDataset.info
+      ~TFDSTextClassificationDataset.test_subset
+      ~TFDSTextClassificationDataset.train_subset
+      ~TFDSTextClassificationDataset.validation_subset
+   
+   

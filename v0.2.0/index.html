@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Intel® Transfer Learning Tool Quick Start" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Example Notebooks</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Intel® Transfer Learning Tool</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="intel-transfer-learning-tool">
+<h1>Intel® Transfer Learning Tool<a class="headerlink" href="#intel-transfer-learning-tool" title="Permalink to this heading">¶</a></h1>
+<section id="goals">
+<h2>Goals<a class="headerlink" href="#goals" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>To make transfer learning workflows easier for data scientists for a variety of AI use cases, frameworks, and public
+pretrained models</p></li>
+<li><p>To incorporate all available Intel optimizations and best practices for XPU</p></li>
+</ul>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Low-code API and no-code CLI for:</dt><dd><ul>
+<li><dl class="simple">
+<dt>TensorFlow 2.9</dt><dd><ul>
+<li><p>Image Classification with 19 models from TFHub</p></li>
+<li><p>Text Classification with 26 models from TFHub</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>PyTorch 1.11</dt><dd><ul>
+<li><p>Image Classification with 60 models from torchvision</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-center">
+<a class="reference internal image-reference" href="_images/features.png"><img alt="TLT Features" src="_images/features.png" style="width: 703.92px; height: 534.24px;" /></a>
+</figure>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Jupyter notebooks demonstrating:</dt><dd><ul>
+<li><p>5 Computer Vision workflows</p></li>
+<li><p>3 Natural Language Processing workflows</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 60.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Notebook</p></th>
+<th class="head"><p>Use Case</p></th>
+<th class="head"><p>Framework</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Image Classification with TF Hub</p></td>
+<td><p>Image Classification</p></td>
+<td><p>TensorFlow</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/TLT_TF_Image_Classification_Transfer_Learning.html"><span class="doc">Image Classification with TF using the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>TensorFlow &amp; TLT</p></td>
+</tr>
+<tr class="row-even"><td><p>Image Classification with PyTorch &amp; torchvision</p></td>
+<td><p>Image Classification</p></td>
+<td><p>PyTorch</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning.html"><span class="doc">Image Classification with PyTorch using the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>PyTorch &amp; TLT</p></td>
+</tr>
+<tr class="row-even"><td><p>Object Detection with PyTorch &amp; torchvision</p></td>
+<td><p>Object Detection</p></td>
+<td><p>PyTorch</p></td>
+</tr>
+<tr class="row-odd"><td><p>BERT SQuAD fine tuning with TF Hub</p></td>
+<td><p>Question Answering</p></td>
+<td><p>TensorFlow</p></td>
+</tr>
+<tr class="row-even"><td><p>BERT Binary Text Classification with TF Hub</p></td>
+<td><p>Text Classification</p></td>
+<td><p>TensorFlow</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/TLT_TF_Text_Classification_Transfer_Learning.html"><span class="doc">Text Classification with TF using the TLT API</span></a></p></td>
+<td><p>Text Classification</p></td>
+<td><p>TensorFlow &amp; TLT</p></td>
+</tr>
+<tr class="row-even"><td><p>Text Classifier fine tuning with PyTorch &amp; Hugging Face</p></td>
+<td><p>Text Classification</p></td>
+<td><p>PyTorch</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="models">
+<h2>Models<a class="headerlink" href="#models" title="Permalink to this heading">¶</a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>TensorFlow</p></th>
+<th class="head"><p>PyTorch</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bert_en_uncased_L-12_H-768_A-12</p></td>
+<td><p>alexnet</p></td>
+</tr>
+<tr class="row-odd"><td><p>bert_en_wwm_uncased_L-24_H-1024_A-16</p></td>
+<td><p>convnext_tiny</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b0</p></td>
+<td><p>convnext_small</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b1</p></td>
+<td><p>convnext_base</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b2</p></td>
+<td><p>convnext_large</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b3</p></td>
+<td><p>densenet121</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b4</p></td>
+<td><p>densenet161</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b5</p></td>
+<td><p>densenet169</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b6</p></td>
+<td><p>densenet201</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b7</p></td>
+<td><p>efficientnet_b0</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnetv2-b0</p></td>
+<td><p>efficientnet_b1</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnetv2-b1</p></td>
+<td><p>efficientnet_b2</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnetv2-b2</p></td>
+<td><p>efficientnet_b3</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnetv2-b3</p></td>
+<td><p>efficientnet_b4</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnetv2-s</p></td>
+<td><p>efficientnet_b5</p></td>
+</tr>
+<tr class="row-odd"><td><p>inception_v3</p></td>
+<td><p>efficientnet_b6</p></td>
+</tr>
+<tr class="row-even"><td><p>mobilenet_v2_100_224</p></td>
+<td><p>efficientnet_b7</p></td>
+</tr>
+<tr class="row-odd"><td><p>nasnet_large</p></td>
+<td><p>googlenet</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet_v1_50</p></td>
+<td><p>mnasnet0_5</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet_v2_101</p></td>
+<td><p>mnasnet1_0</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet_v2_50</p></td>
+<td><p>mobilenet_v2</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-10_H-128_A-2</p></td>
+<td><p>mobilenet_v3_small</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-10_H-256_A-4</p></td>
+<td><p>mobilenet_v3_large</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-10_H-512_A-8</p></td>
+<td><p>resnet18</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-10_H-768_A-12</p></td>
+<td><p>resnet34</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-12_H-128_A-2</p></td>
+<td><p>resnet50</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-12_H-256_A-4</p></td>
+<td><p>resnet101</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-12_H-512_A-8</p></td>
+<td><p>resnet152</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-12_H-768_A-12</p></td>
+<td><p>resnext50_32x4d</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-2_H-128_A-2</p></td>
+<td><p>resnext101_32x8d</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-2_H-256_A-4</p></td>
+<td><p>regnet_x_400mf</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-2_H-512_A-8</p></td>
+<td><p>regnet_x_800mf</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-2_H-768_A-12</p></td>
+<td><p>regnet_x_1_6gf</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-4_H-128_A-2</p></td>
+<td><p>regnet_x_3_2gf</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-4_H-256_A-4</p></td>
+<td><p>regnet_x_8gf</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-4_H-512_A-8</p></td>
+<td><p>regnet_x_16gf</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-4_H-768_A-12</p></td>
+<td><p>regnet_x_32gf</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-6_H-128_A-2</p></td>
+<td><p>regnet_y_400mf</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-6_H-256_A-4</p></td>
+<td><p>regnet_y_800mf</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-6_H-512_A-8</p></td>
+<td><p>regnet_y_1_6gf</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-6_H-768_A-12</p></td>
+<td><p>regnet_y_3_2gf</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-8_H-128_A-2</p></td>
+<td><p>regnet_y_8gf</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-8_H-256_A-4</p></td>
+<td><p>regnet_y_16gf</p></td>
+</tr>
+<tr class="row-odd"><td><p>small_bert/bert_en_uncased_L-8_H-512_A-8</p></td>
+<td><p>regnet_y_32gf</p></td>
+</tr>
+<tr class="row-even"><td><p>small_bert/bert_en_uncased_L-8_H-768_A-12</p></td>
+<td><p>shufflenet_v2_x0_5</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>shufflenet_v2_x1_0</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>vgg11</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>vgg11_bn</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>vgg13</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>vgg13_bn</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>vgg16</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>vgg16_bn</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>vgg19</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>vgg19_bn</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>vit_b_16</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>vit_b_32</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>vit_l_16</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>vit_l_32</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>wide_resnet50_2</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>wide_resnet101_2</p></td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Example Notebooks</a></li>
+</ul>
+</div>
+</section>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Intel® Transfer Learning Tool Quick Start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Intel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

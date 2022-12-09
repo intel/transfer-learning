@@ -1,0 +1,43 @@
+﻿tlt.datasets.image\_classification.torchvision\_image\_classification\_dataset.TorchvisionImageClassificationDataset
+====================================================================================================================
+
+.. currentmodule:: tlt.datasets.image_classification.torchvision_image_classification_dataset
+
+.. autoclass:: TorchvisionImageClassificationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TorchvisionImageClassificationDataset.__init__
+      ~TorchvisionImageClassificationDataset.get_batch
+      ~TorchvisionImageClassificationDataset.preprocess
+      ~TorchvisionImageClassificationDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TorchvisionImageClassificationDataset.class_names
+      ~TorchvisionImageClassificationDataset.data_loader
+      ~TorchvisionImageClassificationDataset.dataset
+      ~TorchvisionImageClassificationDataset.dataset_catalog
+      ~TorchvisionImageClassificationDataset.dataset_dir
+      ~TorchvisionImageClassificationDataset.dataset_name
+      ~TorchvisionImageClassificationDataset.info
+      ~TorchvisionImageClassificationDataset.test_loader
+      ~TorchvisionImageClassificationDataset.test_subset
+      ~TorchvisionImageClassificationDataset.train_loader
+      ~TorchvisionImageClassificationDataset.train_subset
+      ~TorchvisionImageClassificationDataset.validation_loader
+      ~TorchvisionImageClassificationDataset.validation_subset
+   
+   

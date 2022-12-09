@@ -1,0 +1,39 @@
+﻿tlt.datasets.image\_classification.tf\_custom\_image\_classification\_dataset.TFCustomImageClassificationDataset
+================================================================================================================
+
+.. currentmodule:: tlt.datasets.image_classification.tf_custom_image_classification_dataset
+
+.. autoclass:: TFCustomImageClassificationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFCustomImageClassificationDataset.__init__
+      ~TFCustomImageClassificationDataset.get_batch
+      ~TFCustomImageClassificationDataset.preprocess
+      ~TFCustomImageClassificationDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFCustomImageClassificationDataset.class_names
+      ~TFCustomImageClassificationDataset.dataset
+      ~TFCustomImageClassificationDataset.dataset_catalog
+      ~TFCustomImageClassificationDataset.dataset_dir
+      ~TFCustomImageClassificationDataset.dataset_name
+      ~TFCustomImageClassificationDataset.info
+      ~TFCustomImageClassificationDataset.test_subset
+      ~TFCustomImageClassificationDataset.train_subset
+      ~TFCustomImageClassificationDataset.validation_subset
+   
+   
