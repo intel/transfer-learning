@@ -38,6 +38,21 @@ venv_test: $(CURDIR)/tests/requirements-test.txt
 	@echo "Installing test dependencies..."
 	@. $(ACTIVATE_TEST) && pip install -r $(CURDIR)/tests/requirements-test.txt
 
+venv_intel_tf: $(CURDIR)/notebooks/tensorflow_requirements.txt
+	@echo "Creating a virtualenv intel_tf..."
+	@test -d intel_tf || virtualenv -p python3 intel_tf
+
+	@echo "Installing TF notebook dependencies..."
+	@. $(ACTIVATE_TF) && pip install -r $(CURDIR)/notebooks/tensorflow_requirements.txt && \
+	pip install tensorflow-text==2.9.0
+
+venv_intel_pyt: $(CURDIR)/notebooks/pytorch_requirements.txt
+	@echo "Creating a virtualenv intel_pyt..."
+	@test -d intel_pyt || virtualenv -p python3 intel_pyt
+
+	@echo "Installing PYT notebook dependencies..."
+	@. $(ACTIVATE_PYT) && pip install -r $(CURDIR)/notebooks/pytorch_requirements.txt
+
 test: venv_test
 	@echo "Testing the API..."
 	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test -s --cov --cov-fail-under=85
@@ -69,22 +84,18 @@ venv_notebook: venv_test
 test_notebook: venv_notebook
 	@echo "Testing Jupyter notebooks..."
 	@. $(ACTIVATE_NOTEBOOK) && \
-	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
-		--TagRemovePreprocessor.remove_cell_tags remove_for_custom_dataset \
-		--to script $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb && \
-	ipython $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.py && \
-	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
-		--TagRemovePreprocessor.remove_cell_tags remove_for_tf_dataset \
-		--to script $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb && \
-	ipython $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.py && \
-	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
-		--TagRemovePreprocessor.remove_cell_tags remove_for_custom_dataset \
-		--to script $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb && \
-	ipython $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.py && \
-	jupyter nbconvert --TagRemovePreprocessor.enabled=True \
-		--TagRemovePreprocessor.remove_cell_tags remove_for_tv_dataset \
-		--to script $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb && \
-	ipython $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.py
+	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
+	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_tf_dataset && \
+	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
+	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_tv_dataset && \
+	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_custom_dataset && \
+	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_tf_dataset
+
+test_tf_notebook: venv_intel_tf
+	@. $(ACTIVATE_TF) && bash run_notebooks.sh tensorflow
+
+test_pyt_notebook: venv_intel_pyt
+	@. $(ACTIVATE_PYT) && bash run_notebooks.sh pytorch
 
 dist: venv_docs
 	@echo "Create binary wheel..."

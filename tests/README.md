@@ -66,3 +66,41 @@ we should create fixtures that take care of it.
 
 There are some executable examples in module docstrings. To run them as tests, follow
 the steps in the [docs README.md](/docs/README.md).
+
+## Jupyter Notebook Tests
+There are Makefile targets and a bash script that will automatically run the Jupyter notebooks. 
+There are a few different ways to use them. All of the ways require that you are in the `transfer-learning/` directory 
+and that you have set dataset and output directories:
+
+```
+export DATASET_DIR=<directory to download the datasets>
+export OUTPUT_DIR=<output directory for the saved models>
+``` 
+
+To run the <b>TLT tutorial notebooks</b> using a test environment that supports both PyTorch and TensorFlow:
+```
+make test_notebook
+```
+
+To run all the <b>native PyTorch notebooks</b> using a test environment for PyTorch without TLT:
+```
+make test_pyt_notebook
+```
+
+To run all the <b>native TensorFlow notebooks</b> using a test environment for TensorFlow without TLT:
+```
+make test_tf_notebook
+```
+
+To use the virtual environment of your choice and run a single notebook or multiple notebooks in the same directory:
+```
+source <env>/bin/activate
+bash run_notebooks.sh <directory or file path>
+```
+
+Optional: to run a notebook with certain cells omitted, send in the metadata tag as a second argument. For example:
+```
+source <env>/bin/activate
+bash run_notebooks.sh notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_tf_dataset
+```
+
