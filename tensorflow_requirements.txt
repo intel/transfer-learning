@@ -1,4 +1,5 @@
 intel-tensorflow==2.9.1
+numpy<=1.23.5,>=1.17
 neural-compressor==1.13
 tensorflow-datasets==4.5.2
 tensorflow-hub==0.12.0
