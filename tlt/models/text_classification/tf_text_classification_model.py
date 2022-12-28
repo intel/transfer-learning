@@ -35,7 +35,7 @@ import tensorflow_text  # noqa: F401
 
 class TFTextClassificationModel(TextClassificationModel, TFModel):
     """
-    Class used to represent a TF pretrained model that can be used for binary text classification
+    Class to represent a TF pretrained model that can be used for binary text classification
     fine tuning.
     """
 

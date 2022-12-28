@@ -25,7 +25,7 @@ from tlt.datasets.dataset import BaseDataset
 
 class TFDataset(BaseDataset):
     """
-    Base class used to represent a TF Dataset
+    Base class to represent a TF Dataset
     """
 
     def __init__(self, dataset_dir, dataset_name="", dataset_catalog=""):

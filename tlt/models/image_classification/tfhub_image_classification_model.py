@@ -31,7 +31,7 @@ from tlt.utils.file_utils import read_json_file
 
 class TFHubImageClassificationModel(TFImageClassificationModel):
     """
-    Class used to represent a TF Hub pretrained model
+    Class to represent a TF Hub pretrained model for image classification
     """
 
     def __init__(self, model_name: str, **kwargs):

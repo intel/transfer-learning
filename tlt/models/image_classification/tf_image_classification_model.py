@@ -35,7 +35,7 @@ from tlt.utils.types import FrameworkType, UseCaseType
 
 class TFImageClassificationModel(ImageClassificationModel, TFModel):
     """
-    Class used to represent a TF custom pretrained model
+    Class to represent a TF custom pretrained model for image classification
     """
 
     def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):

@@ -30,7 +30,7 @@ DATASETS = ["imdb_reviews", "glue/sst2", "glue/cola"]
 
 class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
     """
-    Base class for a text classification dataset from the TensorFlow datasets catalog
+    A text classification dataset from the TensorFlow datasets catalog
     """
     def __init__(self, dataset_dir, dataset_name, split=["train"], shuffle_files=True):
         if not isinstance(split, list):

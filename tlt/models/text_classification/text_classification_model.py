@@ -26,7 +26,7 @@ from tlt.utils.types import FrameworkType, UseCaseType
 
 class TextClassificationModel(BaseModel):
     """
-    Class used to represent a pretrained model for text classification
+    Class to represent a pretrained model for text classification
     """
 
     def __init__(self, model_name: str, framework: FrameworkType, use_case: UseCaseType, dropout_layer_rate: float):

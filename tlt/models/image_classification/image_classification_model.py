@@ -29,7 +29,7 @@ from tlt.utils.types import FrameworkType, UseCaseType
 
 class ImageClassificationModel(BaseModel):
     """
-    Base class used to represent a pretrained model for image classification
+    Base class to represent a pretrained model for image classification
     """
 
     def __init__(self, image_size, do_fine_tuning: bool, dropout_layer_rate: int,

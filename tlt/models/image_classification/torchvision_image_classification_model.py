@@ -33,7 +33,7 @@ from tlt.utils.file_utils import read_json_file
 
 class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
     """
-    Class used to represent a Torchvision pretrained model for image classification
+    Class to represent a Torchvision pretrained model for image classification
     """
 
     def __init__(self, model_name: str, **kwargs):

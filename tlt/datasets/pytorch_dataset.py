@@ -29,7 +29,7 @@ from tlt.datasets.dataset import BaseDataset
 
 class PyTorchDataset(BaseDataset):
     """
-    Base class used to represent a PyTorch Dataset
+    Base class to represent a PyTorch Dataset
     """
 
     def __init__(self, dataset_dir, dataset_name="", dataset_catalog=""):

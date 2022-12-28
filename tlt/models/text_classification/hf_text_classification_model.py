@@ -51,6 +51,11 @@ MODEL_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "models/configs")
 
 
 class HFTextClassificationModel(TextClassificationModel, HFModel):
+    """
+    Class to represent a Hugging Face pretrained model that can be used for multi-class text classification
+    fine tuning.
+    """
+
     def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
 
         # extra properties that will become configurable in the future

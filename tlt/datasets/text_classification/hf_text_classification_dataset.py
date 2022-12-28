@@ -32,6 +32,9 @@ DATASET_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "datasets/configs")
 
 
 class HFTextClassificationDataset(TextClassificationDataset, HFDataset):
+    """
+    A text classification dataset from the Hugging Face datasets catalog
+    """
 
     def __init__(self, dataset_dir, dataset_name, split=['train'], num_workers=0, shuffle_files=True):
         if not isinstance(split, list):

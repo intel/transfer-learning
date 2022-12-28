@@ -32,7 +32,7 @@ from tlt.utils.file_utils import verify_directory
 
 class PyTorchModel(BaseModel):
     """
-    Base class used to represent a PyTorch model
+    Base class to represent a PyTorch model
     """
 
     def __init__(self, model_name: str, framework: FrameworkType, use_case: UseCaseType):

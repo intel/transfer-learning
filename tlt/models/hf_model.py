@@ -26,6 +26,10 @@ from tlt.utils.types import FrameworkType, UseCaseType
 
 
 class HFModel(BaseModel):
+    """
+    Base class to represent a Hugging Face model
+    """
+
     def __init__(self, model_name: str, framework: FrameworkType, use_case: UseCaseType):
         super().__init__(model_name, framework, use_case)
         self._history = {}

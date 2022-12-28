@@ -30,7 +30,7 @@ from tlt.datasets.dataset import BaseDataset
 
 class HFDataset(BaseDataset):
     """
-    Base class used to represent Hugging Face Dataset
+    Base class to represent Hugging Face Dataset
     """
 
     def __init__(self, dataset_dir, dataset_name="", dataset_catalog=""):

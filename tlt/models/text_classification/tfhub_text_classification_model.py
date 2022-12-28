@@ -34,7 +34,7 @@ import tensorflow_text  # noqa: F401
 
 class TFHubTextClassificationModel(TFTextClassificationModel):
     """
-    Class used to represent a TF Hub pretrained model that can be used for binary text classification
+    Class to represent a TF Hub pretrained model that can be used for binary text classification
     fine tuning.
     """
 

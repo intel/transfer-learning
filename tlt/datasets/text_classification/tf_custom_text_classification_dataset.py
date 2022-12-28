@@ -27,8 +27,8 @@ from tlt.datasets.text_classification.text_classification_dataset import TextCla
 
 class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
     """
-    This class represents a custom text classification dataset in the .csv format that can be used with TensorFlow
-    models. Note that this dataset class expects a .csv file with two columns where the first column is the label and
+    A custom text classification dataset that can be used with TensorFlow models.
+    Note that this dataset class expects a .csv file with two columns where the first column is the label and
     the second column is the text/sentence to classify.
 
     For example, a comma separated value file will look similar to the snippet below:

@@ -10,6 +10,10 @@ from tlt.datasets.text_classification.text_classification_dataset import TextCla
 
 
 class HFCustomTextClassificationDataset(TextClassificationDataset, HFDataset):
+    """
+    A custom text classification dataset that can be used with Transformer models.
+    """
+
     def __init__(
         self,
         dataset_dir,
@@ -26,10 +30,7 @@ class HFCustomTextClassificationDataset(TextClassificationDataset, HFDataset):
     ):
         """
         Constructor method used to load a custom text classification dataset from given directory for
-        HuggingFace models. The dataset file can be:
-            - Comma separated
-            - Tab separated
-
+        HuggingFace models. The dataset file can be comma separated or tab separated.
 
         Args:
             dataset_dir (str): Directory containing the dataset(s)

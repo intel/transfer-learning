@@ -29,10 +29,10 @@ Image Classification
    :toctree: _autosummary
    :nosignatures:
 
-    pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset
-    tf_custom_image_classification_dataset.TFCustomImageClassificationDataset
     tf_image_classification_dataset.TFImageClassificationDataset
     torchvision_image_classification_dataset.TorchvisionImageClassificationDataset
+    tf_custom_image_classification_dataset.TFCustomImageClassificationDataset
+    pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset
     image_classification_dataset.ImageClassificationDataset
 
 Text Classification
@@ -45,7 +45,9 @@ Text Classification
    :nosignatures:
 
     tfds_text_classification_dataset.TFDSTextClassificationDataset
+    hf_text_classification_dataset.HFTextClassificationDataset
     tf_custom_text_classification_dataset.TFCustomTextClassificationDataset
+    hf_custom_text_classification_dataset.HFCustomTextClassificationDataset
     text_classification_dataset.TextClassificationDataset
 
 Base Classes
@@ -61,6 +63,7 @@ Base Classes
 
     pytorch_dataset.PyTorchDataset
     tf_dataset.TFDataset
+    hf_dataset.HFDataset
     dataset.BaseDataset
 
 Models
@@ -91,9 +94,10 @@ Image Classification
   :toctree: _autosummary
   :nosignatures:
 
-   tf_image_classification_model.TFImageClassificationModel
    tfhub_image_classification_model.TFHubImageClassificationModel
+   tf_image_classification_model.TFImageClassificationModel
    torchvision_image_classification_model.TorchvisionImageClassificationModel
+   pytorch_image_classification_model.PyTorchImageClassificationModel
    image_classification_model.ImageClassificationModel
 
 Text Classification
@@ -105,8 +109,9 @@ Text Classification
   :toctree: _autosummary
   :nosignatures:
 
-   tf_text_classification_model.TFTextClassificationModel
    tfhub_text_classification_model.TFHubTextClassificationModel
+   tf_text_classification_model.TFTextClassificationModel
+   hf_text_classification_model.HFTextClassificationModel
    text_classification_model.TextClassificationModel
 
 Base Classes
@@ -122,4 +127,5 @@ Base Classes
 
     pytorch_model.PyTorchModel
     tf_model.TFModel
+    hf_model.HFModel
     model.BaseModel
