@@ -55,7 +55,6 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
     Class to represent a Hugging Face pretrained model that can be used for multi-class text classification
     fine tuning.
     """
-
     def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
 
         # extra properties that will become configurable in the future
@@ -96,7 +95,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         """
         return self._num_classes
 
-    def _fit(self, dataset, output_dir, epochs, do_eval, ipex_optimize):
+    def _fit(self, dataset, epochs, do_eval, ipex_optimize):
         train_data_loader = None
         validation_data_loader = None
 
@@ -192,12 +191,36 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         output_dir: str,
         epochs: int = 1,
         learning_rate: float = 1e-5,
-        initial_checkpoints=None,
         do_eval: bool = True,
         device: str = "cpu",
         ipex_optimize: bool = True,
         use_trainer: bool = False
     ):
+
+        """
+        Trains the model using the specified text classification dataset.
+
+        Args:
+            dataset (TextClassificationDataset/datasets.arrow_dataset.Dataset): The dataset to use for training.
+                If a train subset has been defined, that subset will be used to fit the model. Otherwise, the
+                entire non-partitioned dataset will be used.
+            output_dir (str): A writeable output directory to write checkpoint files during training
+            epochs (int): The number of training epochs [default: 1]
+            do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
+                at the end of each epoch.
+            device (str): Device to train the model [default: "cpu"]
+            ipex_optimize (bool): Optimize the model using Intel® Extension for PyTorch
+            use_trainer (bool): If use_trainer is True, then the model training is done using the Hugging Face Trainer
+                and if use_trainer is False, the model training is done using native PyTorch training loop
+
+        Returns:
+            Dictionary containing the model training history
+
+        Raises:
+            TypeError if the dataset specified is not a TextClassificationDataset/datasets.arrow_dataset.Dataset
+            ValueError if the given dataset has not been preprocessed yet
+
+        """
 
         if not self._model:
             self._num_classes = len(dataset.class_names)
@@ -246,11 +269,26 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         else:
             self._trainer = None
             # Call the _fit method to train the model with native PyTorch API
-            self._fit(dataset, output_dir, epochs, do_eval, ipex_optimize)
+            self._fit(dataset, epochs, do_eval, ipex_optimize)
 
         return self._history
 
-    def evaluate(self, dataset_or_dataloader):
+    def evaluate(self, dataset_or_dataloader=None):
+        """
+           Evaulates the model on the given dataset (or) dataloader. If Hugging Face Trainer object was used to
+           train the model, it evaluates on the 'eval_dataset' given in the Trainer arguments
+
+           Args:
+               dataset_or_dataloader (datasets.arrow_dataset.Dataset/DataLoader/TextClassificationDataset): The
+                    dataset/dataloader to use for evaluation.
+
+           Returns:
+               Tuple with loss and accuracy metrics
+
+           Raises:
+               TypeError if the dataset specified is not a datasets.arrow_dataset.Dataset (or) a
+                    TextClassificationDataset (or) a DataLoader
+        """
         if self._trainer:
             results = self._trainer.evaluate()
             validation_loss = None
@@ -267,6 +305,8 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
                     isinstance(dataset_or_dataloader, HFCustomTextClassificationDataset):
                 dataloader = dataset_or_dataloader.validation_loader
                 validation_data_length = len(dataset_or_dataloader)
+            else:
+                raise TypeError("Invalid dataset/dataloader: {}".format(dataset_or_dataloader))
 
             if not self._model:
                 num_classes = len(dataset_or_dataloader.class_names)
@@ -295,20 +335,38 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         return (validation_loss, validation_accuracy)
 
     def predict(self, input_samples):
+        """
+           Generates predictions for the specified input samples.
+
+           Args:
+               input_samples (str, list, encoded dict, TextClassificationDataset):
+                    Input samples to use to predict.
+
+           Returns:
+               Numpy array of scores
+
+           Raises:
+               NotImplementedError if the given input_samples is of type DataLoader
+        """
         encoded_input = None
-        if isinstance(input_samples, str):
-            raw_input_text = list(input_samples)
-            encoded_input = self._tokenizer(raw_input_text, padding=True, return_tensors='pt')
-        elif isinstance(input_samples, list):
+
+        # If 'input_samples' is a single text string or a list of text strings
+        if isinstance(input_samples, str) or isinstance(input_samples, list):
             encoded_input = self._tokenizer(input_samples, padding=True, return_tensors='pt')
+        # If 'input_samples' is an encoded input dict
+        elif isinstance(input_samples, dict):
+            encoded_input = input_samples
+        # If 'input_samples' is of type HFTextClassificationDataset
         elif isinstance(input_samples, HFTextClassificationDataset):
             if input_samples._preprocessed:
                 encoded_input = {
                     'input_ids': input_samples['input_ids'],
-                    'attention_mask': input_samples['attention_mask']
+                    'attention_mask': input_samples['attention_mask'],
+                    'token_type_ids': input_samples['token_type_ids']
                 }
+        # if 'input_samples' is a DataLoader object
         elif isinstance(input_samples, DataLoader):
-            raise ValueError("Prediction using Dataloader hasn't been implmented yet. \
+            raise NotImplementedError("Prediction using Dataloader hasn't been implmented yet. \
                                 Use raw text or Dataset as input!")
 
         output = self._model(**encoded_input)
@@ -316,6 +374,12 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         return predictions
 
     def export(self, output_dir: str):
+        """
+        Saves the model to the given output_dir directory.
+
+        Args:
+            output_dir (str): Path to save the model.
+        """
         dir_name_to_save = self._model_name
         path_to_dir_name = os.path.join(output_dir, dir_name_to_save)
 
