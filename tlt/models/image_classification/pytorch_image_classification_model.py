@@ -79,11 +79,17 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         elif isinstance(model, str):
             self.load_from_directory(model)
             layers = list(self._model.children())
-            self._num_classes = layers[-1].out_features
+            if isinstance(layers[-1], torch.nn.Sequential):
+                self._num_classes = layers[-1][-1].out_features
+            else:
+                self._num_classes = layers[-1].out_features
         elif isinstance(model, torch.nn.Module):
             self._model = model
             layers = list(self._model.children())
-            self._num_classes = layers[-1].out_features
+            if isinstance(layers[-1], torch.nn.Sequential):
+                self._num_classes = layers[-1][-1].out_features
+            else:
+                self._num_classes = layers[-1].out_features
         else:
             raise TypeError("The model input must be a torch.nn.Module, string or",
                             "None but found a {}". format(type(model)))
@@ -210,12 +216,25 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         if self._generate_checkpoints:
             checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
             verify_directory(checkpoint_dir)
-            torch.save({
-                'epoch': epochs,
-                'model_state_dict': self._model.state_dict(),
-                'optimizer_state_dict': self._optimizer.state_dict(),
-                'loss': train_epoch_loss,
-            }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
+            try:
+                torch.save({
+                    'epoch': epochs,
+                    'model_state_dict': self._model.state_dict(),
+                    'optimizer_state_dict': self._optimizer.state_dict(),
+                    'loss': train_epoch_loss,
+                }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
+            except KeyError:
+                # Calling state_dict() on an IPEX optimizer calls into the torch optimizer's __setstate__ method
+                # which in PyTorch 1.12 assumes that the first state value will always have a 'step' key
+                state_values = list(self._optimizer.state.values())
+                if 'step' not in state_values[0].keys():
+                    state_values[0]['step'] = torch.tensor([])
+                torch.save({
+                    'epoch': epochs,
+                    'model_state_dict': self._model.state_dict(),
+                    'optimizer_state_dict': self._optimizer.state_dict(),
+                    'loss': train_epoch_loss,
+                }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, seed=None, ipex_optimize=True):

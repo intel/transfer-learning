@@ -169,6 +169,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             if ipex_optimize:
                 self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
+        self._model.train()
         self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
 
         return self._history
