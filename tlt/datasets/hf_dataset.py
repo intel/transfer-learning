@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+import re
 import torch
 import random
 
@@ -92,41 +93,29 @@ class HFDataset(BaseDataset):
         if self._preprocessed:
             raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))
 
-        # Get the column names of the dataset for the tokenizer
-        dataset_columns = self._dataset.column_names
-        text_column_name = None
-        text_column_name_2 = None
+        column_names = self._dataset.column_names
 
-        if 'text' in dataset_columns:
-            text_column_name = 'text'
-        elif 'sentence' in dataset_columns:
-            text_column_name = 'sentence'
-        elif 'symptoms' in dataset_columns:
-            text_column_name = 'symptoms'
-        elif 'sentence1' and 'sentence2' in dataset_columns:
-            text_column_name = 'sentence1'
-            text_column_name_2 = 'sentence2'
+        # There must be at least one feature named 'label' in the self._dataset. The remaining features
+        # become the text columns provided they contain only strings
+        text_column_names = [col_name for col_name in column_names if col_name != 'label' and
+                             all(isinstance(s, str) for s in self._dataset[col_name])]
 
         # Get the tokenizer
         self._tokenizer = AutoTokenizer.from_pretrained(model_name, force_download=True)
 
         # Define a tokenize function to map the text to the tokenizer
         def tokenize_function(examples):
-            # Define the tokenizer args, depending on if the data has 2 textual columns or just 1
-            args = None
-            if text_column_name_2 is None:
-                args = (examples[text_column_name],)
-            else:
-                args = (examples[text_column_name], examples[text_column_name_2])
+            # Define the tokenizer args, depending on number of text columns present in the dataset
+            args = (examples[text_column_name] for text_column_name in text_column_names)
 
             result = self._tokenizer(*args, padding=padding, max_length=max_length, truncation=truncation)
             return result
 
         self._dataset = self._dataset.map(tokenize_function, batched=True)
 
-        # Remove the raw text from the tokenized dataset
-        raw_text_columns = [text_column_name, text_column_name_2] if text_column_name_2 else [text_column_name]
-        self._dataset = self._dataset.remove_columns(raw_text_columns)
+        # Prepare the tokenized dataset in the format expected by model.
+        # Remove the rest of the features from the tokenized dataset except 'label'
+        self._dataset = self._dataset.remove_columns([col for col in column_names if col != 'label'])
 
         # Rename column "label" to "labels"
         self._dataset = self._dataset.rename_column("label", "labels")
@@ -140,7 +129,7 @@ class HFDataset(BaseDataset):
             'batch_size': batch_size,
         }
         self._make_data_loaders(batch_size=batch_size)
-        print("tokenized_dataset:", self._dataset)
+        print("Tokenized Dataset:", self._dataset)
 
     def shuffle_split(self, train_pct=.75, val_pct=.25, test_pct=0., shuffle_files=True, seed=None):
         """
@@ -235,6 +224,24 @@ class HFDataset(BaseDataset):
             self._train_loader = self._data_loader
             self._test_loader = self._data_loader
             self._validation_loader = self._data_loader
+
+    def get_text(self, input_ids):
+        """
+        Helper function to decode the input_ids to text
+        """
+        decoded_text = []
+        if isinstance(input_ids, list):
+            input_ids = torch.tensor(input_ids)
+
+        if input_ids.ndim > 1:
+            decoded_tokens = self._tokenizer.batch_decode(input_ids)
+            for t in decoded_tokens:
+                decoded_text.append(re.search(r'\[CLS\] (.*?) \[SEP\]', t).group(1))
+        else:
+            decoded_tokens = self._tokenizer.decode(input_ids)
+            decoded_text.append(re.search(r'\[CLS\] (.*?) \[SEP\]', decoded_tokens).group(1))
+
+        return decoded_text
 
     @property
     def train_subset(self):
