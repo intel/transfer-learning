@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tlt.models.image_classification.image_classification_model.ImageClassificationModel &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel" href="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.html" />
-    <link rel="prev" title="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel" href="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.html" /> 
+    <link rel="next" title="tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel" href="tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel.html" />
+    <link rel="prev" title="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel" href="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -115,7 +115,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="tlt.models.image_classification.image_classification_model.ImageClassificationModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlt.models.image_classification.image_classification_model.</span></span><span class="sig-name descname"><span class="pre">ImageClassificationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_fine_tuning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_layer_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrameworkType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UseCaseType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_classification/image_classification_model.html#ImageClassificationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_classification.image_classification_model.ImageClassificationModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class used to represent a pretrained model for image classification</p>
+<dd><p>Base class to represent a pretrained model for image classification</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tlt.models.image_classification.image_classification_model.ImageClassificationModel.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_fine_tuning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_layer_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrameworkType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UseCaseType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_classification/image_classification_model.html#ImageClassificationModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_classification.image_classification_model.ImageClassificationModel.__init__" title="Permalink to this definition">¶</a></dt>
@@ -124,6 +124,10 @@
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tlt.models.image_classification.image_classification_model.ImageClassificationModel.__init__" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(image_size, do_fine_tuning, ...)</p></td>
 <td><p>Class constructor</p></td>
@@ -162,6 +166,10 @@
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">do_fine_tuning</span></code></p></td>
 <td><p>When True, the weights in all of the model's layers will be trainable.</p></td>
@@ -197,8 +205,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.html" class="btn btn-neutral float-left" title="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.html" class="btn btn-neutral float-right" title="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.html" class="btn btn-neutral float-left" title="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel.html" class="btn btn-neutral float-right" title="tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

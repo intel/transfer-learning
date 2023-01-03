@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset" href="tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset.html" />
-    <link rel="prev" title="tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset" href="tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset.html" /> 
+    <link rel="next" title="tlt.datasets.text_classification.hf_custom_text_classification_dataset.HFCustomTextClassificationDataset" href="tlt.datasets.text_classification.hf_custom_text_classification_dataset.HFCustomTextClassificationDataset.html" />
+    <link rel="prev" title="tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset" href="tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -115,8 +115,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlt.datasets.text_classification.tf_custom_text_classification_dataset.</span></span><span class="sig-name descname"><span class="pre">TFCustomTextClassificationDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_map_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[tf.string,</span> <span class="pre">tf.string]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/datasets/text_classification/tf_custom_text_classification_dataset.html#TFCustomTextClassificationDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class represents a custom text classification dataset in the .csv format that can be used with TensorFlow
-models. Note that this dataset class expects a .csv file with two columns where the first column is the label and
+<dd><p>A custom text classification dataset that can be used with TensorFlow models.
+Note that this dataset class expects a .csv file with two columns where the first column is the label and
 the second column is the text/sentence to classify.</p>
 <p>For example, a comma separated value file will look similar to the snippet below:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>class_a,&lt;text&gt;
@@ -128,7 +128,7 @@ class_a,&lt;text&gt;
 <p>If the .csv files has more columns, the select_cols or exclude_cols parameters can be used to filter out which
 columns will be parsed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset_dir</strong> (<em>str</em>) – Directory containing the dataset</p></li>
 <li><p><strong>dataset_name</strong> (<em>str</em>) – Name of the dataset. If no dataset name is given, the dataset_dir folder name
@@ -153,7 +153,7 @@ exclude_cols can be specified.</p></li>
 <li><p><strong>seed</strong> (<em>int</em>) – optional; Random seed for shuffling</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>FileNotFoundError if the csv file is not found in the dataset directory</strong> – </p></li>
 <li><p><strong>TypeError if the class_names parameter is not a list</strong><strong> or </strong><strong>the label_map_func is not callable</strong> – </p></li>
@@ -169,6 +169,10 @@ exclude_cols can be specified.</p></li>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.__init__" title="tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(dataset_dir, dataset_name, ...[, ...])</p></td>
 <td><p>Class constructor</p></td>
@@ -189,6 +193,10 @@ exclude_cols can be specified.</p></li>
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">class_names</span></code></p></td>
 <td><p>Returns the list of class names</p></td>
@@ -227,8 +235,8 @@ exclude_cols can be specified.</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset.html" class="btn btn-neutral float-left" title="tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset.html" class="btn btn-neutral float-right" title="tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset.html" class="btn btn-neutral float-left" title="tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tlt.datasets.text_classification.hf_custom_text_classification_dataset.HFCustomTextClassificationDataset.html" class="btn btn-neutral float-right" title="tlt.datasets.text_classification.hf_custom_text_classification_dataset.HFCustomTextClassificationDataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

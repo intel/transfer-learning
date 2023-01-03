@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -121,6 +121,7 @@ pretrained models</p></li>
 <li><dl class="simple">
 <dt>PyTorch 1.11</dt><dd><ul>
 <li><p>Image Classification with 60 models from torchvision</p></li>
+<li><p>Text Classification with 3 models from Hugging Face</p></li>
 </ul>
 </dd>
 </dl>
@@ -135,7 +136,7 @@ pretrained models</p></li>
 </figure>
 <ul class="simple">
 <li><dl class="simple">
-<dt>Jupyter notebooks demonstrating:</dt><dd><ul>
+<dt>Jupyter notebooks:</dt><dd><ul>
 <li><p>5 Computer Vision workflows</p></li>
 <li><p>3 Natural Language Processing workflows</p></li>
 </ul>
@@ -143,11 +144,40 @@ pretrained models</p></li>
 </dl>
 </li>
 </ul>
-<table class="docutils align-default">
+<table class="colwidths-given docutils align-default" id="id1">
+<caption><span class="caption-text">Transfer Learning Tool Tutorial Notebooks</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col style="width: 60.0%" />
-<col style="width: 20.0%" />
-<col style="width: 20.0%" />
+<col style="width: 60%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Notebook</p></th>
+<th class="head"><p>Use Case</p></th>
+<th class="head"><p>Framework</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="notebooks/TLT_TF_Image_Classification_Transfer_Learning.html"><span class="doc">Image Classification with TF using the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>TensorFlow &amp; TLT</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning.html"><span class="doc">Image Classification with PyTorch using the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>PyTorch &amp; TLT</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="notebooks/TLT_TF_Text_Classification_Transfer_Learning.html"><span class="doc">Text Classification with TF using the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Text Classification</p></td>
+<td><p>TensorFlow &amp; TLT</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-given docutils align-default" id="id2">
+<caption><span class="caption-text">Native Framework Transfer Learning Notebooks</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 60%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Notebook</p></th>
@@ -160,17 +190,9 @@ pretrained models</p></li>
 <td><p>Image Classification</p></td>
 <td><p>TensorFlow</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/TLT_TF_Image_Classification_Transfer_Learning.html"><span class="doc">Image Classification with TF using the Intel® Transfer Learning Tool API</span></a></p></td>
-<td><p>Image Classification</p></td>
-<td><p>TensorFlow &amp; TLT</p></td>
-</tr>
-<tr class="row-even"><td><p>Image Classification with PyTorch &amp; torchvision</p></td>
+<tr class="row-odd"><td><p>Image Classification with PyTorch &amp; torchvision</p></td>
 <td><p>Image Classification</p></td>
 <td><p>PyTorch</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning.html"><span class="doc">Image Classification with PyTorch using the Intel® Transfer Learning Tool API</span></a></p></td>
-<td><p>Image Classification</p></td>
-<td><p>PyTorch &amp; TLT</p></td>
 </tr>
 <tr class="row-even"><td><p>Object Detection with PyTorch &amp; torchvision</p></td>
 <td><p>Object Detection</p></td>
@@ -184,23 +206,47 @@ pretrained models</p></li>
 <td><p>Text Classification</p></td>
 <td><p>TensorFlow</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/TLT_TF_Text_Classification_Transfer_Learning.html"><span class="doc">Text Classification with TF using the TLT API</span></a></p></td>
-<td><p>Text Classification</p></td>
-<td><p>TensorFlow &amp; TLT</p></td>
-</tr>
-<tr class="row-even"><td><p>Text Classifier fine tuning with PyTorch &amp; Hugging Face</p></td>
+<tr class="row-odd"><td><p>Text Classifier fine tuning with PyTorch &amp; Hugging Face</p></td>
 <td><p>Text Classification</p></td>
 <td><p>PyTorch</p></td>
+</tr>
+<tr class="row-even"><td><p>Video Classification with PyTorch &amp; torchvision</p></td>
+<td><p>Video Classification</p></td>
+<td><p>PyTorch</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-given docutils align-default" id="id3">
+<caption><span class="caption-text">Transfer Learning Tool End-to-End Pipelines</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 60%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Notebook</p></th>
+<th class="head"><p>Use Case</p></th>
+<th class="head"><p>Framework</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="notebooks/Medical_Imaging_Classification.html"><span class="doc">Medical Imaging using TensorFlow and the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>TensorFlow &amp; TLT</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/Remote_Sensing_Image_Scene_Classification.html"><span class="doc">Remote Sensing using TensorFlow and the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>TensorFlow &amp; TLT</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="models">
 <h2>Models<a class="headerlink" href="#models" title="Permalink to this heading">¶</a></h2>
-<table class="docutils align-default">
+<table class="colwidths-given docutils align-default">
 <colgroup>
-<col style="width: 50.0%" />
-<col style="width: 50.0%" />
+<col style="width: 50%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>TensorFlow</p></th>
@@ -387,6 +433,15 @@ pretrained models</p></li>
 </tr>
 <tr class="row-odd"><td></td>
 <td><p>wide_resnet101_2</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>bert-base-cased</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>distilbert-base-uncased</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>clinical-bert</p></td>
 </tr>
 </tbody>
 </table>

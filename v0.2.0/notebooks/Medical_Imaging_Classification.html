@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API" href="Remote_Sensing_Image_Scene_Classification.html" />
+    <link rel="prev" title="Text Classification fine tuning using TensorFlow and the Intel® Transfer Learning Tool API" href="TLT_TF_Text_Classification_Transfer_Learning.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../notebooks.html">Example Notebooks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="TLT_PyTorch_Image_Classification_Transfer_Learning.html">Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TLT_TF_Image_Classification_Transfer_Learning.html">Transfer Learning for Image Classification using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TLT_TF_Text_Classification_Transfer_Learning.html">Text Classification fine tuning using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Import-dependencies-and-setup-parameters">1. Import dependencies and setup parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Get-the-model">2. Get the model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Option-A:-Load-a-model">Option A: Load a model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Option-B:-Load-a-pretrained-checkpoint">Option B: Load a pretrained checkpoint</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Get-the-dataset">3. Get the dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Prepare-the-dataset">4. Prepare the dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#5.-Transfer-Learning">5. Transfer Learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#6.-Evaluate">6. Evaluate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#7.-Export">7. Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#8.-Inference">8. Inference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Dataset-Citations">Dataset Citations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Remote_Sensing_Image_Scene_Classification.html">Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks.html#environment-setup-and-running-the-notebooks">Environment Setup and Running the Notebooks</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../notebooks.html">Example Notebooks</a></li>
+      <li class="breadcrumb-item active">Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/Medical_Imaging_Classification.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Medical-Imaging-Classification-(Colorectal-histology)-using-TensorFlow-and-the-Intel®-Transfer-Learning-Tool-API">
+<h1>Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API<a class="headerlink" href="#Medical-Imaging-Classification-(Colorectal-histology)-using-TensorFlow-and-the-Intel®-Transfer-Learning-Tool-API" title="Permalink to this heading">¶</a></h1>
+<p>This notebook facilitates implementation of medical imaging classification using Transfer Learning Toolkit. It performs Multi-class texture analysis in colorectal cancer histology dataset. The workflow uses pretrained SOTA models ( RESNET V1.5) from TF hub and transfers the knowledge from a pretrained domain to a different custom domain achieving required accuracy.</p>
+<section id="1.-Import-dependencies-and-setup-parameters">
+<h2>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+import os
+import pickle
+import tensorflow as tf
+from sklearn.metrics import classification_report
+
+#tlt imports
+from tlt.datasets import dataset_factory
+from tlt.models import model_factory
+from tlt.utils.types import FrameworkType, UseCaseType
+
+from notebooks.plot_utils import plot_curves
+
+# Specify a directory for the dataset to be downloaded
+dataset_dir = os.environ[&quot;DATASET_DIR&quot;] if &quot;DATASET_DIR&quot; in os.environ else \
+    os.path.join(os.environ[&quot;HOME&quot;], &quot;dataset&quot;)
+
+# Specify a directory for output
+output_dir = os.environ[&quot;OUTPUT_DIR&quot;] if &quot;OUTPUT_DIR&quot; in os.environ else \
+    os.path.join(os.environ[&quot;HOME&quot;], &quot;output&quot;)
+
+print(&quot;Dataset directory:&quot;, dataset_dir)
+print(&quot;Output directory:&quot;, output_dir)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Get-the-model">
+<h2>2. Get the model<a class="headerlink" href="#2.-Get-the-model" title="Permalink to this heading">¶</a></h2>
+<p>In this step, we call the TLT model factory to list supported TensorFlow image classification models. This is a list of pretrained models from TFHub that we tested with our API. Optionally, the verbose=True argument can be added to the print_supported_models function call to get more information about each model (such as the link to TFHub, image size, the original dataset, etc).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># See a list of available models
+model_factory.print_supported_models(use_case=&#39;image_classification&#39;, framework=&#39;tensorflow&#39;)
+</pre></div>
+</div>
+</div>
+<section id="Option-A:-Load-a-model">
+<h3>Option A: Load a model<a class="headerlink" href="#Option-A:-Load-a-model" title="Permalink to this heading">¶</a></h3>
+<p>Next, use the model factory to get one of the models listed in the previous cell. The <code class="docutils literal notranslate"><span class="pre">get_model</span></code> function returns a model object that will later be used for training. By default, resnet_v1_50 is used for training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Get the model
+model = model_factory.get_model(model_name=&quot;resnet_v1_50&quot;, framework=&quot;tensorflow&quot;)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Option-B:-Load-a-pretrained-checkpoint">
+<h3>Option B: Load a pretrained checkpoint<a class="headerlink" href="#Option-B:-Load-a-pretrained-checkpoint" title="Permalink to this heading">¶</a></h3>
+<p>Optionally, to continue training using a pretrained checkpoint, the user can specify the path to folder containing <strong>saved_model.pb</strong>. The user can specify the path in <strong>model</strong> parameter.</p>
+<p><em>Note: The path is same as saved_model_dir</em></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>#Load a pretrained checkpoint
+model = model_factory.load_model(model_name=&#39;resnet_v1_50&#39;,
+                                 model=&#39;/home/intel/output/resnet_v1_50/1&#39;,
+                                 framework=&#39;tensorflow&#39;, use_case=&#39;image_classification&#39;)
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="3.-Get-the-dataset">
+<h2>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Permalink to this heading">¶</a></h2>
+<p>Use dataset <strong>colorectal_histology</strong> from the TensorFlow Datasets catalog</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dataset = dataset_factory.get_dataset(dataset_dir=dataset_dir,
+                                      use_case=&#39;image_classification&#39;,
+                                      framework=&#39;tensorflow&#39;,
+                                      dataset_name=&#39;colorectal_histology&#39;,
+                                      dataset_catalog=&#39;tf_datasets&#39;)
+
+print(dataset.info)
+
+print(&quot;\nClass names:&quot;, str(dataset.class_names))
+</pre></div>
+</div>
+</div>
+</section>
+<section id="4.-Prepare-the-dataset">
+<h2>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Permalink to this heading">¶</a></h2>
+<p>Once you have your dataset from Option A or Option B above, use the following cells to preprocess the dataset. We resize the images to match the selected models and batch the images, then split them into training and validation subsets. Data augmentation can be applied by specifying the augmentations to be applied in <strong>add_aug</strong> parameter. Supported augmentations are 1. hvflip - RandomHorizontalandVerticalFlip 2. hflip - RandomHorizontalFlip 3. vflip - RandomVerticalFlip 4. rotate - RandomRotate
+5. zoom - RandomZoom</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Preprocess the dataset with an image size that matches the model and a batch size of 32
+batch_size = 32
+dataset.preprocess(model.image_size, batch_size=batch_size, add_aug=[&#39;hvflip&#39;, &#39;rotate&#39;])
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Split the dataset into training, validation and test subsets
+dataset.shuffle_split(train_pct=.80, val_pct=.10, test_pct=0.10)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="5.-Transfer-Learning">
+<h2>5. Transfer Learning<a class="headerlink" href="#5.-Transfer-Learning" title="Permalink to this heading">¶</a></h2>
+<p>This step calls the model’s train function with the dataset that was just prepared. The training function will get the TFHub feature vector and add on a dense layer based on the number of classes in the dataset. The model is then compiled and trained based on the number of epochs specified in the argument. The toolkit also facilitates addition of more dense layers using <strong>extra_layers</strong> parameter.</p>
+<p>For Example: To optionally insert additional dense layers between the base model and output layer. <strong>extra_layers</strong> = [1024, 512] will insert two dense layers, the first with 1024 neurons and the second with 512 neurons.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Mixed precision uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
+# It is recommended to enable auto mixed precision training when running on platforms that support
+# bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+# does not support bfloat16, it can be detrimental to the training performance.
+# If enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+# running with Intel fourth generation Xeon processors, and disabled for other platforms.
+enable_auto_mixed_precision = None
+
+# Train the model using the dataset
+history = model.train(dataset, output_dir=output_dir, epochs=50,
+                      enable_auto_mixed_precision=None, early_stopping=True)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="6.-Evaluate">
+<h2>6. Evaluate<a class="headerlink" href="#6.-Evaluate" title="Permalink to this heading">¶</a></h2>
+<p>The next step shows how the model can be evaluated. The model’s evaluate function returns a list of metrics calculated from the dataset’s validation subset.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Evaluate model on validation subset
+val_loss, val_acc = model.evaluate(dataset)
+print(&quot;Validation Accuracy :&quot;, val_acc)
+print(&quot;Validation Loss :&quot;, val_loss)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_curves(history, os.path.join(output_dir, &quot;{}_checkpoints&quot;.format(model.model_name)))
+pickle.dump(history, open(os.path.join(output_dir, &quot;{}_checkpoints&quot;.format(model.model_name), &#39;hist.pkl&#39;), &#39;wb&#39;))
+</pre></div>
+</div>
+</div>
+</section>
+<section id="7.-Export">
+<h2>7. Export<a class="headerlink" href="#7.-Export" title="Permalink to this heading">¶</a></h2>
+<p>Next, we can call the model export function to generate a saved_model.pb. The model is saved in a format that is ready to use with TensorFlow Serving. Each time the model is exported, a new numbered directory is created, which allows serving to pick up the latest model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>saved_model_dir = model.export(output_dir)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="8.-Inference">
+<h2>8. Inference<a class="headerlink" href="#8.-Inference" title="Permalink to this heading">¶</a></h2>
+<p>To perform only Inference using a saved model, follow the steps below 1. Execute Step 2(b) to load a pretrained checkpoint with the appropriate model name. 2. Execute Steps 3 and 4 to load and prepare the dataset. 3. Continue with the steps below</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>history = pickle.load(open(os.path.join(output_dir, &quot;{}_checkpoints&quot;.format(model.model_name), &#39;hist.pkl&#39;), &#39;rb&#39;))
+plot_curves(history, os.path.join(output_dir, &quot;{}_checkpoints&quot;.format(model.model_name)))
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>loss, accuracy = model.evaluate(dataset, use_test_set=True)
+print(&#39;Test accuracy :&#39;, accuracy)
+</pre></div>
+</div>
+</div>
+<p>We get the test subset from our dataset, and use that to call predict on our model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>actual_labels = np.concatenate([y for x, y in dataset._test_subset], axis=0)
+predicted_labels = model.predict(dataset._test_subset)
+report = classification_report(actual_labels, predicted_labels)
+print(&quot;Classification report&quot;)
+print(report)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Dataset-Citations">
+<h2>Dataset Citations<a class="headerlink" href="#Dataset-Citations" title="Permalink to this heading">¶</a></h2>
+<p>&#64;article{kather2016multi, title={Multi-class texture analysis in colorectal cancer histology}, author={Kather, Jakob Nikolas and Weis, Cleo-Aron and Bianconi, Francesco and Melchers, Susanne M and Schad, Lothar R and Gaiser, Timo and Marx, Alexander and Z{“o}llner, Frank Gerrit}, journal={Scientific reports}, volume={6}, pages={27988}, year={2016}, publisher={Nature Publishing Group} }</p>
+<p>Kather, J. N., Zöllner, F. G., Bianconi, F., Melchers, S. M., Schad, L. R., Gaiser, T., Marx, A., &amp; Weis, C.-A. (2016). Collection of textures in colorectal cancer histology [Data set]. Zenodo. <a class="reference external" href="https://doi.org/10.5281/zenodo.53169">https://doi.org/10.5281/zenodo.53169</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="TLT_TF_Text_Classification_Transfer_Learning.html" class="btn btn-neutral float-left" title="Text Classification fine tuning using TensorFlow and the Intel® Transfer Learning Tool API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Remote_Sensing_Image_Scene_Classification.html" class="btn btn-neutral float-right" title="Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Intel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

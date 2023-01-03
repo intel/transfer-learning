@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.datasets.hf_dataset &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks.html">Example Notebooks</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tlt.datasets.hf_dataset</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tlt.datasets.hf_dataset</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: EPL-2.0</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span>
+
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span> <span class="k">as</span> <span class="n">loader</span>
+
+<span class="kn">from</span> <span class="nn">tlt.datasets.dataset</span> <span class="kn">import</span> <span class="n">BaseDataset</span>
+
+
+<div class="viewcode-block" id="HFDataset"><a class="viewcode-back" href="../../../_autosummary/tlt.datasets.hf_dataset.HFDataset.html#tlt.datasets.hf_dataset.HFDataset">[docs]</a><span class="k">class</span> <span class="nc">HFDataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class to represent Hugging Face Dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HFDataset.__init__"><a class="viewcode-back" href="../../../_autosummary/tlt.datasets.hf_dataset.HFDataset.html#tlt.datasets.hf_dataset.HFDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">dataset_catalog</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="n">BaseDataset</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset_catalog</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">get_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a single batch of images and labels from the dataset.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                subset (str): default &quot;all&quot;, can also be &quot;train&quot;, &quot;validation&quot;, or &quot;test&quot;</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                (examples, labels)</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                ValueError if the dataset is not defined yet or the given subset is not valid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">subset</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_loader</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">subset</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_subset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">subset</span> <span class="o">==</span> <span class="s1">&#39;validation&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_subset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">subset</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_subset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to return a batch, because the dataset or subset hasn&#39;t been defined.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="n">padding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;max_length&quot;</span><span class="p">,</span>
+        <span class="n">truncation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Preprocess the textual dataset to apply padding, truncation and tokenize.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                model_name (str): Name of the model to get a matching tokenizer.</span>
+<span class="sd">                batch_size (int): Number of batches to split the data.</span>
+<span class="sd">                padding (str): desired padding. (default: &quot;max_length&quot;)</span>
+<span class="sd">                max_length (int): desired max length. (default: 64)</span>
+<span class="sd">                truncation (bool): Boolean specifying to truncate the word tokens to match with the</span>
+<span class="sd">                longest sentence. (default: True)</span>
+<span class="sd">                max_length (int): Maximum sequence length</span>
+<span class="sd">            Raises:</span>
+<span class="sd">                ValueError if data has already been preprocessed (or) non integer batch size given (or)</span>
+<span class="sd">                given dataset hasn&#39;t been implemented into the API yet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Sanity checks</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">batch_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;batch_size should be an positive integer&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data has already been preprocessed: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">))</span>
+
+        <span class="c1"># Get the column names of the dataset for the tokenizer</span>
+        <span class="n">dataset_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">column_names</span>
+        <span class="n">text_column_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">text_column_name_2</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="s1">&#39;text&#39;</span> <span class="ow">in</span> <span class="n">dataset_columns</span><span class="p">:</span>
+            <span class="n">text_column_name</span> <span class="o">=</span> <span class="s1">&#39;text&#39;</span>
+        <span class="k">elif</span> <span class="s1">&#39;sentence&#39;</span> <span class="ow">in</span> <span class="n">dataset_columns</span><span class="p">:</span>
+            <span class="n">text_column_name</span> <span class="o">=</span> <span class="s1">&#39;sentence&#39;</span>
+        <span class="k">elif</span> <span class="s1">&#39;symptoms&#39;</span> <span class="ow">in</span> <span class="n">dataset_columns</span><span class="p">:</span>
+            <span class="n">text_column_name</span> <span class="o">=</span> <span class="s1">&#39;symptoms&#39;</span>
+        <span class="k">elif</span> <span class="s1">&#39;sentence1&#39;</span> <span class="ow">and</span> <span class="s1">&#39;sentence2&#39;</span> <span class="ow">in</span> <span class="n">dataset_columns</span><span class="p">:</span>
+            <span class="n">text_column_name</span> <span class="o">=</span> <span class="s1">&#39;sentence1&#39;</span>
+            <span class="n">text_column_name_2</span> <span class="o">=</span> <span class="s1">&#39;sentence2&#39;</span>
+
+        <span class="c1"># Get the tokenizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Define a tokenize function to map the text to the tokenizer</span>
+        <span class="k">def</span> <span class="nf">tokenize_function</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+            <span class="c1"># Define the tokenizer args, depending on if the data has 2 textual columns or just 1</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">text_column_name_2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="n">text_column_name</span><span class="p">],)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="n">text_column_name</span><span class="p">],</span> <span class="n">examples</span><span class="p">[</span><span class="n">text_column_name_2</span><span class="p">])</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="n">truncation</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tokenize_function</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Remove the raw text from the tokenized dataset</span>
+        <span class="n">raw_text_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">text_column_name</span><span class="p">,</span> <span class="n">text_column_name_2</span><span class="p">]</span> <span class="k">if</span> <span class="n">text_column_name_2</span> <span class="k">else</span> <span class="p">[</span><span class="n">text_column_name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">remove_columns</span><span class="p">(</span><span class="n">raw_text_columns</span><span class="p">)</span>
+
+        <span class="c1"># Rename column &quot;label&quot; to &quot;labels&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;labels&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set format to torch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">set_format</span><span class="p">(</span><span class="s2">&quot;torch&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;padding&#39;</span><span class="p">:</span> <span class="n">padding</span><span class="p">,</span>
+            <span class="s1">&#39;truncation&#39;</span><span class="p">:</span> <span class="n">truncation</span><span class="p">,</span>
+            <span class="s1">&#39;batch_size&#39;</span><span class="p">:</span> <span class="n">batch_size</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_data_loaders</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tokenized_dataset:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">shuffle_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_pct</span><span class="o">=</span><span class="mf">.75</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">.25</span><span class="p">,</span> <span class="n">test_pct</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Randomly split the dataset into train, validation, and test subsets with a pseudo-random seed option.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                train_pct (float): default .75, percentage of dataset to use for training</span>
+<span class="sd">                val_pct (float):  default .25, percentage of dataset to use for validation</span>
+<span class="sd">                test_pct (float): default 0.0, percentage of dataset to use for testing</span>
+<span class="sd">                shuffle_files (bool): default True, optionally control whether shuffling occurs</span>
+<span class="sd">                seed (None or int): default None, can be set for pseudo-randomization</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                ValueError if percentage input args are not floats or sum to greater than 1</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+        <span class="c1"># Sanity checks</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">train_pct</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val_pct</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_pct</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Percentage arguments must be floats.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">train_pct</span> <span class="o">+</span> <span class="n">val_pct</span> <span class="o">+</span> <span class="n">test_pct</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sum of percentage arguments must be less than or equal to 1.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="s1">&#39;shuffle_split&#39;</span>
+
+        <span class="c1"># Calculating splits</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
+        <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">train_pct</span> <span class="o">*</span> <span class="n">length</span><span class="p">)</span>
+        <span class="n">val_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val_pct</span> <span class="o">*</span> <span class="n">length</span><span class="p">)</span>
+        <span class="n">test_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">test_pct</span> <span class="o">*</span> <span class="n">length</span><span class="p">)</span>
+
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">()</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="k">if</span> <span class="n">seed</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">shuffle_files</span><span class="p">:</span>
+            <span class="n">dataset_indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dataset_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span> <span class="o">=</span> <span class="n">dataset_indices</span><span class="p">[:</span><span class="n">train_size</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_indices</span> <span class="o">=</span> <span class="n">dataset_indices</span><span class="p">[</span><span class="n">train_size</span><span class="p">:</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">test_pct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span> <span class="o">=</span> <span class="n">dataset_indices</span><span class="p">[</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span><span class="p">:</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">val_size</span> <span class="o">+</span> <span class="n">test_size</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span> <span class="ow">and</span> <span class="s1">&#39;batch_size&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_data_loaders</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dataset split into:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> train samples&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_size</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> test samples&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test_size</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> validation samples&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val_size</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_make_data_loaders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">seed_worker</span><span class="p">(</span><span class="n">worker_id</span><span class="p">):</span>
+            <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+            <span class="n">worker_seed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">initial_seed</span><span class="p">()</span> <span class="o">%</span> <span class="mi">2</span><span class="o">**</span><span class="mi">32</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;shuffle_split&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                        <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                             <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span>
+                                             <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                           <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span>
+                                           <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;defined_split&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;train&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                            <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span>
+                                            <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;test&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                           <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span>
+                                           <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;validation&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                                 <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span>
+                                                 <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">]:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                       <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_loader</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_loader</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_loader</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">train_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">train_ds</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;shuffle_split&#39;</span><span class="p">:</span>
+            <span class="n">train_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;defined_split&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;train&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">:</span>
+                <span class="n">train_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;train split not specified&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">]:</span>
+            <span class="n">train_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
+
+        <span class="k">return</span> <span class="n">train_ds</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">test_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">test_ds</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;shuffle_split&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span><span class="p">:</span>
+                <span class="n">test_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;test_pct not defined in shuffle_split() method&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;defined_split&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;test&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">:</span>
+                <span class="n">test_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;test split not specified&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">]:</span>
+            <span class="n">test_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
+
+        <span class="k">return</span> <span class="n">test_ds</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">validation_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">validation_ds</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;shuffle_split&#39;</span><span class="p">:</span>
+            <span class="n">validation_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_indices</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;defined_split&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;validation&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">:</span>
+                <span class="n">validation_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_indices</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;validation split not specified&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">]:</span>
+            <span class="n">validation_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
+
+        <span class="k">return</span> <span class="n">validation_ds</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">train_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;train split not specified&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">test_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;test split not specified&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">validation_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;validation split not specified&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Intel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

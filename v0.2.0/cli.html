@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CLI Reference &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -151,10 +151,10 @@
 <span class="sig-name descname"><span class="pre">--mode</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mode&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specify to benchmark the model’s performance or accuracy</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">performance</span></code></p>
 </dd>
-<dt class="field-even">Options<span class="colon">:</span></dt>
+<dt class="field-even">Options</dt>
 <dd class="field-even"><p>performance | accuracy</p>
 </dd>
 </dl>
@@ -165,7 +165,7 @@
 <span class="sig-name descname"><span class="pre">--batch-size</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--batch_size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;batch_size&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-batch-size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Batch size used for benchmarking, if an INC config file is not provided. If an INC config file is provided, the batch size from the config file will be used.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">32</span></code></p>
 </dd>
 </dl>
@@ -232,7 +232,7 @@
 <span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-catalog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface). If a dataset name is provided and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>tf_datasets | torchvision | huggingface</p>
 </dd>
 </dl>
@@ -336,7 +336,7 @@
 <span class="sig-name descname"><span class="pre">--batch-size</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--batch_size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;batch_size&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-batch-size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Batch size used during quantization, if an INC config file is not provided. If an INC config file is provided, the batch size from the config file will be used.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">32</span></code></p>
 </dd>
 </dl>
@@ -347,7 +347,7 @@
 <span class="sig-name descname"><span class="pre">--accuracy-criterion</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--accuracy_criterion</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;accuracy_criterion&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-accuracy-criterion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Relative accuracy loss to allow (for example, a value of 0.01 allows for a relative accuracy loss of 1%), if an INC config file is not provided. If an INC config file is provided, the accuracy criterion from the config file will be used.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.01</span></code></p>
 </dd>
 </dl>
@@ -358,7 +358,7 @@
 <span class="sig-name descname"><span class="pre">--timeout</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;timeout&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-timeout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tuning timeout in seconds, if an INC config file is not provided. If an INC config file is provided, the timeout from the config file will be used. Tuning processing finishes when the timeout or max trials is reached. A tuning timeout of 0 means that the tuning phase stops when the accuracy criterion is met.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p>
 </dd>
 </dl>
@@ -369,7 +369,7 @@
 <span class="sig-name descname"><span class="pre">--max-trials</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max_trials</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_trials&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-max-trials" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of tuning trials, if an INC config file is not provided. If an INC config file is provided, the number of max trials from the config file will be used. Tuning processing finishes when the timeout or max trials is reached.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">50</span></code></p>
 </dd>
 </dl>
@@ -394,7 +394,7 @@
 <span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--framework</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;framework&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-f" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deep learning framework [default: tensorflow]</p>
 <dl class="field-list simple">
-<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>tensorflow | pytorch</p>
 </dd>
 </dl>
@@ -447,7 +447,7 @@
 <span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-catalog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface). If a dataset name is provided and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>tf_datasets | torchvision | huggingface</p>
 </dd>
 </dl>
@@ -470,7 +470,7 @@
 <span class="sig-name descname"><span class="pre">--add-aug</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--add_aug</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;add_aug&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-add-aug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choice of data augmentation to be applied during training.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>hvflip | hflip | vflip | rotate | zoom</p>
 </dd>
 </dl>

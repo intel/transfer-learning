@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>API Reference &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -21,7 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset" href="_autosummary/tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.html" />
+    <link rel="next" title="tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset" href="_autosummary/tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.html" />
     <link rel="prev" title="Text Classification TLT CLI Examples" href="examples/cli/text_classification.html" /> 
 </head>
 
@@ -159,7 +159,7 @@ class_a,&lt;text&gt;
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset_dir</strong> (<em>str</em>) – directory containing the dataset</p></li>
 <li><p><strong>use_case</strong> (<em>str</em><em> or </em><em>UseCaseType</em>) – use case or task the dataset will be used to model</p></li>
@@ -168,10 +168,10 @@ class_a,&lt;text&gt;
 <li><p><strong>kwargs</strong> – optional; additional keyword arguments depending on the type of dataset being loaded</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>(dataset)</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>NotImplementedError if the type</strong><strong> of </strong><strong>dataset being loaded is not supported</strong> – </p>
 </dd>
 </dl>
@@ -190,7 +190,7 @@ class_a,&lt;text&gt;
 <span class="sig-prename descclassname"><span class="pre">tlt.datasets.dataset_factory.</span></span><span class="sig-name descname"><span class="pre">get_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UseCaseType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrameworkType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tlt/datasets/dataset_factory.html#get_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.datasets.dataset_factory.get_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>A factory method for using a dataset from a catalog.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset_dir</strong> (<em>str</em>) – directory containing the dataset or to which the dataset should be downloaded</p></li>
 <li><p><strong>use_case</strong> (<em>str</em><em> or </em><em>UseCaseType</em>) – use case or task the dataset will be used to model</p></li>
@@ -203,10 +203,10 @@ datasets for PyTorch NLP models or HuggingFace models.</p></li>
 <li><p><strong>**kwargs</strong> – optional; additional keyword arguments for the framework or dataset_catalog</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>(dataset)</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>NotImplementedError if the dataset requested is not supported yet</strong> – </p>
 </dd>
 </dl>
@@ -225,18 +225,22 @@ datasets for PyTorch NLP models or HuggingFace models.</p></li>
 <section id="image-classification">
 <h4>Image Classification<a class="headerlink" href="#image-classification" title="Permalink to this heading">¶</a></h4>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.html#tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset" title="tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset</span></code></a></p></td>
-<td><p>A custom image classification dataset that can be used with PyTorch models.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.image_classification.tf_custom_image_classification_dataset.TFCustomImageClassificationDataset.html#tlt.datasets.image_classification.tf_custom_image_classification_dataset.TFCustomImageClassificationDataset" title="tlt.datasets.image_classification.tf_custom_image_classification_dataset.TFCustomImageClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_custom_image_classification_dataset.TFCustomImageClassificationDataset</span></code></a></p></td>
-<td><p>A custom image classification dataset that can be used with TensorFlow models.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.html#tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset" title="tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_image_classification_dataset.TFImageClassificationDataset</span></code></a></p></td>
 <td><p>An image classification dataset from the TensorFlow datasets catalog</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset.html#tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset" title="tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">torchvision_image_classification_dataset.TorchvisionImageClassificationDataset</span></code></a></p></td>
 <td><p>An image classification dataset from the torchvision catalog</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.image_classification.tf_custom_image_classification_dataset.TFCustomImageClassificationDataset.html#tlt.datasets.image_classification.tf_custom_image_classification_dataset.TFCustomImageClassificationDataset" title="tlt.datasets.image_classification.tf_custom_image_classification_dataset.TFCustomImageClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_custom_image_classification_dataset.TFCustomImageClassificationDataset</span></code></a></p></td>
+<td><p>A custom image classification dataset that can be used with TensorFlow models.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.html#tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset" title="tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset</span></code></a></p></td>
+<td><p>A custom image classification dataset that can be used with PyTorch models.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset.html#tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset" title="tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_classification_dataset.ImageClassificationDataset</span></code></a></p></td>
 <td><p>Base class for an image classification dataset</p></td>
@@ -247,12 +251,22 @@ datasets for PyTorch NLP models or HuggingFace models.</p></li>
 <section id="text-classification">
 <h4>Text Classification<a class="headerlink" href="#text-classification" title="Permalink to this heading">¶</a></h4>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset.html#tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset" title="tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfds_text_classification_dataset.TFDSTextClassificationDataset</span></code></a></p></td>
-<td><p>Base class for a text classification dataset from the TensorFlow datasets catalog</p></td>
+<td><p>A text classification dataset from the TensorFlow datasets catalog</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.html#tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset" title="tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_custom_text_classification_dataset.TFCustomTextClassificationDataset</span></code></a></p></td>
-<td><p>This class represents a custom text classification dataset in the .csv format that can be used with TensorFlow models.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset.html#tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset" title="tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hf_text_classification_dataset.HFTextClassificationDataset</span></code></a></p></td>
+<td><p>A text classification dataset from the Hugging Face datasets catalog</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.html#tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset" title="tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_custom_text_classification_dataset.TFCustomTextClassificationDataset</span></code></a></p></td>
+<td><p>A custom text classification dataset that can be used with TensorFlow models.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.text_classification.hf_custom_text_classification_dataset.HFCustomTextClassificationDataset.html#tlt.datasets.text_classification.hf_custom_text_classification_dataset.HFCustomTextClassificationDataset" title="tlt.datasets.text_classification.hf_custom_text_classification_dataset.HFCustomTextClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hf_custom_text_classification_dataset.HFCustomTextClassificationDataset</span></code></a></p></td>
+<td><p>A custom text classification dataset that can be used with Transformer models.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset.html#tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset" title="tlt.datasets.text_classification.text_classification_dataset.TextClassificationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_classification_dataset.TextClassificationDataset</span></code></a></p></td>
 <td><p>Base class for a text classification dataset</p></td>
@@ -267,14 +281,21 @@ datasets for PyTorch NLP models or HuggingFace models.</p></li>
 <p>Users should rarely need to interact directly with these.</p>
 </div>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.pytorch_dataset.PyTorchDataset.html#tlt.datasets.pytorch_dataset.PyTorchDataset" title="tlt.datasets.pytorch_dataset.PyTorchDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_dataset.PyTorchDataset</span></code></a></p></td>
-<td><p>Base class used to represent a PyTorch Dataset</p></td>
+<td><p>Base class to represent a PyTorch Dataset</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.tf_dataset.TFDataset.html#tlt.datasets.tf_dataset.TFDataset" title="tlt.datasets.tf_dataset.TFDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_dataset.TFDataset</span></code></a></p></td>
-<td><p>Base class used to represent a TF Dataset</p></td>
+<td><p>Base class to represent a TF Dataset</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.dataset.BaseDataset.html#tlt.datasets.dataset.BaseDataset" title="tlt.datasets.dataset.BaseDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset.BaseDataset</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.hf_dataset.HFDataset.html#tlt.datasets.hf_dataset.HFDataset" title="tlt.datasets.hf_dataset.HFDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hf_dataset.HFDataset</span></code></a></p></td>
+<td><p>Base class to represent Hugging Face Dataset</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.datasets.dataset.BaseDataset.html#tlt.datasets.dataset.BaseDataset" title="tlt.datasets.dataset.BaseDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset.BaseDataset</span></code></a></p></td>
 <td><p>Abstract base class for a dataset used for training and evaluation</p></td>
 </tr>
 </tbody>
@@ -295,7 +316,7 @@ model object in memory. The model discovery and inspection methods are <code cla
 <span class="sig-prename descclassname"><span class="pre">tlt.models.model_factory.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">FrameworkType</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">UseCaseType</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tlt/models/model_factory.html#load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.model_factory.load_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>A factory method for loading an existing model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_name</strong> (<em>str</em>) – name of model</p></li>
 <li><p><strong>model</strong> (<em>model</em><em> or </em><em>str</em>) – model object or directory with a saved_model.pb or model.pt file to load</p></li>
@@ -309,7 +330,7 @@ can then be provided to further configure the objects when they are created (exa
 for the PyTorch Adam optimizer). Refer to the framework documentation for the function you want to use.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>model object</p>
 </dd>
 </dl>
@@ -328,7 +349,7 @@ for the PyTorch Adam optimizer). Refer to the framework documentation for the fu
 <span class="sig-prename descclassname"><span class="pre">tlt.models.model_factory.</span></span><span class="sig-name descname"><span class="pre">get_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">FrameworkType</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tlt/models/model_factory.html#get_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.model_factory.get_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>A factory method for creating models.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_name</strong> (<em>str</em>) – name of model</p></li>
 <li><p><strong>framework</strong> (<em>str</em><em> or </em><em>FrameworkType</em>) – framework</p></li>
@@ -340,10 +361,10 @@ can then be provided to further configure the objects when they are created (exa
 for the PyTorch Adam optimizer). Refer to the framework documentation for the function you want to use.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>model object</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>NotImplementedError if the model requested is not supported yet</strong> – </p>
 </dd>
 </dl>
@@ -362,16 +383,16 @@ for the PyTorch Adam optimizer). Refer to the framework documentation for the fu
 <dd><p>Returns a dictionary of supported models organized by use case, model name, and framework.
 The leaf items in the dictionary are attributes about the pretrained model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>framework</strong> (<em>str</em><em> or </em><em>FrameworkType</em>) – framework</p></li>
 <li><p><strong>use_case</strong> (<em>str</em><em> or </em><em>UseCaseType</em>) – use case</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>dictionary</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>NameError if a model config file is found with an unknown</strong><strong> or </strong><strong>missing use case</strong> – </p>
 </dd>
 </dl>
@@ -383,7 +404,7 @@ The leaf items in the dictionary are attributes about the pretrained model.</p>
 <dd><p>Prints a list of the supported models, categorized by use case. The results can be filtered to only show a given
 framework or use case.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>framework</strong> (<em>str</em><em> or </em><em>FrameworkType</em>) – framework</p></li>
 <li><p><strong>use_case</strong> (<em>str</em><em> or </em><em>UseCaseType</em>) – use case</p></li>
@@ -399,18 +420,25 @@ framework or use case.</p>
 <section id="id3">
 <h4>Image Classification<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h4>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.html#tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel" title="tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_image_classification_model.TFImageClassificationModel</span></code></a></p></td>
-<td><p>Class used to represent a TF custom pretrained model</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.html#tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel" title="tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfhub_image_classification_model.TFHubImageClassificationModel</span></code></a></p></td>
+<td><p>Class to represent a TF Hub pretrained model for image classification</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.html#tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel" title="tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfhub_image_classification_model.TFHubImageClassificationModel</span></code></a></p></td>
-<td><p>Class used to represent a TF Hub pretrained model</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.html#tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel" title="tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_image_classification_model.TFImageClassificationModel</span></code></a></p></td>
+<td><p>Class to represent a TF custom pretrained model for image classification</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.html#tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel" title="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">torchvision_image_classification_model.TorchvisionImageClassificationModel</span></code></a></p></td>
-<td><p>Class used to represent a Torchvision pretrained model for image classification</p></td>
+<td><p>Class to represent a Torchvision pretrained model for image classification</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.image_classification_model.ImageClassificationModel.html#tlt.models.image_classification.image_classification_model.ImageClassificationModel" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_classification_model.ImageClassificationModel</span></code></a></p></td>
-<td><p>Base class used to represent a pretrained model for image classification</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.html#tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel" title="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_image_classification_model.PyTorchImageClassificationModel</span></code></a></p></td>
+<td><p>Class to represent a PyTorch model for image classification</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.image_classification_model.ImageClassificationModel.html#tlt.models.image_classification.image_classification_model.ImageClassificationModel" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_classification_model.ImageClassificationModel</span></code></a></p></td>
+<td><p>Base class to represent a pretrained model for image classification</p></td>
 </tr>
 </tbody>
 </table>
@@ -418,15 +446,22 @@ framework or use case.</p>
 <section id="id4">
 <h4>Text Classification<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h4>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.html#tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel" title="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_text_classification_model.TFTextClassificationModel</span></code></a></p></td>
-<td><p>Class used to represent a TF pretrained model that can be used for binary text classification fine tuning.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel.html#tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel" title="tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfhub_text_classification_model.TFHubTextClassificationModel</span></code></a></p></td>
+<td><p>Class to represent a TF Hub pretrained model that can be used for binary text classification fine tuning.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel.html#tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel" title="tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfhub_text_classification_model.TFHubTextClassificationModel</span></code></a></p></td>
-<td><p>Class used to represent a TF Hub pretrained model that can be used for binary text classification fine tuning.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.html#tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel" title="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_text_classification_model.TFTextClassificationModel</span></code></a></p></td>
+<td><p>Class to represent a TF pretrained model that can be used for binary text classification fine tuning.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.text_classification_model.TextClassificationModel.html#tlt.models.text_classification.text_classification_model.TextClassificationModel" title="tlt.models.text_classification.text_classification_model.TextClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_classification_model.TextClassificationModel</span></code></a></p></td>
-<td><p>Class used to represent a pretrained model for text classification</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.hf_text_classification_model.HFTextClassificationModel.html#tlt.models.text_classification.hf_text_classification_model.HFTextClassificationModel" title="tlt.models.text_classification.hf_text_classification_model.HFTextClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hf_text_classification_model.HFTextClassificationModel</span></code></a></p></td>
+<td><p>Class to represent a Hugging Face pretrained model that can be used for multi-class text classification fine tuning.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.text_classification_model.TextClassificationModel.html#tlt.models.text_classification.text_classification_model.TextClassificationModel" title="tlt.models.text_classification.text_classification_model.TextClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_classification_model.TextClassificationModel</span></code></a></p></td>
+<td><p>Class to represent a pretrained model for text classification</p></td>
 </tr>
 </tbody>
 </table>
@@ -438,14 +473,21 @@ framework or use case.</p>
 <p>Users should rarely need to interact directly with these.</p>
 </div>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.pytorch_model.PyTorchModel.html#tlt.models.pytorch_model.PyTorchModel" title="tlt.models.pytorch_model.PyTorchModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_model.PyTorchModel</span></code></a></p></td>
-<td><p>Base class used to represent a PyTorch model</p></td>
+<td><p>Base class to represent a PyTorch model</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.tf_model.TFModel.html#tlt.models.tf_model.TFModel" title="tlt.models.tf_model.TFModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_model.TFModel</span></code></a></p></td>
-<td><p>Base class used to represent a TF pretrained model</p></td>
+<td><p>Base class to represent a TF pretrained model</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.model.BaseModel.html#tlt.models.model.BaseModel" title="tlt.models.model.BaseModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.BaseModel</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.hf_model.HFModel.html#tlt.models.hf_model.HFModel" title="tlt.models.hf_model.HFModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hf_model.HFModel</span></code></a></p></td>
+<td><p>Base class to represent a Hugging Face model</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.model.BaseModel.html#tlt.models.model.BaseModel" title="tlt.models.model.BaseModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model.BaseModel</span></code></a></p></td>
 <td><p>Abstract base class for a pretrained model that can be used for transfer learning</p></td>
 </tr>
 </tbody>
@@ -460,7 +502,7 @@ framework or use case.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="examples/cli/text_classification.html" class="btn btn-neutral float-left" title="Text Classification TLT CLI Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="_autosummary/tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.html" class="btn btn-neutral float-right" title="tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="_autosummary/tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.html" class="btn btn-neutral float-right" title="tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,0 +1,42 @@
+﻿tlt.models.text\_classification.hf\_text\_classification\_model.HFTextClassificationModel
+=========================================================================================
+
+.. currentmodule:: tlt.models.text_classification.hf_text_classification_model
+
+.. autoclass:: HFTextClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HFTextClassificationModel.__init__
+      ~HFTextClassificationModel.benchmark
+      ~HFTextClassificationModel.evaluate
+      ~HFTextClassificationModel.export
+      ~HFTextClassificationModel.load_from_directory
+      ~HFTextClassificationModel.optimize_graph
+      ~HFTextClassificationModel.predict
+      ~HFTextClassificationModel.quantize
+      ~HFTextClassificationModel.train
+      ~HFTextClassificationModel.write_inc_config_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HFTextClassificationModel.dropout_layer_rate
+      ~HFTextClassificationModel.framework
+      ~HFTextClassificationModel.learning_rate
+      ~HFTextClassificationModel.model_name
+      ~HFTextClassificationModel.num_classes
+      ~HFTextClassificationModel.use_case
+   
+   
