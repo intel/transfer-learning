@@ -39,7 +39,7 @@ from transformers import (
 from datasets.arrow_dataset import Dataset
 
 from tlt import TLT_BASE_DIR
-from tlt.utils.file_utils import read_json_file
+from tlt.utils.file_utils import read_json_file, validate_model_name
 from tlt.utils.types import FrameworkType, UseCaseType
 from tlt.models.hf_model import HFModel
 from tlt.models.text_classification.text_classification_model import TextClassificationModel
@@ -380,7 +380,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         Args:
             output_dir (str): Path to save the model.
         """
-        dir_name_to_save = self._model_name
+        dir_name_to_save = validate_model_name(self._model_name)
         path_to_dir_name = os.path.join(output_dir, dir_name_to_save)
 
         if not os.path.exists(path_to_dir_name):

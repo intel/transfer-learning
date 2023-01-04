@@ -19,6 +19,7 @@
 import json
 import os
 import urllib.request
+import re
 import shutil
 import tarfile
 from zipfile import ZipFile
@@ -127,3 +128,18 @@ def verify_directory(directory_path, require_directory_exists=False):
 
     if not os.path.isdir(directory_path):
         os.makedirs(directory_path)
+
+
+def validate_model_name(model_name):
+    """
+    Verifies that the input parameter is a string. If the input parameter is indeed a string, a regular expression
+    is used to clean the string of white spaces and any non-alphanumeric characters (besides dashes and underscores).
+    Any matches will be replaced with an underscore.
+    """
+    if not isinstance(model_name, str):
+        raise TypeError("The model name should be a str, but was a {}".format(type(model_name)))
+    else:
+        model_name = model_name.strip()
+        model_name = " ".join(model_name.split())
+        model_name = re.sub('[^a-zA-Z\d_-]', '_', model_name)  # noqa: W605
+        return model_name

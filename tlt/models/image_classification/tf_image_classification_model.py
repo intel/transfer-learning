@@ -29,7 +29,7 @@ from tlt.models.tf_model import TFModel
 from tlt.models.image_classification.image_classification_model import ImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 from tlt.datasets.image_classification.tf_custom_image_classification_dataset import TFCustomImageClassificationDataset
-from tlt.utils.file_utils import verify_directory
+from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.types import FrameworkType, UseCaseType
 
 
@@ -121,10 +121,11 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         # Create a callback for generating checkpoints
         if self._generate_checkpoints:
-            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
+            valid_model_name = validate_model_name(self.model_name)
+            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(valid_model_name))
             verify_directory(checkpoint_dir)
             checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(checkpoint_dir, self.model_name.replace('/', '_')), save_weights_only=True)
+                filepath=os.path.join(checkpoint_dir, valid_model_name), save_weights_only=True)
             print("Checkpoint directory:", checkpoint_dir)
             callbacks.append(checkpoint_callback)
 

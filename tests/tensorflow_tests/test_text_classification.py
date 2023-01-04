@@ -23,6 +23,8 @@ import pytest
 import shutil
 import tempfile
 
+from tlt.utils.file_utils import validate_model_name
+
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 
@@ -68,7 +70,8 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
         assert len(model._model.layers) == correct_num_layers
 
         # Verify that checkpoints were generated
-        checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(model_name))
+        cleaned_name = validate_model_name(model_name)
+        checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(cleaned_name))
         assert os.path.isdir(checkpoint_dir)
         assert len(os.listdir(checkpoint_dir))
 

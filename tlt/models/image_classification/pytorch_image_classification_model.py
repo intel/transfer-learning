@@ -34,7 +34,7 @@ from tlt.models.image_classification.image_classification_model import ImageClas
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset \
     import PyTorchCustomImageClassificationDataset
-from tlt.utils.file_utils import verify_directory
+from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.types import FrameworkType, UseCaseType
 
 
@@ -214,7 +214,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
 
         if self._generate_checkpoints:
-            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
+            valid_model_name = validate_model_name(self.model_name)
+            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(valid_model_name))
             verify_directory(checkpoint_dir)
             try:
                 torch.save({
@@ -382,7 +383,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         if self._model:
             # Save the model in a format that can be re-loaded for inference
             verify_directory(output_dir)
-            saved_model_dir = os.path.join(output_dir, self.model_name)
+            valid_model_name = validate_model_name(self.model_name)
+            saved_model_dir = os.path.join(output_dir, valid_model_name)
             if os.path.exists(saved_model_dir) and len(os.listdir(saved_model_dir)):
                 saved_model_dir = os.path.join(saved_model_dir, "{}".format(len(os.listdir(saved_model_dir)) + 1))
             else:

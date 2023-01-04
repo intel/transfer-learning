@@ -25,7 +25,7 @@ import numpy as np
 import tensorflow as tf
 
 from tlt.models.model import BaseModel
-from tlt.utils.file_utils import verify_directory
+from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.platform_util import PlatformUtil
 from tlt.utils.types import FrameworkType, UseCaseType
 
@@ -153,7 +153,8 @@ class TFModel(BaseModel):
         if self._model:
             # Save the model in a format that can be served
             verify_directory(output_dir)
-            saved_model_dir = os.path.join(output_dir, self.model_name)
+            val_model_name = validate_model_name(self.model_name)
+            saved_model_dir = os.path.join(output_dir, val_model_name)
             if os.path.exists(saved_model_dir) and len(os.listdir(saved_model_dir)):
                 saved_model_dir = os.path.join(saved_model_dir, "{}".format(len(os.listdir(saved_model_dir)) + 1))
             else:

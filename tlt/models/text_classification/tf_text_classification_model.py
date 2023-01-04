@@ -25,7 +25,7 @@ import tensorflow as tf
 from tlt.models.tf_model import TFModel
 from tlt.models.text_classification.text_classification_model import TextClassificationModel
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
-from tlt.utils.file_utils import verify_directory
+from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.types import FrameworkType, UseCaseType
 
 # Note that tensorflow_text isn't used directly but the import is required to register ops used by the
@@ -131,10 +131,11 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
 
         # Create a callback for generating checkpoints
         if self._generate_checkpoints:
-            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(self.model_name))
+            valid_model_name = validate_model_name(self.model_name)
+            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(valid_model_name))
             verify_directory(checkpoint_dir)
             checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(checkpoint_dir, self.model_name.replace('/', '_')), save_weights_only=True)
+                filepath=os.path.join(checkpoint_dir, valid_model_name), save_weights_only=True)
             print("Checkpoint directory:", checkpoint_dir)
             callbacks.append(checkpoint_callback)
 
