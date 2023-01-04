@@ -49,14 +49,14 @@ Requirements:
    pip install dist/intel_transfer_learning_tool-0.2.0-py3-none-any.whl[tensorflow,pytorch]
 
    # Required for TensorFlow text classification
-   pip install tensorflow-text==2.9.0
+   pip install tensorflow-text==2.10.0
    ```
    Or for developers, do an editable install:
    ```
    pip install --editable .[tensorflow,pytorch]
 
    # Required for TensorFlow text classification
-   pip install tensorflow-text==2.9.0
+   pip install tensorflow-text==2.10.0
    ```
 
 ## Getting Started with the CLI

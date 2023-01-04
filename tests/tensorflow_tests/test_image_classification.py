@@ -32,9 +32,9 @@ from tlt.utils.file_utils import download_and_extract_tar_file
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy,extra_layers,correct_num_layers',
-                         [['efficientnet_b0', 'tf_flowers', 0.6, 0.7, None, 2],
-                          ['resnet_v1_50', 'tf_flowers', 0.4, 0.8, None, 2],
-                          ['efficientnet_b0', 'tf_flowers', 0.7, 1.0, [1024, 512], 4]])
+                         [['efficientnet_b0', 'tf_flowers', 0.4, 0.8, None, 2],
+                          ['resnet_v1_50', 'tf_flowers', 0.4, 0.7, None, 2],
+                          ['efficientnet_b0', 'tf_flowers', 0.6, 1.0, [1024, 512], 4]])
 def test_tf_image_classification(model_name, dataset_name, train_accuracy, retrain_accuracy, extra_layers,
                                  correct_num_layers):
     """
@@ -237,7 +237,7 @@ class TestImageClassificationCustomDataset:
 
     @pytest.mark.tensorflow
     @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy',
-                             [['efficientnet_b0', 1.0, 1.0],
+                             [['efficientnet_b0', 0.9333333, 1.0],
                               ['resnet_v1_50', 1.0, 1.0]])
     def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy):
         """
@@ -315,11 +315,11 @@ class TestImageClassificationCustomDataset:
 @pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,early_stopping,lr_decay,accuracy,\
                           val_accuracy,lr_final',
                          [['efficientnet_b0', 'tf_flowers', 4, 0.001, False, False, False, 0.9, None, 0.001],
-                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, False, False, 0.9, 0.7173913, 0.001],
-                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, False, True, 0.9, 0.7173913, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, False, False, 0.9, 0.8478260, 0.001],
+                          ['efficientnet_b0', 'tf_flowers', 4, 0.001, True, False, True, 0.9, 0.8478260, 0.001],
                           ['efficientnet_b0', 'tf_flowers', 4, 0.001, False, False, True, 0.9, None, 0.001],
-                          ['efficientnet_b0', 'tf_flowers', 16, 0.005, True, False, True, 1.0, 0.847826, 1.0000e-03],
-                          ['efficientnet_b0', 'tf_flowers', 25, 0.001, True, True, False, 1.0, 0.847826, 0.0002]])
+                          ['efficientnet_b0', 'tf_flowers', 16, 0.001, True, False, True, 1.0, 0.8695651, 1.0000e-03],
+                          ['efficientnet_b0', 'tf_flowers', 25, 0.001, True, True, False, 1.0, 0.8695651, 0.0002]])
 def test_tf_image_classification_with_lr_options(model_name, dataset_name, epochs, learning_rate, do_eval,
                                                  early_stopping, lr_decay, accuracy, val_accuracy, lr_final):
     """

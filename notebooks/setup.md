@@ -81,7 +81,7 @@ the native framework notebooks.
    ```
    pip install --upgrade pip
    pip install -r ${TLT_REPO}/notebooks/tensorflow_requirements.txt
-   pip install tensorflow-text==2.9.0
+   pip install tensorflow-text==2.10.0
    ```
 3. Set environment variables for the path to the dataset folder and an output directory.
    The dataset and output directories can be empty. The notebook will download the dataset to

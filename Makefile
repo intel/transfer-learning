@@ -31,9 +31,8 @@ venv_test: $(CURDIR)/tests/requirements-test.txt
 
 	@echo "Building the TLT API in tlt_tests env..."
 	@. $(ACTIVATE_TEST) && pip install --editable .[tensorflow,pytorch]
-
 	@echo "Required for TensorFlow text classification..."
-	@. $(ACTIVATE_TEST) && pip install tensorflow-text==2.9.0
+	@. $(ACTIVATE_TEST) && pip install tensorflow-text==2.10.0
 
 	@echo "Installing test dependencies..."
 	@. $(ACTIVATE_TEST) && pip install -r $(CURDIR)/tests/requirements-test.txt

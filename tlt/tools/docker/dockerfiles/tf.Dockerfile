@@ -41,7 +41,7 @@ RUN apt-get update && \
     apt-get install -y build-essential libgl1 libglib2.0-0 python3.9-dev  && \
     pip install --upgrade pip && \
     pip install --no-cache-dir intel_transfer_learning_tool-${TLT_VERSION}-py2.py3-none-any.whl[tensorflow] && \
-    pip install tensorflow-text==2.9.0 && \
+    pip install tensorflow-text==2.10.0 && \
     rm intel_transfer_learning_tool-${TLT_VERSION}-py2.py3-none-any.whl
 
 ENV DATASET_DIR=/workspace/data
