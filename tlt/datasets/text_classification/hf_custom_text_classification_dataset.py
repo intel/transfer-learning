@@ -61,7 +61,7 @@ class HFCustomTextClassificationDataset(TextClassificationDataset, HFDataset):
                 apply a transform to the elements. For example, if the .csv file has string class labels
                 instead of numerical values, you can provide a function that maps the string to a numerical
                 value or specify the index of the label column to apply a default label_map_func which assigns an
-                integer for every unique class label, starting with 1.
+                integer for every unique class label, starting with 0.
             label_col (int): optional; Column index of the dataset to use as label column. Defaults to "0"
             delimiter (str): String character that separates the text in each row. Defaults to ","
             header (bool): optional; Boolean indicating whether or not the csv file has a header line that should be
@@ -140,7 +140,7 @@ class HFCustomTextClassificationDataset(TextClassificationDataset, HFDataset):
             class_names = dataset_df.iloc[:, label_col].unique()
 
         if not label_map_func:
-            label_str_dict = {label_name: idx + 1 for idx, label_name in enumerate(class_names)}
+            label_str_dict = {label_name: idx for idx, label_name in enumerate(class_names)}
 
             def label_map_func(x):
                 return label_str_dict[x]

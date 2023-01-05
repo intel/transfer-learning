@@ -3,30 +3,6 @@
         "dataset_hub": "huggingface",
         "url": "https://huggingface.co/datasets/imdb"
     },
-    "glue/cola": {
-        "dataset_hub":"huggingface",
-        "url": "https://huggingface.co/datasets/glue"
-    },
-    "glue/sst2": {
-        "dataset_hub":"huggingface",
-        "url": "https://huggingface.co/datasets/glue"
-    },
-    "glue/mrpc": {
-        "dataset_hub":"huggingface",
-        "url": "https://huggingface.co/datasets/glue"
-    },
-    "glue/rte": {
-        "dataset_hub":"huggingface",
-        "url": "https://huggingface.co/datasets/glue"
-    },
-    "glue/stsb": {
-        "dataset_hub":"huggingface",
-        "url": "https://huggingface.co/datasets/glue"
-    },
-    "glue/wnli": {
-        "dataset_hub":"huggingface",
-        "url": "https://huggingface.co/datasets/glue"
-    },
     "tweet_eval/emoji": {
         "dataset_hub":"huggingface",
         "url": "https://huggingface.co/datasets/tweet_eval"
@@ -74,10 +50,6 @@
     "rotten_tomatoes": {
         "dataset_hub": "huggingface",
         "url": "https://huggingface.co/datasets/rotten_tomatoes"
-    },
-    "yelp_review_full": {
-        "dataset_hub": "huggingface",
-        "url": "https://huggingface.co/datasets/yelp_review_full"
     },
     "ag_news": {
         "dataset_hub": "huggingface",
