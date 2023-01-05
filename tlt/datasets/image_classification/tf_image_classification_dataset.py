@@ -31,7 +31,7 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
     An image classification dataset from the TensorFlow datasets catalog
     """
     def __init__(self, dataset_dir, dataset_name, split=["train"],
-                 as_supervised=True, shuffle_files=True):
+                 as_supervised=True, shuffle_files=True, seed=None):
         """
         Class constructor
         """
@@ -39,6 +39,7 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
             raise ValueError("Value of split argument must be a list.")
         ImageClassificationDataset.__init__(self, dataset_dir, dataset_name)
         self._preprocessed = {}
+        self._seed = seed
         tf.get_logger().setLevel('ERROR')
 
         os.environ['NO_GCE_CHECK'] = 'true'
@@ -111,16 +112,15 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
             raise ValueError("Unable to preprocess, because the dataset hasn't been defined.")
 
         if add_aug is not None:
-            seed = 10
             aug_dict = {
                 'hvflip': tf.keras.layers.RandomFlip("horizontal_and_vertical",
-                                                     input_shape=(image_size, image_size, 3), seed=seed),
+                                                     input_shape=(image_size, image_size, 3), seed=self._seed),
                 'hflip': tf.keras.layers.RandomFlip("horizontal",
-                                                    input_shape=(image_size, image_size, 3), seed=seed),
+                                                    input_shape=(image_size, image_size, 3), seed=self._seed),
                 'vflip': tf.keras.layers.RandomFlip("vertical",
-                                                    input_shape=(image_size, image_size, 3), seed=seed),
-                'rotate': tf.keras.layers.RandomRotation(0.5, seed=seed),
-                'zoom': tf.keras.layers.RandomZoom(0.3, seed=seed)}
+                                                    input_shape=(image_size, image_size, 3), seed=self._seed),
+                'rotate': tf.keras.layers.RandomRotation(0.5, seed=self._seed),
+                'zoom': tf.keras.layers.RandomZoom(0.3, seed=self._seed)}
             aug_list = ['hvflip', 'hflip', 'vflip', 'rotate', 'zoom']
 
             data_augmentation = tf.keras.Sequential()
