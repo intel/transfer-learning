@@ -1,0 +1,41 @@
+﻿tlt.datasets.pytorch\_dataset.PyTorchDataset
+============================================
+
+.. currentmodule:: tlt.datasets.pytorch_dataset
+
+.. autoclass:: PyTorchDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PyTorchDataset.__init__
+      ~PyTorchDataset.get_batch
+      ~PyTorchDataset.preprocess
+      ~PyTorchDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PyTorchDataset.data_loader
+      ~PyTorchDataset.dataset
+      ~PyTorchDataset.dataset_catalog
+      ~PyTorchDataset.dataset_dir
+      ~PyTorchDataset.dataset_name
+      ~PyTorchDataset.test_loader
+      ~PyTorchDataset.test_subset
+      ~PyTorchDataset.train_loader
+      ~PyTorchDataset.train_subset
+      ~PyTorchDataset.validation_loader
+      ~PyTorchDataset.validation_subset
+   
+   

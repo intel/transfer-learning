@@ -1,0 +1,41 @@
+﻿tlt.datasets.hf\_dataset.HFDataset
+==================================
+
+.. currentmodule:: tlt.datasets.hf_dataset
+
+.. autoclass:: HFDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HFDataset.__init__
+      ~HFDataset.get_batch
+      ~HFDataset.get_text
+      ~HFDataset.preprocess
+      ~HFDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HFDataset.dataset
+      ~HFDataset.dataset_catalog
+      ~HFDataset.dataset_dir
+      ~HFDataset.dataset_name
+      ~HFDataset.test_loader
+      ~HFDataset.test_subset
+      ~HFDataset.train_loader
+      ~HFDataset.train_subset
+      ~HFDataset.validation_loader
+      ~HFDataset.validation_subset
+   
+   

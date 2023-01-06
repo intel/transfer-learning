@@ -1,0 +1,44 @@
+﻿tlt.datasets.text\_classification.hf\_custom\_text\_classification\_dataset.HFCustomTextClassificationDataset
+=============================================================================================================
+
+.. currentmodule:: tlt.datasets.text_classification.hf_custom_text_classification_dataset
+
+.. autoclass:: HFCustomTextClassificationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HFCustomTextClassificationDataset.__init__
+      ~HFCustomTextClassificationDataset.get_batch
+      ~HFCustomTextClassificationDataset.get_str_label
+      ~HFCustomTextClassificationDataset.get_text
+      ~HFCustomTextClassificationDataset.preprocess
+      ~HFCustomTextClassificationDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HFCustomTextClassificationDataset.class_names
+      ~HFCustomTextClassificationDataset.dataset
+      ~HFCustomTextClassificationDataset.dataset_catalog
+      ~HFCustomTextClassificationDataset.dataset_dir
+      ~HFCustomTextClassificationDataset.dataset_name
+      ~HFCustomTextClassificationDataset.info
+      ~HFCustomTextClassificationDataset.test_loader
+      ~HFCustomTextClassificationDataset.test_subset
+      ~HFCustomTextClassificationDataset.train_loader
+      ~HFCustomTextClassificationDataset.train_subset
+      ~HFCustomTextClassificationDataset.validation_loader
+      ~HFCustomTextClassificationDataset.validation_subset
+   
+   
