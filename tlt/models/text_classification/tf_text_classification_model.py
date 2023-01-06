@@ -88,7 +88,7 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         else:
             self._loss = self._loss_class(**self._loss_args)
 
-        metrics = tf.metrics.BinaryAccuracy() if dataset_num_classes == 2 else tf.keras.metrics.Accuracy()
+        metrics = tf.metrics.BinaryAccuracy() if dataset_num_classes == 2 else tf.keras.metrics.CategoricalAccuracy()
 
         self._optimizer = self._optimizer_class(learning_rate=self._learning_rate, epsilon=self._epsilon,
                                                 **self._opt_args)

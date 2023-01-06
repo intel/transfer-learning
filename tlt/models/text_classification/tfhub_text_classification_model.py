@@ -149,7 +149,6 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                TypeError if the output_dir parameter is not a string
                TypeError if the epochs parameter is not a integer
                TypeError if the initial_checkpoints parameter is not a string
-               NotImplementedError if the specified dataset has more than 2 classes
                TypeError if the extra_layers parameter is not a list of integers
         """
         self._check_train_inputs(output_dir, dataset, TextClassificationDataset, epochs, initial_checkpoints)
@@ -165,10 +164,6 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                             type(layer)))
 
         dataset_num_classes = len(dataset.class_names)
-
-        if dataset_num_classes != 2:
-            raise NotImplementedError("Training is only supported for binary text classification. The specified dataset"
-                                      " has {} classes, but expected 2 classes.".format(dataset_num_classes))
 
         self._set_seed(seed)
 

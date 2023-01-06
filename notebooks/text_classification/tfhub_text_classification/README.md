@@ -1,7 +1,7 @@
 # Text Classifier fine tuning with TensorFlow
 
-This notebook demonstrates fine tuning using various [BERT](https://arxiv.org/abs/1810.04805) models
-from [TF Hub](https://tfhub.dev) using Intel® Optimization for TensorFlow for binary text classification.
+These notebooks demonstrate fine tuning using various [BERT](https://arxiv.org/abs/1810.04805) models
+from [TF Hub](https://tfhub.dev) using Intel® Optimization for TensorFlow for text classification.
 
 The notebook performs the following steps:
 1. Install dependencies and setup parameters
@@ -36,5 +36,14 @@ Dataset citations:
   title        = {{SMS Spam Collection}},
   year         = {2012},
   howpublished = {UCI Machine Learning Repository}
+}
+
+@misc{zhang2015characterlevel,
+    title={Character-level Convolutional Networks for Text Classification},
+    author={Xiang Zhang and Junbo Zhao and Yann LeCun},
+    year={2015},
+    eprint={1509.01626},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
 }
 ```

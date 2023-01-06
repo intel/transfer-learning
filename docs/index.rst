@@ -48,6 +48,7 @@ Features
    Object Detection with PyTorch & torchvision, Object Detection, PyTorch
    BERT SQuAD fine tuning with TF Hub, Question Answering, TensorFlow
    BERT Binary Text Classification with TF Hub, Text Classification, TensorFlow
+   BERT Multiclass Text Classification with TF Hub, Text Classification, TensorFlow
    Text Classifier fine tuning with PyTorch & Hugging Face, Text Classification, PyTorch
    Video Classification with PyTorch & torchvision, Video Classification, PyTorch
 
