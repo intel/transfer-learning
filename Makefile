@@ -25,6 +25,11 @@ ACTIVATE_TEST = "tlt_tests/bin/activate"
 ACTIVATE_DOCS = $(ACTIVATE_TEST)
 ACTIVATE_NOTEBOOK = $(ACTIVATE_TEST)
 
+# Customize sample test run commands
+# PY_TEST_EXTRA_ARGS="'-vvv -k test_platform_util_with_no_args'" make test
+# PY_TEST_EXTRA_ARGS="'--collect-only'" make test
+PY_TEST_EXTRA_ARGS ?= ""
+
 venv_test: $(CURDIR)/tests/requirements-test.txt
 	@echo "Creating a virtualenv tlt_tests..."
 	@test -d tlt_tests || virtualenv -p python3 tlt_tests
@@ -54,7 +59,7 @@ venv_intel_pyt: $(CURDIR)/notebooks/pytorch_requirements.txt
 
 test: venv_test
 	@echo "Testing the API..."
-	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test -s --cov --cov-fail-under=85
+	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test $(PY_TEST_EXTRA_ARGS) -s --cov --cov-fail-under=85
 
 lint: venv_test
 	@echo "Style checks..."
