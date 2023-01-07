@@ -12,10 +12,10 @@ Features
 --------
 
 * Low-code API and no-code CLI for:
-   * TensorFlow 2.9
+   * TensorFlow 2.9 or later
       * Image Classification with 19 models from TFHub
       * Text Classification with 26 models from TFHub
-   * PyTorch 1.11
+   * PyTorch 1.11 or later
       * Image Classification with 60 models from torchvision
       * Text Classification with 3 models from Hugging Face
 

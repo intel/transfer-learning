@@ -48,7 +48,7 @@ venv_intel_tf: $(CURDIR)/notebooks/tensorflow_requirements.txt
 
 	@echo "Installing TF notebook dependencies..."
 	@. $(ACTIVATE_TF) && pip install -r $(CURDIR)/notebooks/tensorflow_requirements.txt && \
-	pip install tensorflow-text==2.9.0
+	pip install tensorflow-text==2.10.0
 
 venv_intel_pyt: $(CURDIR)/notebooks/pytorch_requirements.txt
 	@echo "Creating a virtualenv intel_pyt..."
