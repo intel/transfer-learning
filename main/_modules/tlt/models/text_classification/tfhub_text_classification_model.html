@@ -218,7 +218,6 @@
 <span class="sd">               TypeError if the output_dir parameter is not a string</span>
 <span class="sd">               TypeError if the epochs parameter is not a integer</span>
 <span class="sd">               TypeError if the initial_checkpoints parameter is not a string</span>
-<span class="sd">               NotImplementedError if the specified dataset has more than 2 classes</span>
 <span class="sd">               TypeError if the extra_layers parameter is not a list of integers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_train_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">)</span>
@@ -234,10 +233,6 @@
                             <span class="nb">type</span><span class="p">(</span><span class="n">layer</span><span class="p">)))</span>
 
         <span class="n">dataset_num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">dataset_num_classes</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Training is only supported for binary text classification. The specified dataset&quot;</span>
-                                      <span class="s2">&quot; has </span><span class="si">{}</span><span class="s2"> classes, but expected 2 classes.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_num_classes</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 
