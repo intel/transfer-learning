@@ -33,6 +33,7 @@ and [Intel Extension for PyTorch](https://github.com/intel/intel-extension-for-p
 | ---------| ---------|----------|-------------|
 | [Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API](/notebooks/image_classification/e2e_workflows/Medical_Imaging_Classification.ipynb) | CV: Image Classification | TensorFlow and the TLT API | Demonstrates how to use the TLT API to do transfer learning for image classification using a TensorFlow model for a medical imaging classification application. |
 | [Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API](/notebooks/image_classification/e2e_workflows/Remote_Sensing_Image_Scene_Classification.ipynb) | CV: Image Classification | TensorFlow and the TLT API | Demonstrates how to use the TLT API to do transfer learning for image classification using a TensorFlow model for a remote sensing image scene classification application. |
+| [Multimodal Cancer Detection using TensorFlow, PyTorch, and the Intel® Transfer Learning Tool API](/notebooks/e2e_workflows/Multimodal_Cancer_Detection.ipynb) | CV: Image Classification<br>NLP: Text Classification | TensorFlow, PyTorch, and the TLT API | Demonstrates how to use the TLT API to do transfer learning for a multimodal ensemble application using both NLP and computer vision models from PyTorch and Tensorflow. |
 
 ## Environment setup and running the notebooks
 
