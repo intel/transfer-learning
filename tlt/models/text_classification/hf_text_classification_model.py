@@ -142,8 +142,9 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
             # Iterate over data.
             for data_batch in tqdm(train_data_loader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
-                inputs = {k: v.to(self._device) for k, v in data_batch.items() if k != 'labels'}
-                labels = data_batch['labels']
+                inputs = {k: v.to(self._device) for k, v in data_batch.items()
+                          if k in ['input_ids', 'token_type_ids', 'attention_mask']}
+                labels = data_batch['label']
 
                 # zero the parameter gradients
                 self._optimizer.zero_grad()
@@ -253,6 +254,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
                 return {"accuracy": (preds == p.label_ids).astype(np.float32).mean().item()}
 
             # Initialize our Trainer
+            self._tokenizer = dataset._tokenizer
             self._trainer = Trainer(
                 model=self._model,
                 args=training_args,
@@ -317,8 +319,9 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             running_loss = 0.0
             running_corrects = 0
             for data_batch in tqdm(dataloader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
-                inputs = {k: v.to(self._device) for k, v in data_batch.items() if k != 'labels'}
-                labels = data_batch['labels']
+                inputs = {k: v.to(self._device) for k, v in data_batch.items()
+                          if k in ['input_ids', 'token_type_ids', 'attention_mask']}
+                labels = data_batch['label']
 
                 outputs = self._model(**inputs)
                 loss = self._loss(outputs.logits, labels)
@@ -334,16 +337,19 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
         return (validation_loss, validation_accuracy)
 
-    def predict(self, input_samples):
+    def predict(self, input_samples, return_raw=False):
         """
            Generates predictions for the specified input samples.
 
            Args:
                input_samples (str, list, encoded dict, TextClassificationDataset):
                     Input samples to use to predict.
+               return_raw (Bool):
+                    Option to return the HF SequenceClassifierOutput object containing the
+                    logits Torch Tensor, if set to True.
 
            Returns:
-               Numpy array of scores
+               Torch Tensor of scores or HF SequenceClassifierOutput if return_raw is set to True.
 
            Raises:
                NotImplementedError if the given input_samples is of type DataLoader
@@ -357,19 +363,30 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         elif isinstance(input_samples, dict):
             encoded_input = input_samples
         # If 'input_samples' is of type HFTextClassificationDataset
-        elif isinstance(input_samples, HFTextClassificationDataset):
+        elif isinstance(input_samples, HFTextClassificationDataset) or\
+                isinstance(input_samples, HFCustomTextClassificationDataset):
             if input_samples._preprocessed:
                 encoded_input = {
                     'input_ids': input_samples['input_ids'],
                     'attention_mask': input_samples['attention_mask'],
                     'token_type_ids': input_samples['token_type_ids']
                 }
+        # If the 'input_samples' are already pre-processed, then it will be a Dataset object
+        elif isinstance(input_samples, Dataset):
+            encoded_input = {
+                'input_ids': input_samples['input_ids'],
+                'attention_mask': input_samples['attention_mask'],
+                'token_type_ids': input_samples['token_type_ids']
+            }
         # if 'input_samples' is a DataLoader object
         elif isinstance(input_samples, DataLoader):
             raise NotImplementedError("Prediction using Dataloader hasn't been implmented yet. \
                                 Use raw text or Dataset as input!")
 
         output = self._model(**encoded_input)
+        if return_raw:
+            return output
+
         _, predictions = torch.max(output.logits, dim=1)
         return predictions
 

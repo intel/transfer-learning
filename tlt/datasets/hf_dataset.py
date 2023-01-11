@@ -117,9 +117,6 @@ class HFDataset(BaseDataset):
         # Remove the rest of the features from the tokenized dataset except 'label'
         self._dataset = self._dataset.remove_columns([col for col in column_names if col != 'label'])
 
-        # Rename column "label" to "labels"
-        self._dataset = self._dataset.rename_column("label", "labels")
-
         # Set format to torch
         self._dataset.set_format("torch")
 
