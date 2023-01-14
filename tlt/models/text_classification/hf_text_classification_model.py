@@ -20,6 +20,7 @@
 
 import inspect
 import os
+import dill
 import torch
 import numpy as np
 import intel_extension_for_pytorch as ipex
@@ -39,7 +40,7 @@ from transformers import (
 from datasets.arrow_dataset import Dataset
 
 from tlt import TLT_BASE_DIR
-from tlt.utils.file_utils import read_json_file, validate_model_name
+from tlt.utils.file_utils import read_json_file, validate_model_name, verify_directory
 from tlt.utils.types import FrameworkType, UseCaseType
 from tlt.models.hf_model import HFModel
 from tlt.models.text_classification.text_classification_model import TextClassificationModel
@@ -397,21 +398,24 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         Args:
             output_dir (str): Path to save the model.
         """
-        dir_name_to_save = validate_model_name(self._model_name)
-        path_to_dir_name = os.path.join(output_dir, dir_name_to_save)
+        if self._model:
+            verify_directory(output_dir)
+            valid_model_name = validate_model_name(self.model_name)
+            saved_model_dir = os.path.join(output_dir, valid_model_name)
+            if os.path.exists(saved_model_dir) and len(os.listdir(saved_model_dir)):
+                saved_model_dir = os.path.join(saved_model_dir, "{}".format(len(os.listdir(saved_model_dir)) + 1))
+            else:
+                saved_model_dir = os.path.join(saved_model_dir, "1")
+            verify_directory(saved_model_dir)
+            # If we have a distributed model, save only the encapsulated model
+            # (it was wrapped in PyTorch DistributedDataParallel or DataParallel)
+            model_copy = dill.dumps(self._model.module if hasattr(self._model, 'module') else self._model)
+            torch.save(model_copy, os.path.join(saved_model_dir, 'model.pt'))
+            print("Saved model directory:", saved_model_dir)
 
-        if not os.path.exists(path_to_dir_name):
-            os.makedirs(path_to_dir_name)
-
-        output_model_file_path = os.path.join(path_to_dir_name, 'pytorch_model.bin')
-
-        # If we have a distributed model, save only the encapsulated model
-        # (it was wrapped in PyTorch DistributedDataParallel or DataParallel)
-        model_to_save = self._model.module if hasattr(self._model, 'module') else self._model
-
-        torch.save(model_to_save.state_dict(), output_model_file_path)
-
-        print('Model saved at {}'.format(path_to_dir_name))
+            return saved_model_dir
+        else:
+            raise ValueError("Unable to export the model, because it hasn't been trained yet")
 
     def load_from_directory(self, model_dir: str, num_classes: int):
         """
@@ -422,11 +426,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             num_classes(int): Number of class labels
         """
 
-        saved_model_file_path = os.path.join(model_dir, 'pytorch_model.bin')
-
-        state_dict = torch.load(saved_model_file_path)
-
-        if not self._model:
-            self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
-                                                                             num_labels=num_classes)
-        self._model.load_state_dict(state_dict)
+        verify_directory(model_dir, require_directory_exists=True)
+        model_copy = torch.load(os.path.join(model_dir, 'model.pt'))
+        self._model = dill.loads(model_copy)
+        self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)

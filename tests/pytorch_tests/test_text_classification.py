@@ -63,10 +63,9 @@ def test_pyt_text_classification(model_name, dataset_name):
     assert trained_metrics[1] >= pretrained_metrics[1]  # accuracy
 
     # Export the saved model
-    model.export(output_dir)
-    saved_model_dir = os.path.join(output_dir, model_name)
+    saved_model_dir = model.export(output_dir)
     assert os.path.isdir(saved_model_dir)
-    assert os.path.isfile(os.path.join(saved_model_dir, "pytorch_model.bin"))
+    assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
 
     # Reload the saved model
     reload_model = model_factory.get_model(model_name, framework)
