@@ -564,13 +564,13 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         with open(config_file_path, "w") as config_file:
             yaml.dump(config_template, config_file, sort_keys=False)
 
-    def quantize(self, saved_model_dir, output_dir, inc_config_path):
+    def quantize(self, model_name, output_dir, inc_config_path):
         """
-        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
-        using the specified config file. The quantized model is written to the output directory.
+        Performs post training quantization using the Intel Neural Compressor on the model from the model directory
+        or model object using the specified config file. The quantized model is written to the output directory.
 
         Args:
-            saved_model_dir (str): Source directory for the model to quantize.
+            model_name (model or str): Model object or source directory for the model to quantize.
             output_dir (str): Writable output directory to save the quantized model
             inc_config_path (str): Path to an INC config file (.yaml)
 
@@ -583,12 +583,18 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             is not found.
             FileExistsError if the output_dir already has a model.pt file
         """
-        # The saved model directory should exist and contain a model.pt file
-        if not os.path.isdir(saved_model_dir):
-            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
-        if not os.path.isfile(os.path.join(saved_model_dir, "model.pt")):
-            raise FileNotFoundError("The saved model directory ({}) should have a model.pt file".format(
-                saved_model_dir))
+        # The saved model directory should exist and contain a saved_model.pb file or as a in-memory model object
+        if isinstance(model_name, torch.nn.Module):
+            print("Using in-memory model object")
+        elif os.path.isdir(model_name):
+            print("Using directory path to the saved model.pb file")
+            if not os.path.isfile(os.path.join(model_name, "saved_model.pb")):
+                raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
+                    model_name))
+        elif not os.path.isdir(model_name):
+            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(model_name))
+        elif not isinstance(model_name, torch.nn.Module):
+            raise TypeError("The model type ({}) must be a filepath or model object.".format(type(model_name)))
 
         # Verify that the config file exists
         if not os.path.isfile(inc_config_path):
@@ -605,9 +611,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         from neural_compressor.utils.utility import set_backend
         set_backend('pytorch')
         quantizer = Quantization(inc_config_path)
-        quantizer.model = self._model
+        quantizer.model = model_name if isinstance(model_name, torch.nn.Module) else torch.load(model_name)
         quantized_model = quantizer.fit()
-
         # If quantization was successful, save the model
         if quantized_model:
             quantized_model.save(output_dir)
@@ -617,30 +622,36 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                                  stdout=subprocess.PIPE)
             stdout, stderr = p.communicate()
 
-    def benchmark(self, saved_model_dir, inc_config_path, mode='performance', model_type='fp32'):
+    def benchmark(self, model_name, inc_config_path, mode='performance', model_type='fp32'):
         """
         Use INC to benchmark the specified model for performance or accuracy. You must specify whether the
         input model is fp32 or int8. IPEX int8 models are not supported yet.
 
         Args:
-            saved_model_dir (str): Path to the directory where the saved model is located
+            model_name (model or str): Model object or path to the directory where the saved model is located
             inc_config_path (str): Path to an INC config file (.yaml)
             mode (str): Performance or accuracy (defaults to performance)
             model_type (str): Floating point (fp32) or quantized integer (int8) model type
         Returns:
             None
         Raises:
-            NotADirectoryError if the saved_model_dir is not a directory
-            FileNotFoundError if a model.pt is not found in the saved_model_dir or if the inc_config_path file
+            NotADirectoryError if the model_name is not a directory
+            FileNotFoundError if a model.pt is not found in the model_name or if the inc_config_path file
             is not found.
             ValueError if an unexpected mode is provided
         """
-        # The saved model directory should exist and contain a model.pt file
-        if not os.path.isdir(saved_model_dir):
-            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
-        if not os.path.isfile(os.path.join(saved_model_dir, "model.pt")):
-            raise FileNotFoundError("The saved model directory ({}) should have a model.pt file".format(
-                saved_model_dir))
+        # The saved model directory should exist and contain a saved_model.pb file or as a in-memory model object
+        if isinstance(model_name, torch.nn.Module):
+            print("Using in-memory model object")
+        elif os.path.isdir(model_name):
+            print("Using directory path to the saved model.pb file")
+            if not os.path.isfile(os.path.join(model_name, "saved_model.pb")):
+                raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
+                    model_name))
+        elif not os.path.isdir(model_name):
+            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(model_name))
+        elif not isinstance(model_name, torch.nn.Module):
+            raise TypeError("The model type ({}) must be a filepath or model object.".format(type(model_name)))
 
         # Validate mode
         if mode not in ['performance', 'accuracy']:
@@ -657,13 +668,19 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
         if model_type == "fp32":
             evaluator = Benchmark(inc_config_path)
-            evaluator.model = self._model
-            return evaluator(mode)
+            if isinstance(model_name, torch.nn.Module):
+                evaluator.model = model_name
+                return evaluator(mode)
+            else:
+                raise NotImplementedError("Can only load fp32 model types from memory")
         elif model_type == "int8":
             try:
                 from neural_compressor.utils.pytorch import load
                 evaluator = Benchmark(inc_config_path)
-                evaluator.model = common.Model(load(os.path.join(saved_model_dir, 'model.pt'), self._model))
-                return evaluator(mode)
+                if isinstance(model_name, str):
+                    evaluator.model = common.Model(load(os.path.join(model_name, 'model.pt'), self._model))
+                    return evaluator(mode)
+                else:
+                    raise NotImplementedError("Can only load int8 model types from a directory")
             except AssertionError:
                 raise NotImplementedError("This model type is not yet supported by INC benchmarking")
