@@ -416,38 +416,32 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         with open(config_file_path, "w") as config_file:
             yaml.dump(config_template, config_file)
 
-    def optimize_graph(self, model_name, output_dir):
+    def optimize_graph(self, saved_model_dir, output_dir):
         """
-        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the model_name
+        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the saved_model_dir
         and writes the inference-optimized model to the output_dir. Graph optimization includes converting
         variables to constants, removing training-only operations like checkpoint saving, stripping out parts
         of the graph that are never reached, removing debug operations like CheckNumerics, folding batch
         normalization ops into the pre-calculated weights, and fusing common operations into unified versions.
 
         Args:
-            model_name (model or str): Source directory for the model to optimize
+            saved_model_dir (str): Source directory for the model to optimize
             output_dir (str): Writable output directory to save the optimized model
 
         Returns:
             None
 
         Raises:
-            NotADirectoryError if the model_name is not a directory or an in-memory model
-            FileNotFoundError if a saved_model.pb is not found in the model_name
+            NotADirectoryError if the saved_model_dir is not a directory
+            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir
             FileExistsError if the output_dir already has a saved_model.pb file
         """
-        # The saved model directory should exist and contain a saved_model.pb file or as a in-memory model object
-        if isinstance(model_name, tf.keras.Model):
-            print("Using in-memory model object")
-        elif os.path.isdir(model_name):
-            print("Using directory path to the saved model.pb file")
-            if not os.path.isfile(os.path.join(model_name, "saved_model.pb")):
-                raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
-                    model_name))
-        elif not os.path.isdir(model_name):
-            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(model_name))
-        elif not isinstance(model_name, tf.keras.Model):
-            raise TypeError("The model type ({}) must be a filepath or model object.".format(type(model_name)))
+        # The saved model directory should exist and contain a saved_model.pb file
+        if not os.path.isdir(saved_model_dir):
+            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
+        if not os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb")):
+            raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
+                saved_model_dir))
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -459,20 +453,20 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         from neural_compressor.experimental import Graph_Optimization
 
         graph_optimizer = Graph_Optimization()
-        graph_optimizer.model = model_name
+        graph_optimizer.model = saved_model_dir
         optimized_graph = graph_optimizer()
 
         # If optimization was successful, save the model
         if optimized_graph:
             optimized_graph.save(output_dir)
 
-    def quantize(self, model_name, output_dir, inc_config_path):
+    def quantize(self, saved_model_dir, output_dir, inc_config_path):
         """
-        Performs post training quantization using the Intel Neural Compressor on the model from the model_name
+        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
         using the specified config file. The quantized model is written to the output directory
 
         Args:
-            model_name (model, str): Source directory or in-memory model for the model to quantize.
+            saved_model_dir (str): Source directory for the model to quantize.
             output_dir (str): Writable output directory to save the quantized model
             inc_config_path (str): Path to an INC config file (.yaml)
 
@@ -480,23 +474,17 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             None
 
         Raises:
-            NotADirectoryError if the model_name is not a directory or in-memory model object
-            FileNotFoundError if a saved_model.pb is not found in the model_name or if the inc_config_path file
+            NotADirectoryError if the saved_model_dir is not a directory
+            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found.
             FileExistsError if the output_dir already has a saved_model.pb file
         """
-        # The saved model directory should exist and contain a saved_model.pb file or as a in-memory model object
-        if isinstance(model_name, tf.keras.Model):
-            print("Using in-memory model object")
-        elif os.path.isdir(model_name):
-            print("Using directory path to the saved model.pb file")
-            if not os.path.isfile(os.path.join(model_name, "saved_model.pb")):
-                raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
-                    model_name))
-        elif not os.path.isdir(model_name):
-            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(model_name))
-        elif not isinstance(model_name, tf.keras.Model):
-            raise TypeError("The model type ({}) must be a filepath or model object.".format(type(model_name)))
+        # The saved model directory should exist and contain a saved_model.pb file
+        if not os.path.isdir(saved_model_dir):
+            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
+        if not os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb")):
+            raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
+                saved_model_dir))
 
         # Verify that the config file exists
         if not os.path.isfile(inc_config_path):
@@ -512,19 +500,19 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         from neural_compressor.experimental import Quantization
 
         quantizer = Quantization(inc_config_path)
-        quantizer.model = model_name
+        quantizer.model = saved_model_dir
         quantized_model = quantizer.fit()
 
         # If quantization was successful, save the model
         if quantized_model:
             quantized_model.save(output_dir)
 
-    def benchmark(self, model_name, inc_config_path, mode='performance'):
+    def benchmark(self, saved_model_dir, inc_config_path, mode='performance'):
         """
         Use INC to benchmark the specified model for performance or accuracy.
 
         Args:
-            model_name (model, str): Model object or path to the directory where the saved model is located
+            saved_model_dir (str): Path to the directory where the saved model is located
             inc_config_path (str): Path to an INC config file (.yaml)
             mode (str): performance or accuracy (defaults to performance)
 
@@ -532,23 +520,17 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             None
 
         Raises:
-            NotADirectoryError if the model_name is not a directory or in-memory model object
-            FileNotFoundError if a saved_model.pb is not found in the model_name or if the inc_config_path file
+            NotADirectoryError if the saved_model_dir is not a directory
+            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found.
             ValueError if an unexpected mode is provided
         """
-        # The saved model directory should exist and contain a saved_model.pb file or as a in-memory model object
-        if isinstance(model_name, tf.keras.Model):
-            print("Using in-memory model object")
-        elif os.path.isdir(model_name):
-            print("Using directory path to the saved model.pb file")
-            if not os.path.isfile(os.path.join(model_name, "saved_model.pb")):
-                raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
-                    model_name))
-        elif not os.path.isdir(model_name):
-            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(model_name))
-        elif not isinstance(model_name, tf.keras.Model):
-            raise TypeError("The model type ({}) must be a filepath or model object.".format(type(model_name)))
+        # The saved model directory should exist and contain a saved_model.pb file
+        if not os.path.isdir(saved_model_dir):
+            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
+        if not os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb")):
+            raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
+                saved_model_dir))
 
         # Validate mode
         if mode not in ['performance', 'accuracy']:
@@ -561,5 +543,5 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         from neural_compressor.experimental import Benchmark
 
         evaluator = Benchmark(inc_config_path)
-        evaluator.model = model_name
+        evaluator.model = saved_model_dir
         return evaluator(mode)
