@@ -56,6 +56,11 @@ model_map = {
         UseCaseType.TEXT_CLASSIFICATION: {
             "huggingface": {"module": "tlt.models.text_classification.hf_text_classification_model",
                             "class": "HFTextClassificationModel"},
+        },
+        UseCaseType.IMAGE_ANOMALY_DETECTION:
+        {
+            "torchvision": {"module": "tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model",
+                            "class": "TorchvisionImageAnomalyDetectionModel"}
         }
     }
 }
@@ -99,12 +104,13 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
     return model_class(model_name, model, **kwargs)
 
 
-def get_model(model_name: str, framework: FrameworkType = None, **kwargs):
+def get_model(model_name: str, framework: FrameworkType = None, use_case: UseCaseType = None, **kwargs):
     """A factory method for creating models.
 
         Args:
             model_name (str): name of model
             framework (str or FrameworkType): framework
+            use_case (str or FrameworkType): use case
             kwargs: optional; additional keyword arguments for optimizer and loss function configuration.
                 The `optimizer` and `loss` arguments can be set to Optimizer and Loss classes, depending on the model's
                 framework (examples: `optimizer=tf.keras.optimizers.Adam` for TensorFlow,
@@ -129,8 +135,26 @@ def get_model(model_name: str, framework: FrameworkType = None, **kwargs):
     if not isinstance(framework, FrameworkType):
         framework = FrameworkType.from_str(framework)
 
-    model_use_case, model_dict = get_model_info(model_name, framework)
+    if use_case is not None and not isinstance(use_case, UseCaseType):
+        use_case = UseCaseType.from_str(use_case)
 
+    model_info = get_model_info(model_name, framework, use_case)
+    valid_use_cases = list(model_info.keys())
+
+    if not valid_use_cases or (use_case is not None and use_case not in valid_use_cases):
+        framework_str = "tensorflow or pytorch" if framework is None else str(framework)
+        raise ValueError("The specified model is not supported for {}: {}".format(framework_str, model_name))
+    elif len(valid_use_cases) == 1:
+        model_use_case = valid_use_cases[0]
+        model_dict = model_info[model_use_case]
+    else:
+        # Default to image classification for backward compatibility
+        if UseCaseType.IMAGE_CLASSIFICATION in valid_use_cases:
+            model_use_case = UseCaseType.IMAGE_CLASSIFICATION
+            model_dict = model_info[UseCaseType.IMAGE_CLASSIFICATION]
+        else:
+            raise ValueError("More than one use case applies for {}. Please specify: {}".format(model_name,
+                                                                                                valid_use_cases))
     if not model_use_case:
         framework_str = "tensorflow or pytorch" if framework is None else str(framework)
         raise ValueError("The specified model is not supported for {}: {}".format(framework_str, model_name))
@@ -263,12 +287,13 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
         print("")
 
 
-def get_model_info(model_name, framework=None):
-    models = get_supported_models(framework)
+def get_model_info(model_name, framework=None, use_case=None):
+    models = get_supported_models(framework, use_case)
+    info = {}
 
     for model_use_case in models.keys():
         if model_name in models[model_use_case]:
             # Found a matching model
-            return UseCaseType.from_str(model_use_case), models[model_use_case][model_name]
+            info[UseCaseType.from_str(model_use_case)] = models[model_use_case][model_name]
 
-    return None, {}
+    return info

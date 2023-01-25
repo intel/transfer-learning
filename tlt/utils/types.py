@@ -26,6 +26,7 @@ class UseCaseType(Enum):
     OBJECT_DETECTION = auto()
     TEXT_CLASSIFICATION = auto()
     QUESTION_ANSWERING = auto()
+    IMAGE_ANOMALY_DETECTION = auto()
 
     def __str__(self):
         return self.name.lower()
@@ -43,6 +44,9 @@ class UseCaseType(Enum):
         elif use_case_str in ["question_answer", "question_answering",
                               "question answer", "question answering"]:
             return UseCaseType.QUESTION_ANSWERING
+        elif use_case_str in ["anomaly_detection", "anomaly detection",
+                              "image_anomaly_detection", "image anomaly detection"]:
+            return UseCaseType.IMAGE_ANOMALY_DETECTION
         else:
             options = [e.name for e in UseCaseType]
             raise ValueError("Unsupported use case: {} (Select from: {})".format(
