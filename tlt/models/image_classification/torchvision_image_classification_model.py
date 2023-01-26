@@ -26,6 +26,7 @@ import torch
 import intel_extension_for_pytorch as ipex
 
 from tlt import TLT_BASE_DIR
+from tlt.distributed import TLT_DISTRIBUTED_DIR
 from tlt.models.image_classification.pytorch_image_classification_model import PyTorchImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 from tlt.utils.file_utils import read_json_file
@@ -54,6 +55,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         # placeholder for model definition
         self._model = None
         self._num_classes = None
+        self._distributed = False
 
     def _get_hub_model(self, num_classes, ipex_optimize=True, extra_layers=None):
         if not self._model:
@@ -97,13 +99,14 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
-            if ipex_optimize:
+            if ipex_optimize and not self._distributed:
                 self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
         self._num_classes = num_classes
         return self._model, self._optimizer
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, early_stopping=False, lr_decay=True, seed=None, extra_layers=None, ipex_optimize=True):
+              do_eval=True, early_stopping=False, lr_decay=True, seed=None, extra_layers=None, ipex_optimize=True,
+              distributed=False, hostfile=None, nnodes=1, nproc_per_node=1):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -128,11 +131,19 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                     for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the
                     second with 512 neurons.
                 ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.
+                distributed (bool): Boolean flag to use distributed training. Defaults to False.
+                hostfile (str): Name of the hostfile for distributed training. Defaults to None.
+                nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
+                nproc_per_node (int): Number of processes to spawn per node to use for distributed training. Defaults
+                to 1.
 
             Returns:
                 Trained PyTorch model object
         """
-        self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
+        self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints,
+                                 distributed, hostfile)
+
+        self._distributed = distributed
 
         if extra_layers:
             if not isinstance(extra_layers, list):
@@ -166,11 +177,16 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
             # Call ipex.optimize now, since we didn't call it from _get_hub_model()
-            if ipex_optimize:
+            if ipex_optimize and not distributed:
                 self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
-        self._model.train()
-        self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
+        if distributed:
+            self.export_for_distributed(TLT_DISTRIBUTED_DIR, dataset)
+            batch_size = dataset._preprocessed['batch_size']
+            self._fit_distributed(hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize)
+        else:
+            self._model.train()
+            self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
 
         return self._history
 

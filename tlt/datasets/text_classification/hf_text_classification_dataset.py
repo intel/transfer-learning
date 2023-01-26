@@ -36,7 +36,8 @@ class HFTextClassificationDataset(TextClassificationDataset, HFDataset):
     A text classification dataset from the Hugging Face datasets catalog
     """
 
-    def __init__(self, dataset_dir, dataset_name, split=['train'], num_workers=0, shuffle_files=True):
+    def __init__(self, dataset_dir, dataset_name, split=['train'], num_workers=0, shuffle_files=True,
+                 distributed=False):
         if not isinstance(split, list):
             raise ValueError("Value of split argument must be a list.")
 
@@ -52,6 +53,7 @@ class HFTextClassificationDataset(TextClassificationDataset, HFDataset):
         self._validation_subset = None
         self._num_workers = num_workers
         self._shuffle = shuffle_files
+        self._distributed = distributed
         self._info = {
             'name': dataset_name
         }

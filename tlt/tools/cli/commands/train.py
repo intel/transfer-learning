@@ -21,6 +21,8 @@ import click
 import inspect
 import sys
 
+from tlt.distributed import TLT_DISTRIBUTED_DIR
+
 
 @click.command()
 @click.option("--framework", "-f",
@@ -81,6 +83,29 @@ import sys
               multiple=True,
               default=[],
               help="Choice of data augmentation to be applied during training.")
+@click.option("--ipex_optimize",
+              required=False,
+              is_flag=True,
+              help="Boolean option to optimize model with Intel Extension for PyTorch.")
+@click.option("--distributed", "-d",
+              required=False,
+              is_flag=True,
+              help="Boolean option to trigger a distributed training job.")
+@click.option("--nnodes",
+              required=False,
+              default=1,
+              type=click.IntRange(min=1),
+              help="Number of nodes to run the training job [default: 1]")
+@click.option("--nproc_per_node",
+              required=False,
+              default=1,
+              type=click.IntRange(min=1),
+              help="Number of processes per node for the distributed training job [default: 1]")
+@click.option("--hostfile",
+              required=False,
+              default=None,
+              type=str,
+              help="hostfile with a list of nodes to run distributed training.")
 @click.option("--early-stopping", "--early_stopping",
               type=click.BOOL,
               default=False,
@@ -91,45 +116,67 @@ import sys
               help="If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at "
               "the end of each epoch.")
 def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimiter, class_names, dataset_name,
-          dataset_catalog, epochs, init_checkpoints, add_aug, early_stopping, lr_decay):
+          dataset_catalog, epochs, init_checkpoints, add_aug, early_stopping, lr_decay, ipex_optimize, distributed,
+          nnodes, nproc_per_node, hostfile):
     """
     Trains the model
     """
     session_log = {}  # Initialize an empty dictionary to store information about this training session
-    print("Model name:", model_name)
+    session_verbose = ""
+
     session_log["model_name"] = model_name
-    print("Framework:", framework)
     session_log["framework"] = framework
+    session_log["epochs"] = epochs
+    session_log["dataset_dir"] = dataset_dir
+    session_log["output_directory"] = output_dir
+
+    session_verbose += "Model name: {}\n".format(model_name)
+    session_verbose += "Framework: {}\n".format(framework)
+
     if dataset_name:
-        print("Dataset name:", dataset_name)
+        session_verbose += "Dataset name: {}\n".format(dataset_name)
         session_log["dataset_name"] = dataset_name
         if dataset_catalog:
-            print("Dataset catalog:", dataset_catalog)
+            session_verbose += "Dataset catalog: {}\n".format(dataset_catalog)
             session_log["dataset_catalog"] = dataset_catalog
-    print("Training epochs:", epochs)
-    session_log["epochs"] = epochs
+    session_verbose += "Training epochs: {}\n".format(epochs)
+
     if init_checkpoints:
-        print("Initial checkpoints:", init_checkpoints)
+        session_verbose += "Initial checkpoints: {}\n".format(init_checkpoints)
         session_log["init_checkpoints"] = init_checkpoints
+
     if add_aug:
         session_log["add_aug"] = add_aug
-    print("Dataset dir:", dataset_dir)
-    session_log["dataset_dir"] = dataset_dir
+
+    session_verbose += "Dataset dir: {}\n".format(dataset_dir)
+
     if dataset_file:
-        print("Dataset file:", dataset_file)
+        session_verbose += "Dataset file: {}\n".format(dataset_file)
         session_log["dataset_file"] = dataset_file
     if class_names:
         class_names = class_names.split(",")
-        print("Class names:", class_names)
+        session_verbose += "Class names: {}\n".format(class_names)
         session_log["class_names"] = class_names
     if early_stopping:
         session_log["early_stopping"] = early_stopping
-        print("Early Stopping:", str(early_stopping))
+        session_verbose += "Early Stopping: {}\n".format(early_stopping)
     if lr_decay:
         session_log["lr_decay"] = lr_decay
-        print("lr_decay:", lr_decay)
-    print("Output directory:", output_dir, flush=True)
-    session_log["output_directory"] = output_dir
+        session_verbose += "lr_decay: {}\n".format(lr_decay)
+
+    session_verbose += "Output directory: {}\n".format(output_dir)
+    if distributed:
+        session_verbose += "Distributed: {}\n".format(distributed)
+        session_verbose += "Number of nodes: {}\n".format(nnodes)
+        session_verbose += "Number of processes per node: {}\n".format(nproc_per_node)
+        session_verbose += "hostfile: {}\n".format(hostfile)
+        session_log["distibuted"] = distributed
+        session_log["nnodes"] = nnodes
+        session_log["nproc_per_node"] = nproc_per_node
+        session_log["hostfile"] = hostfile
+
+    print(session_verbose, flush=True)
+
     from tlt.models import model_factory
     from tlt.datasets import dataset_factory
     # Get the model
@@ -155,11 +202,13 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
                 dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
         else:
             dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
-                                                  dataset_catalog)
+                                                  dataset_catalog, distributed=distributed)
         # TODO: get extra configs like batch size and maybe this doesn't need to be a separate call
         if framework in ['tensorflow', 'pytorch']:
             if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
                 dataset.preprocess(image_size=model.image_size, batch_size=32, add_aug=list(add_aug))
+            elif 'model_name' in inspect.getfullargspec(dataset.preprocess).args:  # For HF Text classification
+                dataset.preprocess(model_name=model_name, batch_size=32)
             else:
                 dataset.preprocess(batch_size=32, add_aug=list(add_aug))
             dataset.shuffle_split()
@@ -170,9 +219,18 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     # Train the model using the dataset
     try:
         model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
-                    early_stopping=early_stopping, lr_decay=lr_decay)
+                    early_stopping=early_stopping, lr_decay=lr_decay, ipex_optimize=ipex_optimize,
+                    distributed=distributed, hostfile=hostfile, nnodes=nnodes, nproc_per_node=nproc_per_node)
     except Exception as e:
         sys.exit("There was an error during model training:\n{}".format(str(e)))
+
+    if distributed:
+        # Cleanup the saved objects
+        import os
+        for file_name in ["torch_saved_objects.obj", "hf_saved_objects.obj"]:
+            if file_name in os.listdir(TLT_DISTRIBUTED_DIR):
+                os.remove(os.path.join(TLT_DISTRIBUTED_DIR, file_name))
+
     # Save the trained model
     try:
         log_output = model.export(output_dir)

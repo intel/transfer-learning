@@ -31,7 +31,9 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
     """
     An image classification dataset from the torchvision catalog
     """
-    def __init__(self, dataset_dir, dataset_name, split=['train'], download=True, num_workers=0, shuffle_files=True):
+
+    def __init__(self, dataset_dir, dataset_name, split=['train'], download=True, num_workers=0, shuffle_files=True,
+                 **kwargs):
         """
         Class constructor
         """
@@ -52,6 +54,7 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
         self._train_indices = None
         self._validation_indices = None
         self._test_indices = None
+        self._distributed = kwargs.get("distributed", None)
 
         if len(split) == 1:
             # If there is only one split, use it for _dataset and do not define any indices
@@ -113,8 +116,8 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
                         self._dataset = test_data
                         self._validation_indices = range(test_length)
             self._validation_type = 'defined_split'  # Defined by user or torchvision
+        self._info = {'name': dataset_name, 'size': len(self._dataset), 'distributed': self._distributed}
         self._make_data_loaders(batch_size=1)
-        self._info = {'name': dataset_name, 'size': len(self._dataset)}
 
     @property
     def class_names(self):

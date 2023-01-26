@@ -20,6 +20,7 @@
 
 import inspect
 import os
+import subprocess
 import dill
 import torch
 import numpy as np
@@ -40,10 +41,12 @@ from transformers import (
 from datasets.arrow_dataset import Dataset
 
 from tlt import TLT_BASE_DIR
+from tlt.distributed import TLT_DISTRIBUTED_DIR
 from tlt.utils.file_utils import read_json_file, validate_model_name, verify_directory
 from tlt.utils.types import FrameworkType, UseCaseType
 from tlt.models.hf_model import HFModel
 from tlt.models.text_classification.text_classification_model import TextClassificationModel
+from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
 from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset
 from tlt.datasets.text_classification.hf_custom_text_classification_dataset import HFCustomTextClassificationDataset
 
@@ -56,6 +59,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
     Class to represent a Hugging Face pretrained model that can be used for multi-class text classification
     fine tuning.
     """
+
     def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
 
         # extra properties that will become configurable in the future
@@ -88,6 +92,30 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         self._num_classes = None
         self._trainer = None
         self._history = None
+
+    def export_for_distributed(self, output_dir, dataset):
+        """
+        Helper function to export dataset and model objects to disk for distributed job
+
+        Args:
+            output_dir (str): Path to a directory where the dataset and model objects are saved.
+                Default file name for saving the objects is "hf_saved_objects.obj"
+            dataset (HFTextClassificationDataset): Dataset object to save. It must be an object of
+                HFTextClassificationDataset so that the dataset info, train, test, and validation
+                subsets can be accessed.
+        """
+
+        objects_to_save = {
+            "dataset": dataset.dataset,
+            "info": dataset.info,
+            "train_subset": dataset.train_subset,
+            "test_subset": dataset.test_subset,
+            "validation_subset": dataset.validation_subset,
+            "model": self._model,
+            "optimizer": self._optimizer,
+            "loss": self._loss
+        }
+        torch.save(objects_to_save, os.path.join(output_dir, "hf_saved_objects.obj"))
 
     @property
     def num_classes(self):
@@ -187,6 +215,26 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
             print(loss_acc_output)
 
+    def _fit_distributed(self, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
+        distributed_text_script = os.path.join(TLT_DISTRIBUTED_DIR, "run_train_pyt.py")
+
+        bash_command = 'python -m intel_extension_for_pytorch.cpu.launch --distributed'
+        bash_command += ' --hostfile {}'.format(hostfile)
+        bash_command += ' --nnodes {}'.format(nnodes)
+        bash_command += ' --nproc_per_node {}'.format(nproc_per_node)
+        bash_command += ' {}'.format(distributed_text_script)
+        bash_command += ' --master_addr {}'.format('10.23.190.37')
+        bash_command += ' --master_port {}'.format('29500')
+        bash_command += ' --backend {}'.format('ccl')
+        bash_command += ' --use_case {}'.format('text_classification')
+        bash_command += ' --epochs {}'.format(epochs)
+        bash_command += ' --batch_size {}'.format(batch_size)
+        if not ipex_optimize:
+            bash_command += ' --disable_ipex'
+
+        print(bash_command)
+        subprocess.run(bash_command.split(' '))
+
     def train(
         self,
         dataset,
@@ -196,9 +244,13 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         do_eval: bool = True,
         device: str = "cpu",
         ipex_optimize: bool = True,
-        use_trainer: bool = False
+        use_trainer: bool = False,
+        distributed: bool = False,
+        hostfile: str = None,
+        nnodes: int = 1,
+        nproc_per_node: int = 1,
+        **kwargs
     ):
-
         """
         Trains the model using the specified text classification dataset.
 
@@ -214,6 +266,11 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             ipex_optimize (bool): Optimize the model using Intel® Extension for PyTorch
             use_trainer (bool): If use_trainer is True, then the model training is done using the Hugging Face Trainer
                 and if use_trainer is False, the model training is done using native PyTorch training loop
+            distributed (bool): Boolean flag to use distributed training. Defaults to False.
+            hostfile (str): Name of the hostfile for distributed training. Defaults to None.
+            nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
+            nproc_per_node (int): Number of processes to spawn per node to use for distributed training. Defaults
+                to 1.
 
         Returns:
             Dictionary containing the model training history
@@ -223,6 +280,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             ValueError if the given dataset has not been preprocessed yet
 
         """
+        self._check_train_inputs(output_dir, dataset, TextClassificationDataset, epochs, distributed, hostfile)
 
         if not self._model:
             self._num_classes = len(dataset.class_names)
@@ -237,6 +295,8 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=learning_rate, **self._opt_args)
 
         if use_trainer:
+            if distributed:
+                raise ValueError("Distributed training with Trainer is not implemented yet")
             training_args = TrainingArguments(
                 output_dir=output_dir,
                 do_eval=do_eval,
@@ -269,6 +329,12 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             if do_eval:
                 self._history = self._trainer.evaluate()
                 print("Val Acc: {:.5f}".format(self._history.get("eval_accuracy")))
+        elif distributed:
+            self.export_for_distributed(
+                output_dir=TLT_DISTRIBUTED_DIR, dataset=dataset
+            )
+            self._fit_distributed(hostfile, nnodes, nproc_per_node, epochs, dataset._preprocessed["batch_size"],
+                                  ipex_optimize)
         else:
             self._trainer = None
             # Call the _fit method to train the model with native PyTorch API

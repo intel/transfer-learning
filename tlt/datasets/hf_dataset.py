@@ -25,7 +25,6 @@ import random
 from transformers import AutoTokenizer
 
 from torch.utils.data import DataLoader as loader
-
 from tlt.datasets.dataset import BaseDataset
 
 
@@ -68,7 +67,8 @@ class HFDataset(BaseDataset):
         batch_size: int = 32,
         padding: str = "max_length",
         truncation: bool = True,
-        max_length: int = 64
+        max_length: int = 64,
+        **kwargs
     ) -> None:
         """
         Preprocess the textual dataset to apply padding, truncation and tokenize.
@@ -101,7 +101,7 @@ class HFDataset(BaseDataset):
                              all(isinstance(s, str) for s in self._dataset[col_name])]
 
         # Get the tokenizer
-        self._tokenizer = AutoTokenizer.from_pretrained(model_name, force_download=True)
+        self._tokenizer = AutoTokenizer.from_pretrained(model_name)
 
         # Define a tokenize function to map the text to the tokenizer
         def tokenize_function(examples):
@@ -263,8 +263,6 @@ class HFDataset(BaseDataset):
         if self._validation_type == 'shuffle_split':
             if self._test_indices:
                 test_ds = self._dataset.select(self._test_indices)
-            else:
-                raise ValueError("test_pct not defined in shuffle_split() method")
         elif self._validation_type == 'defined_split':
             if 'test' in self._split:
                 test_ds = self._dataset.select(self._test_indices)

@@ -225,5 +225,5 @@ class PyTorchDataset(BaseDataset):
             return T.Compose(transforms)
 
         self._dataset.transform = get_transform(image_size, add_aug)
-        self._make_data_loaders(batch_size=batch_size)
         self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
+        self._make_data_loaders(batch_size=batch_size)

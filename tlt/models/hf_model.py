@@ -18,11 +18,13 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
+import os
 import inspect
 import torch
 
 from tlt.models.model import BaseModel
 from tlt.utils.types import FrameworkType, UseCaseType
+from tlt.utils.file_utils import verify_directory
 
 
 class HFModel(BaseModel):
@@ -49,3 +51,19 @@ class HFModel(BaseModel):
             raise TypeError("The optimizer input must be a class (not an instance) of type "
                             "torch.nn.modules.loss._Loss or None but found a {}. "
                             "Example: torch.nn.CrossEntropyLoss".format(type(loss)))
+
+    def _check_train_inputs(self, output_dir, dataset, dataset_type, epochs, distributed, hostfile):
+        verify_directory(output_dir)
+
+        if distributed:
+            if hostfile is not None and not os.path.exists(os.path.join(os.getcwd(), hostfile)):
+                raise FileNotFoundError("Could not find hostfile. Consider creating one")
+
+        if not isinstance(dataset, dataset_type):
+            raise TypeError("The dataset must be a {} but found a {}".format(dataset_type, type(dataset)))
+
+        if not dataset.info['preprocessing_info']:
+            raise ValueError("Dataset hasn't been preprocessed yet.")
+
+        if not isinstance(epochs, int):
+            raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))

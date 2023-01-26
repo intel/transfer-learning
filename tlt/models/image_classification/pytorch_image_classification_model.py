@@ -22,13 +22,16 @@ import copy
 import inspect
 import os
 import time
-from tqdm import tqdm
 import dill
 import yaml
+import subprocess
+
+from tqdm import tqdm
 
 import torch
 import intel_extension_for_pytorch as ipex
 
+from tlt.distributed import TLT_DISTRIBUTED_DIR
 from tlt.models.pytorch_model import PyTorchModel
 from tlt.models.image_classification.image_classification_model import ImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
@@ -132,6 +135,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                                                                             cooldown=1, min_lr=0.0000000001)
 
         self._history = {}
+        self._model.train()
         for epoch in range(epochs):
             print(f'Epoch {epoch + 1}/{epochs}')
             print('-' * 10)
@@ -237,8 +241,29 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                     'loss': train_epoch_loss,
                 }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
+    def _fit_distributed(self, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
+        distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, "run_train_pyt.py")
+
+        bash_command = 'python -m intel_extension_for_pytorch.cpu.launch --distributed'
+        bash_command += ' --hostfile {}'.format(hostfile)
+        bash_command += ' --nnodes {}'.format(nnodes)
+        bash_command += ' --nproc_per_node {}'.format(nproc_per_node)
+        bash_command += ' {}'.format(distributed_vision_script)
+        bash_command += ' --master_addr {}'.format('10.23.190.37')
+        bash_command += ' --master_port {}'.format('29500')
+        bash_command += ' --backend {}'.format('ccl')
+        bash_command += ' --use_case {}'.format('image_classification')
+        bash_command += ' --epochs {}'.format(epochs)
+        bash_command += ' --batch_size {}'.format(batch_size)
+        if not ipex_optimize:
+            bash_command += ' --disable_ipex'
+
+        print(bash_command)
+        subprocess.run(bash_command.split(' '))
+
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
-              do_eval=True, early_stopping=False, lr_decay=True, seed=None, ipex_optimize=True):
+              do_eval=True, early_stopping=False, lr_decay=True, seed=None, ipex_optimize=True, distributed=False,
+              hostfile=None, nnodes=1, nproc_per_node=1):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -258,11 +283,17 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                     is applied at the end of each epoch.
                 seed (int): Optionally set a seed for reproducibility.
                 ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.
+                distributed (bool): Boolean flag to use distributed training. Defaults to False.
+                hostfile (str): Name of the hostfile for distributed training. Defaults to None.
+                nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
+                nproc_per_node (int): Number of processes to spawn per node to use for distributed training. Defaults
+                to 1.
 
             Returns:
                 Trained PyTorch model object
         """
-        self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
+        self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints,
+                                 distributed, hostfile)
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -280,12 +311,16 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             self._model.load_state_dict(checkpoint['model_state_dict'])
             self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
-        self._model.train()
-        # Call ipex.optimize
-        if ipex_optimize:
-            self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+        if distributed:
+            self.export_for_distributed(TLT_DISTRIBUTED_DIR, dataset)
+            batch_size = dataset._preprocessed['batch_size']
+            self._fit_distributed(hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize)
 
-        self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
+        else:
+            # Call ipex.optimize
+            if ipex_optimize:
+                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+            self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
 
         return self._history
 
@@ -667,3 +702,27 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 return evaluator(mode)
             except AssertionError:
                 raise NotImplementedError("This model type is not yet supported by INC benchmarking")
+
+    def export_for_distributed(self, output_dir, dataset):
+        """
+        Helper function to export dataset and model objects to disk for distributed job
+
+        Args:
+            output_dir (str): Path to a directory where the dataset and model objects are saved.
+                Default file name for saving the objects is "torch_saved_objects.obj"
+            dataset (ImageClassificationDataset): Dataset object to save. It must be an object of
+                ImageClassificationDataset so that the dataset info, train, test, and validation
+                subsets can be accessed.
+        """
+
+        objects_to_save = {
+            "dataset": dataset.dataset,
+            "info": dataset.info,
+            "train_subset": dataset.train_subset,
+            "test_subset": dataset.test_subset,
+            "validation_subset": dataset.validation_subset,
+            "model": self._model,
+            "optimizer": self._optimizer,
+            "loss": self._loss
+        }
+        torch.save(objects_to_save, os.path.join(output_dir, "torch_saved_objects.obj"))
