@@ -23,8 +23,11 @@ import math
 import pytest
 import shutil
 import tempfile
+import pandas as pd
 from numpy.testing import assert_array_equal
 from PIL import Image
+import random
+import string
 
 from tlt.datasets.dataset_factory import get_dataset, load_dataset
 
@@ -32,19 +35,25 @@ try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
     from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset  # noqa: E501
 except ModuleNotFoundError:
-    print("WARNING: Unable to import TorchvisionImageClassificationDataset. Torch may not be installed")
+    print("Unable to import TorchvisionImageClassificationDataset. Torch may not be installed")
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
     from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset  # noqa: E501
 except ModuleNotFoundError:
-    print("WARNING: Unable to import PyTorchCustomImageClassificationDataset. Torch may not be installed")
+    print("Unable to import PyTorchCustomImageClassificationDataset. Torch may not be installed")
 
 try:
     from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset
 except ModuleNotFoundError:
-    print("WARNING: Unable to import HFTextClassificationDataset. HuggingFace's 'tranformers' API may not be installed \
+    print("Unable to import HFTextClassificationDataset. HuggingFace's 'tranformers' API may not be installed \
             in the current env")
+
+try:
+    from tlt.datasets.text_classification.hf_custom_text_classification_dataset import HFCustomTextClassificationDataset
+except ModuleNotFoundError:
+    print("Unable to import HFCustomTextClassificationDataset. HuggingFace's 'tranformers' API may not be \
+            installed in the current env")
 
 
 @pytest.mark.pytorch
@@ -409,6 +418,17 @@ class TextClassificationDatasetForTest:
         if dataset_name and dataset_catalog:
             self._dataset_catalog = dataset_catalog
             self._tlt_dataset = get_dataset(dataset_dir, use_case, framework, dataset_name, dataset_catalog)
+        elif class_names:
+            self._dataset_catalog = 'custom'
+            dataset_dir = tempfile.mkdtemp(dir=dataset_dir)
+            if not isinstance(class_names, list):
+                raise TypeError("class_names needs to be a list")
+
+            df = self._create_dataset(n_rows=50, class_names=class_names)
+            df.to_csv(os.path.join(dataset_dir, 'random_text_dataset'), index=False)
+
+            self._tlt_dataset = load_dataset(dataset_dir, use_case, framework,
+                                             csv_file_name='random_text_dataset', header=True)
 
         self._dataset_dir = dataset_dir
 
@@ -419,11 +439,30 @@ class TextClassificationDatasetForTest:
         """
         return self._tlt_dataset
 
+    def _create_dataset(self, n_rows, class_names):
+        n_sentences = list(range(3, 10))
+
+        def get_random_word(n_chars):
+            return ''.join(random.choices(string.ascii_letters, k=n_chars))
+
+        def get_random_sentence(n_words):
+            sentence = ''
+            for _ in range(n_words):
+                sentence += '{} '.format(get_random_word(random.choice(list(range(2, 10)))))
+            return sentence.rstrip()
+
+        dataset = []
+        for row in range(n_rows):
+            dataset.append([class_names[row % len(class_names)], get_random_sentence(random.choice(n_sentences))])
+
+        return pd.DataFrame(dataset, columns=['label', 'text'])
+
 
 # Dataset parameters used to define datasets that will be initialized and tested using TestTextClassificationDataset
 # The parameters are: dataset_dir, dataset_name, dataset_catalog, dataset_classes which map to the constructor
 # parameters for TextClassificationDatasetForTest, which initializes the dataset using the dataset factory.
-dataset_params = [("/tmp/data", "imdb", "huggingface", ['neg', 'pos'])]
+dataset_params = [("/tmp/data", "imdb", "huggingface", ['neg', 'pos']),
+                  ("/tmp/data", None, None, ["a", "b", "c"])]
 
 
 @pytest.fixture(scope="class", params=dataset_params)
@@ -450,8 +489,11 @@ class TestTextClassificationDataset:
         """
         Tests whether a matching TLT dataset object is returned
         """
-        tlt_dataset, _, _, _, _ = text_classification_data
-        assert type(tlt_dataset) == HFTextClassificationDataset
+        tlt_dataset, _, dataset_name, _, _ = text_classification_data
+        if dataset_name is None:
+            assert type(tlt_dataset) == HFCustomTextClassificationDataset
+        else:
+            assert type(tlt_dataset) == HFTextClassificationDataset
 
     @pytest.mark.pytorch
     def test_class_names_and_size(self, text_classification_data):
@@ -459,8 +501,12 @@ class TestTextClassificationDataset:
         Verify the class type, dataset class names, and dataset length after initializaion
         """
         tlt_dataset, _, dataset_name, _, class_names = text_classification_data
-        assert tlt_dataset.class_names == class_names
-        assert len(tlt_dataset.dataset) == hf_metadata[dataset_name]['size']
+        if dataset_name is None:
+            assert len(tlt_dataset.class_names) == len(class_names)
+            assert len(tlt_dataset.dataset) == 50
+        else:
+            assert tlt_dataset.class_names == class_names
+            assert len(tlt_dataset.dataset) == hf_metadata[dataset_name]['size']
 
     @pytest.mark.pytorch
     @pytest.mark.parametrize('batch_size',

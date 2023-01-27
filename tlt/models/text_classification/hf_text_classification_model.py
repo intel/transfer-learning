@@ -153,14 +153,14 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             name="linear", optimizer=self._optimizer, num_warmup_steps=0, num_training_steps=num_training_steps
         )
 
-        if ipex_optimize:
-            self._model = ipex.optimize(self._model)
-
-        # Training loop
-        self._model.to(self._device)
         self._model.train()
+        if ipex_optimize:
+            self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+
+        self._model.to(self._device)
         self._history = {}
 
+        # Training loop
         for epoch in range(epochs):
             print(f'Epoch {epoch+1}/{epochs}')
             print('-' * 10)
@@ -399,8 +399,11 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
                 running_loss += loss.item()
                 running_corrects += torch.sum(predictions == labels).item()
 
-            validation_loss = running_loss / validation_data_length
-            validation_accuracy = running_corrects / validation_data_length
+            if validation_data_length == 0:
+                validation_loss, validation_accuracy = 0.0, 0.0
+            else:
+                validation_loss = running_loss / validation_data_length
+                validation_accuracy = running_corrects / validation_data_length
 
         return (validation_loss, validation_accuracy)
 

@@ -39,6 +39,7 @@ try:
     from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset   # noqa: E501
     from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import \
         PyTorchCustomImageClassificationDataset  # noqa: E501
+    from tlt.models.text_classification.hf_text_classification_model import HFTextClassificationModel  # noqa: E501
 except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageClassificationModel and TorchvisionImageClassificationDataset. "
           "Torch may not be installed")
@@ -192,6 +193,27 @@ def test_torchvision_efficientnet_b0_train():
             return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, lr_decay=False)
             assert return_val == expected_return_value_history_no_val
             mock_model.eval.assert_not_called()
+
+
+@pytest.mark.pytorch
+def test_bert_train():
+    model = model_factory.get_model('distilbert-base-uncased', 'pytorch')
+    assert type(model) == HFTextClassificationModel
+    with patch('tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset') as mock_dataset:  # noqa: E501
+        mock_dataset.__class__ = HFTextClassificationDataset
+        mock_dataset.train_subset = ['1', '2', '3']
+        mock_dataset.validation_subset = ['4', '5', '6']
+        expected_return_value_history_no_val = {'Acc': [0.0], 'Loss': [0.0]}
+        expected_return_value_history_val = {'Acc': [0.0], 'Loss': [0.0], 'Val Acc': [0.0], 'Val Loss': [0.0]}
+
+        # Scenario 1: Call train without validation
+        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=False)
+        assert return_val == expected_return_value_history_no_val
+
+        # Scenario 2: Call train with validation
+        mock_dataset.validation_loader.__class__ = HFTextClassificationDataset
+        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True)
+        assert return_val == expected_return_value_history_val
 
 
 @pytest.mark.pytorch
