@@ -173,7 +173,7 @@ def test_train_add_augmentation(mock_inspect, mock_load_dataset, mock_get_model,
         # Call the train command
         result = runner.invoke(train,
                                ["--framework", str(framework), "--model-name", model_name, "--dataset_dir", dataset_dir,
-                                "--output-dir", output_dir])
+                                "--output-dir", output_dir, "--add_aug", add_aug])
 
         # Verify that the expected calls were made
         mock_get_model.assert_called_once_with(model_name, str(framework))
@@ -182,7 +182,7 @@ def test_train_add_augmentation(mock_inspect, mock_load_dataset, mock_get_model,
         assert model_mock.train.called
 
         # Verify preprocess was called with the right arguments
-        data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[])
+        data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[add_aug])
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0

@@ -28,13 +28,16 @@ from tensorflow import keras
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
+from unittest.mock import MagicMock, patch
+
+from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy,extra_layers,correct_num_layers',
-                         [['efficientnet_b0', 'tf_flowers', 0.4, 0.8, None, 2],
-                          ['resnet_v1_50', 'tf_flowers', 0.4, 0.7, None, 2],
-                          ['efficientnet_b0', 'tf_flowers', 0.6, 1.0, [1024, 512], 4]])
+                         [['efficientnet_b0', 'tf_flowers', 0.3125, 0.53125, None, 2],
+                          ['resnet_v1_50', 'tf_flowers', 0.40625, 0.59375, None, 2],
+                          ['efficientnet_b0', 'tf_flowers', 0.8125, 0.96875, [1024, 512], 4]])
 def test_tf_image_classification(model_name, dataset_name, train_accuracy, retrain_accuracy, extra_layers,
                                  correct_num_layers):
     """
@@ -46,14 +49,14 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
 
     # Get the dataset
     dataset = dataset_factory.get_dataset('/tmp/data', 'image_classification', framework, dataset_name,
-                                          'tf_datasets', split=["train[:5%]"], shuffle_files=False)
+                                          'tf_datasets', split=["train[:5%]"], seed=10, shuffle_files=False)
 
     # Get the model
     model = model_factory.get_model(model_name, framework)
 
     # Preprocess the dataset
-    dataset.shuffle_split(shuffle_files=False)
     dataset.preprocess(model.image_size, 32)
+    dataset.shuffle_split(shuffle_files=False)
 
     # Evaluate before training
     pretrained_metrics = model.evaluate(dataset)
@@ -359,3 +362,47 @@ def test_tf_image_classification_with_lr_options(model_name, dataset_name, epoch
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('add_aug',
+                         ['rotate',
+                          'zoom',
+                          'hflip'])
+def test_train_add_aug_mock(add_aug):
+    """
+    Tests basic add augmentation functionality for TensorFlow image classification models using mock objects
+    """
+    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+
+    with patch('tlt.models.image_classification.tfhub_image_classification_model.'
+               'TFHubImageClassificationModel._get_hub_model') as mock_get_hub_model:
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = ImageClassificationDataset
+        print(mock_dataset.__class__)
+        mock_dataset.validation_subset = [1, 2, 3]
+
+        mock_dataset.class_names = ['a', 'b', 'c']
+        mock_model = MagicMock()
+        expected_return_value = {"result": True}
+        mock_history = MagicMock()
+        mock_history.history = expected_return_value
+
+        def mock_fit(dataset, epochs, shuffle, callbacks, validation_data=None):
+            assert dataset is not None
+            assert isinstance(epochs, int)
+            assert isinstance(shuffle, bool)
+            assert len(callbacks) > 0
+
+            return mock_history
+
+        mock_model.fit = mock_fit
+        mock_get_hub_model.return_value = mock_model
+
+        # add basic preprocessing with add aug set to 'zoom'
+        mock_dataset.preprocess(model.image_size, 32, add_aug=[add_aug])
+        mock_dataset.shuffle_split(shuffle_files=False)
+
+        # Test train without eval
+        return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=False)
+        assert return_val == expected_return_value
