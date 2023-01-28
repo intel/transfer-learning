@@ -23,6 +23,7 @@ import numpy as np
 import torch
 import torchvision
 from PIL import Image
+from typing import Any, Callable, List, Optional, Tuple
 
 
 COCO_LABELS = [
@@ -100,8 +101,9 @@ class PennFudanDataset(torch.utils.data.Dataset):
         target["iscrowd"] = iscrowd
 
         if self.transforms is not None:
-            img, target = self.transforms(img, target)
-
+            img = self.transforms(img)
+            # target needs augmentations
+            
         return img, target
 
     def __len__(self):
@@ -130,3 +132,29 @@ class Kitti(torchvision.datasets.Kitti):
         target['iscrowd'] = torch.zeros((len(target['labels']),), dtype=torch.int64)
 
         return target
+
+    
+    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+        """Get item at a given index.
+
+        Args:
+            index (int): Index
+        Returns:
+            tuple: (image, target), where
+            target is a list of dictionaries with the following keys:
+
+            - type: str
+            - truncated: float
+            - occluded: int
+            - alpha: float
+            - bbox: float[4]
+            - dimensions: float[3]
+            - locations: float[3]
+            - rotation_y: float
+
+        """
+        image = Image.open(self.images[index])
+        target = self._parse_target(index) if self.train else None
+        if self.transforms:
+            image = self.transforms(image)
+        return image, target
