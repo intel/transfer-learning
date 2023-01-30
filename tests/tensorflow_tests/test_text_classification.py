@@ -29,6 +29,7 @@ from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
                          [['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews', None, 3],
@@ -125,6 +126,7 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
             shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name, dataset_name, epochs, learning_rate, do_eval, \
                          lr_decay, accuracy, val_accuracy, lr_final',

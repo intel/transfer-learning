@@ -33,6 +33,7 @@ from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
                          [['efficientnet_b0', 'CIFAR10', None, 2],
@@ -285,6 +286,7 @@ class TestImageClassificationCustomDataset:
             model.benchmark(quantization_output, inc_config_file_path, model_type='int8')
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name,epochs,lr,do_eval,early_stopping,lr_decay,final_lr,final_acc',
                          [['efficientnet_b0', 'CIFAR10', 10, 0.005, True, False, True, 0.001, 0.9888],

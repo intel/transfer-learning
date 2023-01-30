@@ -57,9 +57,16 @@ venv_intel_pyt: $(CURDIR)/notebooks/pytorch_requirements.txt
 	@echo "Installing PYT notebook dependencies..."
 	@. $(ACTIVATE_PYT) && pip install -r $(CURDIR)/notebooks/pytorch_requirements.txt
 
-test: venv_test
-	@echo "Testing the API..."
-	@. $(ACTIVATE_TEST) && PYTHONPATH="$(CURDIR)/tests" py.test $(PY_TEST_EXTRA_ARGS) -s --cov --cov-fail-under=85
+
+test: unittest integration
+
+unittest: venv_test
+	@echo "Testing unit test API..."
+	@. $(ACTIVATE_TEST) && PYTHONPATH=$(CURDIR)/tests py.test $(PY_TEST_EXTRA_ARGS) -s -m "not integration" 
+
+integration: venv_test
+	@echo "Testing integration test API..."
+	@. $(ACTIVATE_TEST) && PYTHONPATH=$(CURDIR)/tests py.test $(PY_TEST_EXTRA_ARGS) -s -m "integration"
 
 lint: venv_test
 	@echo "Style checks..."

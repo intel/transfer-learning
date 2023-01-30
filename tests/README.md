@@ -11,6 +11,12 @@ cd frameworks.ai.transfer-learning
 # Run tests with make, or skip this step to run individually
 make test
 
+# Run only unittests with make
+make unittest
+
+# Run only integration tests with make
+make integration
+
 # Create a virtual env or conda env for the test environment
 conda create --name tlt_tests python=3.9
 
@@ -41,6 +47,8 @@ The following custom markers have been defined in the transfer learning tests:
 @pytest.mark.pytorch: test requires pytorch to be installed
 
 @pytest.mark.common: test does not require a specific framework to be installed
+
+@pytest.mark.integration: test will run all integration tests
 ```
 
 ### Sample test run commands using markers

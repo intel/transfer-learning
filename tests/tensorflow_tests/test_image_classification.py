@@ -33,6 +33,7 @@ from unittest.mock import MagicMock, patch
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy,extra_layers,correct_num_layers',
                          [['efficientnet_b0', 'tf_flowers', 0.3125, 0.53125, None, 2],
@@ -238,6 +239,7 @@ class TestImageClassificationCustomDataset:
                 print("Deleting test directory:", dir)
                 shutil.rmtree(dir)
 
+    @pytest.mark.integration
     @pytest.mark.tensorflow
     @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy',
                              [['efficientnet_b0', 0.9333333, 1.0],
@@ -314,6 +316,7 @@ class TestImageClassificationCustomDataset:
             model.benchmark(quantization_output, inc_config_file_path)
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,dataset_name,epochs,learning_rate,do_eval,early_stopping,lr_decay,accuracy,\
                           val_accuracy,lr_final',

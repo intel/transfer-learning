@@ -27,6 +27,7 @@ from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['bert-base-cased', 'imdb'],
