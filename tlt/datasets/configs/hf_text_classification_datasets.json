@@ -54,5 +54,9 @@
     "ag_news": {
         "dataset_hub": "huggingface",
         "url": "https://huggingface.co/datasets/ag_news"
+    },
+    "sst2": {
+        "dataset_hub": "huggingface",
+        "url": "https://huggingface.co/datasets/sst2"
     }
 }

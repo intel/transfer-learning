@@ -8,6 +8,7 @@ Example Notebooks
    :doc:`Image Classification with PyTorch using the Intel® Transfer Learning Tool API <notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning>`, Image Classification, PyTorch & TLT
    :doc:`Image Classification with TF using the Intel® Transfer Learning Tool API <notebooks/TLT_TF_Image_Classification_Transfer_Learning>`, Image Classification, TensorFlow & TLT
    :doc:`Text Classification with TF using the Intel® Transfer Learning Tool API <notebooks/TLT_TF_Text_Classification_Transfer_Learning>`, Text Classification, TensorFlow & TLT
+   :doc:`Text Classification with PyTorch using the Intel® Transfer Learning Tool API <notebooks/TLT_PyTorch_Text_Classification_Transfer_Learning>`, Text Classification, PyTorch & TLT
 
 .. toctree::
    :maxdepth: 1
@@ -16,6 +17,7 @@ Example Notebooks
    notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning
    notebooks/TLT_TF_Image_Classification_Transfer_Learning
    notebooks/TLT_TF_Text_Classification_Transfer_Learning
+   notebooks/TLT_PyTorch_Text_Classification_Transfer_Learning
 
 .. csv-table:: Transfer Learning Tool End-to-End Pipelines
    :header: "Notebook", "Use Case", "Framework"

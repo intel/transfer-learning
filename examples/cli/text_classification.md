@@ -97,6 +97,44 @@ tlt eval \
     --dataset-name ${DATASET_NAME}
 ```
 
+## Distributed transfer learning using a dataset from Hugging Face
+This example runs a distributed PyTorch training job using the TLT CLI. It fine tunes a text classification model 
+for document-level sentiment analysis using a dataset from the [Hugging Face catalog](https://huggingface.co/datasets).
+TLT supports the following text classification datasets from Hugging Face:
+* [imdb](https://huggingface.co/datasets/imdb)
+* [tweet_eval](https://huggingface.co/datasets/tweet_eval)
+* [rotten_tomatoes](https://huggingface.co/datasets/rotten_tomatoes)
+* [ag_news](https://huggingface.co/datasets/ag_news)
+* [sst2](https://huggingface.co/datasets/sst2)
+
+Follow [these instruction](/tlt/distributed) to set up your machines for distributed training with PyTorch. This will
+ensure your environment has the right prerequisites, package dependencies, and hostfile configuration. When
+you have successfully run the sanity check, the following commands will fine-tune `bert-large-uncased` with sst2 for
+one epoch using 2 nodes and 2 processes per node.
+
+```bash
+# Create dataset and output directories
+DATASET_DIR=/tmp/data
+OUTPUT_DIR=/tmp/output
+mkdir -p ${DATASET_DIR}
+mkdir -p ${OUTPUT_DIR}
+
+# Name of the dataset to use
+DATASET_NAME=sst2
+
+# Train bert-large-uncased using the Hugging Face dataset sst2
+tlt train \
+    -f pytorch \
+    --model_name bert-large-uncased \
+    --dataset_name sst2 \
+    --output_dir $OUTPUT_DIR \
+    --dataset_dir $DATASET_DIR \
+    --distributed \
+    --hostfile hostfile \
+    --nnodes 2 \
+    --nproc_per_node 2
+```
+
 ## Citations
 ```
 @InProceedings{maas-EtAl:2011:ACL-HLT2011,
@@ -123,6 +161,24 @@ tlt eval \
   title        = {{SMS Spam Collection}},
   year         = {2012},
   howpublished = {UCI Machine Learning Repository}
+}
+
+@inproceedings{socher-etal-2013-recursive,
+    title = "Recursive Deep Models for Semantic Compositionality Over a Sentiment Treebank",
+    author = "Socher, Richard  and
+      Perelygin, Alex  and
+      Wu, Jean  and
+      Chuang, Jason  and
+      Manning, Christopher D.  and
+      Ng, Andrew  and
+      Potts, Christopher",
+    booktitle = "Proceedings of the 2013 Conference on Empirical Methods in Natural Language Processing",
+    month = oct,
+    year = "2013",
+    address = "Seattle, Washington, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/D13-1170",
+    pages = "1631--1642",
 }
 ```
 

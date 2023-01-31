@@ -17,7 +17,7 @@ Features
       * Text Classification with 26 models from TFHub
    * PyTorch 1.11 or later
       * Image Classification with 60 models from torchvision
-      * Text Classification with 3 models from Hugging Face
+      * Text Classification with 4 models from Hugging Face
 
 .. figure:: images/features.png
    :scale: 42% %
@@ -27,8 +27,6 @@ Features
    :alt: TLT Features
 
 * Jupyter notebooks:
-   * 5 Computer Vision workflows
-   * 3 Natural Language Processing workflows
 
 .. csv-table:: Transfer Learning Tool Tutorial Notebooks
    :header: "Notebook", "Use Case", "Framework"
@@ -37,8 +35,8 @@ Features
    :doc:`Image Classification with TF using the Intel® Transfer Learning Tool API <notebooks/TLT_TF_Image_Classification_Transfer_Learning>`, Image Classification, TensorFlow & TLT
    :doc:`Image Classification with PyTorch using the Intel® Transfer Learning Tool API <notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning>`, Image Classification, PyTorch & TLT
    :doc:`Text Classification with TF using the Intel® Transfer Learning Tool API <notebooks/TLT_TF_Text_Classification_Transfer_Learning>`, Text Classification, TensorFlow & TLT
-   
-   
+   :doc:`Text Classification with PyTorch using the Intel® Transfer Learning Tool API <notebooks/TLT_PyTorch_Text_Classification_Transfer_Learning>`, Text Classification, PyTorch & TLT
+
 .. csv-table:: Native Framework Transfer Learning Notebooks
    :header: "Notebook", "Use Case", "Framework"
    :widths: 60, 20, 20
@@ -58,7 +56,8 @@ Features
 
    :doc:`Medical Imaging using TensorFlow and the Intel® Transfer Learning Tool API<notebooks/Medical_Imaging_Classification>`, Image Classification, TensorFlow & TLT
    :doc:`Remote Sensing using TensorFlow and the Intel® Transfer Learning Tool API<notebooks/Remote_Sensing_Image_Scene_Classification>`, Image Classification, TensorFlow & TLT
-   
+   Multi-modal Cancer Detection, Image & Text Classification, TensorFlow & PyTorch & TLT
+   Document-level Sentiment Analysis, Text Classification, PyTorch & TLT
 
 Models
 ------
@@ -128,6 +127,7 @@ Models
    ,wide_resnet50_2
    ,wide_resnet101_2
    ,bert-base-cased
+   ,bert-large-uncased
    ,distilbert-base-uncased
    ,clinical-bert
 

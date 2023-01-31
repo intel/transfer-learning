@@ -13,5 +13,10 @@
         "model_hub": "huggingface",
         "hub_name": "emilyalsentzer/Bio_ClinicalBERT",
         "original_dataset": "Publicly Available Clinical BERT Embeddings"
+    },
+    "bert-large-uncased": {
+	"model_hub": "huggingface",
+	"hub_name": "bert-large-uncased",
+	"original_dataset": "Wikipedia and BooksCorpus (English)"
     }
 }

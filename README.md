@@ -9,10 +9,10 @@
       
 | Use Case | Framework | Optimizations | Datasets |
 |----------|-----------|----------|---------------|
-| Image Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 |
+| Image Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) <li>Distributed training | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 |
 | Image Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) |
 | Text Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets from .csv files <li> [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/overview#image_classification): [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config), [glue/sst2](https://www.tensorflow.org/datasets/catalog/glue#gluesst2), [imdb_reviews](https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config), [ag_news_subset] (https://www.tensorflow.org/datasets/catalog/ag_news_subset) |
-| Text Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | <li> Custom datasets <li> Text Classification datasets from [Hugging Face Dataset catalog](https://huggingface.co/datasets) |
+| Text Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) <li>Distributed training | <li> Custom datasets <li> Text Classification datasets from [Hugging Face Dataset catalog](https://huggingface.co/datasets) |
    
 ## Build and Install
 
@@ -23,6 +23,7 @@ Requirements:
 * `apt-get install build-essential python3-dev`
 * To run use quantization functions: `apt-get install libgl1 libglib2.0-0`
 
+Basic Installation:
 1. Clone this repo and navigate to the repo directory:
    ```
    git clone https://github.com/intel-innersource/frameworks.ai.transfer-learning.git
@@ -54,10 +55,16 @@ Requirements:
    Or for developers, do an editable install:
    ```
    pip install --editable .[tensorflow,pytorch]
+   ```
 
-   # Required for TensorFlow text classification
+Additional Feature-Specific Steps:
+1. For TensorFlow text classification, this is also required:
+   ```
    pip install tensorflow-text==2.10.0
    ```
+
+1. For distributed/multinode training, [these instructions](/tlt/distributed) are also required.
+
 
 ## Getting Started with the CLI
 
@@ -239,6 +246,10 @@ Starting graph optimization
 2022-06-28 13:51:21 [INFO] SavedModel written to: /tmp/output/optimized/resnet_v1_50/1/saved_model.pb
 ```
 
+More CLI Examples:
+* [Image Classification](/examples/cli/image_classification.md)
+* [Text Classification](/examples/cli/text_classification.md)
+
 ## Getting Started with the API
 ```python
 from tlt.datasets import dataset_factory
@@ -286,3 +297,7 @@ model.benchmark(quantization_output, inc_config_file, 'performance')
 optimization_output = "/tmp/output/optimized_model"
 model.optimize_graph(saved_model_dir, optimization_output)
 ```
+
+More API Examples:
+* [TLT Tutorials](/notebooks#transfer-learning-tool-tutorial-notebooks)
+* [TLT End-to-end Pipelines](/notebooks#transfer-learning-tool-end-to-end-pipelines)
