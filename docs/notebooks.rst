@@ -25,6 +25,7 @@ Example Notebooks
 
    :doc:`Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API<notebooks/Medical_Imaging_Classification>`, Image Classification, TensorFlow & TLT
    :doc:`Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API<notebooks/Remote_Sensing_Image_Scene_Classification>`, Image Classification, TensorFlow & TLT
+   Anomaly Detection using PyTorch and the Intel® Transfer Learning Tool API, Image Anomaly Detection, PyTorch & TLT
 
 .. toctree::
    :maxdepth: 1

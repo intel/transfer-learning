@@ -18,6 +18,7 @@ Features
    * PyTorch 1.11 or later
       * Image Classification with 60 models from torchvision
       * Text Classification with 4 models from Hugging Face
+      * Image Anomaly Detection with 5 models from torchvision
 
 .. figure:: images/features.png
    :scale: 42% %
@@ -58,6 +59,7 @@ Features
    :doc:`Remote Sensing using TensorFlow and the Intel® Transfer Learning Tool API<notebooks/Remote_Sensing_Image_Scene_Classification>`, Image Classification, TensorFlow & TLT
    Multi-modal Cancer Detection, Image & Text Classification, TensorFlow & PyTorch & TLT
    Document-level Sentiment Analysis, Text Classification, PyTorch & TLT
+   Anomaly Detection using PyTorch and the Intel® Transfer Learning Tool API, Image Anomaly Detection, PyTorch & TLT
 
 Models
 ------

@@ -23,6 +23,7 @@ import torchvision.transforms as T
 from torch.utils.data import DataLoader as loader
 import numpy as np
 import random
+import inspect
 
 from tlt.datasets.dataset import BaseDataset
 
@@ -102,11 +103,11 @@ class PyTorchDataset(BaseDataset):
         """
         if subset == 'all' and self._dataset is not None:
             return next(iter(self._data_loader))
-        elif subset == 'train' and self._train_subset is not None:
+        elif subset == 'train' and self._train_loader is not None:
             return next(iter(self._train_loader))
-        elif subset == 'validation' and self._validation_subset is not None:
+        elif subset == 'validation' and self._validation_loader is not None:
             return next(iter(self._validation_loader))
-        elif subset == 'test' and self._test_subset is not None:
+        elif subset == 'test' and self._test_loader is not None:
             return next(iter(self._test_loader))
         else:
             raise ValueError("Unable to return a batch, because the dataset or subset hasn't been defined.")
@@ -179,7 +180,7 @@ class PyTorchDataset(BaseDataset):
         else:
             self._test_loader = None
 
-    def preprocess(self, image_size='variable', batch_size=32, add_aug=None):
+    def preprocess(self, image_size='variable', batch_size=32, add_aug=None, **kwargs):
         """
         Preprocess the dataset to resize, normalize, and batch the images. Apply augmentation
         if specified.
@@ -189,6 +190,7 @@ class PyTorchDataset(BaseDataset):
                 batch_size (int): desired batch size (default 32)
                 add_aug (None or list[str]): Choice of augmentations (RandomHorizontalFlip, RandomRotation) to be
                                              applied during training
+                kwargs: optional; additional keyword arguments for Resize and Normalize transforms
             Raises:
                 ValueError if the dataset is not defined or has already been processed
         """
@@ -206,10 +208,14 @@ class PyTorchDataset(BaseDataset):
         if not image_size == 'variable' and not (isinstance(image_size, int) and image_size >= 1):
             raise ValueError("Input image_size must be either a positive int or 'variable'")
 
+        # Get the user-specified keyword arguments
+        resize_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(T.Resize).args}
+        normalize_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(T.Normalize).args}
+
         def get_transform(image_size, add_aug):
             transforms = []
             if isinstance(image_size, int):
-                transforms.append(T.Resize([image_size, image_size]))
+                transforms.append(T.Resize([image_size, image_size], **resize_args))
             if add_aug is not None:
                 aug_dict = {'hflip': T.RandomHorizontalFlip(),
                             'rotate': T.RandomRotation(0.5)}
@@ -220,7 +226,7 @@ class PyTorchDataset(BaseDataset):
                         Supported augmentations are {}".format(option, aug_list))
                     transforms.append(aug_dict[option])
             transforms.append(T.ToTensor())
-            transforms.append(T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]))
+            transforms.append(T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225], **normalize_args))
 
             return T.Compose(transforms)
 

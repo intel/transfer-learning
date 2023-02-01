@@ -49,7 +49,11 @@ dataset_map = {
                             "class": "HFTextClassificationDataset"},
             "custom": {"module": "tlt.datasets.text_classification.hf_custom_text_classification_dataset",
                        "class": "HFCustomTextClassificationDataset"}
-        }
+        },
+        UseCaseType.IMAGE_ANOMALY_DETECTION: {
+            "custom": {"module": "tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset",
+                       "class": "PyTorchCustomImageAnomalyDetectionDataset"}
+        },
     }
 }
 
