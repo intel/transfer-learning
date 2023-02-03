@@ -259,6 +259,9 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             train_img_string = '{}/train/'.format(dataset_dir)
             self._train_indices = [i for i, t in enumerate(self._dataset.imgs) if train_img_string in t[0]]
             self._validation_indices = [i for i, t in enumerate(self._dataset.imgs) if train_img_string not in t[0]]
+            if self._shuffle:
+                random.shuffle(self._train_indices)
+                random.shuffle(self._validation_indices)
 
         self._train_subset = None
         self._validation_subset = None
@@ -284,7 +287,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         """
         Returns the list of class names
         """
-        return self._dataset._defects
+        return self._defects
 
     @property
     def info(self):

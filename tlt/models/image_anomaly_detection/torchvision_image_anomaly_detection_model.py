@@ -165,7 +165,7 @@ class TorchvisionImageAnomalyDetectionModel(TorchvisionImageClassificationModel)
                 data_length = len(dataset.test_subset)
             else:
                 raise ValueError("No test subset is defined")
-        elif dataset.validation_subset:
+        elif dataset.validation_subset is not None:
             eval_loader = dataset.validation_loader
             data_length = len(dataset.validation_subset)
         else:
@@ -176,12 +176,9 @@ class TorchvisionImageAnomalyDetectionModel(TorchvisionImageClassificationModel)
             # The model hasn't been trained yet, use the original ImageNet trained model
             raise ValueError("The model has not been trained yet, so it can't be evaluated for anomaly detection")
 
-        print("Inference Evaluation Begins on", data_length, "Test Images \n")
-
         with torch.no_grad():
-            len_dataset = len(eval_loader.dataset)
-            gt = torch.zeros(len_dataset)
-            scores = np.empty(len_dataset)
+            gt = torch.zeros(data_length)
+            scores = np.empty(data_length)
             count = 0
             for k, (images, labels) in enumerate(tqdm(eval_loader)):
                 images = images.to(memory_format=torch.channels_last)
@@ -200,11 +197,11 @@ class TorchvisionImageAnomalyDetectionModel(TorchvisionImageClassificationModel)
 
             gt = gt.numpy()
 
-        print("AUROC is computed on", len_dataset, "Test Images \n")
         fpr_binary, tpr_binary, _ = metrics.roc_curve(gt, scores)
         auc_roc_binary = metrics.auc(fpr_binary, tpr_binary)
+        print(f'AUROC computed on {data_length} test images: {auc_roc_binary*100}')
 
-        print(f'AUROC: {auc_roc_binary*100}')
+        return auc_roc_binary
 
     def predict(self, input_samples, return_type='scores', threshold=None):
         """

@@ -44,6 +44,11 @@ except ModuleNotFoundError:
     print("Unable to import PyTorchCustomImageClassificationDataset. Torch may not be installed")
 
 try:
+    from tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset import PyTorchCustomImageAnomalyDetectionDataset  # noqa: E501
+except ModuleNotFoundError:
+    print("Unable to import PyTorchCustomImageAnomalyDetectionDataset. Torch may not be installed")
+
+try:
     from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset
 except ModuleNotFoundError:
     print("Unable to import HFTextClassificationDataset. HuggingFace's 'tranformers' API may not be installed \
@@ -136,12 +141,12 @@ def test_shuffle_split_deterministic_custom():
     ic_dataset1 = None
     ic_dataset2 = None
     try:
-        ic_dataset1 = ImageClassificationDatasetForTest(dataset_dir, None, None, class_names)
+        ic_dataset1 = ImageDatasetForTest(dataset_dir, None, None, class_names)
         tlt_dataset1 = ic_dataset1.tlt_dataset
         tlt_dataset1.preprocess(image_size, batch_size)
         tlt_dataset1.shuffle_split(seed=seed)
 
-        ic_dataset2 = ImageClassificationDatasetForTest(dataset_dir, None, None, class_names)
+        ic_dataset2 = ImageDatasetForTest(dataset_dir, None, None, class_names)
         tlt_dataset2 = ic_dataset2.tlt_dataset
         tlt_dataset2.preprocess(image_size, batch_size)
         tlt_dataset2.shuffle_split(seed=seed)
@@ -168,7 +173,7 @@ def test_batching(dataset_dir, dataset_name, dataset_catalog, class_names, batch
     """
     Checks that dataset can be batched with valid positive integer values
     """
-    ic_dataset = ImageClassificationDatasetForTest(dataset_dir, dataset_name, dataset_catalog, class_names)
+    ic_dataset = ImageDatasetForTest(dataset_dir, dataset_name, dataset_catalog, class_names)
 
     try:
         tlt_dataset = ic_dataset.tlt_dataset
@@ -187,7 +192,7 @@ def test_batching_error(dataset_dir, dataset_name, dataset_catalog, class_names)
     """
     Checks that preprocessing cannot be run twice
     """
-    ic_dataset = ImageClassificationDatasetForTest(dataset_dir, dataset_name, dataset_catalog, class_names)
+    ic_dataset = ImageDatasetForTest(dataset_dir, dataset_name, dataset_catalog, class_names)
 
     try:
         tlt_dataset = ic_dataset.tlt_dataset
@@ -200,8 +205,8 @@ def test_batching_error(dataset_dir, dataset_name, dataset_catalog, class_names)
         ic_dataset.cleanup()
 
 
-class ImageClassificationDatasetForTest:
-    def __init__(self, dataset_dir, dataset_name=None, dataset_catalog=None, class_names=None):
+class ImageDatasetForTest:
+    def __init__(self, dataset_dir, dataset_name=None, dataset_catalog=None, class_names=None, use_case=None):
         """
         This class wraps initialization for image classification datasets (either from torchvision or custom).
 
@@ -212,7 +217,7 @@ class ImageClassificationDatasetForTest:
         For an image classification dataset from a catalog, provide the dataset_dir, dataset_name, and dataset_catalog.
         The dataset factory will be used to load the specified dataset.
         """
-        use_case = 'image_classification'
+        use_case = 'image_classification' if use_case is None else use_case
         framework = 'pytorch'
 
         if dataset_name and dataset_catalog:
@@ -262,7 +267,7 @@ torchvision_metadata = {
 
 # Dataset parameters used to define datasets that will be initialized and tested using TestImageClassificationDataset
 # The parameters are: dataset_dir, dataset_name, dataset_catalog, and class_names, which map to the constructor
-# parameters for ImageClassificationDatasetForTest, which initializes the datasets using the dataset factory.
+# parameters for ImageDatasetForTest, which initializes the datasets using the dataset factory.
 dataset_params = [("/tmp/data", "CIFAR10", "torchvision", None),
                   ("/tmp/data", None, None, ["a", "b", "c"])]
 
@@ -271,7 +276,7 @@ dataset_params = [("/tmp/data", "CIFAR10", "torchvision", None),
 def image_classification_data(request):
     params = request.param
 
-    ic_dataset = ImageClassificationDatasetForTest(*params)
+    ic_dataset = ImageDatasetForTest(*params)
 
     dataset_dir, dataset_name, dataset_catalog, dataset_classes = params
 
@@ -390,6 +395,129 @@ class TestImageClassificationDataset:
             ds_size * default_val_pct) <= len(tlt_dataset.validation_loader) <= math.ceil(ds_size * default_val_pct)
         assert tlt_dataset.test_loader is None
         assert tlt_dataset._validation_type == 'shuffle_split'
+
+
+# Tests for Image Anomaly Detection datasets
+@pytest.mark.pytorch
+@pytest.mark.parametrize('dataset_dir,dataset_name,dataset_catalog,class_names,use_case',
+                         [["/tmp/data", "CIFAR10", "torchvision", [], 'anomaly_detection'],
+                          ["/tmp/data", None, None, ["a", "b", "c"], 'image_anomaly_detection']])
+def test_bad_anomaly_dataset(dataset_dir, dataset_name, dataset_catalog, class_names, use_case):
+    """
+    Checks that torchvision datasets are not implemented and that a nonexistent 'good' folder will throw an error
+    """
+    try:
+        get_dataset(dataset_dir, use_case, 'pytorch', dataset_name, dataset_catalog)
+        assert False
+    except NotImplementedError:
+        assert True
+    try:
+        load_dataset(dataset_dir, use_case, framework="pytorch")
+        assert False
+    except FileNotFoundError as e:
+        assert "Couldn't find 'good' folder" in str(e)
+
+
+anomaly_dataset_params = [("/tmp/data", None, None, ["good", "bad"], 'anomaly_detection'),
+                          ("/tmp/data", None, None, ["good", "foo", "bar"], 'image_anomaly_detection')]
+
+
+@pytest.fixture(scope="class", params=anomaly_dataset_params)
+def anomaly_detection_data(request):
+    params = request.param
+
+    ad_dataset = ImageDatasetForTest(*params)
+
+    dataset_dir, dataset_name, dataset_catalog, dataset_classes, use_case = params
+
+    def cleanup():
+        ad_dataset.cleanup()
+
+    request.addfinalizer(cleanup)
+
+    # Return the tlt dataset along with metadata that tests might need
+    return (ad_dataset.tlt_dataset, dataset_name, dataset_classes, use_case)
+
+
+# Tests for Image Anomaly Detection use case
+@pytest.mark.pytorch
+class TestImageAnomalyDetectionDataset:
+    """
+    This class contains image anomaly detection dataset tests that only require the dataset to be initialized once.
+    These tests will be run once for each of the dataset defined in the anomaly_dataset_params list.
+    """
+
+    @pytest.mark.pytorch
+    def test_classes_defects_and_size(self, anomaly_detection_data):
+        """
+        Verify the class type, dataset class names, defect_names, and dataset length after initializaion
+        """
+        tlt_dataset, dataset_name, dataset_classes, use_case = anomaly_detection_data
+
+        assert type(tlt_dataset) == PyTorchCustomImageAnomalyDetectionDataset
+        assert len(tlt_dataset.class_names) == 2  # Always 2 for anomaly detection
+        assert len(tlt_dataset.defect_names) == len(dataset_classes) - 1  # Subtract 1 for the "good" class
+        assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
+
+    @pytest.mark.pytorch
+    def test_preprocessing(self, anomaly_detection_data):
+        """
+        Checks that dataset can be preprocessed only once
+        """
+        tlt_dataset, dataset_name, dataset_classes, use_case = anomaly_detection_data
+        tlt_dataset.preprocess(224, 8)
+        preprocessing_inputs = {'image_size': 224, 'batch_size': 8}
+        assert tlt_dataset._preprocessed == preprocessing_inputs
+        # Trying to preprocess again should throw an exception
+        with pytest.raises(Exception) as e:
+            tlt_dataset.preprocess(324, 32)
+        assert 'Data has already been preprocessed: {}'.format(preprocessing_inputs) == str(e.value)
+        print(tlt_dataset.info)
+
+    @pytest.mark.pytorch
+    def test_shuffle_split_errors(self, anomaly_detection_data):
+        """
+        Checks that splitting into train, validation, and test subsets will error if inputs are wrong
+        """
+        tlt_dataset, dataset_name, dataset_classes, use_case = anomaly_detection_data
+
+        with pytest.raises(Exception) as e:
+            tlt_dataset.shuffle_split(train_pct=.5, val_pct=.5, test_pct=.2)
+        assert 'Sum of percentage arguments must be less than or equal to 1.' == str(e.value)
+        with pytest.raises(Exception) as e:
+            tlt_dataset.shuffle_split(train_pct=1, val_pct=0)
+        assert 'Percentage arguments must be floats.' == str(e.value)
+
+    @pytest.mark.pytorch
+    def test_shuffle_split(self, anomaly_detection_data):
+        """
+        Checks that dataset can be split into train, validation, and test subsets
+        """
+        tlt_dataset, dataset_name, dataset_classes, use_case = anomaly_detection_data
+
+        # Before the shuffle split, validation type should be recall
+        assert 'recall' == tlt_dataset._validation_type
+
+        # Perform shuffle split with default percentages
+        tlt_dataset.shuffle_split(seed=10)
+        default_train_pct = 0.75
+        default_val_pct = 0.25
+
+        # Get the full dataset size
+        ds_size = torchvision_metadata[dataset_name]['size'] if dataset_name else len(dataset_classes) * 50
+
+        # Divide by the batch size that was used to preprocess earlier
+        ds_size = ds_size / tlt_dataset.info['preprocessing_info']['batch_size']
+        good_size = 50 / tlt_dataset.info['preprocessing_info']['batch_size']
+
+        # The PyTorch loaders are what gets batched and they can be off by 1 from the floor value
+        assert math.floor(
+            good_size * default_train_pct) <= len(tlt_dataset.train_loader) <= math.ceil(good_size * default_train_pct)
+        assert math.floor(good_size * default_val_pct) + (ds_size - good_size) <= \
+               len(tlt_dataset.validation_loader) <= math.ceil(good_size * default_val_pct) + (ds_size - good_size)
+        assert tlt_dataset.test_loader is None
+        assert tlt_dataset._validation_type == 'shuffle_split'
+
 
 # =======================================================================================
 

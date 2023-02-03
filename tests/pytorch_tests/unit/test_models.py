@@ -19,8 +19,10 @@
 #
 
 import pytest
+import random
 
 from unittest.mock import MagicMock, patch
+from sklearn import decomposition
 
 from tlt.models import model_factory
 from tlt.utils.types import FrameworkType, UseCaseType
@@ -43,6 +45,15 @@ try:
 except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageClassificationModel and TorchvisionImageClassificationDataset. "
           "Torch may not be installed")
+
+try:
+    from tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model import \
+        TorchvisionImageAnomalyDetectionModel
+    from tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset import \
+        PyTorchCustomImageAnomalyDetectionDataset
+except ModuleNotFoundError:
+    print("WARNING: Unable to import TorchvisionImageAnomalyDetectionModel and "
+          "PyTorchCustomImageAnomalyDetectionDataset. Torch may not be installed")
 
 try:
     from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset  # noqa: F401, E501
@@ -75,6 +86,7 @@ def test_get_supported_models():
 
     # Check for a known model
     assert 'efficientnet_b0' in model_dict[str(UseCaseType.IMAGE_CLASSIFICATION)]
+    assert 'resnet50' in model_dict[str(UseCaseType.IMAGE_ANOMALY_DETECTION)]
     efficientnet_b0 = model_dict[str(UseCaseType.IMAGE_CLASSIFICATION)]['efficientnet_b0']
     assert str(FrameworkType.PYTORCH) in efficientnet_b0
     assert 'torchvision' == efficientnet_b0[str(FrameworkType.PYTORCH)]['model_hub']
@@ -88,7 +100,8 @@ def test_get_supported_models():
                           [None, 'question_answering'],
                           ['tensorflow', 'image_classification'],
                           ['pytorch', 'text_classification'],
-                          ['pytorch', 'question_answering']])
+                          ['pytorch', 'question_answering'],
+                          ['pytorch', 'image_anomaly_detection']])
 def test_get_supported_models_with_filter(framework, use_case):
     """
     Tests getting the dictionary of supported models while filtering by framework and/or use case.
@@ -214,6 +227,39 @@ def test_bert_train():
         mock_dataset.validation_loader.__class__ = HFTextClassificationDataset
         return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True)
         assert return_val == expected_return_value_history_val
+
+
+@pytest.mark.pytorch
+def test_resnet50_anomaly_train():
+    model = model_factory.get_model(model_name="resnet50", framework="pytorch", use_case="anomaly_detection")
+    assert type(model) == TorchvisionImageAnomalyDetectionModel
+
+    # Scenario 1: Call extract_features on 5 randomly generated images
+    data = torch.rand(5, 3, 225, 225)  # NCHW
+    return_val = model.extract_features(data, layer_name='layer3', pooling=['avg', 2])
+    assert isinstance(return_val, torch.Tensor)
+    assert len(return_val) == 5
+
+    with patch(
+            'tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset') as mock_dataset:  # noqa: E501
+        mock_dataset.__class__ = PyTorchCustomImageAnomalyDetectionDataset
+        mock_dataset.train_subset = data
+        mock_dataset.validation_subset = torch.rand(5, 3, 225, 225)
+        expected_return_value_batch = (data, [random.randint(0, 1) for x in range(5)])
+
+        def mock_get_batch():
+            return expected_return_value_batch
+
+        # Scenario 2: Call model train without validation
+        mock_dataset.get_batch = mock_get_batch
+        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=False)
+        assert type(return_val) == decomposition._pca.PCA
+        assert return_val.n_components == 0.99
+
+        # Scenario 3: Call model train  with validation and a different PCA threshold
+        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, pca_threshold=0.98)
+        assert type(return_val) == decomposition._pca.PCA
+        assert return_val.n_components == 0.98
 
 
 @pytest.mark.pytorch
