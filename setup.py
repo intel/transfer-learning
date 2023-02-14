@@ -48,7 +48,7 @@ EXTRA_PACKAGES = {
 
 setup(name="intel-transfer-learning-tool",
       description="Intel® Transfer Learning Tool",
-      version="0.2.0",
+      version="0.3.0",
       long_description=long_description,
       long_description_content_type='text/markdown',
       packages=find_packages(),

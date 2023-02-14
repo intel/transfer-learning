@@ -19,7 +19,7 @@
 
 Requirements:
 * Linux system (or WSL2 on Windows)
-* Python3 (3.7, 3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
+* Python3 (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
 * git
 * `apt-get install build-essential python3-dev`
 * To run use quantization functions: `apt-get install libgl1 libglib2.0-0`
@@ -48,7 +48,7 @@ Basic Installation:
    and installing the wheel:
    ```
    python setup.py bdist_wheel --universal
-   pip install dist/intel_transfer_learning_tool-0.2.0-py3-none-any.whl[tensorflow,pytorch]
+   pip install dist/intel_transfer_learning_tool-0.3.0-py3-none-any.whl[tensorflow,pytorch]
 
    # Required for TensorFlow text classification
    pip install tensorflow-text==2.10.0
