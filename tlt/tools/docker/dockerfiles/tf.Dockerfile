@@ -42,7 +42,8 @@ RUN apt-get update && \
     pip install --upgrade pip && \
     pip install --no-cache-dir intel_transfer_learning_tool-${TLT_VERSION}-py2.py3-none-any.whl[tensorflow] && \
     pip install tensorflow-text==2.10.0 && \
-    rm intel_transfer_learning_tool-${TLT_VERSION}-py2.py3-none-any.whl
+    rm intel_transfer_learning_tool-${TLT_VERSION}-py2.py3-none-any.whl && \
+    pip install --no-cache-dir -r tests/requirements-test.txt
 
 ENV DATASET_DIR=/workspace/data
 ENV OUTPUT_DIR=/workspace/output
