@@ -19,9 +19,12 @@
 #
 
 import abc
+import os
+import yaml
 
 from tlt.models.model import BaseModel
 from tlt.utils.types import FrameworkType, UseCaseType
+from tlt import TLT_BASE_DIR
 
 
 class TextClassificationModel(BaseModel):
@@ -35,6 +38,28 @@ class TextClassificationModel(BaseModel):
 
         # Default learning rate for text models
         self._learning_rate = 3e-5
+
+    def get_inc_config_template_dict(self):
+        """
+        Returns a dictionary for a config template compatible with the Intel Neural Compressor.
+
+        It loads the yaml file tlt/models/configs/inc/text_classification_template.yaml and then fills in parameters
+        that the model knows about (like framework and model name). There are still more parameters that need to be
+        filled in before using the config with INC (like the dataset information, size, etc).
+        """
+        template_file_path = os.path.join(TLT_BASE_DIR, "models/configs/inc/text_classification_template.yaml")
+
+        if not os.path.exists(template_file_path):
+            raise FileNotFoundError("Unable to find the config template at:", template_file_path)
+
+        with open(template_file_path, 'r') as template_yaml:
+            config_template = yaml.safe_load(template_yaml)
+
+        # Update parameters that we know in the template
+        config_template["model"]["framework"] = str(self.framework)
+        config_template["model"]["name"] = self.model_name
+
+        return config_template
 
     @property
     @abc.abstractmethod

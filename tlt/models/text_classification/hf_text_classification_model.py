@@ -27,6 +27,7 @@ import numpy as np
 import intel_extension_for_pytorch as ipex
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+import yaml
 
 # Hugging Face imports
 from transformers import (
@@ -499,3 +500,206 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         model_copy = torch.load(os.path.join(model_dir, 'model.pt'))
         self._model = dill.loads(model_copy)
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
+
+    def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False,
+                              resize_interpolation='bicubic', accuracy_criterion_relative=0.01, exit_policy_timeout=0,
+                              exit_policy_max_trials=50, tuning_random_seed=9527,
+                              tuning_workspace=''):
+        """
+        Writes an INC compatible config file to the specified path usings args from the specified dataset and
+        parameters.
+
+        Args:
+            config_file_path (str): Destination path on where to write the .yaml config file.
+            dataset (BaseDataset): A tlt dataset object
+            batch_size (int): Batch size to use for quantization and evaluation
+            overwrite (bool): Specify whether or not to overwrite the config_file_path, if it already exists
+                              (default: False)
+            resize_interpolation (str): Interpolation type. Select from: 'bilinear', 'nearest', 'bicubic'
+                                        (default: bicubic)
+            accuracy_criterion_relative (float): Relative accuracy loss (default: 0.01, which is 1%)
+            exit_policy_timeout (int): Tuning timeout in seconds (default: 0). Tuning processing finishes when the
+                                       timeout or max_trials is reached. A tuning timeout of 0 means that the tuning
+                                       phase stops when the accuracy criterion is met.
+            exit_policy_max_trials (int): Maximum number of tuning trials (default: 50). Tuning processing finishes when
+                                          the timeout or or max_trials is reached.
+            tuning_random_seed (int): Random seed for deterministic tuning (default: 9527).
+            tuning_workspace (dir): Path the INC nc_workspace folder. If the string is empty and the OUTPUT_DIR env var
+                                    is set, that output directory will be used. If the string is empty and the
+                                    OUTPUT_DIR env var is not set, the default INC nc_workspace location will be used.
+        Returns:
+            None
+        Raises:
+            FileExistsError if the config file already exists and overwrite is set to False.
+            ValueError if the parameters are not within the expected values
+            NotImplementedError if the dataset type is not HFCustomImageClassificationDataset.
+        """
+        if os.path.isfile(config_file_path) and not overwrite:
+            raise FileExistsError('A file already exists at: {}. Provide a new file path or set overwrite=True',
+                                  config_file_path)
+
+        # We can setup the a custom dataset to use the ImageFolder dataset option in INC.
+        # They don't have a PyTorch Dataset option, so for now, we only support custom datasets for quantization
+        if dataset is not HFCustomTextClassificationDataset \
+                and type(dataset) != HFCustomTextClassificationDataset:
+            raise NotImplementedError('quantization has only been implemented for huggingface text classification '
+                                      'models with custom datasets')
+
+        if batch_size and not isinstance(batch_size, int) or batch_size < 1:
+            raise ValueError('Invalid value for batch size ({}). Expected a positive integer.'.format(batch_size))
+
+        if resize_interpolation not in ['bilinear', 'nearest', 'bicubic']:
+            raise ValueError('Invalid value for resize interpolation ({}). Expected one of the following values: '
+                             'bilinear, nearest, bicubic'.format(resize_interpolation))
+
+        if accuracy_criterion_relative and not isinstance(accuracy_criterion_relative, float) or \
+                not (0.0 <= accuracy_criterion_relative <= 1.0):
+            raise ValueError('Invalid value for the accuracy criterion ({}). Expected a float value between 0.0 '
+                             'and 1.0'.format(accuracy_criterion_relative))
+
+        if exit_policy_timeout and not isinstance(exit_policy_timeout, int) or exit_policy_timeout < 0:
+            raise ValueError('Invalid value for the exit policy timeout ({}). Expected a positive integer or 0.'.
+                             format(exit_policy_timeout))
+
+        if exit_policy_max_trials and not isinstance(exit_policy_max_trials, int) or exit_policy_max_trials < 1:
+            raise ValueError('Invalid value for max trials ({}). Expected an integer greater than 0.'.
+                             format(exit_policy_timeout))
+
+        if tuning_random_seed and not isinstance(tuning_random_seed, int) or tuning_random_seed < 0:
+            raise ValueError('Invalid value for tuning random seed ({}). Expected a positive integer.'.
+                             format(tuning_random_seed))
+
+        if not isinstance(tuning_workspace, str):
+            raise ValueError('Invalid value for the nc_workspace directory. Expected a string.')
+
+        # Get the image recognition INC template
+        config_template = TextClassificationModel.get_inc_config_template_dict(self)
+
+        # Collect the different data loaders into a list, so that we can update them all the with the data transforms
+        dataloader_configs = []
+
+        # If tuning_workspace is undefined, use the OUTPUT_DIR, if the env var exists
+        if not tuning_workspace:
+            output_dir_env_var = os.getenv('OUTPUT_DIR', '')
+
+            if output_dir_env_var:
+                tuning_workspace = os.path.join(output_dir_env_var, 'nc_workspace')
+
+        print("tuning_workspace:", tuning_workspace)
+
+        if "quantization" in config_template.keys() and "calibration" in config_template["quantization"].keys() \
+                and "dataloader" in config_template["quantization"]["calibration"].keys():
+            dataloader_configs.append(config_template["quantization"]["calibration"]["dataloader"])
+            print("DATALOADER CONFIGS")
+            print(dataloader_configs)
+
+        if "evaluation" in config_template.keys():
+            if "accuracy" in config_template["evaluation"].keys() and \
+                    "dataloader" in config_template["evaluation"]["accuracy"].keys():
+                dataloader_configs.append(config_template["evaluation"]["accuracy"]["dataloader"])
+            if "performance" in config_template["evaluation"].keys() and \
+                    "dataloader" in config_template["evaluation"]["performance"].keys():
+                dataloader_configs.append(config_template["evaluation"]["performance"]["dataloader"])
+
+        config_template["quantization"]["approach"] = "post_training_dynamic_quant"
+
+        # Update the data loader configs
+        for dataloader_config in dataloader_configs:
+            # Update dataset directory for the custom dataset
+            if "dataset" in dataloader_config.keys() and "bert" in dataloader_config["dataset"].keys():
+                # These cause errors when trying to benchmark
+                dataloader_config["dataset"]["bert"]["root"] = dataset.dataset_dir
+                dataloader_config["dataset"]["bert"]["label_file"] = dataset.dataset_dir
+
+            dataloader_config["batch_size"] = batch_size
+
+        if "tuning" in config_template.keys():
+            config_template["tuning"]["accuracy_criterion"]["relative"] = accuracy_criterion_relative
+
+            if exit_policy_timeout is None:
+                config_template["tuning"]["exit_policy"].pop('timeout', None)
+            else:
+                config_template["tuning"]["exit_policy"]["timeout"] = exit_policy_timeout
+
+            if exit_policy_max_trials is None:
+                config_template["tuning"]["exit_policy"].pop('max_trials', None)
+            else:
+                config_template["tuning"]["exit_policy"]["max_trials"] = exit_policy_max_trials
+
+            if tuning_random_seed is None:
+                config_template["tuning"].pop('random_seed', None)
+            else:
+                config_template["tuning"]["random_seed"] = tuning_random_seed
+
+            if tuning_workspace:
+                if "workspace" not in config_template["tuning"].keys():
+                    config_template["tuning"]["workspace"] = {}
+
+                config_template["tuning"]["workspace"]["path"] = tuning_workspace
+            else:
+                # No tuning_workspace is defined, so remove it from the config
+                if "workspace" in config_template["tuning"].keys():
+                    config_template["tuning"]["workspace"].pop("path", None)
+
+                    if len(config_template["tuning"]["workspace"].keys()) == 0:
+                        config_template["tuning"].pop("workspace", None)
+
+        # Create the directory where the file will be written, if it doesn't already exist
+        if not os.path.exists(os.path.dirname(config_file_path)):
+            os.makedirs(os.path.dirname(config_file_path))
+
+        # Write the config file
+        with open(config_file_path, "w") as config_file:
+            yaml.dump(config_template, config_file, sort_keys=False)
+
+    def quantize(self, saved_model_dir, output_dir, inc_config_path):
+        """
+        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
+        using the specified config file. The quantized model is written to the output directory.
+
+        Args:
+            saved_model_dir (str): Source directory for the model to quantize.
+            output_dir (str): Writable output directory to save the quantized model
+            inc_config_path (str): Path to an INC config file (.yaml)
+
+        Returns:
+            None
+
+        Raises:
+            NotADirectoryError if the model is not a directory
+            FileNotFoundError if a model.pt is not found in the model or if the inc_config_path file
+            is not found.
+            FileExistsError if the output_dir already has a model.pt file
+        """
+        # The saved model directory should exist and contain a model.pt file
+        if not os.path.isdir(saved_model_dir):
+            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
+        if not os.path.isfile(os.path.join(saved_model_dir, "model.pt")):
+            raise FileNotFoundError("The saved model directory ({}) should have a model.pt file".format(
+                saved_model_dir))
+
+        # Verify that the config file exists
+        if not os.path.isfile(inc_config_path):
+            raise FileNotFoundError("The config file was not found at: {}".format(inc_config_path))
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        else:
+            # Verify that the output directory doesn't already have a saved_model.pb file
+            if os.path.exists(os.path.join(output_dir, "model.pt")):
+                raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "model.pt"))
+
+        from neural_compressor.experimental import Quantization
+
+        quantizer = Quantization(inc_config_path)
+        quantizer.model = self._model
+        quantized_model = quantizer.fit()
+
+        # If quantization was successful, save the model
+        if quantized_model:
+            quantized_model.save(output_dir)
+            import subprocess
+            # Change the model filename from best_model.pt to model.pt to match our convention
+            p = subprocess.Popen(["mv", output_dir + "/best_model.pt", output_dir + "/model.pt"],
+                                 stdout=subprocess.PIPE)
+            stdout, stderr = p.communicate()
