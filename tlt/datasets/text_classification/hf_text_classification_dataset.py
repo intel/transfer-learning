@@ -20,13 +20,14 @@
 
 import os
 
-from datasets import load_dataset, concatenate_datasets
+from datasets import concatenate_datasets
 from datasets.arrow_dataset import Dataset
 
 from tlt import TLT_BASE_DIR
 from tlt.utils.file_utils import read_json_file
 from tlt.datasets.hf_dataset import HFDataset
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
+from ai_downloader.datasets import DataDownloader
 
 DATASET_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "datasets/configs")
 
@@ -123,9 +124,10 @@ class HFTextClassificationDataset(TextClassificationDataset, HFDataset):
             subset = dataset_name.split('/')[1]
 
         if subset is not None:
-            return load_dataset(main_dataset, subset, split=split)
+            downloader = DataDownloader(main_dataset, self._dataset_dir, catalog='hugging_face', subset=subset)
         else:
-            return load_dataset(main_dataset, split=split)
+            downloader = DataDownloader(main_dataset, self._dataset_dir, catalog='hugging_face')
+        return downloader.download(split=split)
 
     @property
     def dataset(self) -> Dataset:

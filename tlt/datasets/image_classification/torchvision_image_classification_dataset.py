@@ -18,11 +18,11 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-from pydoc import locate
 import torch
 
 from tlt.datasets.pytorch_dataset import PyTorchDataset
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
+from ai_downloader.datasets import DataDownloader
 
 DATASETS = ["CIFAR10", "Food101", "CIFAR100", "Country211", "DTD", "FGVCAircraft", "RenderedSST2"]
 
@@ -44,8 +44,7 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
                 raise ValueError('Split argument can only contain these strings: train, validation, test.')
         if dataset_name not in DATASETS:
             raise ValueError("Dataset name is not supported. Choose from: {}".format(DATASETS))
-        else:
-            dataset_class = locate('torchvision.datasets.{}'.format(dataset_name))
+
         ImageClassificationDataset.__init__(self, dataset_dir, dataset_name)
         self._num_workers = num_workers
         self._shuffle = shuffle_files
@@ -56,38 +55,30 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
         self._test_indices = None
         self._distributed = kwargs.get("distributed", None)
 
+        downloader = DataDownloader(dataset_name, dataset_dir=dataset_dir, catalog='torchvision')
         if len(split) == 1:
             # If there is only one split, use it for _dataset and do not define any indices
             if split[0] == 'train':
-                try:
-                    self._dataset = dataset_class(dataset_dir, split='train', download=True)
-                except TypeError:
-                    self._dataset = dataset_class(dataset_dir, train=True, download=True)
+                self._dataset = downloader.download(split='train')
             elif split[0] == 'validation':
                 try:
-                    self._dataset = dataset_class(dataset_dir, split='val', download=True)
+                    self._dataset = downloader.download(split='val')
                 except TypeError:
                     raise ValueError('No validation split was found for this dataset: {}'.format(dataset_name))
             elif split[0] == 'test':
                 try:
-                    self._dataset = dataset_class(dataset_dir, split='test', download=True)
+                    self._dataset = downloader.download(split='test')
                 except TypeError:
-                    try:
-                        self._dataset = dataset_class(dataset_dir, train=False, download=True)
-                    except TypeError:
-                        raise ValueError('No test split was found for this dataset: {}'.format(dataset_name))
+                    raise ValueError('No test split was found for this dataset: {}'.format(dataset_name))
             self._validation_type = 'recall'  # Train & evaluate on the whole dataset
         else:
             # If there are multiple splits, concatenate them for _dataset and define indices
             if 'train' in split:
-                try:
-                    self._dataset = dataset_class(dataset_dir, split='train', download=True)
-                except TypeError:
-                    self._dataset = dataset_class(dataset_dir, train=True, download=True)
+                self._dataset = downloader.download(split='train')
                 self._train_indices = range(len(self._dataset))
             if 'validation' in split:
                 try:
-                    validation_data = dataset_class(dataset_dir, split='val', download=True)
+                    validation_data = downloader.download(split='val')
                     validation_length = len(validation_data)
                     if self._dataset:
                         current_length = len(self._dataset)
@@ -100,12 +91,9 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
                     raise ValueError('No validation split was found for this dataset: {}'.format(dataset_name))
             if 'test' in split:
                 try:
-                    test_data = dataset_class(dataset_dir, split='test', download=True)
-                except TypeError:
-                    try:
-                        test_data = dataset_class(dataset_dir, train=False, download=True)
-                    except ValueError:
-                        raise ValueError('No test split was found for this dataset: {}'.format(dataset_name))
+                    test_data = downloader.download(split='test')
+                except ValueError:
+                    raise ValueError('No test split was found for this dataset: {}'.format(dataset_name))
                 finally:
                     test_length = len(test_data)
                     if self._dataset:

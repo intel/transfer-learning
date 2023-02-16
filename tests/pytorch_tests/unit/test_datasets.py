@@ -542,13 +542,13 @@ class TextClassificationDatasetForTest:
         """
         use_case = 'text_classification'
         framework = 'pytorch'
+        dataset_dir = tempfile.mkdtemp(dir=dataset_dir)
 
         if dataset_name and dataset_catalog:
             self._dataset_catalog = dataset_catalog
             self._tlt_dataset = get_dataset(dataset_dir, use_case, framework, dataset_name, dataset_catalog)
         elif class_names:
             self._dataset_catalog = 'custom'
-            dataset_dir = tempfile.mkdtemp(dir=dataset_dir)
             if not isinstance(class_names, list):
                 raise TypeError("class_names needs to be a list")
 
@@ -585,6 +585,13 @@ class TextClassificationDatasetForTest:
 
         return pd.DataFrame(dataset, columns=['label', 'text'])
 
+    def cleanup(self):
+        """
+        Clean up - remove temp files that were created
+        """
+        print("Deleting temp directory:", self._dataset_dir)
+        shutil.rmtree(self._dataset_dir)
+
 
 # Dataset parameters used to define datasets that will be initialized and tested using TestTextClassificationDataset
 # The parameters are: dataset_dir, dataset_name, dataset_catalog, dataset_classes which map to the constructor
@@ -600,6 +607,11 @@ def text_classification_data(request):
     tc_dataset = TextClassificationDatasetForTest(*params)
 
     dataset_dir, dataset_name, dataset_catalog, class_names = params
+
+    def cleanup():
+        tc_dataset.cleanup()
+
+    request.addfinalizer(cleanup)
 
     # Return the tlt dataset along with metadata that tests might need
     return (tc_dataset.tlt_dataset, dataset_dir, dataset_name, dataset_catalog, class_names)

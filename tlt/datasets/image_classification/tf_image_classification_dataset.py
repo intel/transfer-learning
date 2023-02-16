@@ -18,12 +18,11 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-import os
 import tensorflow as tf
-import tensorflow_datasets as tfds
 
 from tlt.datasets.tf_dataset import TFDataset
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
+from ai_downloader.datasets import DataDownloader
 
 
 class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
@@ -42,15 +41,9 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
         self._seed = seed
         tf.get_logger().setLevel('ERROR')
 
-        os.environ['NO_GCE_CHECK'] = 'true'
-        data, self._info = tfds.load(
-            dataset_name,
-            data_dir=dataset_dir,
-            split=split,
-            as_supervised=as_supervised,
-            shuffle_files=shuffle_files,
-            with_info=True
-        )
+        downloader = DataDownloader(dataset_name, dataset_dir=dataset_dir, catalog='tfds', as_supervised=as_supervised,
+                                    shuffle_files=shuffle_files, with_info=True)
+        data, self._info = downloader.download(split=split)
 
         self._dataset = None
         self._train_subset = None

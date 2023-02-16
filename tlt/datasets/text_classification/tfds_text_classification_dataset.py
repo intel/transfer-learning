@@ -20,12 +20,12 @@
 
 import os
 import tensorflow as tf
-import tensorflow_datasets as tfds
 
 from tlt import TLT_BASE_DIR
 from tlt.datasets.tf_dataset import TFDataset
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
 from tlt.utils.file_utils import read_json_file
+from ai_downloader.datasets import DataDownloader
 
 DATASET_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "datasets/configs")
 config_file = os.path.join(DATASET_CONFIG_DIR, "tf_text_classification_datasets.json")
@@ -46,8 +46,6 @@ class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
         if dataset_name not in DATASETS:
             raise ValueError("Dataset name is not supported. Choose from: {}".format(DATASETS))
 
-        os.environ['NO_GCE_CHECK'] = 'true'
-
         # as_supervised gives us the (input, label) structure that the model expects
         as_supervised = True
 
@@ -56,14 +54,9 @@ class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
         if "glue" in dataset_name:
             as_supervised = False
 
-        data, self._info = tfds.load(
-            dataset_name,
-            data_dir=dataset_dir,
-            split=split,
-            as_supervised=as_supervised,
-            shuffle_files=shuffle_files,
-            with_info=True
-        )
+        downloader = DataDownloader(dataset_name, dataset_dir=dataset_dir, catalog='tfds', as_supervised=as_supervised,
+                                    shuffle_files=shuffle_files, with_info=True)
+        data, self._info = downloader.download(split=split)
 
         # Since glue datasets don't support the supervised (input, label) structure, we have to manually format it
         if "glue" in dataset_name:
