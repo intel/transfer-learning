@@ -29,10 +29,10 @@ from tlt.models import model_factory
 
 @pytest.mark.integration
 @pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,dataset_name',
-                         [['bert-base-cased', 'imdb'],
-                          ['distilbert-base-uncased', 'imdb']])
-def test_pyt_text_classification(model_name, dataset_name):
+@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
+                         [['bert-base-cased', 'imdb', None, 1],
+                          ['distilbert-base-uncased', 'imdb', [384, 192], 5]])
+def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct_num_layers):
     """
     Tests basic transfer learning functionality for PyTorch text classification models using a hugging face dataset
     """
@@ -56,7 +56,15 @@ def test_pyt_text_classification(model_name, dataset_name):
     assert len(pretrained_metrics) > 0
 
     # Train
-    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers)
+    classifier_layer = getattr(model._model, "classifier")
+    try:
+        # If extra_layers given, the classifier is a Sequential layer with given input
+        n_layers = len(classifier_layer)
+    except TypeError:
+        # If not given, the classifer is just a single Linear layer
+        n_layers = 1
+    assert n_layers == correct_num_layers
 
     # Evaluate
     trained_metrics = model.evaluate(dataset)
@@ -79,6 +87,49 @@ def test_pyt_text_classification(model_name, dataset_name):
     # Ensure we get 'NotImplementedError' for graph_optimization
     with pytest.raises(NotImplementedError):
         model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
+
+    # Delete the temp output directory
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)
+
+
+@pytest.mark.integration
+@pytest.mark.pytorch
+@pytest.mark.parametrize('model_name,dataset_name',
+                         [['distilbert-base-uncased', 'imdb']])
+def test_initial_checkpoints(model_name, dataset_name):
+    framework = 'pytorch'
+    output_dir = tempfile.mkdtemp()
+    checkpoint_dir = os.path.join(output_dir, model_name + '_checkpoints')
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset('/tmp/data', 'text_classification', framework, dataset_name,
+                                          'huggingface', split=["train"], shuffle_files=False)
+
+    # Get the model
+    model = model_factory.get_model(model_name, framework)
+
+    assert model._generate_checkpoints is True
+
+    dataset.preprocess(model_name, batch_size=32)
+    dataset.shuffle_split(train_pct=0.01, val_pct=0.01, seed=10)
+
+    # Train
+    model.train(dataset, output_dir=output_dir, epochs=2, do_eval=False)
+
+    trained_metrics = model.evaluate(dataset)
+
+    # Delete the model and train a brand new model but instead we resume training from checkpoints
+    del model
+
+    model = model_factory.get_model(model_name, framework)
+    model.train(dataset, output_dir=output_dir, epochs=2, do_eval=False,
+                initial_checkpoints=os.path.join(checkpoint_dir, 'checkpoint.pt'))
+
+    improved_metrics = model.evaluate(dataset)
+
+    assert improved_metrics[0] < trained_metrics[0]  # loss
+    assert improved_metrics[1] > trained_metrics[1]  # accuracy
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):

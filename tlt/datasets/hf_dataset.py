@@ -21,6 +21,9 @@
 import re
 import torch
 import random
+import time
+
+from requests.adapters import ProxyError
 
 from transformers import AutoTokenizer
 
@@ -101,7 +104,12 @@ class HFDataset(BaseDataset):
                              all(isinstance(s, str) for s in self._dataset[col_name])]
 
         # Get the tokenizer
-        self._tokenizer = AutoTokenizer.from_pretrained(model_name)
+        try:
+            self._tokenizer = AutoTokenizer.from_pretrained(model_name)
+        except ProxyError:
+            print("Max retries reached. Sleeping for 10 sec...")
+            time.sleep(10)
+            self._tokenizer = AutoTokenizer.from_pretrained(model_name)
 
         # Define a tokenize function to map the text to the tokenizer
         def tokenize_function(examples):

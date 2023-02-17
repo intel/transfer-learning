@@ -20,11 +20,13 @@
 
 import inspect
 import os
+import time
 import subprocess
 import dill
 import torch
 import numpy as np
 import intel_extension_for_pytorch as ipex
+from requests.adapters import ProxyError
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 import yaml
@@ -36,7 +38,8 @@ from transformers import (
     EvalPrediction,
     TrainingArguments,
     Trainer,
-    get_scheduler
+    get_scheduler,
+    set_seed
 )
 
 from datasets.arrow_dataset import Dataset
@@ -63,6 +66,9 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
     def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
 
+        hf_model_map = read_json_file(os.path.join(
+            TLT_BASE_DIR, "models/configs/hf_text_classification_models.json"))
+
         # extra properties that will become configurable in the future
         self._model_name = model_name
         self._dropout_layer_rate = 0.1
@@ -72,6 +78,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         self._lr_scheduler = None
         self._generate_checkpoints = True
         self._tokenizer = None
+        self._classification_layer = hf_model_map[model_name]["classification_layer"]
 
         TextClassificationModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.TEXT_CLASSIFICATION,
                                          self._dropout_layer_rate)
@@ -125,7 +132,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         """
         return self._num_classes
 
-    def _fit(self, dataset, epochs, do_eval, ipex_optimize):
+    def _fit(self, output_dir, dataset, epochs, do_eval, early_stopping, lr_decay):
         train_data_loader = None
         validation_data_loader = None
 
@@ -149,18 +156,21 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         else:
             raise ValueError("Invalid dataset type: {}".format(type(dataset)))
 
+        # For early stopping, if enabled
+        patience = 10
+        trigger_time = 0
+        last_loss = 1.0
+
         num_training_steps = epochs * train_data_length
         lr_scheduler = get_scheduler(
             name="linear", optimizer=self._optimizer, num_warmup_steps=0, num_training_steps=num_training_steps
         )
 
-        self._model.train()
-        if ipex_optimize:
-            self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
-
+        # Training loop
+        since = time.time()
         self._model.to(self._device)
         self._history = {}
-
+        self._model.train()
         # Training loop
         for epoch in range(epochs):
             print(f'Epoch {epoch+1}/{epochs}')
@@ -211,10 +221,56 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
                 loss_acc_output += f' - Val Loss: {eval_epoch_loss:.4f} - Val Acc: {eval_epoch_acc:.4f}'
 
+                if lr_decay:
+                    lr = lr_scheduler.optimizer.param_groups[0]['lr']
+                    self._update_history('LR', lr)
+                    loss_acc_output += f' - LR: {lr:.4f}'
+                    lr_scheduler.step(eval_epoch_loss)
+
                 # Put the model back to train mode
                 self._model.train()
 
+            if early_stopping:
+                if eval_epoch_loss >= last_loss:
+                    trigger_time += 1
+
+                    if trigger_time >= patience:
+                        # Stop Early
+                        print("Early stopping has been triggered after " + str(epoch) + " epochs.")
+                        break
+                else:
+                    trigger_time = 0
+
+                last_loss = eval_epoch_loss
+
             print(loss_acc_output)
+
+        time_elapsed = time.time() - since
+        print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
+
+        if self._generate_checkpoints:
+            valid_model_name = validate_model_name(self.model_name)
+            checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(valid_model_name))
+            verify_directory(checkpoint_dir)
+            try:
+                torch.save({
+                    'epoch': epochs,
+                    'model_state_dict': self._model.state_dict(),
+                    'optimizer_state_dict': self._optimizer.state_dict(),
+                    'loss': train_epoch_loss,
+                }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
+            except KeyError:
+                # Calling state_dict() on an IPEX optimizer calls into the torch optimizer's __setstate__ method
+                # which in PyTorch 1.12 assumes that the first state value will always have a 'step' key
+                state_values = list(self._optimizer.state.values())
+                if 'step' not in state_values[0].keys():
+                    state_values[0]['step'] = torch.tensor([])
+                torch.save({
+                    'epoch': epochs,
+                    'model_state_dict': self._model.state_dict(),
+                    'optimizer_state_dict': self._optimizer.state_dict(),
+                    'loss': train_epoch_loss,
+                }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
     def _fit_distributed(self, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
         distributed_text_script = os.path.join(TLT_DISTRIBUTED_DIR, "run_train_pyt.py")
@@ -224,7 +280,8 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         bash_command += ' --nnodes {}'.format(nnodes)
         bash_command += ' --nproc_per_node {}'.format(nproc_per_node)
         bash_command += ' {}'.format(distributed_text_script)
-        bash_command += ' --master_addr {}'.format('10.23.190.37')
+        with open(hostfile) as f:
+            bash_command += ' --master_addr {}'.format(f.readline().strip('\n'))
         bash_command += ' --master_port {}'.format('29500')
         bash_command += ' --backend {}'.format('ccl')
         bash_command += ' --use_case {}'.format('text_classification')
@@ -241,11 +298,17 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         dataset,
         output_dir: str,
         epochs: int = 1,
+        initial_checkpoints=None,
         learning_rate: float = 1e-5,
         do_eval: bool = True,
+        early_stopping: bool = False,
+        lr_decay: bool = True,
+        seed: int = None,
+        extra_layers: list = None,
         device: str = "cpu",
         ipex_optimize: bool = True,
         use_trainer: bool = False,
+        force_download: bool = False,
         distributed: bool = False,
         hostfile: str = None,
         nnodes: int = 1,
@@ -261,12 +324,26 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
                 entire non-partitioned dataset will be used.
             output_dir (str): A writeable output directory to write checkpoint files during training
             epochs (int): The number of training epochs [default: 1]
+            initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the
+                latest checkpoint will be used.
+            learning_rate (float): Learning rate for the model to train. Defaults to 1e-5
             do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
                 at the end of each epoch.
-            device (str): Device to train the model [default: "cpu"]
-            ipex_optimize (bool): Optimize the model using Intel® Extension for PyTorch
+            early_stopping (bool): Enable early stopping if convergence is reached while training
+                at the end of each epoch.
+            lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
+                is applied at the end of each epoch.
+            seed (int): Optionally set a seed for reproducibility.
+            extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
+                layer. This can help increase accuracy when fine-tuning a Pytorch model.
+                The input should be a list of integers representing the number and size of the layers,
+                for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the
+                second with 512 neurons.
+            device (str): Device to train the model. Defaults to "cpu"
+            ipex_optimize (bool): Optimize the model using Intel® Extension for PyTorch. Defaults to True
             use_trainer (bool): If use_trainer is True, then the model training is done using the Hugging Face Trainer
                 and if use_trainer is False, the model training is done using native PyTorch training loop
+            force_download (bool): Downloads the model with default parameters. Defaults to False.
             distributed (bool): Boolean flag to use distributed training. Defaults to False.
             hostfile (str): Name of the hostfile for distributed training. Defaults to None.
             nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
@@ -281,19 +358,50 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             ValueError if the given dataset has not been preprocessed yet
 
         """
-        self._check_train_inputs(output_dir, dataset, TextClassificationDataset, epochs, distributed, hostfile)
+        self._check_train_inputs(output_dir, dataset, TextClassificationDataset,
+                                 extra_layers, epochs, distributed, hostfile)
 
         if not self._model:
             self._num_classes = len(dataset.class_names)
-            self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
-                                                                             num_labels=self._num_classes,
-                                                                             force_download=False)
+
+            try:
+                self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
+                                                                                 num_labels=self._num_classes,
+                                                                                 force_download=force_download)
+            except ProxyError:
+                print('Max retries reached. Sleeping for 10 sec...')
+                time.sleep(10)
+                self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
+                                                                                 num_labels=self._num_classes,
+                                                                                 force_download=force_download)
+        if not self._optimizer:
+            self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
+
         self._device = device
         self.train_data_loader = None
         self.validation_data_loader = None
 
+        if initial_checkpoints:
+            checkpoint = torch.load(initial_checkpoints)
+            self._model.load_state_dict(checkpoint['model_state_dict'])
+            self._optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+        if extra_layers:
+            classifier = getattr(self._model, self._classification_layer[0])
+            num_features = classifier.in_features
+            setattr(self._model, self._classification_layer[0], torch.nn.Sequential())
+            classifier = getattr(self._model, self._classification_layer[0])
+            for layer in extra_layers:
+                classifier.append(torch.nn.Linear(num_features, layer))
+                classifier.append(torch.nn.ReLU(inplace=True))
+                num_features = layer
+            classifier.append(torch.nn.Linear(num_features, self._num_classes))
+
         # Initialize the optimizer class and create a learning rate scheduler
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=learning_rate, **self._opt_args)
+
+        if seed is not None:
+            set_seed(seed)
 
         if use_trainer:
             if distributed:
@@ -338,8 +446,11 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
                                   ipex_optimize)
         else:
             self._trainer = None
+            self._model.train()
+            if ipex_optimize:
+                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
             # Call the _fit method to train the model with native PyTorch API
-            self._fit(dataset, epochs, do_eval, ipex_optimize)
+            self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
 
         return self._history
 
@@ -379,24 +490,29 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
                 raise TypeError("Invalid dataset/dataloader: {}".format(dataset_or_dataloader))
 
             if not self._model:
-                num_classes = len(dataset_or_dataloader.class_names)
+                # The model hasn't been trained yet, use the original transformers model
+                self._num_classes = len(dataset_or_dataloader.class_names)
                 self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
-                                                                                 num_labels=num_classes)
+                                                                                 num_labels=self._num_classes)
+
+            # Do the evaluation
+            device = torch.device(self._device)
+            self._model = self._model.to(device)
 
             self._model.eval()
             running_loss = 0.0
             running_corrects = 0
+
             for data_batch in tqdm(dataloader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
-                inputs = {k: v.to(self._device) for k, v in data_batch.items()
+                inputs = {k: v.to(device) for k, v in data_batch.items()
                           if k in ['input_ids', 'token_type_ids', 'attention_mask']}
-                labels = data_batch['label']
+                labels = data_batch['label'].to(device)
 
                 outputs = self._model(**inputs)
+                predictions = torch.argmax(outputs.logits, dim=-1)
                 loss = self._loss(outputs.logits, labels)
 
                 # Statistics
-                predictions = torch.argmax(outputs.logits, dim=-1)
-
                 running_loss += loss.item()
                 running_corrects += torch.sum(predictions == labels).item()
 

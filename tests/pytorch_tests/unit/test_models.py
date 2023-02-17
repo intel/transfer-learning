@@ -220,12 +220,12 @@ def test_bert_train():
         expected_return_value_history_val = {'Acc': [0.0], 'Loss': [0.0], 'Val Acc': [0.0], 'Val Loss': [0.0]}
 
         # Scenario 1: Call train without validation
-        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=False)
+        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=False, lr_decay=False)
         assert return_val == expected_return_value_history_no_val
 
         # Scenario 2: Call train with validation
         mock_dataset.validation_loader.__class__ = HFTextClassificationDataset
-        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True)
+        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, lr_decay=False)
         assert return_val == expected_return_value_history_val
 
 

@@ -249,7 +249,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         bash_command += ' --nnodes {}'.format(nnodes)
         bash_command += ' --nproc_per_node {}'.format(nproc_per_node)
         bash_command += ' {}'.format(distributed_vision_script)
-        bash_command += ' --master_addr {}'.format('10.23.190.37')
+        with open(hostfile) as f:
+            bash_command += ' --master_addr {}'.format(f.readline().strip('\n'))
         bash_command += ' --master_port {}'.format('29500')
         bash_command += ' --backend {}'.format('ccl')
         bash_command += ' --use_case {}'.format('image_classification')

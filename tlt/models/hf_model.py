@@ -52,7 +52,7 @@ class HFModel(BaseModel):
                             "torch.nn.modules.loss._Loss or None but found a {}. "
                             "Example: torch.nn.CrossEntropyLoss".format(type(loss)))
 
-    def _check_train_inputs(self, output_dir, dataset, dataset_type, epochs, distributed, hostfile):
+    def _check_train_inputs(self, output_dir, dataset, dataset_type, extra_layers, epochs, distributed, hostfile):
         verify_directory(output_dir)
 
         if distributed:
@@ -64,6 +64,10 @@ class HFModel(BaseModel):
 
         if not dataset.info['preprocessing_info']:
             raise ValueError("Dataset hasn't been preprocessed yet.")
+
+        if extra_layers:
+            if not isinstance(extra_layers, list) or not all(isinstance(n, int) for n in extra_layers):
+                raise ValueError("extra_layers argument must be a list of integers but found a {}".format(extra_layers))
 
         if not isinstance(epochs, int):
             raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
