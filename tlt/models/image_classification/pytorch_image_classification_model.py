@@ -244,14 +244,44 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
     def _fit_distributed(self, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
         distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, "run_train_pyt.py")
 
+        default_port = '29500'
+        default_master_addr = '127.0.0.1'
+
+        addresses = []
+
+        if hostfile is not None:
+            if os.path.isfile(hostfile):
+                # if addresses are given as line separated IP addresses
+                with open(hostfile) as hf:
+                    addresses = hf.readlines()
+                addresses = [a.strip('\n') for a in addresses]
+            else:
+                # if addresses are given as a comma separated IP addresses
+                addresses = hostfile.split(',')
+
+            default_master_addr = addresses[0]
+
+            # If port is given in the format of "0.0.0.0:9999"
+            if ':' in default_master_addr:
+                colon_index = default_master_addr.index(':')
+                default_port = default_master_addr[colon_index + 1:]
+                default_master_addr = default_master_addr[:colon_index]
+
+                # We create/rewrite the hostfile to contain only IP addresses
+                with open('hostfile', 'w') as hf:
+                    for addr in addresses:
+                        if ':' in addr:
+                            addr = addr[:addr.index(':')]
+                        hf.write(addr + '\n')
+                hostfile = 'hostfile'
+
         bash_command = 'python -m intel_extension_for_pytorch.cpu.launch --distributed'
         bash_command += ' --hostfile {}'.format(hostfile)
         bash_command += ' --nnodes {}'.format(nnodes)
         bash_command += ' --nproc_per_node {}'.format(nproc_per_node)
         bash_command += ' {}'.format(distributed_vision_script)
-        with open(hostfile) as f:
-            bash_command += ' --master_addr {}'.format(f.readline().strip('\n'))
-        bash_command += ' --master_port {}'.format('29500')
+        bash_command += ' --master_addr {}'.format(default_master_addr)
+        bash_command += ' --master_port {}'.format(default_port)
         bash_command += ' --backend {}'.format('ccl')
         bash_command += ' --use_case {}'.format('image_classification')
         bash_command += ' --epochs {}'.format(epochs)
