@@ -101,6 +101,23 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     reload_metrics = reload_model.evaluate(dataset)
     np.testing.assert_almost_equal(reload_metrics, trained_metrics)
 
+    # Optimize the graph
+    if model_name == 'resnet_v1_50':
+        optimized_model_dir = os.path.join(output_dir, "optimized")
+        model.optimize_graph(saved_model_dir, optimized_model_dir)
+        assert os.path.isfile(os.path.join(optimized_model_dir, "saved_model.pb"))
+
+    # Test generating an INC config file (not implemented yet for TFDS)
+    inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))
+    with pytest.raises(NotImplementedError):
+        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, tuning_workspace=output_dir)
+
+    # Retrain from checkpoints and verify that we have better accuracy than the original training
+    retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
+    retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
+                                          shuffle_files=False, seed=10, do_eval=False)
+    np.testing.assert_almost_equal(retrain_history['acc'], [retrain_accuracy])
+
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
@@ -284,6 +301,19 @@ class TestImageClassificationCustomDataset:
                                               initial_checkpoints=checkpoint_dir, shuffle_files=False, seed=10,
                                               do_eval=False)
         np.testing.assert_almost_equal(retrain_history['acc'], [retrain_accuracy])
+
+        # Test benchmarking, quantization, and graph optimization with ResNet50
+        if model_name == "resnet_v1_50":
+            inc_config_file_path = os.path.join(self._output_dir, "tf_{}.yaml".format(model_name))
+            nc_workspace = os.path.join(self._output_dir, "nc_workspace")
+            model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, accuracy_criterion_relative=0.1,
+                                        exit_policy_max_trials=10, exit_policy_timeout=0, tuning_workspace=nc_workspace)
+
+            quantization_output = os.path.join(self._output_dir, "quantized", model_name)
+            os.makedirs(quantization_output)
+            model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
+            assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
+            model.benchmark(quantization_output, inc_config_file_path)
 
 
 @pytest.mark.integration

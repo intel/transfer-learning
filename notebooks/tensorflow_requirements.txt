@@ -8,6 +8,7 @@ notebook~=6.5.2
 pandas~=1.5.3
 scipy~=1.10.0
 sentencepiece~=0.1.97
+setuptools<66
 tensorflow-addons~=0.19.0
 tensorflow-datasets~=4.8.2
 tensorflow-hub~=0.12.0
