@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# SPDX-License-Identifier: EPL-2.0
+# SPDX-License-Identifier: Apache-2.0
 
 ARG IMAGE_NAME=python
 ARG IMAGE_TAG=3.9
