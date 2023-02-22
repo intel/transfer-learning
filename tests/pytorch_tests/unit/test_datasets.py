@@ -514,7 +514,7 @@ class TestImageAnomalyDetectionDataset:
         assert math.floor(
             good_size * default_train_pct) <= len(tlt_dataset.train_loader) <= math.ceil(good_size * default_train_pct)
         assert math.floor(good_size * default_val_pct) + (ds_size - good_size) <= \
-               len(tlt_dataset.validation_loader) <= math.ceil(good_size * default_val_pct) + (ds_size - good_size)
+            len(tlt_dataset.validation_loader) <= math.ceil(good_size * default_val_pct) + (ds_size - good_size)
         assert tlt_dataset.test_loader is None
         assert tlt_dataset._validation_type == 'shuffle_split'
 

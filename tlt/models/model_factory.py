@@ -60,7 +60,9 @@ model_map = {
         UseCaseType.IMAGE_ANOMALY_DETECTION:
         {
             "torchvision": {"module": "tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model",
-                            "class": "TorchvisionImageAnomalyDetectionModel"}
+                            "class": "TorchvisionImageAnomalyDetectionModel"},
+            "Custom": {"module": "tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model",
+                       "class": "PyTorchImageAnomalyDetectionModel"}
         }
     }
 }

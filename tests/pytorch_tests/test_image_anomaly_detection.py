@@ -23,6 +23,10 @@ import pytest
 import shutil
 import tempfile
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as functional
+
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
@@ -85,11 +89,70 @@ class TestImageAnomalyDetectionCustomDataset:
 
         # Extract features
         images, labels = dataset.get_batch(subset='validation')
-        features = model.extract_features(images, 'layer3', ['avg', 2])
+        features = model.extract_features(images, layer_name='layer3', pooling=['avg', 2])
         assert len(features) == 32
 
         # Train for 1 epoch
-        model.train(dataset, output_dir=self._output_dir, do_eval=False, seed=10)
+        model.train(dataset, self._output_dir, layer_name='layer3', do_eval=False, seed=10)
+
+        # Evaluate
+        auroc = model.evaluate(dataset)
+        assert isinstance(auroc, float)
+
+        # Predict with a batch
+        predictions = model.predict(images)
+        assert len(predictions) == 32
+
+    @pytest.mark.integration
+    @pytest.mark.pytorch
+    def test_custom_model_workflow(self):
+        """
+        Tests the workflow for PYT image anomaly detection using a custom model and custom dataset
+        """
+        framework = 'pytorch'
+        use_case = 'image_anomaly_detection'
+
+        # Get the dataset
+        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework,
+                                               shuffle_files=False)
+
+        # Define a model
+        class Net(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.conv1 = nn.Conv2d(3, 6, 5)
+                self.pool = nn.MaxPool2d(2, 2)
+                self.conv2 = nn.Conv2d(6, 16, 5)
+                self.fc1 = nn.Linear(16 * 5 * 5, 120)
+                self.fc2 = nn.Linear(120, 84)
+                self.fc3 = nn.Linear(84, 10)
+
+            def forward(self, x):
+                x = self.pool(functional.relu(self.conv1(x)))
+                x = self.pool(functional.relu(self.conv2(x)))
+                x = torch.flatten(x, 1)
+                x = functional.relu(self.fc1(x))
+                x = functional.relu(self.fc2(x))
+                x = self.fc3(x)
+                return x
+
+        net = Net()
+
+        # Load the model
+        model = model_factory.load_model('custom_model', net, framework=framework, use_case=use_case)
+        model.list_layers()
+
+        # Preprocess the dataset and split to get small subsets for training and validation
+        dataset.preprocess(image_size=224, batch_size=32)
+        dataset.shuffle_split(train_pct=0.5, val_pct=0.5, seed=10)
+
+        # Extract features
+        images, labels = dataset.get_batch(subset='validation')
+        features = model.extract_features(images, layer_name='conv2', pooling=['avg', 2])
+        assert len(features) == 32
+
+        # Train for 1 epoch
+        model.train(dataset, self._output_dir, layer_name='conv2', do_eval=False, seed=10)
 
         # Evaluate
         auroc = model.evaluate(dataset)

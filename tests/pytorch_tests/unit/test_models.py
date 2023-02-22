@@ -19,7 +19,6 @@
 #
 
 import pytest
-import random
 
 from unittest.mock import MagicMock, patch
 from sklearn import decomposition
@@ -49,8 +48,6 @@ except ModuleNotFoundError:
 try:
     from tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model import \
         TorchvisionImageAnomalyDetectionModel
-    from tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset import \
-        PyTorchCustomImageAnomalyDetectionDataset
 except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageAnomalyDetectionModel and "
           "PyTorchCustomImageAnomalyDetectionDataset. Torch may not be installed")
@@ -229,38 +226,21 @@ def test_bert_train():
         assert return_val == expected_return_value_history_val
 
 
-@pytest.mark.xfail
 @pytest.mark.pytorch
-def test_resnet50_anomaly_train():
+def test_resnet50_anomaly_extract_pca():
     model = model_factory.get_model(model_name="resnet50", framework="pytorch", use_case="anomaly_detection")
     assert type(model) == TorchvisionImageAnomalyDetectionModel
 
-    # Scenario 1: Call extract_features on 5 randomly generated images
+    # Call extract_features and PCA on 5 randomly generated images
     data = torch.rand(5, 3, 225, 225)  # NCHW
-    return_val = model.extract_features(data, layer_name='layer3', pooling=['avg', 2])
-    assert isinstance(return_val, torch.Tensor)
-    assert len(return_val) == 5
+    features = model.extract_features(data, layer_name='layer3', pooling=['avg', 2])
+    assert isinstance(features, torch.Tensor)
+    assert len(features) == 5
 
-    with patch(
-            'tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset') as mock_dataset:  # noqa: E501
-        mock_dataset.__class__ = PyTorchCustomImageAnomalyDetectionDataset
-        mock_dataset.train_subset = data
-        mock_dataset.validation_subset = torch.rand(5, 3, 225, 225)
-        expected_return_value_batch = (data, [random.randint(0, 1) for x in range(5)])
-
-        def mock_get_batch():
-            return expected_return_value_batch
-
-        # Scenario 2: Call model train without validation
-        mock_dataset.get_batch = mock_get_batch
-        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=False)
-        assert type(return_val) == decomposition._pca.PCA
-        assert return_val.n_components == 0.99
-
-        # Scenario 3: Call model train  with validation and a different PCA threshold
-        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, pca_threshold=0.98)
-        assert type(return_val) == decomposition._pca.PCA
-        assert return_val.n_components == 0.98
+    with torch.no_grad():
+        components = model.pca(torch.squeeze(features).transpose(1, 0), 0.97)
+    assert type(components) == decomposition._pca.PCA
+    assert components.n_components == 0.97
 
 
 @pytest.mark.pytorch

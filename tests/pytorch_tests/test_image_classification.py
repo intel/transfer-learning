@@ -353,7 +353,7 @@ def test_pyt_freeze():
     model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
 
     # Check that everything in the layer is unfrozen
-    model.unfreeze("features")
+    model.unfreeze_layer("features")
 
     # Unfreeze everything in the layer
     for (name, module) in model._model.named_children():
@@ -363,7 +363,7 @@ def test_pyt_freeze():
                     assert param.requires_grad is True
 
     # Check that everything in the layer is frozen
-    model.freeze("features")
+    model.freeze_layer("features")
 
     # Freeze everything in the layer
     for (name, module) in model._model.named_children():
@@ -372,8 +372,8 @@ def test_pyt_freeze():
                 for param in layer.parameters():
                     assert param.requires_grad is False
 
-    # Test functionality of ls_modules()
-    trainable_params = model.ls_modules()
+    # Test functionality of list_layers()
+    trainable_params = model.list_layers()
     assert trainable_params == 12810  # Number of trainable params in efficientnet_b0
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)

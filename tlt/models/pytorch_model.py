@@ -121,3 +121,72 @@ class PyTorchModel(BaseModel):
         """
         raise NotImplementedError("Only TensorFlow graph optimization is currently supported by the \
                                                                       Intel Neural Compressor (INC)")
+
+    def list_layers(self, verbose=False):
+        """
+        Lists all of the named modules (e.g. features, avgpool, classifier) and layers
+        (ReLU, MaxPool2d, Dropout, Linear, etc) in a given PyTorch model
+
+        Args:
+            verbose (bool): True/False option set by default to be False, displays only high-level modules
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be summarized.')
+
+        # Display a high-level list of the modules e.g. features, avgpool, classifier
+        print("\nModel Layers\n============")
+        for (name, module) in self._model.named_children():
+            if not verbose or not list(module.named_children()):
+                print('{}: {}/{} parameters are trainable'.format(
+                    name, sum(p.numel() for p in module.parameters() if p.requires_grad),
+                    sum(p.numel() for p in module.parameters())))
+            else:
+                print('{}:'.format(name))
+                for (layer_name, layer) in module.named_children():
+                    print('  {}: {}/{} parameters are trainable'.format(
+                        layer_name, sum(p.numel() for p in layer.parameters() if p.requires_grad),
+                        sum(p.numel() for p in layer.parameters())))
+
+        trainable_parameters = sum(p.numel() for p in self._model.parameters() if p.requires_grad)
+        print('\nTotal Trainable Parameters: {}/{}'.format(
+            trainable_parameters,
+            sum(p.numel() for p in self._model.parameters())))
+
+        return trainable_parameters
+
+    def freeze_layer(self, layer_name):
+        """
+        Freezes the model's layer using a layer name
+        Args:
+            layer_name (string): The layer name that will be frozen in the model
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be frozen.')
+
+        # Freeze everything in the layer
+        for (name, module) in self._model.named_children():
+            if name == layer_name:
+                for param in module.parameters():
+                    param.requires_grad = False
+
+        return
+
+    def unfreeze_layer(self, layer_name):
+        """
+        Unfreezes the model's layer using a layer name
+        Args:
+            layer_name (string): The layer name that will be frozen in the model
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be unfrozen.')
+
+        # Unfreeze everything in the layer
+        for (name, module) in self._model.named_children():
+            if name == layer_name:
+                for param in module.parameters():
+                    param.requires_grad = True
+
+        return
