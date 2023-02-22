@@ -686,8 +686,9 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
         # We can setup the a custom dataset to use the ImageFolder dataset option in INC.
         # They don't have a PyTorch Dataset option, so for now, we only support custom datasets for quantization
-        if dataset is not HFCustomTextClassificationDataset \
-                and type(dataset) != HFCustomTextClassificationDataset:
+
+        if not isinstance(dataset, HFCustomTextClassificationDataset) or \
+                dataset.__class__ is not HFCustomTextClassificationDataset:
             raise NotImplementedError('quantization has only been implemented for huggingface text classification '
                                       'models with custom datasets')
 
