@@ -15,17 +15,31 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-ARG IMAGE_NAME=python
-ARG IMAGE_TAG=3.9
+ARG IMAGE_NAME=ubuntu
+ARG IMAGE_TAG=20.04
+FROM ${IMAGE_NAME}:${IMAGE_TAG} as devel-build
 
-FROM ${IMAGE_NAME}:${IMAGE_TAG} as tlt-dev
+ENV LANG C.UTF-8
+ARG PYTHON=python3.9
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
+    ca-certificates \
+    cmake \
+    curl \
     libgl1 \
     libglib2.0-0 \
     make \
     pandoc \
-    python3.9-dev
+    ${PYTHON} \
+    ${PYTHON}-dev \
+    ${PYTHON}-distutils
+
+RUN ln -sf $(which ${PYTHON}) /usr/local/bin/python && \
+    ln -sf $(which ${PYTHON}) /usr/local/bin/python3 && \
+    ln -sf $(which ${PYTHON}) /usr/bin/python && \
+    ln -sf $(which ${PYTHON}) /usr/bin/python3
+
+RUN curl -fSsL https://bootstrap.pypa.io/get-pip.py | ${PYTHON}

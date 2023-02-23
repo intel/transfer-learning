@@ -1,7 +1,10 @@
+docutils<0.19
 ipykernel
 myst-parser
 nbsphinx
 nbsphinx-link
-sphinx
+sphinx<6,>=4
 sphinx_click
 sphinx_rtd_theme
+# myst-parser 0.18.1 has requirement sphinx<6,>=4, but you'll have sphinx 6.1.3 which is incompatible.
+# ERROR: sphinx-rtd-theme 1.2.0 has requirement docutils<0.19, but you'll have docutils 0.19 which is incompatible.
