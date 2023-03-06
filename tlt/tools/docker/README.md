@@ -37,7 +37,7 @@ If they are not set, their default value will be used.
 Build the docker container using the `build.sh` script and dockerfiles from this repository:
 ```
 # Clone the git repo, if you don't already have it
-git clone https://github.com/intel-innersource/frameworks.ai.transfer-learning.git
+git clone https://github.com/IntelAI/transfer-learning.git
 cd frameworks.ai.transfer-learning
 
 # Build the tensorflow tlt container
