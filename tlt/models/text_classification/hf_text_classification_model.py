@@ -578,7 +578,9 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             encoded_input = self._tokenizer(input_samples, padding=True, return_tensors='pt')
         # If 'input_samples' is an encoded input dict
         elif isinstance(input_samples, dict):
-            encoded_input = input_samples
+            # Requires at least 'input_ids' key and any other mentioned below
+            required_keys = ['input_ids', 'attention_mask', 'token_type_ids']
+            encoded_input = {k: v for k, v in input_samples.items() if k in required_keys}
         # If 'input_samples' is of type HFTextClassificationDataset
         elif isinstance(input_samples, HFTextClassificationDataset) or\
                 isinstance(input_samples, HFCustomTextClassificationDataset):
