@@ -1,6 +1,6 @@
 # Transfer Learning for Video Classification using PyTorch
 
-This notebook uses video classification models from torchvision that were originally trained 
+This notebook uses video classification models from Torchvision that were originally trained
 using Kinetic400 and does transfer learning with the HMDB51 dataset.
 
 The notebook performs the following steps:
@@ -15,7 +15,7 @@ The notebook performs the following steps:
 ## Running the notebook
 
 To run the notebook, follow the instructions to setup the [PyTorch notebook environment](/notebooks#pytorch-environment).
-   
+
 ## References
 
 Dataset Citations:

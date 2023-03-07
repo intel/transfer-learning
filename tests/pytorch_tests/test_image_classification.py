@@ -111,7 +111,7 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
 @pytest.mark.pytorch
 def test_pyt_image_classification_custom_model():
     """
-    Tests basic transfer learning functionality for custom PyTorch image classification models using a torchvision
+    Tests basic transfer learning functionality for custom PyTorch image classification models using a Torchvision
     dataset
     """
     framework = 'pytorch'

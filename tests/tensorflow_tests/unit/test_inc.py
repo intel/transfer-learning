@@ -54,7 +54,7 @@ dataset = dataset_factory.load_dataset(dataset_dir=custom_dataset_path,
 @pytest.mark.tensorflow
 def test_tf_image_classification_config_file_overwrite():
     """
-    Tests writing an INC config file for image classification models with a mock custom dataset. Checks that the
+    Tests writing an Intel Neural Compressor config file for image classification models with a mock custom dataset. Checks that the
     overwrite flag lets you overwrite a config file that already exists.
     """
     try:
@@ -90,7 +90,7 @@ def test_tf_image_classification_config_file_overwrite():
                           [128, True]])
 def test_tf_image_classification_config_file_batch_size(batch_size, valid):
     """
-    Tests writing an INC config file with good and bad batch sizes
+    Tests writing an Intel Neural Compressor config file with good and bad batch sizes
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -123,7 +123,7 @@ def test_tf_image_classification_config_file_batch_size(batch_size, valid):
                           ['foo', False]])
 def test_tf_image_classification_config_file_resize_interpolation(resize_interpolation, valid):
     """
-    Tests writing an INC config file with good and bad resize_interpolation values
+    Tests writing an Intel Neural Compressor config file with good and bad resize_interpolation values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -156,7 +156,7 @@ def test_tf_image_classification_config_file_resize_interpolation(resize_interpo
                           ['foo', False]])
 def test_tf_image_classification_config_file_accuracy_criterion(accuracy_criterion, valid):
     """
-    Tests writing an INC config file with good and bad accuracy_criterion_relative values
+    Tests writing an Intel Neural Compressor config file with good and bad accuracy_criterion_relative values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -190,7 +190,7 @@ def test_tf_image_classification_config_file_accuracy_criterion(accuracy_criteri
                           ['foo', False]])
 def test_tf_image_classification_config_file_timeout(timeout, valid):
     """
-    Tests writing an INC config file with good and bad exit_policy_timeout values
+    Tests writing an Intel Neural Compressor config file with good and bad exit_policy_timeout values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -223,7 +223,7 @@ def test_tf_image_classification_config_file_timeout(timeout, valid):
                           ['foo', False]])
 def test_tf_image_classification_config_file_max_trials(max_trials, valid):
     """
-    Tests writing an INC config file with good and bad exit_policy_max_trials values
+    Tests writing an Intel Neural Compressor config file with good and bad exit_policy_max_trials values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -256,7 +256,7 @@ def test_tf_image_classification_config_file_max_trials(max_trials, valid):
                           ['foo', False]])
 def test_tf_image_classification_config_file_seed(seed, valid):
     """
-    Tests writing an INC config file with good and bad tuning_random_seed values
+    Tests writing an Intel Neural Compressor config file with good and bad tuning_random_seed values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -283,7 +283,7 @@ def test_tf_image_classification_config_file_seed(seed, valid):
 def test_tf_image_classification_quantization():
     """
     Given valid directories for the saved model, output dir, and config file, test the quantization function with
-    the actual INC called mocked out.
+    the actual Intel Neural Compressor called mocked out.
     """
     try:
         output_dir = tempfile.mkdtemp()
@@ -311,7 +311,7 @@ def test_tf_image_classification_quantization():
 @pytest.mark.tensorflow
 def test_tf_image_classification_quantization_model_does_not_exist():
     """
-    Verifies the error that gets raise if quantization or INC benchmarking is done with a model that does not exist
+    Verifies the error that gets raise if quantization or Intel Neural Compressor benchmarking is done with a model that does not exist
     """
     try:
         output_dir = tempfile.mkdtemp()
@@ -356,7 +356,7 @@ def test_tf_image_classification_quantization_model_does_not_exist():
 def test_tf_image_classification_optimize_graph():
     """
     Given valid directories for the saved model, output dir, and config file, test the graph optimization function with
-    the actual INC called mocked out.
+    the actual Intel Neural Compressorcalled mocked out.
     """
     try:
         output_dir = tempfile.mkdtemp()
@@ -426,7 +426,7 @@ def test_tf_image_classification_optimize_graph_model_does_not_exist():
 def test_tf_image_classification_inc_benchmark():
     """
     Verifies that if we have valid parameters for the saved model, config file, and mode, benchmarking is called. The
-    actual benchmarking calls to INC are mocked out.
+    actual benchmarking calls to Intel Neural Compressor are mocked out.
     """
     try:
         output_dir = tempfile.mkdtemp()
@@ -492,7 +492,7 @@ def test_tf_image_classification_inc_benchmark_mode(mode, valid):
 @pytest.mark.pytorch
 def test_pyt_image_classification_config_file_overwrite():
     """
-    Tests writing an INC config file for image classification models with a mock custom dataset. Checks that the
+    Tests writing an Intel Neural Compressor config file for image classification models with a mock custom dataset. Checks that the
     overwrite flag lets you overwrite a config file that already exists.
     """
     try:
@@ -528,7 +528,7 @@ def test_pyt_image_classification_config_file_overwrite():
                           [128, True]])
 def test_pyt_image_classification_config_file_batch_size(batch_size, valid):
     """
-    Tests writing an INC config file with good and bad batch sizes
+    Tests writing an Intel Neural Compressor config file with good and bad batch sizes
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -560,7 +560,7 @@ def test_pyt_image_classification_config_file_batch_size(batch_size, valid):
                           ['foo', False]])
 def test_pyt_image_classification_config_file_resize_interpolation(resize_interpolation, valid):
     """
-    Tests writing an INC config file with good and bad resize_interpolation values
+    Tests writing an Intel Neural Compressor config file with good and bad resize_interpolation values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -592,7 +592,7 @@ def test_pyt_image_classification_config_file_resize_interpolation(resize_interp
                           ['foo', False]])
 def test_pyt_image_classification_config_file_accuracy_criterion(accuracy_criterion, valid):
     """
-    Tests writing an INC config file with good and bad accuracy_criterion_relative values
+    Tests writing an Intel Neural Compressor config file with good and bad accuracy_criterion_relative values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -625,7 +625,7 @@ def test_pyt_image_classification_config_file_accuracy_criterion(accuracy_criter
                           ['foo', False]])
 def test_pyt_image_classification_config_file_timeout(timeout, valid):
     """
-    Tests writing an INC config file with good and bad exit_policy_timeout values
+    Tests writing an Intel Neural Compressor config file with good and bad exit_policy_timeout values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -657,7 +657,7 @@ def test_pyt_image_classification_config_file_timeout(timeout, valid):
                           ['foo', False]])
 def test_pyt_image_classification_config_file_max_trials(max_trials, valid):
     """
-    Tests writing an INC config file with good and bad exit_policy_max_trials values
+    Tests writing an Intel Neural Compressor config file with good and bad exit_policy_max_trials values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -689,7 +689,7 @@ def test_pyt_image_classification_config_file_max_trials(max_trials, valid):
                           ['foo', False]])
 def test_pyt_image_classification_config_file_seed(seed, valid):
     """
-    Tests writing an INC config file with good and bad tuning_random_seed values
+    Tests writing an Intel Neural Compressor config file with good and bad tuning_random_seed values
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -715,7 +715,7 @@ def test_pyt_image_classification_config_file_seed(seed, valid):
 def test_pyt_image_classification_quantization():
     """
     Given valid directories for the saved model, output dir, and config file, test the quantization function with
-    the actual INC called mocked out.
+    the actual Intel Neural Compressor called mocked out.
     """
     try:
         output_dir = tempfile.mkdtemp()
@@ -742,7 +742,7 @@ def test_pyt_image_classification_quantization():
 @pytest.mark.pytorch
 def test_pyt_image_classification_quantization_model_does_not_exist():
     """
-    Verifies the error that gets raise if quantization or INC benchmarking is done with a model that does not exist
+    Verifies the error that gets raise if quantization or Intel Neural Compressor benchmarking is done with a model that does not exist
     """
     try:
         output_dir = tempfile.mkdtemp()
@@ -786,7 +786,7 @@ def test_pyt_image_classification_quantization_model_does_not_exist():
 def test_pyt_image_classification_inc_benchmark():
     """
     Verifies that if we have valid parameters for the saved model, config file, and mode, benchmarking is called. The
-    actual benchmarking calls to INC are mocked out.
+    actual benchmarking calls to Intel Neural Compressor are mocked out.
     """
     try:
         output_dir = tempfile.mkdtemp()

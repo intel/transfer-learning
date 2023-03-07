@@ -11,13 +11,13 @@ python -m pip install --editable .[tensorflow,pytorch]
 python -m pip install tensorflow-text==2.10.0
 ```
 
-Install pandoc, Sphinx and a few other tools required to build docs
+Install Pandoc, Sphinx and a few other tools required to build docs
 ```bash
 sudo apt-get install pandoc
 pip install -r docs/requirements-docs.txt
 ```
 
-Navigate to `docs` directory and run the doctests to ensure all tests pass:
+Navigate to the `docs` directory and run the doctests to ensure all tests pass:
 ```bash
 # run this command from within docs directory
 make doctest
@@ -34,9 +34,9 @@ Doctest summary
 build succeeded.
 ```
 
-Finally generate the html docs(from within `docs` directory):
+Finally generate the html docs (from within `docs` directory):
 ```bash
-make clean html 
+make clean html
 ```
 
 The output HTML files will be located in `transfer-learning/docs/_build/html`.
@@ -56,4 +56,4 @@ Serving HTTP on 0.0.0.0 port 9999 (http://0.0.0.0:9999/) ...
 ```
 
 runs the docs server on the host while listening to all hosts.
-Now you can Navigate to `HOSTNAME:9999` to view the docs.
+Now you can navigate to `HOSTNAME:9999` to view the docs.

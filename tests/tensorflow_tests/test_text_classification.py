@@ -117,7 +117,7 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
         # assert retrain_metrics[accuracy_index] > trained_metrics[accuracy_index]
         assert isinstance(retrain_metrics[accuracy_index], float)
 
-        # Test generating an INC config file (not implemented yet)
+        # Test generating an Intel Neural Compressor config file (not implemented yet)
         inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))
         with pytest.raises(NotImplementedError):
             model.write_inc_config_file(inc_config_file_path, dataset, batch_size=batch_size,

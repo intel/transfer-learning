@@ -53,7 +53,7 @@ def test_torchvision_image_classification_optimize_graph_not_implemented():
             with pytest.raises(NotImplementedError):
                 model.optimize_graph(saved_model_dir, output_dir)
 
-        # Verify that the installed version of INC throws a SystemError
+        # Verify that the installed version of Intel Neural Compressor throws a SystemError
         from neural_compressor.experimental import Graph_Optimization, common
         from neural_compressor.utils.utility import set_backend
         set_backend('pytorch')

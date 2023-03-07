@@ -99,7 +99,7 @@ class AnomalyImageFolder(DatasetFolder):
         available_classes = set()
         for target_class in sorted(class_to_idx.keys()):
             class_index = class_to_idx[target_class]
-            # This is the specific edit that supports nested train/test subdirs for TLT
+            # This is the specific edit that supports nested train/test subdirs for Intel Transfer Learning Tool
             target_dirs = [os.path.join(directory, target_class),
                            os.path.join(directory, 'train', target_class),
                            os.path.join(directory, 'test', target_class)]

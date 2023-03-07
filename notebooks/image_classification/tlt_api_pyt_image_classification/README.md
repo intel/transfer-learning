@@ -1,6 +1,6 @@
 # Transfer Learning for PyTorch Image Classification using the Intel® Transfer Learning Tool API
 
-This notebook demonstrates how to use the TLT API to do transfer learning for
+This notebook demonstrates how to use the Intel Transfer Learning Tool API to do transfer learning for
 image classification using PyTorch.
 
 The notebook performs the following steps:

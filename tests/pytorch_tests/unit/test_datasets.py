@@ -51,13 +51,13 @@ except ModuleNotFoundError:
 try:
     from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset
 except ModuleNotFoundError:
-    print("Unable to import HFTextClassificationDataset. HuggingFace's 'tranformers' API may not be installed \
+    print("Unable to import HFTextClassificationDataset. Hugging Face's 'tranformers' API may not be installed \
             in the current env")
 
 try:
     from tlt.datasets.text_classification.hf_custom_text_classification_dataset import HFCustomTextClassificationDataset
 except ModuleNotFoundError:
-    print("Unable to import HFCustomTextClassificationDataset. HuggingFace's 'tranformers' API may not be \
+    print("Unable to import HFCustomTextClassificationDataset. Hugging Face's 'tranformers' API may not be \
             installed in the current env")
 
 
@@ -254,10 +254,10 @@ class ImageDatasetForTest:
         if self._dataset_catalog == "custom":
             print("Deleting temp directory:", self._dataset_dir)
             shutil.rmtree(self._dataset_dir)
-            # TODO: Should we delete torchvision directories too?
+            # TODO: Should we delete Torchvision directories too?
 
 
-# Metadata about torchvision datasets
+# Metadata about Torchvision datasets
 torchvision_metadata = {
     'CIFAR10': {
         'class_names': ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'],
@@ -627,7 +627,7 @@ class TestTextClassificationDataset:
     @pytest.mark.pytorch
     def test_tlt_dataset(self, text_classification_data):
         """
-        Tests whether a matching TLT dataset object is returned
+        Tests whether a matching Intel Transfer Learning Tool dataset object is returned
         """
         tlt_dataset, _, dataset_name, _, _ = text_classification_data
         if dataset_name is None:

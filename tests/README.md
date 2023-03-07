@@ -1,6 +1,6 @@
 # Testing Intel® Transfer Learning Tool
 
-To run these tests, first install [tlt](/tlt) for TensorFlow and/or PyTorch.
+To run these tests, first install the [Intel Transfer Learning Tool](/tlt) for TensorFlow and/or PyTorch.
 Then install the following dependencies:
 
 ```
@@ -31,7 +31,7 @@ pip3 install -r tests/requirements-test.txt
 ```
 
 ## API Tests
-There are unit and integration tests that exercise the API. 
+There are unit and integration tests that exercise the API.
 Make sure you are in the `transfer-learning/` directory and use the command
 below to run all tests:
 ```
@@ -68,7 +68,7 @@ To run only the PyTorch tests run:
 PYTHONPATH=$(pwd)/tests py.test -s -m pytorch
 ```
 
-> Note: After the tests have run, there will be downloaded data in `/tmp/data` 
+> Note: After the tests have run, there will be downloaded data in `/tmp/data`
 that has not been cleaned up. Currently, the developer has to manage this, but
 we should create fixtures that take care of it.
 
@@ -76,26 +76,26 @@ There are some executable examples in module docstrings. To run them as tests, f
 the steps in the [docs README.md](/docs/README.md).
 
 ## Jupyter Notebook Tests
-There are Makefile targets and a bash script that will automatically run the Jupyter notebooks. 
-There are a few different ways to use them. All of the ways require that you are in the `transfer-learning/` directory 
+There are Makefile targets and a bash script that will automatically run the Jupyter notebooks.
+There are a few different ways to use them. All of the ways require that you are in the `transfer-learning/` directory
 and that you have set dataset and output directories:
 
 ```
 export DATASET_DIR=<directory to download the datasets>
 export OUTPUT_DIR=<output directory for the saved models>
-``` 
+```
 
-To run the <b>TLT tutorial notebooks</b> using a test environment that supports both PyTorch and TensorFlow:
+To run the <b>Intel Transfer Learning Tool tutorial notebooks</b> using a test environment that supports both PyTorch and TensorFlow:
 ```
 make test_notebook
 ```
 
-To run all the <b>native PyTorch notebooks</b> using a test environment for PyTorch without TLT:
+To run all the <b>native PyTorch notebooks</b> using a test environment for PyTorch without Intel Transfer Learning Tool:
 ```
 make test_pyt_notebook
 ```
 
-To run all the <b>native TensorFlow notebooks</b> using a test environment for TensorFlow without TLT:
+To run all the <b>native TensorFlow notebooks</b> using a test environment for TensorFlow without Intel Transfer Learning Tool:
 ```
 make test_tf_notebook
 ```

@@ -1,6 +1,6 @@
 # Text Classifier fine tuning with TensorFlow and the Intel® Transfer Learning Tool API
 
-This notebook demonstrates how to use the TLT API to do fine tuning for
+This notebook demonstrates how to use the Intel Transfer Learning Tool API to do fine tuning for
 text classification using various [BERT](https://arxiv.org/abs/1810.04805) models
 from [TF Hub](https://tfhub.dev).
 

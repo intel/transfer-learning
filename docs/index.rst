@@ -16,9 +16,9 @@ Features
       * Image Classification with 19 models from TFHub
       * Text Classification with 26 models from TFHub
    * PyTorch 1.13.1 or later
-      * Image Classification with 60 models from torchvision
+      * Image Classification with 60 models from Torchvision
       * Text Classification with 4 models from Hugging Face
-      * Image Anomaly Detection with 5 models from torchvision
+      * Image Anomaly Detection with 5 models from Torchvision
 
 .. figure:: images/features.png
    :scale: 42% %
@@ -43,13 +43,13 @@ Features
    :widths: 60, 20, 20
 
    Image Classification with TF Hub, Image Classification, TensorFlow
-   Image Classification with PyTorch & torchvision, Image Classification, PyTorch
-   Object Detection with PyTorch & torchvision, Object Detection, PyTorch
+   Image Classification with PyTorch & Torchvision, Image Classification, PyTorch
+   Object Detection with PyTorch & Torchvision, Object Detection, PyTorch
    BERT SQuAD fine tuning with TF Hub, Question Answering, TensorFlow
    BERT Binary Text Classification with TF Hub, Text Classification, TensorFlow
    BERT Multiclass Text Classification with TF Hub, Text Classification, TensorFlow
    Text Classifier fine tuning with PyTorch & Hugging Face, Text Classification, PyTorch
-   Video Classification with PyTorch & torchvision, Video Classification, PyTorch
+   Video Classification with PyTorch & Torchvision, Video Classification, PyTorch
 
 .. csv-table:: Transfer Learning Tool End-to-End Pipelines
    :header: "Notebook", "Use Case", "Framework"

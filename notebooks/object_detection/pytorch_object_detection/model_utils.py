@@ -22,7 +22,7 @@ import torchvision
 import torchvision.models.detection as detection
 
 
-# Dictionary of torchvision object detection models
+# Dictionary of Torchvision object detection models
 torchvision_model_map = {
     "fasterrcnn_resnet50_fpn": {
         "predictor_model": "faster_rcnn.FastRCNNPredictor"
@@ -41,11 +41,11 @@ torchvision_model_map = {
 def get_retrainable_model(model_name, num_classes, pretrained_model_class, predictor_class):
     # Load an object detection model pre-trained on COCO
     model = pretrained_model_class(pretrained=True)
-    
+
     if 'fasterrcnn' in model_name:
         in_features = model.roi_heads.box_predictor.cls_score.in_features
         model.roi_heads.box_predictor = predictor_class(in_features, num_classes)
-        
+
     elif 'retinanet' in model_name:
         # To keep the pretrained weights, do not overwrite the classification_head
         in_features = model.head.classification_head.conv[0].in_channels
@@ -55,6 +55,6 @@ def get_retrainable_model(model_name, num_classes, pretrained_model_class, predi
         torch.nn.init.normal_(cls_logits.weight, std=0.01)
         torch.nn.init.constant_(cls_logits.bias, -math.log((1 - 0.01) / 0.01))
         model.head.classification_head.cls_logits = cls_logits
-        
+
     return model
 

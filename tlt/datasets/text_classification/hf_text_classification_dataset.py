@@ -66,7 +66,7 @@ class HFTextClassificationDataset(TextClassificationDataset, HFDataset):
             self._dataset = self.load_hf_dataset(dataset_name, split=split[0])
 
         else:
-            self._validation_type = 'defined_split'  # Defined by user or huggingface
+            self._validation_type = 'defined_split'  # Defined by user or Hugging Face
             if 'train' in split:
                 self._dataset = self.load_hf_dataset(dataset_name, split='train')
                 self._train_indices = range(len(self._dataset))

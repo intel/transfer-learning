@@ -40,7 +40,7 @@ from tlt.utils.types import FrameworkType
 @patch("tlt.datasets.dataset_factory.load_dataset")
 def test_benchmark(mock_load_dataset, mock_get_model, model_name, framework, batch_size, mode):
     """
-    Tests the benchmark comamnd with an without an INC config file and verifies that the expected calls are made
+    Tests the benchmark comamnd with an without an Intel Neural Compressor config file and verifies that the expected calls are made
     on the tlt model object. The call parameters also verify that the benchmark command is able to properly identify
     the model's name based on the directory and the framework type based on the type of saved model.
     """
@@ -66,12 +66,12 @@ def test_benchmark(mock_load_dataset, mock_get_model, model_name, framework, bat
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
 
-        # Call the benchmark command without an INC config file
+        # Call the benchmark command without an Intel Neural Compressor config file
         result = runner.invoke(benchmark,
                                ["--model-dir", model_dir, "--dataset_dir", dataset_dir, "--mode", mode,
                                 "--batch-size", batch_size, "--output-dir", output_dir])
 
-        # Verify that the expected calls were made, including to create an INC config file
+        # Verify that the expected calls were made, including to create an Intel Neural Compressor config file
         mock_get_model.assert_called_once_with(model_name, framework)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
         assert model_mock.write_inc_config_file.called
@@ -80,7 +80,7 @@ def test_benchmark(mock_load_dataset, mock_get_model, model_name, framework, bat
         # Verify a successful exit code
         assert result.exit_code == 0
 
-        # Reset mocks to do another experiment with an INC confijg file
+        # Reset mocks to do another experiment with an Intel Neural Compressor confijg file
         model_mock.reset_mock()
         data_mock.reset_mock()
         mock_get_model.reset_mock()
@@ -98,7 +98,7 @@ def test_benchmark(mock_load_dataset, mock_get_model, model_name, framework, bat
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
         model_mock.benchmark.called_once_with(model_dir, inc_config, mode)
 
-        # Function to create an INC config file should not have been called, since a yaml file was provided
+        # Function to create an Intel Neural Compressor config file should not have been called, since a yaml file was provided
         model_mock.write_inc_config_file.assert_not_called()
 
         # Verify a successful exit code

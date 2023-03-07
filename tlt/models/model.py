@@ -113,7 +113,7 @@ class BaseModel(abc.ABC):
     @abc.abstractmethod
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):
         """
-        Writes an INC compatible config file to the specified path usings args from the specified dataset and
+        Writes an Intel Neural Compressor compatible config file to the specified path usings args from the specified dataset and
         parameters. This is currently only supported for TF custom image classification datasets.
 
         Args:

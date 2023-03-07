@@ -8,7 +8,7 @@ Datasets
 
 The simplest way to create datasets is with the dataset factory methods :meth:`load_dataset`, for using a
 custom dataset, and :meth:`get_dataset`, for downloading and using a third-party dataset from a catalog such as TensorFlow
-Datasets or torchvision.
+Datasets or Torchvision.
 
 Factory Methods
 ***************

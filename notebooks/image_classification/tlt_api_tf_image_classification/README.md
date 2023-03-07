@@ -1,6 +1,6 @@
 # Transfer Learning for TensorFlow Image Classification using the Intel® Transfer Learning Tool API
 
-These notebooks demonstrate how to use the TLT API to do transfer learning for
+These notebooks demonstrate how to use the Intel Transfer Learning Tool API to do transfer learning for
 image classification using TensorFlow and then quantize or optimize the graph for inference.
 
 `TLT_TF_Image_Classification_Transfer_Learning.ipynb`  performs the following steps:

@@ -1,6 +1,6 @@
 # Transfer Learning for Image Classification using PyTorch
 
-This notebook uses image classification models from torchvision that were originally trained 
+This notebook uses image classification models from Torchvision that were originally trained 
 using ImageNet and does transfer learning with the Food101 dataset, a flowers dataset, or
 a custom image dataset.
 

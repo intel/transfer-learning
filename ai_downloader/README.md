@@ -2,10 +2,10 @@
 
 An easy-to-use, unified tool for downloading and managing all of your AI datasets and models.
 
-## Datasets 
+## Datasets
 
 ### Supported Catalogs & File Types
-      
+
 | Source | Info |
 |----------|-----------|
 | TensorFlow Datasets | [https://www.tensorflow.org/datasets](https://www.tensorflow.org/datasets) |
@@ -37,8 +37,8 @@ Coming soon.
 
 ## Build and Install
 
-To install the downloader, follow [TLT's setup instructions](/README.md#build-and-install). The downloader is currently 
-packaged alongside TLT and uses its requirements.txt files, but the tools can be separated at some future time. The 
+To install the downloader, follow [The setup instructions for Intel Transfer Learning Tool](/README.md#build-and-install). The downloader is currently
+packaged alongside the Intel Transfer Learning Tool and uses its requirements.txt files, but the tools can be separated at some future time. The
 downloader's dependencies are tracked in [requirements.txt](requirements.txt).
 
 ## Testing

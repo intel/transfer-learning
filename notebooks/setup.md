@@ -20,7 +20,7 @@ the native framework notebooks.
    git clone https://github.com/IntelAI/transfer-learning.git transfer_learning
    export TLT_REPO=$(pwd)/transfer_learning
    ```
-2. Activate the TLT environment or create a new Python3 virtual environment and install required packages.
+2. Activate the Intel Transfer Learning Tool environment or create a new Python3 virtual environment and install required packages.
 
    You can use virtualenv:
    ```
@@ -65,7 +65,7 @@ the native framework notebooks.
    git clone https://github.com/IntelAI/transfer-learning.git transfer_learning
    export TLT_REPO=$(pwd)/transfer_learning
    ```
-2. Activate the TLT environment or create a new Python3 virtual environment and install required packages.
+2. Activate the Intel Transfer Learning Tool environment or create a new Python3 virtual environment and install required packages.
 
    You can use virtualenv:
    ```

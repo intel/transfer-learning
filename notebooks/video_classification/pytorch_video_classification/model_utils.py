@@ -20,7 +20,7 @@ import torch
 import torchvision
 from pydoc import locate
 
-# Dictionary of torchvision video classification models
+# Dictionary of Torchvision video classification models
 torchvision_model_map = {
     "r3d_18": {
         "classifier": "fc",

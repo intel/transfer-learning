@@ -69,10 +69,10 @@ mpiexec.hydra -ppn 1 -f hostfile hostname
 
 ## Launch a distributed training job with TLT CLI
 
-**Step 1:** Create a `hostfile` with a list of IP addresses of the participating nodes. Make sure 
+**Step 1:** Create a `hostfile` with a list of IP addresses of the participating nodes. Make sure
 the first IP address to be of the current node. For testing, you can use the nodes present in this [hostfile](hostfile)
 
-**Step 2:** Launch a distributed training job with TLT CLI using the appropriate flags.
+**Step 2:** Launch a distributed training job with Intel Transfer Learning Tool CLI using the appropriate flags.
 ```
 tlt train \
     -f pytorch \

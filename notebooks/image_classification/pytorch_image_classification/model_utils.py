@@ -21,7 +21,7 @@ import torchvision
 from pydoc import locate
 
 
-# Dictionary of torchvision image classification models
+# Dictionary of Torchvision image classification models
 torchvision_model_map = {
     "resnet18": {
         "classifier": "fc"

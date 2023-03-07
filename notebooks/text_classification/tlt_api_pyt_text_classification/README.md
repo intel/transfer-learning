@@ -1,8 +1,8 @@
-# Text Classifier fine tuning with Pytorch and the Intel® Transfer Learning Tool API
+# Text Classifier fine tuning with PyTorch and the Intel® Transfer Learning Tool API
 
-This notebook demonstrates how to use the TLT API to do fine tuning for
+This notebook demonstrates how to use the Intel Transfer Learning Tool API to do fine tuning for
 text classification using various [BERT](https://arxiv.org/abs/1810.04805) models
-from [HuggingFace](https://huggingface.co/datasets).
+from [Hugging Face](https://huggingface.co/datasets).
 
 The notebook performs the following steps:
 1. Install dependencies and setup parameters
@@ -15,7 +15,7 @@ The notebook performs the following steps:
 
 ## Running the notebook
 
-To run the notebook, follow the instructions to setup the [Pytorch notebook environment](/notebooks/setup.md#pytorch-environment).
+To run the notebook, follow the instructions to setup the [PyTorch notebook environment](/notebooks/setup.md#pytorch-environment).
 
 ## References
 Dataset citations:

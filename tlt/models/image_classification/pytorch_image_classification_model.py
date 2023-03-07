@@ -535,7 +535,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         if not isinstance(tuning_workspace, str):
             raise ValueError('Invalid value for the nc_workspace directory. Expected a string.')
 
-        # Get the image recognition INC template
+        # Get the image recognition Intel Neural Compressor template
         config_template = ImageClassificationModel.get_inc_config_template_dict(self)
 
         # Collect the different data loaders into a list, so that we can update them all the with the data transforms

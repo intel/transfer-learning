@@ -365,7 +365,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
                 is applied at the end of each epoch.
             seed (int): Optionally set a seed for reproducibility.
             extra_layers (list[int]): Optionally insert additional dense layers between the base model and output
-                layer. This can help increase accuracy when fine-tuning a Pytorch model.
+                layer. This can help increase accuracy when fine-tuning a PyTorch model.
                 The input should be a list of integers representing the number and size of the layers,
                 for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the
                 second with 512 neurons.
@@ -721,7 +721,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         if not isinstance(tuning_workspace, str):
             raise ValueError('Invalid value for the nc_workspace directory. Expected a string.')
 
-        # Get the image recognition INC template
+        # Get the image recognition Intel Neural Compressor template
         config_template = TextClassificationModel.get_inc_config_template_dict(self)
 
         # Collect the different data loaders into a list, so that we can update them all the with the data transforms

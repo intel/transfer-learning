@@ -140,7 +140,7 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
         dataset_catalog (str): optional; catalog from which to download the dataset. If a dataset name is
                                provided and no dataset catalog is given, it will default to use tf_datasets
                                for a TensorFlow model, torchvision for PyTorch CV models, and huggingface
-                               datasets for PyTorch NLP models or HuggingFace models.
+                               datasets for PyTorch NLP models or Hugging Face models.
         **kwargs: optional; additional keyword arguments for the framework or dataset_catalog
 
     Returns:

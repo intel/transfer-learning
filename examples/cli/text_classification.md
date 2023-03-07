@@ -1,4 +1,4 @@
-# Text Classification TLT CLI Examples
+# Text Classification Intel Transfer Learning Tool CLI Examples
 
 ## Fine tuning using your own dataset
 
@@ -13,7 +13,7 @@ The `--dataset-dir` argument is the path to the directory where your dataset is 
 argument to specify a list of the classes and the `--delimiter` to specify the character that
 separates the two columns. If no `--delimiter` is specified, the CLI will default to use a comma (`,`).
 
-This example is downloading the [SMS Spam Collection](https://archive-beta.ics.uci.edu/ml/datasets/sms+spam+collection)
+This example is downloading the [SMS Spam Collection](https://archive-beta.ics.uci.edu/dataset/228/sms+spam+collection)
 dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text
 messages that are either being classified as `ham` or `spam`. The first column in the data file has
 the label (`ham` or `spam`) and the second column is the text of the SMS mesage. The string class
@@ -62,9 +62,9 @@ tlt eval \
 
 ## Fine tuning using a dataset from the TFDS catalog
 
-This example demonstrates using the TLT CLI to fine tune a text classification model using a
+This example demonstrates using the Intel Transfer Learning Tool CLI to fine tune a text classification model using a
 dataset from the [TensorFlow Datasets (TFDS) catalog](https://www.tensorflow.org/datasets/catalog/overview).
-TLT supports the following text classification datasets from TFDS:
+Intel Transfer Learning Tool supports the following text classification datasets from TFDS:
 [imdb_reviews](https://www.tensorflow.org/datasets/catalog/imdb_reviews),
 [glue/sst2](https://www.tensorflow.org/datasets/catalog/imdb_reviews),
 and [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config).
@@ -98,16 +98,16 @@ tlt eval \
 ```
 
 ## Distributed transfer learning using a dataset from Hugging Face
-This example runs a distributed PyTorch training job using the TLT CLI. It fine tunes a text classification model 
+This example runs a distributed PyTorch training job using the TLT CLI. It fine tunes a text classification model
 for document-level sentiment analysis using a dataset from the [Hugging Face catalog](https://huggingface.co/datasets).
-TLT supports the following text classification datasets from Hugging Face:
+Intel Transfer Learning Tool supports the following text classification datasets from Hugging Face:
 * [imdb](https://huggingface.co/datasets/imdb)
 * [tweet_eval](https://huggingface.co/datasets/tweet_eval)
 * [rotten_tomatoes](https://huggingface.co/datasets/rotten_tomatoes)
 * [ag_news](https://huggingface.co/datasets/ag_news)
 * [sst2](https://huggingface.co/datasets/sst2)
 
-Follow [these instruction](/tlt/distributed) to set up your machines for distributed training with PyTorch. This will
+Follow [these instructions](/tlt/distributed) to set up your machines for distributed training with PyTorch. This will
 ensure your environment has the right prerequisites, package dependencies, and hostfile configuration. When
 you have successfully run the sanity check, the following commands will fine-tune `bert-large-uncased` with sst2 for
 one epoch using 2 nodes and 2 processes per node.

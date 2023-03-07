@@ -1,9 +1,9 @@
 # Transfer Learning for Object Detection using PyTorch
 
-This notebook uses object detection models from torchvision that were originally trained 
-using COCO and does transfer learning with the [PennFudan dataset](https://www.cis.upenn.edu/~jshi/ped_html/), 
-available via public download, or the [Kitti dataset](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=2d), 
-available through torchvision datasets.
+This notebook uses object detection models from torchvision that were originally trained
+using COCO and does transfer learning with the [PennFudan dataset](https://www.cis.upenn.edu/~jshi/ped_html/),
+available via public download, or the [Kitti dataset](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=2d),
+available through Torchvision datasets.
 
 The notebook performs the following steps:
 
@@ -18,7 +18,7 @@ The notebook performs the following steps:
 ## Running the notebook
 
 To run the notebook, follow the instructions to setup the [PyTorch notebook environment](/notebooks#pytorch-environment).
-   
+
 ## References
 
 Dataset citations:

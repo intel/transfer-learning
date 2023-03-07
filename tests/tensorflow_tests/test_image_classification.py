@@ -107,7 +107,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
         model.optimize_graph(saved_model_dir, optimized_model_dir)
         assert os.path.isfile(os.path.join(optimized_model_dir, "saved_model.pb"))
 
-    # Test generating an INC config file (not implemented yet for TFDS)
+    # Test generating an Intel Neural Compressor config file (not implemented yet for TFDS)
     inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))
     with pytest.raises(NotImplementedError):
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, tuning_workspace=output_dir)

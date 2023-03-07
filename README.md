@@ -6,20 +6,20 @@
 # Intel® Transfer Learning Tool Quick Start
 
 ## Features
-      
+
 | Use Case | Framework | Optimizations | Datasets |
 |----------|-----------|----------|---------------|
-| Image Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) <li>Distributed training | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 |
-| Image Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) |
+| Image Classification | PyTorch* | <li>[Intel® Extension for PyTorch*](https://github.com/intel/intel-extension-for-pytorch) <li>Distributed training | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 |
+| Image Classification | TensorFlow* | <li>[Intel® Optimization for TensorFlow*](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® third or fourth generation Intel® Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) |
 | Text Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets from .csv files <li> [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/overview#image_classification): [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config), [glue/sst2](https://www.tensorflow.org/datasets/catalog/glue#gluesst2), [imdb_reviews](https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config), [ag_news_subset] (https://www.tensorflow.org/datasets/catalog/ag_news_subset) |
 | Text Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) <li>Distributed training | <li> Custom datasets <li> Text Classification datasets from [Hugging Face Dataset catalog](https://huggingface.co/datasets) |
 | Image Anomaly Detection | PyTorch | | <li> Custom datasets |
-   
+
 ## Build and Install
 
 Requirements:
-* Linux system (or WSL2 on Windows)
-* Python3 (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
+* Linux* system (or WSL2 on Windows*)
+* Python3* (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
 * git
 * `apt-get install build-essential python3-dev`
 * To run use quantization functions: `apt-get install libgl1 libglib2.0-0`
@@ -115,8 +115,8 @@ mnasnet1_0 (pytorch)
 mobilenet_v2 (pytorch)
 mobilenet_v2_100_224 (tensorflow)
 mobilenet_v3_large (pytorch)
-... 
-    
+...
+
 ```
 
 Train a model:
@@ -278,13 +278,13 @@ for metric_name, metric_value in zip(model._model.metrics_names, metrics):
 # Export the model
 saved_model_dir = model.export(output_dir="/tmp/output")
 
-# Create an INC config file
+# Create an Intel Neural Compressor config file
 inc_config_file = "/tmp/output/inc_config.yaml"
 model.write_inc_config_file(inc_config_file, dataset=dataset, batch_size=512, overwrite=True,
                             accuracy_criterion_relative=0.01, exit_policy_timeout=0,
                             exit_policy_max_trials=10, tuning_workspace="/tmp/output/nc_workspace")
 
-# Benchmark the trained model using the INC config file
+# Benchmark the trained model using the Intel Neural Compressor config file
 model.benchmark(saved_model_dir, inc_config_file, 'performance')
 
 # Quantize the trained model
