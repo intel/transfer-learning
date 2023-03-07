@@ -4,25 +4,23 @@ These notebooks demonstrate how to use the Intel Transfer Learning Tool API to d
 image classification using TensorFlow and then quantize or optimize the graph for inference.
 
 `TLT_TF_Image_Classification_Transfer_Learning.ipynb`  performs the following steps:
-1. Import dependencies
+1. Import dependencies and setup parameters
 1. Get the model
 1. Get the dataset
 1. Prepare the dataset
 1. Predict using the original model
 1. Transfer learning
-1. Evaluate
 1. Predict
 1. Export
 1. Post-training quantization
 
 `TLT_TF_Transfer_Learning_and_Graph_Optimization.ipynb`  performs the following steps:
-1. Import dependencies
+1. Import dependencies and setup parameters
 1. Get the model
 1. Get the dataset
 1. Prepare the dataset
 1. Evaluate using the original model
 1. Transfer learning
-1. Evaluate using the trained model
 1. Export
 1. Graph Optimization
 

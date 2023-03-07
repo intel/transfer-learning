@@ -6,10 +6,10 @@ This notebook uses transfer learning with multiple [TF Hub](https://tfhub.dev) i
 The notebook performs the following steps:
 1. Import dependencies and setup parameters
 1. Prepare the dataset
-1. Build the model
-1. Fine tuning and evaluation
-1. Export the model
-1. Reload the model and make predictions
+1. Predict using the original model
+1. Transfer Learning
+1. Evaluate the model
+1. Export the saved model
 
 ## Running the notebook
 

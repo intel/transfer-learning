@@ -216,13 +216,28 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "
                  "dataset name: {}, dataset_catalog: {}):\n{}".format(dataset_dir, model.use_case, model.framework,
                                                                       dataset_name, dataset_catalog, str(e)))
+
+    if ipex_optimize and framework != 'pytorch':
+        sys.exit("ipex_optimize is only supported for pytorch training\n")
+    if distributed and framework != 'pytorch':
+        sys.exit("distributed training is only supported for pytorch\n")
+
     # Train the model using the dataset
-    try:
-        model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
-                    early_stopping=early_stopping, lr_decay=lr_decay, ipex_optimize=ipex_optimize,
-                    distributed=distributed, hostfile=hostfile, nnodes=nnodes, nproc_per_node=nproc_per_node)
-    except Exception as e:
-        sys.exit("There was an error during model training:\n{}".format(str(e)))
+    if framework == 'pytorch':
+        try:
+            model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
+                        early_stopping=early_stopping, lr_decay=lr_decay, ipex_optimize=ipex_optimize,
+                        distributed=distributed, hostfile=hostfile, nnodes=nnodes, nproc_per_node=nproc_per_node)
+        except Exception as e:
+            sys.exit("There was an error during model training:\n{}".format(str(e)))
+
+    # Test for tensorflow
+    else:
+        try:
+            model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
+                        early_stopping=early_stopping, lr_decay=lr_decay)
+        except Exception as e:
+            sys.exit("There was an error during model training:\n{}".format(str(e)))
 
     if distributed:
         # Cleanup the saved objects

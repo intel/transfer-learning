@@ -10,7 +10,6 @@ The notebook performs the following steps:
 1. Get the dataset
 1. Prepare the dataset
 1. Fine tuning
-1. Evaluate
 1. Predict
 1. Export the saved model
 

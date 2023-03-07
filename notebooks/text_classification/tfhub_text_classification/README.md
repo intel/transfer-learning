@@ -5,11 +5,11 @@ from [TF Hub](https://tfhub.dev) using Intel® Optimization for TensorFlow for t
 
 The notebook performs the following steps:
 1. Install dependencies and setup parameters
-1. Prepare the dataset using either a TF dataset or your own images
-1. Predict using the original model
-1. Transfer learning
-1. Evaluate the model
-1. Export the saved model
+1. Prepare the dataset
+1. Build the model
+1. Fine tuning and evaluation
+1. Export the model
+1. Reload the model and make predictions
 
 ## Running the notebook
 

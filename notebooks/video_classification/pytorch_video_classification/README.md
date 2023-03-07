@@ -9,7 +9,7 @@ The notebook performs the following steps:
 2. Prepare the dataset
 3. Predict using the original model
 4. Transfer learning
-5. Visualize the model output
+5. Predict
 6. Export the saved model
 
 ## Running the notebook

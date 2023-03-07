@@ -12,6 +12,7 @@ The notebook performs the following steps:
 1. Fine tuning
 1. Predict
 1. Export the saved model
+1. Quantization
 
 ## Running the notebook
 

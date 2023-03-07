@@ -229,10 +229,15 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
 
         # Verify that train and preprocess were called with the right arguments
-        model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
-                                                 initial_checkpoints=init_checkpoints, early_stopping=False,
-                                                 lr_decay=False, ipex_optimize=False, distributed=False, hostfile=None,
-                                                 nnodes=1, nproc_per_node=1)
+        if framework == FrameworkType.TENSORFLOW:
+            model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
+                                                     initial_checkpoints=init_checkpoints, early_stopping=False,
+                                                     lr_decay=False)
+        else:
+            model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
+                                                     initial_checkpoints=init_checkpoints, early_stopping=False,
+                                                     lr_decay=False, ipex_optimize=False, distributed=False,
+                                                     hostfile=None, nnodes=1, nproc_per_node=1)
         data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[])
 
         # Verify that the train command exit code is successful
@@ -285,10 +290,15 @@ def test_train_features(mock_inspect, mock_load_dataset, mock_get_model, model_n
         assert model_mock.train.called
 
         # Verify that train and preprocess were called with the right arguments
-        model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=15,
-                                                 initial_checkpoints=None, early_stopping=early_stopping,
-                                                 lr_decay=lr_decay, ipex_optimize=False, distributed=False,
-                                                 hostfile=None, nnodes=1, nproc_per_node=1)
+        if framework == FrameworkType.TENSORFLOW:
+            model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=15,
+                                                     initial_checkpoints=None, early_stopping=early_stopping,
+                                                     lr_decay=lr_decay)
+        else:
+            model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=15,
+                                                     initial_checkpoints=None, early_stopping=early_stopping,
+                                                     lr_decay=lr_decay, ipex_optimize=False, distributed=False,
+                                                     hostfile=None, nnodes=1, nproc_per_node=1)
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0
