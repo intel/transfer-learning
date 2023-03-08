@@ -54,8 +54,8 @@ dataset = dataset_factory.load_dataset(dataset_dir=custom_dataset_path,
 @pytest.mark.tensorflow
 def test_tf_image_classification_config_file_overwrite():
     """
-    Tests writing an Intel Neural Compressor config file for image classification models with a mock custom dataset. Checks that the
-    overwrite flag lets you overwrite a config file that already exists.
+    Tests writing an Intel Neural Compressor config file for image classification models with a mock custom dataset.
+    Checks that the overwrite flag lets you overwrite a config file that already exists.
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -311,7 +311,8 @@ def test_tf_image_classification_quantization():
 @pytest.mark.tensorflow
 def test_tf_image_classification_quantization_model_does_not_exist():
     """
-    Verifies the error that gets raise if quantization or Intel Neural Compressor benchmarking is done with a model that does not exist
+    Verifies the error that gets raise if quantization or Intel Neural Compressor benchmarking is done with a model
+    that does not exist
     """
     try:
         output_dir = tempfile.mkdtemp()
@@ -492,8 +493,8 @@ def test_tf_image_classification_inc_benchmark_mode(mode, valid):
 @pytest.mark.pytorch
 def test_pyt_image_classification_config_file_overwrite():
     """
-    Tests writing an Intel Neural Compressor config file for image classification models with a mock custom dataset. Checks that the
-    overwrite flag lets you overwrite a config file that already exists.
+    Tests writing an Intel Neural Compressor config file for image classification models with a mock custom dataset.
+    Checks that the overwrite flag lets you overwrite a config file that already exists.
     """
     try:
         temp_dir = tempfile.mkdtemp()
@@ -742,7 +743,8 @@ def test_pyt_image_classification_quantization():
 @pytest.mark.pytorch
 def test_pyt_image_classification_quantization_model_does_not_exist():
     """
-    Verifies the error that gets raise if quantization or Intel Neural Compressor benchmarking is done with a model that does not exist
+    Verifies the error that gets raise if quantization or Intel Neural Compressor benchmarking is done with a
+    model that does not exist
     """
     try:
         output_dir = tempfile.mkdtemp()

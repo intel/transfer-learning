@@ -22,6 +22,7 @@ tf_notebooks=(
 )
 
 pyt_notebooks=(
+    "notebooks/image_classification/pytorch_image_classification/PyTorch_Image_Classification_Transfer_Learning.ipynb"
     "notebooks/object_detection/pytorch_object_detection/PyTorch_Object_Detection_Transfer_Learning.ipynb"
     "notebooks/text_classification/pytorch_text_classification/PyTorch_Text_Classifier_fine_tuning.ipynb"
     "notebooks/video_classification/pytorch_video_classification/Pytorch_Video_Classification_Transfer_Learning.ipynb"
@@ -36,9 +37,9 @@ CURDIR=$PWD
 INPUT=$1
 
 if [[ $INPUT == "tensorflow" ]] ; then
-    notebooks=$tf_notebooks
+    notebooks=${tf_notebooks[*]}
 elif [[ $INPUT == "pytorch" ]] ; then
-    notebooks=$pyt_notebooks
+    notebooks=${pyt_notebooks[*]}
 else
     # Parse the filename from the path
     DIR=${INPUT%/*}
@@ -52,7 +53,7 @@ else
     fi
 fi
 
-echo "Notebooks: ${notebooks}"
+echo "Notebooks: ${notebooks[*]}"
 for notebook in ${notebooks[*]}; do
     DIR=${notebook%/*}
     echo "Running ${notebook}..."

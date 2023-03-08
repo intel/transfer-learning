@@ -40,9 +40,10 @@ from tlt.utils.types import FrameworkType
 @patch("tlt.datasets.dataset_factory.load_dataset")
 def test_benchmark(mock_load_dataset, mock_get_model, model_name, framework, batch_size, mode):
     """
-    Tests the benchmark comamnd with an without an Intel Neural Compressor config file and verifies that the expected calls are made
-    on the tlt model object. The call parameters also verify that the benchmark command is able to properly identify
-    the model's name based on the directory and the framework type based on the type of saved model.
+    Tests the benchmark comamnd with an without an Intel Neural Compressor config file and verifies that the
+    expected calls are made on the tlt model object. The call parameters also verify that the benchmark command
+    is able to properly identify the model's name based on the directory and the framework type based on the
+    type of saved model.
     """
     runner = CliRunner()
 
@@ -98,7 +99,7 @@ def test_benchmark(mock_load_dataset, mock_get_model, model_name, framework, bat
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
         model_mock.benchmark.called_once_with(model_dir, inc_config, mode)
 
-        # Function to create an Intel Neural Compressor config file should not have been called, since a yaml file was provided
+        # Function to create an Intel Neural Compressor config file shouldn't have been called, since yaml was provided
         model_mock.write_inc_config_file.assert_not_called()
 
         # Verify a successful exit code

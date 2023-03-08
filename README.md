@@ -22,9 +22,14 @@ Requirements:
 * Python3* (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
 * git
 * `apt-get install build-essential python3-dev`
-* To run use quantization functions: `apt-get install libgl1 libglib2.0-0`
+* To run the quantization functions: `apt-get install libgl1 libglib2.0-0`
 
 Basic Installation:
+```
+pip install intel-transfer-learning-tool
+```
+
+Advanced/Developer Installation:
 1. Clone this repo and navigate to the repo directory:
    ```
    git clone https://github.com/IntelAI/transfer-learning.git
@@ -53,7 +58,7 @@ Basic Installation:
    # Required for TensorFlow text classification
    pip install tensorflow-text==2.10.0
    ```
-   Or for developers, do an editable install:
+   Or, do an editable install:
    ```
    pip install --editable .[tensorflow,pytorch]
    ```

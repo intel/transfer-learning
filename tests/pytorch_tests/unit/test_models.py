@@ -55,8 +55,8 @@ except ModuleNotFoundError:
 try:
     from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset  # noqa: F401, E501
 except ModuleNotFoundError:
-    print("WARNING: Unable to import HFTextClassificationDataset. Hugging Face's `tranformers` API may not be installed \
-           in the current env")
+    print("WARNING: Unable to import HFTextClassificationDataset. Hugging Face's `transformers` API may not \
+           be installed in the current env")
 
 
 @pytest.mark.pytorch

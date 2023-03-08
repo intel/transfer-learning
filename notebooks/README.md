@@ -39,5 +39,4 @@ and [Intel Extension for PyTorch](https://github.com/intel/intel-extension-for-p
 
 ## Environment setup and running the notebooks
 
-Use the [setup instructions](setup.md) to install the dependencies required to run the
-[PyTorch](setup.md#pytorch-environment) or [TensorFlow](setup.md#tensorflow-environment) notebooks.
+Use the [setup instructions](setup.md) to install the dependencies required to run the notebooks.
