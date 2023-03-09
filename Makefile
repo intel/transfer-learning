@@ -18,74 +18,73 @@
 
 # Note: These are just placeholders for future additions to Makefile.
 # You can remove these comments later.
-ACTIVATE_TLT = "tlt_env/bin/activate"
-ACTIVATE_TF_PYT = "intel_tf_pyt/bin/activate"
-ACTIVATE_TEST = "tlt_tests/bin/activate"
-ACTIVATE_DOCS = $(ACTIVATE_TEST)
-ACTIVATE_NOTEBOOK = $(ACTIVATE_TEST)
+ACTIVATE_TLT_VENV = "tlt_dev_venv/bin/activate"
+ACTIVATE_NOTEBOOK_VENV = "tlt_notebook_venv/bin/activate"
+ACTIVATE_TEST_VENV = "tlt_test_venv/bin/activate"
+ACTIVATE_DOCS_VENV = $(ACTIVATE_TEST_VENV)
 
 # Customize sample test run commands
 # PY_TEST_EXTRA_ARGS="'-vvv -k test_platform_util_with_no_args'" make test
 # PY_TEST_EXTRA_ARGS="'--collect-only'" make test
 PY_TEST_EXTRA_ARGS ?= ""
 
-venv_test: $(CURDIR)/tests/requirements-test.txt
-	@echo "Creating a virtualenv tlt_tests..."
-	@test -d tlt_tests || virtualenv -p python3 tlt_tests
+tlt_test_venv: $(CURDIR)/tests/requirements-test.txt
+	@echo "Creating a virtualenv tlt_test_venv..."
+	@test -d tlt_test_venv || virtualenv -p python3 tlt_test_venv
 
-	@echo "Building the TLT API in tlt_tests env..."
-	@. $(ACTIVATE_TEST) && pip install --editable .[tensorflow,pytorch]
+	@echo "Building the TLT API in tlt_test_venv env..."
+	@. $(ACTIVATE_TEST_VENV) && pip install --editable .
 	@echo "Required for TensorFlow text classification..."
-	@. $(ACTIVATE_TEST) && pip install tensorflow-text==2.10.0
+	@. $(ACTIVATE_TEST_VENV) && pip install tensorflow-text==2.10.0
 
 	@echo "Installing test dependencies..."
-	@. $(ACTIVATE_TEST) && pip install -r $(CURDIR)/tests/requirements-test.txt
+	@. $(ACTIVATE_TEST_VENV) && pip install -r $(CURDIR)/tests/requirements-test.txt
 
-venv_intel_tf_pyt: $(CURDIR)/notebooks/requirements.txt
-	@echo "Creating a virtualenv intel_tf_pyt..."
-	@test -d intel_tf_pyt || virtualenv -p python3 intel_tf_pyt
+tlt_notebook_venv: $(CURDIR)/notebooks/requirements.txt
+	@echo "Creating a virtualenv tlt_notebook_venv..."
+	@test -d tlt_notebook_venv || virtualenv -p python3 tlt_notebook_venv
 
 	@echo "Installing TF & PYT notebook dependencies..."
-	@. $(ACTIVATE_TF_PYT) && pip install -r $(CURDIR)/notebooks/requirements.txt && \
+	@. $(ACTIVATE_NOTEBOOK_VENV) && pip install -r $(CURDIR)/notebooks/requirements.txt && \
 	pip install tensorflow-text==2.10.0
 
 test: unittest integration
 
-unittest: venv_test
+unittest: tlt_test_venv
 	@echo "Testing unit test API..."
-	@. $(ACTIVATE_TEST) && PYTHONPATH=$(CURDIR)/tests py.test $(PY_TEST_EXTRA_ARGS) -s -m "not integration" 
+	@. $(ACTIVATE_TEST_VENV) && PYTHONPATH=$(CURDIR)/tests py.test $(PY_TEST_EXTRA_ARGS) -s -m "not integration"
 
-integration: venv_test
+integration: tlt_test_venv
 	@echo "Testing integration test API..."
-	@. $(ACTIVATE_TEST) && PYTHONPATH=$(CURDIR)/tests py.test $(PY_TEST_EXTRA_ARGS) -s -m "integration"
+	@. $(ACTIVATE_TEST_VENV) && PYTHONPATH=$(CURDIR)/tests py.test $(PY_TEST_EXTRA_ARGS) -s -m "integration"
 
-lint: venv_test
+lint: tlt_test_venv
 	@echo "Style checks..."
-	@. $(ACTIVATE_TEST) && flake8 tlt
-	@. $(ACTIVATE_TEST) && flake8 tests
+	@. $(ACTIVATE_TEST_VENV) && flake8 tlt
+	@. $(ACTIVATE_TEST_VENV) && flake8 tests
 
 clean:
-	rm -rf tlt_tests
+	rm -rf tlt_test_venv
 
-venv_docs: venv_test $(CURDIR)/docs/requirements-docs.txt
+tlt_docs_venv: tlt_test_venv $(CURDIR)/docs/requirements-docs.txt
 	@echo "Installing docs dependencies..."
-	@. $(ACTIVATE_DOCS) && pip install -r $(CURDIR)/docs/requirements-docs.txt
+	@. $(ACTIVATE_DOCS_VENV) && pip install -r $(CURDIR)/docs/requirements-docs.txt
 
-html: venv_docs
+html: tlt_docs_venv
 	@echo "Building Sphinx documentation..."
-	@. $(ACTIVATE_DOCS) && $(MAKE) -C docs clean html
+	@. $(ACTIVATE_DOCS_VENV) && $(MAKE) -C docs clean html
 
 test_docs: html
 	@echo "Testing Sphinx documentation..."
-	@. $(ACTIVATE_DOCS) && $(MAKE) -C docs doctest
+	@. $(ACTIVATE_DOCS_VENV) && $(MAKE) -C docs doctest
 
-venv_notebook: venv_test
+tlt_notebook_venv: tlt_test_venv
 	@echo "Installing notebook dependencies..."
-	@. $(ACTIVATE_NOTEBOOK) && pip install -r $(CURDIR)/notebooks/requirements.txt
+	@. $(ACTIVATE_TEST_VENV) && pip install -r $(CURDIR)/notebooks/requirements.txt
 
-test_notebook: venv_notebook
+test_notebook: tlt_notebook_venv
 	@echo "Testing Jupyter notebooks..."
-	@. $(ACTIVATE_NOTEBOOK) && \
+	@. $(ACTIVATE_TEST_VENV) && \
 	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
 	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_tf_dataset && \
 	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
@@ -93,19 +92,19 @@ test_notebook: venv_notebook
 	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_custom_dataset && \
 	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_tf_dataset
 
-test_tf_notebook: venv_intel_tf_pyt
-	@. $(ACTIVATE_TF_PYT) && bash run_notebooks.sh tensorflow
+test_tf_notebook: tlt_notebook_venv
+	@. $(ACTIVATE_TEST_VENV) && bash run_notebooks.sh tensorflow
 
-test_pyt_notebook: venv_intel_tf_pyt
-	@. $(ACTIVATE_TF_PYT) && bash run_notebooks.sh pytorch
+test_pyt_notebook: tlt_notebook_venv
+	@. $(ACTIVATE_TEST_VENV) && bash run_notebooks.sh pytorch
 
-dist: venv_docs
+dist: tlt_docs_venv
 	@echo "Create binary wheel..."
-	@. $(ACTIVATE_DOCS) && python setup.py bdist_wheel
+	@. $(ACTIVATE_DOCS_VENV) && python setup.py bdist_wheel
 
 check_dist: dist
 	@echo "Testing the wheel..."
-	@. $(ACTIVATE_DOCS) && \
+	@. $(ACTIVATE_DOCS_VENV) && \
 	pip install twine && \
 	python setup.py bdist_wheel && \
 	twine check dist/*

@@ -39,28 +39,25 @@ Advanced/Developer Installation:
 
 1. Create and activate a Python3 virtual environment using `virtualenv`:
    ```
-   virtualenv -p python3 tlt_env
-   source tlt_env/bin/activate
+   virtualenv -p python3 tlt_dev_venv
+   source tlt_dev_venv/bin/activate
    ```
 
    Or `conda`:
    ```
-   conda create --name tlt_env python=3.9
-   conda activate tlt_env
+   conda create --name tlt_dev_venv python=3.9
+   conda activate tlt_dev_venv
    ```
 
-1. Install the tool with the `tensorflow` and/or `pytorch` option by either building
-   and installing the wheel:
+1. Install the tool by either building and installing the wheel:
    ```
    python setup.py bdist_wheel --universal
-   pip install dist/intel_transfer_learning_tool-0.3.0-py3-none-any.whl[tensorflow,pytorch]
+   pip install dist/intel_transfer_learning_tool-0.3.0-py3-none-any.whl
 
-   # Required for TensorFlow text classification
-   pip install tensorflow-text==2.10.0
    ```
    Or, do an editable install:
    ```
-   pip install --editable .[tensorflow,pytorch]
+   pip install --editable .
    ```
 
 Additional Feature-Specific Steps:

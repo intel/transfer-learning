@@ -5,9 +5,9 @@
 Install `tlt` and it's dependencies for developers as described [here](/README.md##build-and-install)
 ```bash
 # Run these commands from root of the project
-python3 -m virtualenv tlt_env
-source tlt_env/bin/activate
-python -m pip install --editable .[tensorflow,pytorch]
+python3 -m virtualenv tlt_dev_venv
+source tlt_dev_venv/bin/activate
+python -m pip install --editable .
 python -m pip install tensorflow-text==2.10.0
 ```
 

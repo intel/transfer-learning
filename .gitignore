@@ -2,7 +2,7 @@
 *.pyc
 .DS_Store
 **.log
-.venv*
+**venv*
 **/**.whl
 .ipynb_checkpoints
 *.egg-info/
@@ -13,4 +13,4 @@ nc_workspace
 _autosummary
 .coverage
 **/*.cache
-tlt_tests/
+**/**venv

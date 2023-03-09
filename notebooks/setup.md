@@ -23,13 +23,13 @@ the native framework notebooks.
 
    You can use virtualenv:
    ```
-   virtualenv -p python3 tlt-venv
-   source tlt-venv/bin/activate
+   virtualenv -p python3 tlt-notebook-venv
+   source tlt-notebook-venv/bin/activate
    ```
    Or Anaconda:
    ```
-   conda create -n tlt-venv python=3.8
-   conda activate tlt-venv
+   conda create -n tlt-notebook-venv python=3.8
+   conda activate tlt-notebook-venv
    ```
    Then, from inside the activated virtualenv or conda environment run these steps:
    ```

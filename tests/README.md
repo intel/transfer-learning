@@ -5,8 +5,8 @@ Then install the following dependencies:
 
 ```
 # Clone this repo, if you don't already have it
-git clone git@github.com:intel-innersource/frameworks.ai.transfer-learning.git
-cd frameworks.ai.transfer-learning
+git clone https://github.com/IntelAI.transfer-learning.git
+cd transfer-learning
 
 # Run tests with make, or skip this step to run individually
 make test
@@ -18,10 +18,10 @@ make unittest
 make integration
 
 # Create a virtual env or conda env for the test environment
-conda create --name tlt_tests python=3.9
+conda create --name tlt_test_venv python=3.9
 
 # Install tlt for TensorFlow and/or PyTorch
-pip3 install --editable .[tensorflow,pytorch]
+pip3 install --editable .
 
 # Required for TensorFlow text classification
 pip3 install tensorflow-text==2.10.0

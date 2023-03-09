@@ -38,7 +38,7 @@ Build the docker container using the `build.sh` script and dockerfiles from this
 ```
 # Clone the git repo, if you don't already have it
 git clone https://github.com/IntelAI/transfer-learning.git
-cd frameworks.ai.transfer-learning
+cd transfer-learning
 
 # Build the tensorflow tlt container
 FRAMEWORK=tensorflow tlt/tools/docker/build.sh
