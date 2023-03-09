@@ -11,7 +11,7 @@
 |----------|-----------|----------|---------------|
 | Image Classification | PyTorch* | <li>[Intel® Extension for PyTorch*](https://github.com/intel/intel-extension-for-pytorch) <li>Distributed training | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html): CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2 |
 | Image Classification | TensorFlow* | <li>[Intel® Optimization for TensorFlow*](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® third or fourth generation Intel® Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) |
-| Text Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets from .csv files <li> [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/overview#image_classification): [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config), [glue/sst2](https://www.tensorflow.org/datasets/catalog/glue#gluesst2), [imdb_reviews](https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config), [ag_news_subset] (https://www.tensorflow.org/datasets/catalog/ag_news_subset) |
+| Text Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets from .csv files <li> [TensorFlow Datasets](https://www.tensorflow.org/datasets/catalog/overview#image_classification): [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config), [glue/sst2](https://www.tensorflow.org/datasets/catalog/glue#gluesst2), [imdb_reviews](https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config), [ag_news_subset](https://www.tensorflow.org/datasets/catalog/ag_news_subset) |
 | Text Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) <li>Distributed training | <li> Custom datasets <li> Text Classification datasets from [Hugging Face Dataset catalog](https://huggingface.co/datasets) |
 | Image Anomaly Detection | PyTorch | | <li> Custom datasets |
 
@@ -34,7 +34,7 @@ Advanced/Developer Installation:
    ```
    git clone https://github.com/IntelAI/transfer-learning.git
 
-   cd frameworks.ai.transfer-learning
+   cd transfer-learning
    ```
 
 1. Create and activate a Python3 virtual environment using `virtualenv`:
@@ -261,19 +261,28 @@ More CLI Examples:
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.types import FrameworkType, UseCaseType
+import os
+
+# Specify a directory for the dataset to be downloaded
+dataset_dir = os.environ["DATASET_DIR"] if "DATASET_DIR" in os.environ else \
+    os.path.join(os.environ["HOME"], "dataset")
+
+# Specify a directory for output
+output_dir = os.environ["OUTPUT_DIR"] if "OUTPUT_DIR" in os.environ else \
+    os.path.join(os.environ["HOME"], "output")
 
 # Get the model
 model = model_factory.get_model(model_name="resnet_v1_50", framework=FrameworkType.TENSORFLOW)
 
 # Load and preprocess a dataset
-dataset = dataset_factory.load_dataset(dataset_dir="/tmp/data/flower_photos",
+dataset = dataset_factory.load_dataset(dataset_dir = os.path.join(dataset_dir, "flower_photos"),
                                        use_case=UseCaseType.IMAGE_CLASSIFICATION, \
                                        framework=FrameworkType.TENSORFLOW)
 dataset.preprocess(image_size=model.image_size, batch_size=32)
 dataset.shuffle_split(train_pct=.75, val_pct=.25)
 
 # Train the model using the dataset
-model.train(dataset, output_dir="/tmp/output", epochs=1)
+model.train(dataset, output_dir=output_dir, epochs=1)
 
 # Evaluate the trained model
 metrics = model.evaluate(dataset)
@@ -281,26 +290,23 @@ for metric_name, metric_value in zip(model._model.metrics_names, metrics):
     print("{}: {}".format(metric_name, metric_value))
 
 # Export the model
-saved_model_dir = model.export(output_dir="/tmp/output")
+saved_model_dir = model.export(output_dir=output_dir)
 
 # Create an Intel Neural Compressor config file
-inc_config_file = "/tmp/output/inc_config.yaml"
+inc_config_file = os.path.join(output_dir, "inc_config.yaml")
 model.write_inc_config_file(inc_config_file, dataset=dataset, batch_size=512, overwrite=True,
                             accuracy_criterion_relative=0.01, exit_policy_timeout=0,
-                            exit_policy_max_trials=10, tuning_workspace="/tmp/output/nc_workspace")
-
-# Benchmark the trained model using the Intel Neural Compressor config file
-model.benchmark(saved_model_dir, inc_config_file, 'performance')
+                            exit_policy_max_trials=10, tuning_workspace=os.path.join(output_dir, "nc_workspace"))
 
 # Quantize the trained model
-quantization_output = "/tmp/output/quantized_model"
+quantization_output = os.path.join(output_dir, "quantized_model")
 model.quantize(saved_model_dir, quantization_output, inc_config_file)
 
-# Benchmark the quantized model
+# Benchmark the trained model using the Intel Neural Compressor config file
 model.benchmark(quantization_output, inc_config_file, 'performance')
 
 # Do graph optimization on the trained model
-optimization_output = "/tmp/output/optimized_model"
+optimization_output = os.path.join(output_dir, "optimized_model")
 model.optimize_graph(saved_model_dir, optimization_output)
 ```
 

@@ -104,6 +104,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     # Optimize the graph
     if model_name == 'resnet_v1_50':
         optimized_model_dir = os.path.join(output_dir, "optimized")
+        os.makedirs(optimized_model_dir, exist_ok=True)
         model.optimize_graph(saved_model_dir, optimized_model_dir)
         assert os.path.isfile(os.path.join(optimized_model_dir, "saved_model.pb"))
 
