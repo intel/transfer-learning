@@ -22,8 +22,8 @@ Features
 
 .. figure:: images/features.png
    :scale: 42% %
-   :height: 1272px
-   :width: 1676px
+   :height: 1312px
+   :width: 1696px
    :align: center
    :alt: TLT Features
 
