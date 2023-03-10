@@ -3,9 +3,9 @@
 Use the instructions below to install the dependencies required to run the notebooks.
 
 System Requirements:
-* Ubuntu 20.04
-* Python3 (3.7, 3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
-* git
+1. Ubuntu 20.04
+2. Python3 (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
+3. git
 
 ## Install Intel® Transfer Learning Tool
 This is required for the TLT tutorial notebooks and E2E notebooks. Follow the instructions in the
@@ -37,7 +37,7 @@ the native framework notebooks.
    pip install -r ${TLT_REPO}/notebooks/requirements.txt
    ```
    This is only required for TensorFlow text classification notebooks:
-   ````
+   ```
    pip install tensorflow-text==2.10.0
    ```
 3. Set environment variables for the path to the dataset folder and an output directory.

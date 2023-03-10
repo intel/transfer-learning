@@ -68,7 +68,7 @@ command can be found using `tlt <command> --help` (like `tlt train --help`).
 
 List the available models:
 ```
-$ tlt list models --use-case image_classification
+tlt list models --use-case image_classification
 ```
 ```
 ------------------------------
@@ -155,9 +155,10 @@ wide_resnet101_2 (pytorch)
 wide_resnet50_2 (pytorch)
 ```
 
-Train a model:
+**Train a model**:
+Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
-$ tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
+tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
 ```
 ```
 Model name: resnet_v1_50

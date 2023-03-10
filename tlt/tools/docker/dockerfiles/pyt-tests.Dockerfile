@@ -26,7 +26,7 @@ WORKDIR /workspace
 
 ENV EXCLUDE_FRAMEWORK=True
 
-RUN python setup.py bdist_wheel --universal
+RUN python setup.py bdist_wheel
 
 FROM ${BASE_IMAGE}:${BASE_TAG}
 

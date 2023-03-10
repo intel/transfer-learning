@@ -55,7 +55,7 @@ pip install intel-transfer-learning-tool
 
 1. Install the tool by either building and installing the wheel:
    ```
-   python setup.py bdist_wheel --universal
+   python setup.py bdist_wheel
    pip install dist/intel_transfer_learning_tool-0.3.0-py3-none-any.whl
 
    ```
@@ -80,7 +80,7 @@ command can be found using `tlt <command> --help` (like `tlt train --help`).
 
 List the available models:
 ```
-> tlt list models --use-case image_classification
+tlt list models --use-case image_classification
 ```
 ```
 ------------------------------
@@ -129,7 +129,7 @@ mobilenet_v3_large (pytorch)
 **Train a model**:
 Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
-> tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
+tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
 ```
 ```
 Model name: resnet_v1_50
@@ -160,7 +160,7 @@ Saved model directory: /tmp/output/resnet_v1_50/1
 **Evaluate a trained model**:
 Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
-> tlt eval --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos
+tlt eval --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos
 ```
 ```
 Model directory: /tmp/output/resnet_v1_50/1
@@ -176,7 +176,7 @@ Loading saved model from: /tmp/output/resnet_v1_50/1/saved_model.pb
 **Benchmark the trained model**:
 Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
-> tlt benchmark --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
+tlt benchmark --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
 ```
 ```
 Model directory: /tmp/output/resnet_v1_50/1
@@ -195,7 +195,7 @@ performance mode benchmark result:
 **Quantize the model**:
 Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
-> tlt quantize --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 \
+tlt quantize --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 \
   --accuracy-criterion 0.01 --output-dir /tmp/output
 ```
 ```
@@ -239,7 +239,7 @@ INFO:tensorflow:SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/save
 **Benchmark the quantized model**:
 Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
-> tlt benchmark --model-dir /tmp/output/quantized/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
+tlt benchmark --model-dir /tmp/output/quantized/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
 ```
 ```
 Model directory: /tmp/output/quantized/resnet_v1_50/1
@@ -258,7 +258,7 @@ performance mode benchmark result:
 **Do graph optimization on the trained model**:
 Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
-> tlt optimize --model-dir /tmp/output/resnet_v1_50/1 --output-dir /tmp/output
+tlt optimize --model-dir /tmp/output/resnet_v1_50/1 --output-dir /tmp/output
 ```
 ```
 Model directory: /tmp/output/resnet_v1_50/1
