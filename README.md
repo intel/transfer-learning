@@ -17,27 +17,17 @@
 
 ## Build and Install
 
-Requirements:
-* Linux* system (or WSL2 on Windows*)
-* Python3* (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
-* git
-* `apt-get install build-essential python3-dev`
-* To run the quantization functions: `apt-get install libgl1 libglib2.0-0`
+**Requirements**:
+1. Linux* system (or WSL2 on Windows*)
+1. Python3* (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
+1. git
+1. `apt-get install build-essential python3-dev`
+1. To run the quantization functions: `apt-get install libgl1 libglib2.0-0`
 
-Basic Installation:
-```
-pip install intel-transfer-learning-tool
-```
-
-Advanced/Developer Installation:
-1. Clone this repo and navigate to the repo directory:
-   ```
-   git clone https://github.com/IntelAI/transfer-learning.git
-
-   cd transfer-learning
-   ```
-
-1. Create and activate a Python3 virtual environment using `virtualenv`:
+**Create and activate a Python3 virtual environment**\
+Users are encouraged to use python virtual environments for consistent package management\
+\
+   Using `virtualenv`
    ```
    virtualenv -p python3 tlt_dev_venv
    source tlt_dev_venv/bin/activate
@@ -47,6 +37,20 @@ Advanced/Developer Installation:
    ```
    conda create --name tlt_dev_venv python=3.9
    conda activate tlt_dev_venv
+   ```
+
+
+## Basic Installation:
+```
+pip install intel-transfer-learning-tool
+```
+
+## Advanced/Developer Installation:
+1. Clone this repo and navigate to the repo directory:
+   ```
+   git clone https://github.com/IntelAI/transfer-learning.git
+
+   cd transfer-learning
    ```
 
 1. Install the tool by either building and installing the wheel:
@@ -60,7 +64,7 @@ Advanced/Developer Installation:
    pip install --editable .
    ```
 
-Additional Feature-Specific Steps:
+## Additional Feature-Specific Steps:
 1. For TensorFlow text classification, this is also required:
    ```
    pip install tensorflow-text==2.10.0
@@ -77,6 +81,8 @@ command can be found using `tlt <command> --help` (like `tlt train --help`).
 List the available models:
 ```
 > tlt list models --use-case image_classification
+```
+```
 ------------------------------
 IMAGE CLASSIFICATION
 ------------------------------
@@ -118,12 +124,14 @@ mobilenet_v2 (pytorch)
 mobilenet_v2_100_224 (tensorflow)
 mobilenet_v3_large (pytorch)
 ...
-
 ```
 
-Train a model:
+**Train a model**:
+Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
 > tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
+```
+```
 Model name: resnet_v1_50
 Framework: tensorflow
 Training epochs: 1
@@ -149,9 +157,12 @@ Checkpoint directory: /tmp/output/resnet_v1_50_checkpoints
 Saved model directory: /tmp/output/resnet_v1_50/1
 ```
 
-Evaluate a trained model:
+**Evaluate a trained model**:
+Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
 > tlt eval --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos
+```
+```
 Model directory: /tmp/output/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
 Model name: resnet_v1_50
@@ -162,9 +173,12 @@ Loading saved model from: /tmp/output/resnet_v1_50/1/saved_model.pb
 28/28 [==============================] - 8s 236ms/step - loss: 0.2528 - acc: 0.9163
 ```
 
-Benchmark the trained model:
+**Benchmark the trained model**:
+Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
 > tlt benchmark --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
+```
+```
 Model directory: /tmp/output/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
 Benchmarking mode: performance
@@ -178,10 +192,13 @@ performance mode benchmark result:
 2022-06-28 10:22:10 [INFO] Throughput: 329.878 images/sec
 ```
 
-Quantize the model:
+**Quantize the model**:
+Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
 > tlt quantize --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 \
   --accuracy-criterion 0.01 --output-dir /tmp/output
+```
+```
 Model directory: /tmp/output/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
 Accuracy criterion: 0.01
@@ -219,9 +236,12 @@ INFO:tensorflow:SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/save
 2022-06-28 10:26:13 [INFO] Save quantized model to /tmp/output/quantized/resnet_v1_50/1
 ```
 
-Benchmark the quantized model:
+**Benchmark the quantized model**:
+Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
 > tlt benchmark --model-dir /tmp/output/quantized/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 --mode performance
+```
+```
 Model directory: /tmp/output/quantized/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
 Benchmarking mode: performance
@@ -235,9 +255,12 @@ performance mode benchmark result:
 2022-06-28 10:28:33 [INFO] Throughput: 1056.940 images/sec
 ```
 
-Do graph optimization on the trained model:
+**Do graph optimization on the trained model**:
+Make sure to specify your own file paths for `dataset-dir` and `output-dir`
 ```
 > tlt optimize --model-dir /tmp/output/resnet_v1_50/1 --output-dir /tmp/output
+```
+```
 Model directory: /tmp/output/resnet_v1_50/1
 Model name: resnet_v1_50
 Output directory: /tmp/output

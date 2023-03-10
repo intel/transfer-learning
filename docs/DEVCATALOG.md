@@ -52,9 +52,9 @@ Run simple CLI commands at a bash prompt or make API calls in a Python* script t
 ## Get Started
 
 ### Requirements
-* Linux* system (verified on Ubuntu* 20.04), CPU-only
-* Python3* (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
-* Install required packages with `apt-get install build-essential python3-dev libgl1 libglib2.0-0`
+1. Linux* system (verified on Ubuntu* 20.04), CPU-only
+2. Python3* (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
+3. Install required packages with `apt-get install build-essential python3-dev libgl1 libglib2.0-0`
 
 ### Install
 
@@ -69,6 +69,8 @@ command can be found using `tlt <command> --help` (like `tlt train --help`).
 List the available models:
 ```
 $ tlt list models --use-case image_classification
+```
+```
 ------------------------------
 IMAGE CLASSIFICATION
 ------------------------------
@@ -156,6 +158,8 @@ wide_resnet50_2 (pytorch)
 Train a model:
 ```
 $ tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
+```
+```
 Model name: resnet_v1_50
 Framework: tensorflow
 Training epochs: 1
@@ -172,35 +176,54 @@ quantized to int8 precision for improved inference performance.
 ```python
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
+from tlt.utils.types import FrameworkType, UseCaseType
+import os
+
+# Specify a directory for the dataset to be downloaded
+dataset_dir = os.environ["DATASET_DIR"] if "DATASET_DIR" in os.environ else \
+    os.path.join(os.environ["HOME"], "dataset")
+
+# Specify a directory for output
+output_dir = os.environ["OUTPUT_DIR"] if "OUTPUT_DIR" in os.environ else \
+    os.path.join(os.environ["HOME"], "output")
 
 # Get the model
-model = model_factory.get_model(model_name="resnet_v1_50", framework="tensorflow")
+model = model_factory.get_model(model_name="resnet_v1_50", framework=FrameworkType.TENSORFLOW)
 
 # Load and preprocess a dataset
-dataset = dataset_factory.load_dataset(dataset_dir="/tmp/data/flower_photos",
-                                       use_case="image_classification", \
-                                       framework="tensorflow")
-dataset.shuffle_split(train_pct=.75, val_pct=.25)
+dataset = dataset_factory.load_dataset(dataset_dir = os.path.join(dataset_dir, "flower_photos"),
+                                       use_case=UseCaseType.IMAGE_CLASSIFICATION, \
+                                       framework=FrameworkType.TENSORFLOW)
 dataset.preprocess(image_size=model.image_size, batch_size=32)
+dataset.shuffle_split(train_pct=.75, val_pct=.25)
 
 # Train the model using the dataset
-model.train(dataset, output_dir="/tmp/output", epochs=1)
+model.train(dataset, output_dir=output_dir, epochs=1)
+
+# Evaluate the trained model
+metrics = model.evaluate(dataset)
+for metric_name, metric_value in zip(model._model.metrics_names, metrics):
+    print("{}: {}".format(metric_name, metric_value))
 
 # Export the model
-saved_model_dir = model.export(output_dir="/tmp/output")
+saved_model_dir = model.export(output_dir=output_dir)
 
 # Create an Intel Neural Compressor config file
-inc_config_file = "/tmp/output/inc_config.yaml"
+inc_config_file = os.path.join(output_dir, "inc_config.yaml")
 model.write_inc_config_file(inc_config_file, dataset=dataset, batch_size=512, overwrite=True,
                             accuracy_criterion_relative=0.01, exit_policy_timeout=0,
-                            exit_policy_max_trials=10, tuning_workspace="/tmp/output/nc_workspace")
+                            exit_policy_max_trials=10, tuning_workspace=os.path.join(output_dir, "nc_workspace"))
 
 # Quantize the trained model
-quantization_output = "/tmp/output/quantized_model"
+quantization_output = os.path.join(output_dir, "quantized_model")
 model.quantize(saved_model_dir, quantization_output, inc_config_file)
 
-# Benchmark the quantized model
+# Benchmark the trained model using the Intel Neural Compressor config file
 model.benchmark(quantization_output, inc_config_file, 'performance')
+
+# Do graph optimization on the trained model
+optimization_output = os.path.join(output_dir, "optimized_model")
+model.optimize_graph(saved_model_dir, optimization_output)
 ```
 
 For more details, visit the [Intel Transfer Learning Tool](https://github.com/IntelAI/transfer-learning-tool) 

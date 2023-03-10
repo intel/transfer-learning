@@ -1,5 +1,9 @@
 # Transfer Learning Notebooks
 
+## Environment setup and running the notebooks
+
+Use the [setup instructions](setup.md) to install the dependencies required to run the notebooks.
+
 This directory has Jupyter notebooks that demonstrate transfer learning with
 and without Intel® Transfer Learning Tool. All of the notebooks use models from public model repositories
 and leverage optimized libraries [Intel-optimized TensorFlow](https://pypi.org/project/intel-tensorflow/)
@@ -36,7 +40,3 @@ and [Intel Extension for PyTorch](https://github.com/intel/intel-extension-for-p
 | [Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API](/notebooks/e2e_workflows/Remote_Sensing_Image_Scene_Classification.ipynb) | CV: Image Classification | TensorFlow and the Intel Transfer Learning Tool API | Demonstrates how to use the Intel Transfer Learning Tool API to do transfer learning for image classification using a TensorFlow model for a remote sensing image scene classification application. |
 | [Multimodal Cancer Detection using TensorFlow, PyTorch, and the Intel® Transfer Learning Tool API](/notebooks/e2e_workflows/Multimodal_Cancer_Detection.ipynb) | CV: Image Classification<br>NLP: Text Classification | TensorFlow, PyTorch, and the Intel Transfer Learning Tool API | Demonstrates how to use the Intel Transfer Learning Tool API to do transfer learning for a late fusion multimodal ensemble application using both NLP and computer vision models from PyTorch and Tensorflow, respectively. |
 | [Anomaly Detection using PyTorch and the Intel® Transfer Learning Tool API](/notebooks/e2e_workflows/Anomaly_Detection.ipynb) | CV: Image Anomaly Detection | PyTorch and the Intel Transfer Learning Tool API | Demonstrates how to use the Intel Transfer Learning Tool API to do feature extraction for image anomaly detection using a Torchvision model. |
-
-## Environment setup and running the notebooks
-
-Use the [setup instructions](setup.md) to install the dependencies required to run the notebooks.
