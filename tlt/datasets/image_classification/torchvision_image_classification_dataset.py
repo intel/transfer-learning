@@ -24,7 +24,7 @@ from tlt.datasets.pytorch_dataset import PyTorchDataset
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 from ai_downloader.datasets import DataDownloader
 
-DATASETS = ["CIFAR10", "Food101", "CIFAR100", "Country211", "DTD", "FGVCAircraft", "RenderedSST2"]
+DATASETS = ["CIFAR10", "Food101", "Country211", "DTD", "FGVCAircraft", "RenderedSST2"]
 
 
 class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchDataset):

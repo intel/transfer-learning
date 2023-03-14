@@ -44,12 +44,10 @@ Features
 
    Image Classification with TF Hub, Image Classification, TensorFlow
    Image Classification with PyTorch & Torchvision, Image Classification, PyTorch
-   Object Detection with PyTorch & Torchvision, Object Detection, PyTorch
    BERT SQuAD fine tuning with TF Hub, Question Answering, TensorFlow
    BERT Binary Text Classification with TF Hub, Text Classification, TensorFlow
    BERT Multiclass Text Classification with TF Hub, Text Classification, TensorFlow
    Text Classifier fine tuning with PyTorch & Hugging Face, Text Classification, PyTorch
-   Video Classification with PyTorch & Torchvision, Video Classification, PyTorch
 
 .. csv-table:: Transfer Learning Tool End-to-End Pipelines
    :header: "Notebook", "Use Case", "Framework"

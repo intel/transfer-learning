@@ -248,10 +248,7 @@ notebooks, and for real-world examples check out the reference workflows.
 
 ### Examples
 
-Check out these Reference Kits and Workflows that use Intel Transfer Learning Tool:
-
-* [Breast Cancer Detection]()
-* [Anomaly Detection]()
+Coming soon: AI Reference Kits that use Intel Transfer Learning Tool
 
 ## Support
 
