@@ -60,8 +60,7 @@ integration: tlt_test_venv
 
 lint: tlt_test_venv
 	@echo "Style checks..."
-	@. $(ACTIVATE_TEST_VENV) && flake8 tlt
-	@. $(ACTIVATE_TEST_VENV) && flake8 tests
+	@. $(ACTIVATE_TEST_VENV) && flake8 tlt tests
 
 clean:
 	rm -rf tlt_test_venv
