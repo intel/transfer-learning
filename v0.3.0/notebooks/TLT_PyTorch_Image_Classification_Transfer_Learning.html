@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Transfer Learning for Image Classification using TensorFlow and the Intel® Transfer Learning Tool API" href="TLT_TF_Image_Classification_Transfer_Learning.html" />
+    <link rel="prev" title="Example Notebooks" href="../notebooks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../notebooks.html">Example Notebooks</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Import-dependencies-and-setup-parameters">1. Import dependencies and setup parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Get-the-model">2. Get the model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Get-the-dataset">3. Get the dataset</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Option-A:-Use-your-own-dataset">Option A: Use your own dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Option-B:-Use-a-dataset-from-the-PyTorch's-Torchvision-Datasets-catalog">Option B: Use a dataset from the PyTorch’s Torchvision Datasets catalog</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Prepare-the-dataset">4. Prepare the dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#5.-Predict-using-the-original-model">5. Predict using the original model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#6.-Transfer-Learning">6. Transfer Learning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Arguments">Arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#7.-Predict">7. Predict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Custom-Single-Image-Prediction">Custom Single Image Prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#8.-Export">8. Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Dataset-Citations">Dataset Citations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="TLT_TF_Image_Classification_Transfer_Learning.html">Transfer Learning for Image Classification using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TLT_TF_Text_Classification_Transfer_Learning.html">Text Classification fine tuning using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TLT_PyTorch_Text_Classification_Transfer_Learning.html">Text Classification fine tuning using Pytorch and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Medical_Imaging_Classification.html">Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Remote_Sensing_Image_Scene_Classification.html">Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks.html#environment-setup-and-running-the-notebooks">Environment Setup and Running the Notebooks</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../notebooks.html">Example Notebooks</a></li>
+      <li class="breadcrumb-item active">Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Transfer-Learning-for-Image-Classification-using-PyTorch-and-the-Intel®-Transfer-Learning-Tool-API">
+<h1>Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API<a class="headerlink" href="#Transfer-Learning-for-Image-Classification-using-PyTorch-and-the-Intel®-Transfer-Learning-Tool-API" title="Permalink to this heading">¶</a></h1>
+<p>This notebook uses the <code class="docutils literal notranslate"><span class="pre">tlt</span></code> library to do transfer learning for image classfication with a PyTorch pretrained model.</p>
+<section id="1.-Import-dependencies-and-setup-parameters">
+<h2>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Permalink to this heading">¶</a></h2>
+<p>This notebook assumes that you have already followed the instructions to setup a PyTorch environment with all the dependencies required to run the notebook.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">PIL.Image</span> <span class="k">as</span> <span class="nn">Image</span>
+<span class="kn">import</span> <span class="nn">torch</span><span class="o">,</span> <span class="nn">torchvision</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="c1"># tlt imports</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">download_and_extract_tar_file</span><span class="p">,</span> <span class="n">download_file</span>
+
+<span class="c1"># Specify a directory for the dataset to be downloaded</span>
+<span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+
+<span class="c1"># Specify a directory for output</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OUTPUT_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;OUTPUT_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dataset directory:&quot;</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output directory:&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Get-the-model">
+<h2>2. Get the model<a class="headerlink" href="#2.-Get-the-model" title="Permalink to this heading">¶</a></h2>
+<p>In this step, we call the model factory to list supported PyTorch image classification models. This is a list of pretrained models from <a class="reference external" href="https://pytorch.org/vision/stable/datasets.html">torchvision</a> that we tested with our API. Optionally, the <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> argument can be added to the <code class="docutils literal notranslate"><span class="pre">print_supported_models</span></code> function call to get more information about each model (such as the classification layer, image size, the original dataset, etc).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># See a list of available models</span>
+<span class="n">model_factory</span><span class="o">.</span><span class="n">print_supported_models</span><span class="p">(</span><span class="n">use_case</span><span class="o">=</span><span class="s1">&#39;image_classification&#39;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s1">&#39;pytorch&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next, use the model factory to get one of the models listed in the previous cell. The <code class="docutils literal notranslate"><span class="pre">get_model</span></code> function returns a model object that will later be used for training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;efficientnet_b0&#39;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s1">&#39;pytorch&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model name:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Framework:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">framework</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Use case:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">use_case</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Image size:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">image_size</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="3.-Get-the-dataset">
+<h2>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Permalink to this heading">¶</a></h2>
+<section id="Option-A:-Use-your-own-dataset">
+<h3>Option A: Use your own dataset<a class="headerlink" href="#Option-A:-Use-your-own-dataset" title="Permalink to this heading">¶</a></h3>
+<p>To use your own image dataset for transfer learning with the rest of this notebook, format your images as <code class="docutils literal notranslate"><span class="pre">.jpg</span></code> files and save them in folders named after the classes that you want the model to predict. To provide a working example using the correct layout, we will download a flower species dataset. After downloading and extracting, you will have the following subdirectories in your dataset directory. Each species subfolder will contain numerous <code class="docutils literal notranslate"><span class="pre">.jpg</span></code> files:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>flower_photos
+  └── daisy
+  └── dandelion
+  └── roses
+  └── sunflowers
+  └── tulips
+</pre></div>
+</div>
+<p>When using your own dataset, ensure that it is similarly organized with folders for each class. Change the <code class="docutils literal notranslate"><span class="pre">custom_dataset_path</span></code> variable to point to your dataset folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># For demonstration purposes, we download a flowers dataset. To instead use your own dataset, set the</span>
+<span class="c1"># custom_dataset_path to point to your dataset&#39;s directory and comment out the download_and_extract_tar_file line.</span>
+<span class="n">custom_dataset_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s2">&quot;flower_photos&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">custom_dataset_path</span><span class="p">):</span>
+    <span class="n">download_url</span> <span class="o">=</span> <span class="s2">&quot;https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz&quot;</span>
+    <span class="n">download_and_extract_tar_file</span><span class="p">(</span><span class="n">download_url</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Call the dataset factory to load the dataset from the directory.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the dataset from the custom dataset path</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="n">custom_dataset_path</span><span class="p">,</span>
+                                       <span class="n">use_case</span><span class="o">=</span><span class="s1">&#39;image_classification&#39;</span><span class="p">,</span>
+                                       <span class="n">framework</span><span class="o">=</span><span class="s1">&#39;pytorch&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Class names:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Skip to the next step <a class="reference external" href="#4.-Prepare-the-dataset">4. Prepare the dataset</a> to continue using the custom dataset.</p>
+</section>
+<section id="Option-B:-Use-a-dataset-from-the-PyTorch's-Torchvision-Datasets-catalog">
+<h3>Option B: Use a dataset from the PyTorch’s Torchvision Datasets catalog<a class="headerlink" href="#Option-B:-Use-a-dataset-from-the-PyTorch's-Torchvision-Datasets-catalog" title="Permalink to this heading">¶</a></h3>
+<p>To use a Torchvision dataset, specify the name of the dataset in the <code class="docutils literal notranslate"><span class="pre">get_dataset</span></code> function. This example uses the <code class="docutils literal notranslate"><span class="pre">CIFAR10</span></code> dataset from the <a class="reference external" href="https://pytorch.org/vision/stable/datasets.html#image-classification">Torchvision datasets for image classification</a>, but you can choose from a variety of options. If the dataset is not found in the dataset directory it will be downloaded. Subsequent runs will reuse the already downloaded dataset.</p>
+<p>These Torchvision datasets are currently supported in the API: * CIFAR10 * CIFAR100 * Country211 * DTD * Food101 * FGVCAircraft * RenderedSST2</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="n">dataset_dir</span><span class="p">,</span>
+                                      <span class="n">use_case</span><span class="o">=</span><span class="s1">&#39;image_classification&#39;</span><span class="p">,</span>
+                                      <span class="n">framework</span><span class="o">=</span><span class="s1">&#39;pytorch&#39;</span><span class="p">,</span>
+                                      <span class="n">dataset_name</span><span class="o">=</span><span class="s1">&#39;CIFAR10&#39;</span><span class="p">,</span>
+                                      <span class="n">dataset_catalog</span><span class="o">=</span><span class="s1">&#39;torchvision&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Class names:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="4.-Prepare-the-dataset">
+<h2>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Permalink to this heading">¶</a></h2>
+<p>Once you have your dataset from Option A or Option B above, use the following cells to split and preprocess the data. We split them into training and validation subsets, then resize the images to match the selected models, and then batch the images. Data augmentation can be appplied by specifying the augmentations to be applied in add_aug parameter. Supported augmentations are given below 1. hflip - RandomHorizontalFlip 2. rotate - RandomRotate</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Split the dataset into training and validation subsets</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="mf">.75</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">.25</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Preprocess the dataset with an image size that matches the model and a batch size of 32</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">image_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">add_aug</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hflip&#39;</span><span class="p">,</span><span class="s1">&#39;rotate&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="5.-Predict-using-the-original-model">
+<h2>5. Predict using the original model<a class="headerlink" href="#5.-Predict-using-the-original-model" title="Permalink to this heading">¶</a></h2>
+<p>We get a single batch from our dataset, and use that to call predict on our model. Since we haven’t done any training on the model yet, it will give us predictions using the original ImageNet trained model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get a single batch from the dataset</span>
+<span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_batch</span><span class="p">()</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+
+<span class="c1"># Download the ImageNet labels and load them into a list</span>
+<span class="n">labels_file</span> <span class="o">=</span> <span class="s2">&quot;https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt&quot;</span>
+<span class="n">labels_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">labels_file</span><span class="p">))</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">labels_file_path</span><span class="p">):</span>
+    <span class="n">download_file</span><span class="p">(</span><span class="n">labels_file</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">labels_file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">imagenet_labels</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">imagenet_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">imagenet_labels</span><span class="p">]</span>
+
+<span class="c1"># Predict using the original model</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">imagenet_classes</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Display the images with the predicted ImageNet label</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">14</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">30</span><span class="p">)):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">])</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">std</span> <span class="o">*</span> <span class="n">inp</span> <span class="o">+</span> <span class="n">mean</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+    <span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">==</span> <span class="n">predictions</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;darkgreen&quot;</span> <span class="k">if</span> <span class="n">correct_prediction</span> <span class="k">else</span> <span class="s2">&quot;crimson&quot;</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="k">if</span> <span class="n">correct_prediction</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;ImageNet predictions&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Correct predictions are shown in green&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Incorrect predictions are shown in red with the actual label in parenthesis&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="6.-Transfer-Learning">
+<h2>6. Transfer Learning<a class="headerlink" href="#6.-Transfer-Learning" title="Permalink to this heading">¶</a></h2>
+<p>This step calls the model’s train function with the dataset that was just prepared. The training function will get the Torchvision feature vector and add on a dense layer based on the number of classes in the dataset. The model is then compiled and trained based on the number of epochs specified in the argument. With the do_eval parameter set to True by default, this step will also show how the model can be evaluated. The model’s evaluate function returns a list of metrics calculated from the
+dataset’s validation subset.</p>
+<section id="Arguments">
+<h3>Arguments<a class="headerlink" href="#Arguments" title="Permalink to this heading">¶</a></h3>
+<section id="Required">
+<h4>Required<a class="headerlink" href="#Required" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>dataset</strong> (ImageClassificationDataset, required): Dataset to use when training the model</p></li>
+<li><p><strong>output_dir</strong> (str): Path to a writeable directory for checkpoint files</p></li>
+<li><p><strong>epochs</strong> (int): Number of epochs to train the model (default: 1)</p></li>
+</ul>
+</section>
+<section id="Optional">
+<h4>Optional<a class="headerlink" href="#Optional" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>initial_checkpoints</strong> (str): Path to checkpoint weights to load. If the path provided is a directory, the latest checkpoint will be used.</p></li>
+<li><p><strong>early_stopping</strong> (bool): Enable early stopping if convergence is reached while training at the end of each epoch. (default: False)</p></li>
+<li><p><strong>lr_decay</strong> (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at the end of each epoch.</p></li>
+<li><p><strong>extra_layers</strong> (list[int]): Optionally insert additional dense layers between the base model and output layer. This can help increase accuracy when fine-tuning a TFHub model. The input should be a list of integers representing the number and size of the layers, for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the second with 512 neurons.</p></li>
+</ul>
+<p>Note: refer to release documentation for an up-to-date list of train arguments and their current descriptions</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>A complete model summary can be printed for all modules in case any need to be unfrozen:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">list_layers</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Layers can be unfrozen by passing their string names, such as the following:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">unfreeze_layer</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span> <span class="c1"># Unfreezes the features layers</span>
+<span class="n">model</span><span class="o">.</span><span class="n">list_layers</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="7.-Predict">
+<h2>7. Predict<a class="headerlink" href="#7.-Predict" title="Permalink to this heading">¶</a></h2>
+<p>Lastly, we predict using the same single batch that we used earlier with the ImageNet trained model to visualize the model’s predictions after training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Predict with a single batch</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+
+<span class="c1"># Map the predicted ids to the class names</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">]</span>
+
+<span class="c1"># Display the results</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">16</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">30</span><span class="p">)):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">])</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">std</span> <span class="o">*</span> <span class="n">inp</span> <span class="o">+</span> <span class="n">mean</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+    <span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">==</span> <span class="n">predictions</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;darkgreen&quot;</span> <span class="k">if</span> <span class="n">correct_prediction</span> <span class="k">else</span> <span class="s2">&quot;crimson&quot;</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="k">if</span> <span class="n">correct_prediction</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Model predictions&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Correct predictions are shown in green&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Incorrect predictions are shown in red with the actual label in parenthesis&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Custom-Single-Image-Prediction">
+<h3>Custom Single Image Prediction<a class="headerlink" href="#Custom-Single-Image-Prediction" title="Permalink to this heading">¶</a></h3>
+<p>We can also predict using a single image that wasn’t part of our original dataset. We download a flower image from the <a class="reference external" href="https://storage.googleapis.com/openimages/web/index.html">Open Images Dataset</a> and then resize it to match our model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download an image from the web and resize it to match our model</span>
+<span class="n">image_url</span> <span class="o">=</span> <span class="s1">&#39;https://c8.staticflickr.com/8/7095/7210797228_c7fe51c3cb_z.jpg&#39;</span>
+
+<span class="n">image_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">image_size</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">image_size</span><span class="p">)</span>
+<span class="n">daisy</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_url</span><span class="p">)</span><span class="o">.</span><span class="n">content</span><span class="p">))</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image_shape</span><span class="p">)</span>
+<span class="n">daisy</span>
+</pre></div>
+</div>
+</div>
+<p>Then, we call predict by passing the np array for our image and add a dimension to our array to represent the batch.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the image as a np array and scale and normalize it</span>
+<span class="n">daisy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">daisy</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span>
+<span class="n">daisy</span> <span class="o">=</span> <span class="p">(</span><span class="n">daisy</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">]))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+
+<span class="c1"># Arrange the channels with a batch dimension first (np.newaxis) and RGB channels second (np.moveaxis)</span>
+<span class="n">daisy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">daisy</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+<span class="c1"># Predict and print the class name</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">daisy</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="8.-Export">
+<h2>8. Export<a class="headerlink" href="#8.-Export" title="Permalink to this heading">¶</a></h2>
+<p>Lastly, we can call the model <code class="docutils literal notranslate"><span class="pre">export</span></code> function to generate a <code class="docutils literal notranslate"><span class="pre">saved_model.pb</span></code>. Each time the model is exported, a new numbered directory is created, which allows serving to pick up the latest model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Dataset-Citations">
+<h2>Dataset Citations<a class="headerlink" href="#Dataset-Citations" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@ONLINE {tfflowers,
+author = &quot;The TensorFlow Team&quot;,
+title = &quot;Flowers&quot;,
+month = &quot;jan&quot;,
+year = &quot;2019&quot;,
+url = &quot;http://download.tensorflow.org/example_images/flower_photos.tgz&quot; }
+
+@ONLINE {CIFAR10,
+author = &quot;Alex Krizhevsky&quot;,
+title = &quot;CIFAR-10&quot;,
+year = &quot;2009&quot;,
+url = &quot;http://www.cs.toronto.edu/~kriz/cifar.html&quot; }
+
+@article{openimages,
+  title={OpenImages: A public dataset for large-scale multi-label and multi-class image classification.},
+  author={Krasin, Ivan and Duerig, Tom and Alldrin, Neil and Veit, Andreas and Abu-El-Haija, Sami
+    and Belongie, Serge and Cai, David and Feng, Zheyun and Ferrari, Vittorio and Gomes, Victor
+    and Gupta, Abhinav and Narayanan, Dhyanesh and Sun, Chen and Chechik, Gal and Murphy, Kevin},
+  journal={Dataset available from https://github.com/openimages},
+  year={2016}
+}
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../notebooks.html" class="btn btn-neutral float-left" title="Example Notebooks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="TLT_TF_Image_Classification_Transfer_Learning.html" class="btn btn-neutral float-right" title="Transfer Learning for Image Classification using TensorFlow and the Intel® Transfer Learning Tool API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Intel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

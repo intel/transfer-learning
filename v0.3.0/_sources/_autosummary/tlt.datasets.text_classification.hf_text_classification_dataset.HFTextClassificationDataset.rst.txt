@@ -1,0 +1,45 @@
+﻿tlt.datasets.text\_classification.hf\_text\_classification\_dataset.HFTextClassificationDataset
+===============================================================================================
+
+.. currentmodule:: tlt.datasets.text_classification.hf_text_classification_dataset
+
+.. autoclass:: HFTextClassificationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HFTextClassificationDataset.__init__
+      ~HFTextClassificationDataset.get_batch
+      ~HFTextClassificationDataset.get_str_label
+      ~HFTextClassificationDataset.get_text
+      ~HFTextClassificationDataset.load_hf_dataset
+      ~HFTextClassificationDataset.preprocess
+      ~HFTextClassificationDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HFTextClassificationDataset.class_names
+      ~HFTextClassificationDataset.dataset
+      ~HFTextClassificationDataset.dataset_catalog
+      ~HFTextClassificationDataset.dataset_dir
+      ~HFTextClassificationDataset.dataset_name
+      ~HFTextClassificationDataset.info
+      ~HFTextClassificationDataset.test_loader
+      ~HFTextClassificationDataset.test_subset
+      ~HFTextClassificationDataset.train_loader
+      ~HFTextClassificationDataset.train_subset
+      ~HFTextClassificationDataset.validation_loader
+      ~HFTextClassificationDataset.validation_subset
+   
+   
