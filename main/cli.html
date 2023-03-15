@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CLI Reference &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -12,13 +12,16 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Image Classification TLT CLI Examples" href="examples/cli/image_classification.html" />
+    <link rel="next" title="Image Classification Intel® Transfer Learning Tool CLI Examples" href="examples/cli/image_classification.html" />
     <link rel="prev" title="Intel® Transfer Learning Tool Quick Start" href="quickstart.html" /> 
 </head>
 
@@ -27,11 +30,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -55,8 +62,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#tlt-train">train</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="examples/cli/image_classification.html">Image Classification TLT CLI Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/cli/text_classification.html">Text Classification TLT CLI Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/cli/image_classification.html">Image Classification Intel® Transfer Learning Tool CLI Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/cli/text_classification.html">Text Classification Intel Transfer Learning Tool CLI Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
@@ -76,7 +83,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">CLI Reference</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/cli.rst.txt" rel="nofollow"> View page source</a>
@@ -87,31 +94,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="cli-reference">
+  <section id="cli-reference">
 <h1>CLI Reference<a class="headerlink" href="#cli-reference" title="Permalink to this heading">¶</a></h1>
 <section id="tlt">
 <h2>tlt<a class="headerlink" href="#tlt" title="Permalink to this heading">¶</a></h2>
@@ -474,6 +457,36 @@
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-ipex_optimize">
+<span class="sig-name descname"><span class="pre">--ipex_optimize</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-ipex_optimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean option to optimize model with Intel Extension for PyTorch.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-d">
+<span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--distributed</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean option to trigger a distributed training job.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-nnodes">
+<span class="sig-name descname"><span class="pre">--nnodes</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;nnodes&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-nnodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of nodes to run the training job [default: 1]</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-nproc_per_node">
+<span class="sig-name descname"><span class="pre">--nproc_per_node</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;nproc_per_node&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-nproc_per_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of processes per node for the distributed training job [default: 1]</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-hostfile">
+<span class="sig-name descname"><span class="pre">--hostfile</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hostfile&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-hostfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>hostfile with a list of nodes to run distributed training.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-early-stopping">
 <span class="sig-name descname"><span class="pre">--early-stopping</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--early_stopping</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;early_stopping&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-early-stopping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enable early stopping if convergence is reached while training (bool)</p>
@@ -496,7 +509,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="quickstart.html" class="btn btn-neutral float-left" title="Intel® Transfer Learning Tool Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="examples/cli/image_classification.html" class="btn btn-neutral float-right" title="Image Classification TLT CLI Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="examples/cli/image_classification.html" class="btn btn-neutral float-right" title="Image Classification Intel® Transfer Learning Tool CLI Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

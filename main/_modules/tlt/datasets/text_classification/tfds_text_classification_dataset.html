@@ -11,6 +11,9 @@
   <![endif]-->
   
         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../../_static/doctools.js"></script>
         <script src="../../../../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -24,11 +27,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -55,7 +62,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">tlt.datasets.text_classification.tfds_text_classification_dataset</li>
       <li class="wy-breadcrumbs-aside">
@@ -84,17 +91,17 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="c1"># SPDX-License-Identifier: EPL-2.0</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 <span class="c1">#</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">tensorflow_datasets</span> <span class="k">as</span> <span class="nn">tfds</span>
 
 <span class="kn">from</span> <span class="nn">tlt</span> <span class="kn">import</span> <span class="n">TLT_BASE_DIR</span>
 <span class="kn">from</span> <span class="nn">tlt.datasets.tf_dataset</span> <span class="kn">import</span> <span class="n">TFDataset</span>
 <span class="kn">from</span> <span class="nn">tlt.datasets.text_classification.text_classification_dataset</span> <span class="kn">import</span> <span class="n">TextClassificationDataset</span>
 <span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">read_json_file</span>
+<span class="kn">from</span> <span class="nn">ai_downloader.datasets</span> <span class="kn">import</span> <span class="n">DataDownloader</span>
 
 <span class="n">DATASET_CONFIG_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TLT_BASE_DIR</span><span class="p">,</span> <span class="s2">&quot;datasets/configs&quot;</span><span class="p">)</span>
 <span class="n">config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATASET_CONFIG_DIR</span><span class="p">,</span> <span class="s2">&quot;tf_text_classification_datasets.json&quot;</span><span class="p">)</span>
@@ -115,8 +122,6 @@
         <span class="k">if</span> <span class="n">dataset_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">DATASETS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dataset name is not supported. Choose from: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">DATASETS</span><span class="p">))</span>
 
-        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;NO_GCE_CHECK&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
-
         <span class="c1"># as_supervised gives us the (input, label) structure that the model expects</span>
         <span class="n">as_supervised</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -125,14 +130,9 @@
         <span class="k">if</span> <span class="s2">&quot;glue&quot;</span> <span class="ow">in</span> <span class="n">dataset_name</span><span class="p">:</span>
             <span class="n">as_supervised</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
-            <span class="n">dataset_name</span><span class="p">,</span>
-            <span class="n">data_dir</span><span class="o">=</span><span class="n">dataset_dir</span><span class="p">,</span>
-            <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span>
-            <span class="n">as_supervised</span><span class="o">=</span><span class="n">as_supervised</span><span class="p">,</span>
-            <span class="n">shuffle_files</span><span class="o">=</span><span class="n">shuffle_files</span><span class="p">,</span>
-            <span class="n">with_info</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span>
+        <span class="n">downloader</span> <span class="o">=</span> <span class="n">DataDownloader</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="o">=</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">catalog</span><span class="o">=</span><span class="s1">&#39;tfds&#39;</span><span class="p">,</span> <span class="n">as_supervised</span><span class="o">=</span><span class="n">as_supervised</span><span class="p">,</span>
+                                    <span class="n">shuffle_files</span><span class="o">=</span><span class="n">shuffle_files</span><span class="p">,</span> <span class="n">with_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">)</span>
 
         <span class="c1"># Since glue datasets don&#39;t support the supervised (input, label) structure, we have to manually format it</span>
         <span class="k">if</span> <span class="s2">&quot;glue&quot;</span> <span class="ow">in</span> <span class="n">dataset_name</span><span class="p">:</span>

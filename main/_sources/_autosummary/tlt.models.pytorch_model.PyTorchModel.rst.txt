@@ -17,11 +17,14 @@
       ~PyTorchModel.benchmark
       ~PyTorchModel.evaluate
       ~PyTorchModel.export
+      ~PyTorchModel.freeze_layer
+      ~PyTorchModel.list_layers
       ~PyTorchModel.load_from_directory
       ~PyTorchModel.optimize_graph
       ~PyTorchModel.predict
       ~PyTorchModel.quantize
       ~PyTorchModel.train
+      ~PyTorchModel.unfreeze_layer
       ~PyTorchModel.write_inc_config_file
    
    

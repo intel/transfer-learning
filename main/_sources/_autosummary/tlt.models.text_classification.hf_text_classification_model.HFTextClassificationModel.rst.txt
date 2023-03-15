@@ -17,6 +17,8 @@
       ~HFTextClassificationModel.benchmark
       ~HFTextClassificationModel.evaluate
       ~HFTextClassificationModel.export
+      ~HFTextClassificationModel.export_for_distributed
+      ~HFTextClassificationModel.get_inc_config_template_dict
       ~HFTextClassificationModel.load_from_directory
       ~HFTextClassificationModel.optimize_graph
       ~HFTextClassificationModel.predict

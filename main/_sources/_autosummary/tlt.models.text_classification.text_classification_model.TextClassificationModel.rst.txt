@@ -17,6 +17,7 @@
       ~TextClassificationModel.benchmark
       ~TextClassificationModel.evaluate
       ~TextClassificationModel.export
+      ~TextClassificationModel.get_inc_config_template_dict
       ~TextClassificationModel.load_from_directory
       ~TextClassificationModel.optimize_graph
       ~TextClassificationModel.predict

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Text Classification TLT CLI Examples &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+  <title>Text Classification Intel Transfer Learning Tool CLI Examples &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -12,6 +12,9 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -19,7 +22,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="API Reference" href="../../api.html" />
-    <link rel="prev" title="Image Classification TLT CLI Examples" href="image_classification.html" /> 
+    <link rel="prev" title="Image Classification Intel® Transfer Learning Tool CLI Examples" href="image_classification.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -27,11 +30,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -42,10 +49,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../cli.html">CLI Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../cli.html#tlt">tlt</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_classification.html">Image Classification TLT CLI Examples</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Text Classification TLT CLI Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_classification.html">Image Classification Intel® Transfer Learning Tool CLI Examples</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Text Classification Intel Transfer Learning Tool CLI Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#fine-tuning-using-your-own-dataset">Fine tuning using your own dataset</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fine-tuning-using-a-dataset-from-the-tfds-catalog">Fine tuning using a dataset from the TFDS catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#distributed-transfer-learning-using-a-dataset-from-hugging-face">Distributed transfer learning using a dataset from Hugging Face</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#citations">Citations</a></li>
 </ul>
 </li>
@@ -68,9 +76,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../cli.html">CLI Reference</a></li>
-      <li class="breadcrumb-item active">Text Classification TLT CLI Examples</li>
+      <li class="breadcrumb-item active">Text Classification Intel Transfer Learning Tool CLI Examples</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/examples/cli/text_classification.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -80,32 +88,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="text-classification-tlt-cli-examples">
-<h1>Text Classification TLT CLI Examples<a class="headerlink" href="#text-classification-tlt-cli-examples" title="Permalink to this heading">¶</a></h1>
+  <section id="text-classification-intel-transfer-learning-tool-cli-examples">
+<h1>Text Classification Intel Transfer Learning Tool CLI Examples<a class="headerlink" href="#text-classification-intel-transfer-learning-tool-cli-examples" title="Permalink to this heading">¶</a></h1>
 <section id="fine-tuning-using-your-own-dataset">
 <h2>Fine tuning using your own dataset<a class="headerlink" href="#fine-tuning-using-your-own-dataset" title="Permalink to this heading">¶</a></h2>
 <p>The example below shows how to fine tune a TensorFlow text classification model using your own
@@ -117,7 +101,7 @@ columns are being used, the CLI only allows using .csv files in the expected for
 <code class="docutils literal notranslate"><span class="pre">--dataset-file</span></code> is the name of the .csv file to load from that directory. Use the <code class="docutils literal notranslate"><span class="pre">--class-names</span></code>
 argument to specify a list of the classes and the <code class="docutils literal notranslate"><span class="pre">--delimiter</span></code> to specify the character that
 separates the two columns. If no <code class="docutils literal notranslate"><span class="pre">--delimiter</span></code> is specified, the CLI will default to use a comma (<code class="docutils literal notranslate"><span class="pre">,</span></code>).</p>
-<p>This example is downloading the <a class="reference external" href="https://archive-beta.ics.uci.edu/ml/datasets/sms+spam+collection">SMS Spam Collection</a>
+<p>This example is downloading the <a class="reference external" href="https://archive-beta.ics.uci.edu/dataset/228/sms+spam+collection">SMS Spam Collection</a>
 dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text
 messages that are either being classified as <code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>. The first column in the data file has
 the label (<code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>) and the second column is the text of the SMS mesage. The string class
@@ -166,9 +150,9 @@ tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><
 </section>
 <section id="fine-tuning-using-a-dataset-from-the-tfds-catalog">
 <h2>Fine tuning using a dataset from the TFDS catalog<a class="headerlink" href="#fine-tuning-using-a-dataset-from-the-tfds-catalog" title="Permalink to this heading">¶</a></h2>
-<p>This example demonstrates using the TLT CLI to fine tune a text classification model using a
+<p>This example demonstrates using the Intel Transfer Learning Tool CLI to fine tune a text classification model using a
 dataset from the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview">TensorFlow Datasets (TFDS) catalog</a>.
-TLT supports the following text classification datasets from TFDS:
+Intel Transfer Learning Tool supports the following text classification datasets from TFDS:
 <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews">imdb_reviews</a>,
 <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews">glue/sst2</a>,
 and <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config">glue/cola</a>.</p>
@@ -200,6 +184,45 @@ tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><
 </pre></div>
 </div>
 </section>
+<section id="distributed-transfer-learning-using-a-dataset-from-hugging-face">
+<h2>Distributed transfer learning using a dataset from Hugging Face<a class="headerlink" href="#distributed-transfer-learning-using-a-dataset-from-hugging-face" title="Permalink to this heading">¶</a></h2>
+<p>This example runs a distributed PyTorch training job using the TLT CLI. It fine tunes a text classification model
+for document-level sentiment analysis using a dataset from the <a class="reference external" href="https://huggingface.co/datasets">Hugging Face catalog</a>.
+Intel Transfer Learning Tool supports the following text classification datasets from Hugging Face:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://huggingface.co/datasets/imdb">imdb</a></p></li>
+<li><p><a class="reference external" href="https://huggingface.co/datasets/tweet_eval">tweet_eval</a></p></li>
+<li><p><a class="reference external" href="https://huggingface.co/datasets/rotten_tomatoes">rotten_tomatoes</a></p></li>
+<li><p><a class="reference external" href="https://huggingface.co/datasets/ag_news">ag_news</a></p></li>
+<li><p><a class="reference external" href="https://huggingface.co/datasets/sst2">sst2</a></p></li>
+</ul>
+<p>Follow <a class="reference internal" href="#/tlt/distributed"><span class="xref myst">these instructions</span></a> to set up your machines for distributed training with PyTorch. This will
+ensure your environment has the right prerequisites, package dependencies, and hostfile configuration. When
+you have successfully run the sanity check, the following commands will fine-tune <code class="docutils literal notranslate"><span class="pre">bert-large-uncased</span></code> with sst2 for
+one epoch using 2 nodes and 2 processes per node.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create dataset and output directories</span>
+<span class="nv">DATASET_DIR</span><span class="o">=</span>/tmp/data
+<span class="nv">OUTPUT_DIR</span><span class="o">=</span>/tmp/output
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="si">${</span><span class="nv">OUTPUT_DIR</span><span class="si">}</span>
+
+<span class="c1"># Name of the dataset to use</span>
+<span class="nv">DATASET_NAME</span><span class="o">=</span>sst2
+
+<span class="c1"># Train bert-large-uncased using the Hugging Face dataset sst2</span>
+tlt<span class="w"> </span>train<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-f<span class="w"> </span>pytorch<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name<span class="w"> </span>bert-large-uncased<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_name<span class="w"> </span>sst2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span><span class="nv">$OUTPUT_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_dir<span class="w"> </span><span class="nv">$DATASET_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--distributed<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--hostfile<span class="w"> </span>hostfile<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--nnodes<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--nproc_per_node<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+</section>
 <section id="citations">
 <h2>Citations<a class="headerlink" href="#citations" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@InProceedings</span><span class="p">{</span><span class="n">maas</span><span class="o">-</span><span class="n">EtAl</span><span class="p">:</span><span class="mi">2011</span><span class="p">:</span><span class="n">ACL</span><span class="o">-</span><span class="n">HLT2011</span><span class="p">,</span>
@@ -227,6 +250,24 @@ tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><
   <span class="n">year</span>         <span class="o">=</span> <span class="p">{</span><span class="mi">2012</span><span class="p">},</span>
   <span class="n">howpublished</span> <span class="o">=</span> <span class="p">{</span><span class="n">UCI</span> <span class="n">Machine</span> <span class="n">Learning</span> <span class="n">Repository</span><span class="p">}</span>
 <span class="p">}</span>
+
+<span class="nd">@inproceedings</span><span class="p">{</span><span class="n">socher</span><span class="o">-</span><span class="n">etal</span><span class="o">-</span><span class="mi">2013</span><span class="o">-</span><span class="n">recursive</span><span class="p">,</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Recursive Deep Models for Semantic Compositionality Over a Sentiment Treebank&quot;</span><span class="p">,</span>
+    <span class="n">author</span> <span class="o">=</span> <span class="s2">&quot;Socher, Richard  and</span>
+      <span class="n">Perelygin</span><span class="p">,</span> <span class="n">Alex</span>  <span class="ow">and</span>
+      <span class="n">Wu</span><span class="p">,</span> <span class="n">Jean</span>  <span class="ow">and</span>
+      <span class="n">Chuang</span><span class="p">,</span> <span class="n">Jason</span>  <span class="ow">and</span>
+      <span class="n">Manning</span><span class="p">,</span> <span class="n">Christopher</span> <span class="n">D</span><span class="o">.</span>  <span class="ow">and</span>
+      <span class="n">Ng</span><span class="p">,</span> <span class="n">Andrew</span>  <span class="ow">and</span>
+      <span class="n">Potts</span><span class="p">,</span> <span class="n">Christopher</span><span class="s2">&quot;,</span>
+    <span class="n">booktitle</span> <span class="o">=</span> <span class="s2">&quot;Proceedings of the 2013 Conference on Empirical Methods in Natural Language Processing&quot;</span><span class="p">,</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="nb">oct</span><span class="p">,</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="s2">&quot;2013&quot;</span><span class="p">,</span>
+    <span class="n">address</span> <span class="o">=</span> <span class="s2">&quot;Seattle, Washington, USA&quot;</span><span class="p">,</span>
+    <span class="n">publisher</span> <span class="o">=</span> <span class="s2">&quot;Association for Computational Linguistics&quot;</span><span class="p">,</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://www.aclweb.org/anthology/D13-1170&quot;</span><span class="p">,</span>
+    <span class="n">pages</span> <span class="o">=</span> <span class="s2">&quot;1631--1642&quot;</span><span class="p">,</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -236,7 +277,7 @@ tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="image_classification.html" class="btn btn-neutral float-left" title="Image Classification TLT CLI Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_classification.html" class="btn btn-neutral float-left" title="Image Classification Intel® Transfer Learning Tool CLI Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../../api.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -11,6 +11,9 @@
   <![endif]-->
   
         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../../_static/doctools.js"></script>
         <script src="../../../../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -24,11 +27,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -55,7 +62,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">tlt.models.image_classification.torchvision_image_classification_model</li>
       <li class="wy-breadcrumbs-aside">
@@ -84,7 +91,7 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="c1"># SPDX-License-Identifier: EPL-2.0</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 <span class="c1">#</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -95,6 +102,7 @@
 <span class="kn">import</span> <span class="nn">intel_extension_for_pytorch</span> <span class="k">as</span> <span class="nn">ipex</span>
 
 <span class="kn">from</span> <span class="nn">tlt</span> <span class="kn">import</span> <span class="n">TLT_BASE_DIR</span>
+<span class="kn">from</span> <span class="nn">tlt.distributed</span> <span class="kn">import</span> <span class="n">TLT_DISTRIBUTED_DIR</span>
 <span class="kn">from</span> <span class="nn">tlt.models.image_classification.pytorch_image_classification_model</span> <span class="kn">import</span> <span class="n">PyTorchImageClassificationModel</span>
 <span class="kn">from</span> <span class="nn">tlt.datasets.image_classification.image_classification_dataset</span> <span class="kn">import</span> <span class="n">ImageClassificationDataset</span>
 <span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">read_json_file</span>
@@ -122,7 +130,8 @@
 
         <span class="c1"># placeholder for model definition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_distributed</span> <span class="o">=</span> <span class="kc">False</span></div>
 
     <span class="k">def</span> <span class="nf">_get_hub_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
@@ -166,13 +175,14 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">ipex_optimize</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ipex_optimize</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distributed</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="n">ipex</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="n">num_classes</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span>
 
     <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-              <span class="n">do_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">early_stopping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lr_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+              <span class="n">do_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">early_stopping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lr_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+              <span class="n">distributed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hostfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Trains the model using the specified image classification dataset. The first time training is called, it</span>
 <span class="sd">            will get the model from torchvision and add on a fully-connected dense layer with linear activation</span>
@@ -192,16 +202,24 @@
 <span class="sd">                    is applied at the end of each epoch.</span>
 <span class="sd">                seed (int): Optionally set a seed for reproducibility.</span>
 <span class="sd">                extra_layers (list[int]): Optionally insert additional dense layers between the base model and output</span>
-<span class="sd">                    layer. This can help increase accuracy when fine-tuning a Pytorch model.</span>
+<span class="sd">                    layer. This can help increase accuracy when fine-tuning a PyTorch model.</span>
 <span class="sd">                    The input should be a list of integers representing the number and size of the layers,</span>
 <span class="sd">                    for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the</span>
 <span class="sd">                    second with 512 neurons.</span>
 <span class="sd">                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.</span>
+<span class="sd">                distributed (bool): Boolean flag to use distributed training. Defaults to False.</span>
+<span class="sd">                hostfile (str): Name of the hostfile for distributed training. Defaults to None.</span>
+<span class="sd">                nnodes (int): Number of nodes to use for distributed training. Defaults to 1.</span>
+<span class="sd">                nproc_per_node (int): Number of processes to spawn per node to use for distributed training. Defaults</span>
+<span class="sd">                to 1.</span>
 
 <span class="sd">            Returns:</span>
 <span class="sd">                Trained PyTorch model object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_train_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_train_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">,</span>
+                                 <span class="n">distributed</span><span class="p">,</span> <span class="n">hostfile</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_distributed</span> <span class="o">=</span> <span class="n">distributed</span>
 
         <span class="k">if</span> <span class="n">extra_layers</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_layers</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -235,11 +253,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;optimizer_state_dict&#39;</span><span class="p">])</span>
 
             <span class="c1"># Call ipex.optimize now, since we didn&#39;t call it from _get_hub_model()</span>
-            <span class="k">if</span> <span class="n">ipex_optimize</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ipex_optimize</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">distributed</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="n">ipex</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">do_eval</span><span class="p">,</span> <span class="n">early_stopping</span><span class="p">,</span> <span class="n">lr_decay</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">distributed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_for_distributed</span><span class="p">(</span><span class="n">TLT_DISTRIBUTED_DIR</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fit_distributed</span><span class="p">(</span><span class="n">hostfile</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">do_eval</span><span class="p">,</span> <span class="n">early_stopping</span><span class="p">,</span> <span class="n">lr_decay</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
 
@@ -344,94 +367,7 @@
         <span class="k">elif</span> <span class="n">return_type</span> <span class="o">==</span> <span class="s1">&#39;probabilities&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">predictions</span>
-
-    <span class="k">def</span> <span class="nf">ls_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Lists all of the modules (e.g. features, avgpool, or classifier) and layers</span>
-<span class="sd">        (ReLU, MaxPool2d, Dropout, Linear, etc) in a given PyTorch model</span>
-<span class="sd">        Args:</span>
-<span class="sd">            verbose (bool): True/False option set by default to be False, displays only a high-level</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;The model must be trained at least one epoch before its layers can be summarized.&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
-
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="c1"># Display a detailed summary of the entire model</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Displaying detailed model summary:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-
-            <span class="c1"># Display all of the top level modules as well as their submodules</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Displaying module and submodule names:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_modules</span><span class="p">():</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-
-        <span class="c1"># Display a high-level list of the modules e.g. features, avgpool, classifier</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Displaying top level module names:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">num_params</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Track the number of params in each layer</span>
-        <span class="n">frozen</span> <span class="o">=</span> <span class="s1">&#39;(frozen)&#39;</span>  <span class="c1"># Check if the layer contains trainable params</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_children</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
-                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
-                    <span class="n">num_params</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
-                        <span class="n">frozen</span> <span class="o">=</span> <span class="s1">&#39;(trainable / unfrozen - freeze to make untrainable)&#39;</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">frozen</span> <span class="o">=</span> <span class="s1">&#39;(untrainable / frozen - unfreeze to make trainable)&#39;</span>
-            <span class="k">if</span> <span class="n">num_params</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">frozen</span> <span class="o">=</span> <span class="s1">&#39;(not trainable)&#39;</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1"> parameters </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">num_params</span><span class="p">,</span> <span class="n">frozen</span><span class="p">))</span>
-            <span class="n">num_params</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="n">trainable_params</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Trainable parameters:&#39;</span><span class="p">,</span> <span class="n">trainable_params</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">trainable_params</span>
-
-    <span class="k">def</span> <span class="nf">freeze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Freezes the model&#39;s layer using a layer name</span>
-<span class="sd">        Args:</span>
-<span class="sd">            layer_name (string): The layer name that will be frozen in the model</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;The model must be trained at least one epoch before its layers can be summarized.&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
-
-        <span class="c1"># Freeze everything in the layer</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_children</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">layer_name</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
-                    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
-                        <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="k">return</span>
-
-    <span class="k">def</span> <span class="nf">unfreeze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Unfreezes the model&#39;s layer using a layer name</span>
-<span class="sd">        Args:</span>
-<span class="sd">            layer_name (string): The layer name that will be frozen in the model</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;The model must be trained at least one epoch before its layers can be summarized.&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
-
-        <span class="c1"># Unfreeze everything in the layer</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_children</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">layer_name</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
-                    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
-                        <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
-
-        <span class="k">return</span></div>
+            <span class="k">return</span> <span class="n">predictions</span></div>
 </pre></div>
 
            </div>

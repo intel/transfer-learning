@@ -17,12 +17,16 @@
       ~PyTorchImageClassificationModel.benchmark
       ~PyTorchImageClassificationModel.evaluate
       ~PyTorchImageClassificationModel.export
+      ~PyTorchImageClassificationModel.export_for_distributed
+      ~PyTorchImageClassificationModel.freeze_layer
       ~PyTorchImageClassificationModel.get_inc_config_template_dict
+      ~PyTorchImageClassificationModel.list_layers
       ~PyTorchImageClassificationModel.load_from_directory
       ~PyTorchImageClassificationModel.optimize_graph
       ~PyTorchImageClassificationModel.predict
       ~PyTorchImageClassificationModel.quantize
       ~PyTorchImageClassificationModel.train
+      ~PyTorchImageClassificationModel.unfreeze_layer
       ~PyTorchImageClassificationModel.write_inc_config_file
    
    

@@ -11,6 +11,9 @@
   <![endif]-->
   
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -24,11 +27,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -55,7 +62,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">tlt.models.model_factory</li>
       <li class="wy-breadcrumbs-aside">
@@ -84,7 +91,7 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="c1"># SPDX-License-Identifier: EPL-2.0</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 <span class="c1">#</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -125,6 +132,13 @@
         <span class="n">UseCaseType</span><span class="o">.</span><span class="n">TEXT_CLASSIFICATION</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;huggingface&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.models.text_classification.hf_text_classification_model&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;HFTextClassificationModel&quot;</span><span class="p">},</span>
+        <span class="p">},</span>
+        <span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_ANOMALY_DETECTION</span><span class="p">:</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;torchvision&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TorchvisionImageAnomalyDetectionModel&quot;</span><span class="p">},</span>
+            <span class="s2">&quot;Custom&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;PyTorchImageAnomalyDetectionModel&quot;</span><span class="p">}</span>
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
@@ -168,12 +182,13 @@
     <span class="k">return</span> <span class="n">model_class</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_model"><a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.get_model">[docs]</a><span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="get_model"><a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.get_model">[docs]</a><span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A factory method for creating models.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model_name (str): name of model</span>
 <span class="sd">            framework (str or FrameworkType): framework</span>
+<span class="sd">            use_case (str or FrameworkType): use case</span>
 <span class="sd">            kwargs: optional; additional keyword arguments for optimizer and loss function configuration.</span>
 <span class="sd">                The `optimizer` and `loss` arguments can be set to Optimizer and Loss classes, depending on the model&#39;s</span>
 <span class="sd">                framework (examples: `optimizer=tf.keras.optimizers.Adam` for TensorFlow,</span>
@@ -198,8 +213,26 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">FrameworkType</span><span class="p">):</span>
         <span class="n">framework</span> <span class="o">=</span> <span class="n">FrameworkType</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">framework</span><span class="p">)</span>
 
-    <span class="n">model_use_case</span><span class="p">,</span> <span class="n">model_dict</span> <span class="o">=</span> <span class="n">get_model_info</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_case</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">use_case</span><span class="p">,</span> <span class="n">UseCaseType</span><span class="p">):</span>
+        <span class="n">use_case</span> <span class="o">=</span> <span class="n">UseCaseType</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">use_case</span><span class="p">)</span>
 
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">get_model_info</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">use_case</span><span class="p">)</span>
+    <span class="n">valid_use_cases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_use_cases</span> <span class="ow">or</span> <span class="p">(</span><span class="n">use_case</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">use_case</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_use_cases</span><span class="p">):</span>
+        <span class="n">framework_str</span> <span class="o">=</span> <span class="s2">&quot;tensorflow or pytorch&quot;</span> <span class="k">if</span> <span class="n">framework</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">framework</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The specified model is not supported for </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">framework_str</span><span class="p">,</span> <span class="n">model_name</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_use_cases</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">model_use_case</span> <span class="o">=</span> <span class="n">valid_use_cases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">model_dict</span> <span class="o">=</span> <span class="n">model_info</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Default to image classification for backward compatibility</span>
+        <span class="k">if</span> <span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_CLASSIFICATION</span> <span class="ow">in</span> <span class="n">valid_use_cases</span><span class="p">:</span>
+            <span class="n">model_use_case</span> <span class="o">=</span> <span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_CLASSIFICATION</span>
+            <span class="n">model_dict</span> <span class="o">=</span> <span class="n">model_info</span><span class="p">[</span><span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_CLASSIFICATION</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;More than one use case applies for </span><span class="si">{}</span><span class="s2">. Please specify: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span>
+                                                                                                <span class="n">valid_use_cases</span><span class="p">))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">model_use_case</span><span class="p">:</span>
         <span class="n">framework_str</span> <span class="o">=</span> <span class="s2">&quot;tensorflow or pytorch&quot;</span> <span class="k">if</span> <span class="n">framework</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">framework</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The specified model is not supported for </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">framework_str</span><span class="p">,</span> <span class="n">model_name</span><span class="p">))</span>
@@ -332,15 +365,16 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">get_model_info</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">models</span> <span class="o">=</span> <span class="n">get_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_model_info</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="n">get_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">use_case</span><span class="p">)</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">model_use_case</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">models</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">]:</span>
             <span class="c1"># Found a matching model</span>
-            <span class="k">return</span> <span class="n">UseCaseType</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">model_use_case</span><span class="p">),</span> <span class="n">models</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">][</span><span class="n">model_name</span><span class="p">]</span>
+            <span class="n">info</span><span class="p">[</span><span class="n">UseCaseType</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">model_use_case</span><span class="p">)]</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">][</span><span class="n">model_name</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="n">info</span>
 </pre></div>
 
            </div>

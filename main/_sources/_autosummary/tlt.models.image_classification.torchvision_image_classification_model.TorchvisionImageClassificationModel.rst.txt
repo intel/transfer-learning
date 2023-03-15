@@ -17,15 +17,16 @@
       ~TorchvisionImageClassificationModel.benchmark
       ~TorchvisionImageClassificationModel.evaluate
       ~TorchvisionImageClassificationModel.export
-      ~TorchvisionImageClassificationModel.freeze
+      ~TorchvisionImageClassificationModel.export_for_distributed
+      ~TorchvisionImageClassificationModel.freeze_layer
       ~TorchvisionImageClassificationModel.get_inc_config_template_dict
+      ~TorchvisionImageClassificationModel.list_layers
       ~TorchvisionImageClassificationModel.load_from_directory
-      ~TorchvisionImageClassificationModel.ls_modules
       ~TorchvisionImageClassificationModel.optimize_graph
       ~TorchvisionImageClassificationModel.predict
       ~TorchvisionImageClassificationModel.quantize
       ~TorchvisionImageClassificationModel.train
-      ~TorchvisionImageClassificationModel.unfreeze
+      ~TorchvisionImageClassificationModel.unfreeze_layer
       ~TorchvisionImageClassificationModel.write_inc_config_file
    
    

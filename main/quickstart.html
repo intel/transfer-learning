@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Intel® Transfer Learning Tool Quick Start &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -12,6 +12,9 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -27,11 +30,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Intel® Transfer Learning Tool
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -42,8 +49,16 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Intel® Transfer Learning Tool Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#build-and-install">Build and Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-installation">Basic Installation:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-developer-installation">Advanced/Developer Installation:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-feature-specific-steps">Additional Feature-Specific Steps:</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-started-with-the-cli">Getting Started with the CLI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#getting-started-with-the-api">Getting Started with the API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started-with-the-api">Getting Started with the API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#disclaimer">DISCLAIMER:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#license">License:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#datasets">Datasets:</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
@@ -64,7 +79,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Intel® Transfer Learning Tool Quick Start</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
@@ -75,35 +90,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<p><img alt="Style" src="https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/style-test.yaml/badge.svg" />
-<img alt="Tests" src="https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/unit-test.yaml/badge.svg" />
-<img alt="Doc Test" src="https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/docs-test.yaml/badge.svg" />
-<img alt="Notebook Test" src="https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/notebook-test.yaml/badge.svg" /></p>
-<section id="intel-transfer-learning-tool-quick-start">
+  <section id="intel-transfer-learning-tool-quick-start">
 <h1>Intel® Transfer Learning Tool Quick Start<a class="headerlink" href="#intel-transfer-learning-tool-quick-start" title="Permalink to this heading">¶</a></h1>
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this heading">¶</a></h2>
@@ -117,74 +104,95 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Image Classification</p></td>
-<td><p>PyTorch</p></td>
-<td><p><li><a class="reference external" href="https://github.com/intel/intel-extension-for-pytorch">Intel® Extension for PyTorch</a></p></td>
-<td><p><li> Custom datasets <li> <a class="reference external" href="https://pytorch.org/vision/stable/datasets.html">torchvision datasets</a>: CIFAR10, CIFAR100, Country211, DTD, Food101, FGVCAircraft, RenderedSST2</p></td>
+<td><p>PyTorch*</p></td>
+<td><p><li><a class="reference external" href="https://github.com/intel/intel-extension-for-pytorch">Intel® Extension for PyTorch*</a> <li>Distributed training</p></td>
+<td><p><li> Custom datasets <li> <a class="reference external" href="https://pytorch.org/vision/stable/datasets.html">torchvision datasets</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>Image Classification</p></td>
-<td><p>TensorFlow</p></td>
-<td><p><li><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html">Intel® Optimization for TensorFlow</a> <li>Post-training quantization using <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a>, when using custom datasets <li>FP32 graph optimization using <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a> <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later)</p></td>
+<td><p>TensorFlow*</p></td>
+<td><p><li><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html">Intel® Optimization for TensorFlow*</a> <li>Post-training quantization using <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a>, when using custom datasets <li>FP32 graph optimization using <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a> <li>Auto mixed precision training on Intel® third or fourth generation Intel® Xeon® processors (requires TensorFlow 2.9.0 or later)</p></td>
 <td><p><li> Custom datasets <li> Image classification datasets from the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview#image_classification">TensorFlow Dataset catalog</a></p></td>
 </tr>
 <tr class="row-even"><td><p>Text Classification</p></td>
 <td><p>TensorFlow</p></td>
 <td><p><li><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html">Intel® Optimization for TensorFlow</a> <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later)</p></td>
-<td><p><li> Custom datasets from .csv files <li> <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview#image_classification">TensorFlow Datasets</a>: <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config">glue/cola</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluesst2">glue/sst2</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews#imdb_reviewsplain_text_default_config">imdb_reviews</a>, [ag_news_subset] (https://www.tensorflow.org/datasets/catalog/ag_news_subset)</p></td>
+<td><p><li> Custom datasets from .csv files <li> Text classification datasets from the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview#image_classification">TensorFlow Datasets catalog</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>Text Classification</p></td>
 <td><p>PyTorch</p></td>
-<td><p><li><a class="reference external" href="https://github.com/intel/intel-extension-for-pytorch">Intel® Extension for PyTorch</a></p></td>
+<td><p><li><a class="reference external" href="https://github.com/intel/intel-extension-for-pytorch">Intel® Extension for PyTorch</a> <li>Distributed training</p></td>
 <td><p><li> Custom datasets <li> Text Classification datasets from <a class="reference external" href="https://huggingface.co/datasets">Hugging Face Dataset catalog</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Image Anomaly Detection</p></td>
+<td><p>PyTorch</p></td>
+<td><p></p></td>
+<td><p><li> Custom datasets</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="build-and-install">
 <h2>Build and Install<a class="headerlink" href="#build-and-install" title="Permalink to this heading">¶</a></h2>
-<p>Requirements:</p>
-<ul class="simple">
-<li><p>Linux system (or WSL2 on Windows)</p></li>
-<li><p>Python3 (3.7, 3.8, 3.9, or 3.10), Pip/Conda and Virtualenv</p></li>
+<p><strong>Requirements</strong>:</p>
+<ol class="arabic simple">
+<li><p>Linux* system (or WSL2 on Windows*)</p></li>
+<li><p>Python3* (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv</p></li>
 <li><p>git</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">build-essential</span> <span class="pre">python3-dev</span></code></p></li>
-<li><p>To run use quantization functions: <code class="docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libgl1</span> <span class="pre">libglib2.0-0</span></code></p></li>
-</ul>
-<ol class="arabic">
-<li><p>Clone this repo and navigate to the repo directory:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">intel</span><span class="o">-</span><span class="n">innersource</span><span class="o">/</span><span class="n">frameworks</span><span class="o">.</span><span class="n">ai</span><span class="o">.</span><span class="n">transfer</span><span class="o">-</span><span class="n">learning</span><span class="o">.</span><span class="n">git</span>
-
-<span class="n">cd</span> <span class="n">frameworks</span><span class="o">.</span><span class="n">ai</span><span class="o">.</span><span class="n">transfer</span><span class="o">-</span><span class="n">learning</span>
-</pre></div>
-</div>
-</li>
-<li><p>Create and activate a Python3 virtual environment using <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="o">-</span><span class="n">p</span> <span class="n">python3</span> <span class="n">tlt_env</span>
-<span class="n">source</span> <span class="n">tlt_env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+<li><p>To run the quantization functions: <code class="docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">libgl1</span> <span class="pre">libglib2.0-0</span></code></p></li>
+</ol>
+<p><strong>Create and activate a Python3 virtual environment</strong><br />
+Users are encouraged to use python virtual environments for consistent package management<br />
+<br />
+Using <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="o">-</span><span class="n">p</span> <span class="n">python3</span> <span class="n">tlt_dev_venv</span>
+<span class="n">source</span> <span class="n">tlt_dev_venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
 </pre></div>
 </div>
 <p>Or <code class="docutils literal notranslate"><span class="pre">conda</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">tlt_env</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.9</span>
-<span class="n">conda</span> <span class="n">activate</span> <span class="n">tlt_env</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">tlt_dev_venv</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.9</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">tlt_dev_venv</span>
+</pre></div>
+</div>
+</section>
+<section id="basic-installation">
+<h2>Basic Installation:<a class="headerlink" href="#basic-installation" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">intel</span><span class="o">-</span><span class="n">transfer</span><span class="o">-</span><span class="n">learning</span><span class="o">-</span><span class="n">tool</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-developer-installation">
+<h2>Advanced/Developer Installation:<a class="headerlink" href="#advanced-developer-installation" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>Clone this repo and navigate to the repo directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">IntelAI</span><span class="o">/</span><span class="n">transfer</span><span class="o">-</span><span class="n">learning</span><span class="o">.</span><span class="n">git</span>
+
+<span class="n">cd</span> <span class="n">transfer</span><span class="o">-</span><span class="n">learning</span>
 </pre></div>
 </div>
 </li>
-<li><p>Install the tool with the <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code> and/or <code class="docutils literal notranslate"><span class="pre">pytorch</span></code> option by either building
-and installing the wheel:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">bdist_wheel</span> <span class="o">--</span><span class="n">universal</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">dist</span><span class="o">/</span><span class="n">intel_transfer_learning_tool</span><span class="o">-</span><span class="mf">0.2.0</span><span class="o">-</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span><span class="p">[</span><span class="n">tensorflow</span><span class="p">,</span><span class="n">pytorch</span><span class="p">]</span>
+<li><p>Install the tool by either building and installing the wheel:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">bdist_wheel</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">dist</span><span class="o">/</span><span class="n">intel_transfer_learning_tool</span><span class="o">-</span><span class="mf">0.3.0</span><span class="o">-</span><span class="n">py3</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span>
 
-<span class="c1"># Required for TensorFlow text classification</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">text</span><span class="o">==</span><span class="mf">2.10.0</span>
 </pre></div>
 </div>
-<p>Or for developers, do an editable install:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">editable</span> <span class="o">.</span><span class="p">[</span><span class="n">tensorflow</span><span class="p">,</span><span class="n">pytorch</span><span class="p">]</span>
-
-<span class="c1"># Required for TensorFlow text classification</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">text</span><span class="o">==</span><span class="mf">2.10.0</span>
+<p>Or, do an editable install:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">editable</span> <span class="o">.</span>
 </pre></div>
 </div>
 </li>
+</ol>
+</section>
+<section id="additional-feature-specific-steps">
+<h2>Additional Feature-Specific Steps:<a class="headerlink" href="#additional-feature-specific-steps" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>For TensorFlow text classification, this is also required:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">tensorflow</span><span class="o">-</span><span class="n">text</span><span class="o">==</span><span class="mf">2.10.0</span>
+</pre></div>
+</div>
+</li>
+<li><p>For distributed/multinode training, <a class="reference internal" href="#/tlt/distributed"><span class="xref myst">these instructions</span></a> are also required.</p></li>
 </ol>
 </section>
 <section id="getting-started-with-the-cli">
@@ -192,8 +200,10 @@ and installing the wheel:</p>
 <p>Use <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">--help</span></code> to see the list of CLI commands. More detailed information on each
 command can be found using <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">&lt;command&gt;</span> <span class="pre">--help</span></code> (like <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">train</span> <span class="pre">--help</span></code>).</p>
 <p>List the available models:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="nb">list</span> <span class="n">models</span> <span class="o">--</span><span class="n">use</span><span class="o">-</span><span class="n">case</span> <span class="n">image_classification</span>
-<span class="o">------------------------------</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tlt</span> <span class="nb">list</span> <span class="n">models</span> <span class="o">--</span><span class="n">use</span><span class="o">-</span><span class="n">case</span> <span class="n">image_classification</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">------------------------------</span>
 <span class="n">IMAGE</span> <span class="n">CLASSIFICATION</span>
 <span class="o">------------------------------</span>
 <span class="n">alexnet</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
@@ -234,12 +244,14 @@ command can be found using <code class="docutils literal notranslate"><span clas
 <span class="n">mobilenet_v2_100_224</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
 <span class="n">mobilenet_v3_large</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
 <span class="o">...</span>
-
 </pre></div>
 </div>
-<p>Train a model:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="n">train</span> <span class="o">-</span><span class="n">f</span> <span class="n">tensorflow</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="n">resnet_v1_50</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
-<span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
+<p><strong>Train a model</strong>:
+Make sure to specify your own file paths for <code class="docutils literal notranslate"><span class="pre">dataset-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">output-dir</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tlt</span> <span class="n">train</span> <span class="o">-</span><span class="n">f</span> <span class="n">tensorflow</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="n">resnet_v1_50</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
 <span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
 <span class="n">Training</span> <span class="n">epochs</span><span class="p">:</span> <span class="mi">1</span>
 <span class="n">Dataset</span> <span class="nb">dir</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
@@ -264,9 +276,12 @@ command can be found using <code class="docutils literal notranslate"><span clas
 <span class="n">Saved</span> <span class="n">model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
 </pre></div>
 </div>
-<p>Evaluate a trained model:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="nb">eval</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
-<span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+<p><strong>Evaluate a trained model</strong>:
+Make sure to specify your own file paths for <code class="docutils literal notranslate"><span class="pre">dataset-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">output-dir</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tlt</span> <span class="nb">eval</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
 <span class="n">Dataset</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
 <span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
 <span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
@@ -276,9 +291,12 @@ command can be found using <code class="docutils literal notranslate"><span clas
 <span class="mi">28</span><span class="o">/</span><span class="mi">28</span> <span class="p">[</span><span class="o">==============================</span><span class="p">]</span> <span class="o">-</span> <span class="mi">8</span><span class="n">s</span> <span class="mi">236</span><span class="n">ms</span><span class="o">/</span><span class="n">step</span> <span class="o">-</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">0.2528</span> <span class="o">-</span> <span class="n">acc</span><span class="p">:</span> <span class="mf">0.9163</span>
 </pre></div>
 </div>
-<p>Benchmark the trained model:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="n">benchmark</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">size</span> <span class="mi">512</span> <span class="o">--</span><span class="n">mode</span> <span class="n">performance</span>
-<span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+<p><strong>Benchmark the trained model</strong>:
+Make sure to specify your own file paths for <code class="docutils literal notranslate"><span class="pre">dataset-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">output-dir</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tlt</span> <span class="n">benchmark</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">size</span> <span class="mi">512</span> <span class="o">--</span><span class="n">mode</span> <span class="n">performance</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
 <span class="n">Dataset</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
 <span class="n">Benchmarking</span> <span class="n">mode</span><span class="p">:</span> <span class="n">performance</span>
 <span class="n">Batch</span> <span class="n">size</span><span class="p">:</span> <span class="mi">512</span>
@@ -291,10 +309,13 @@ command can be found using <code class="docutils literal notranslate"><span clas
 <span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">10</span><span class="p">:</span><span class="mi">22</span><span class="p">:</span><span class="mi">10</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Throughput</span><span class="p">:</span> <span class="mf">329.878</span> <span class="n">images</span><span class="o">/</span><span class="n">sec</span>
 </pre></div>
 </div>
-<p>Quantize the model:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&gt; tlt quantize --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir /tmp/dataset/flower_photos --batch-size 512 \
-  --accuracy-criterion 0.01 --output-dir /tmp/output
-Model directory: /tmp/output/resnet_v1_50/1
+<p><strong>Quantize the model</strong>:
+Make sure to specify your own file paths for <code class="docutils literal notranslate"><span class="pre">dataset-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">output-dir</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tlt</span> <span class="n">quantize</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">size</span> <span class="mi">512</span> \
+  <span class="o">--</span><span class="n">accuracy</span><span class="o">-</span><span class="n">criterion</span> <span class="mf">0.01</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Model directory: /tmp/output/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
 Accuracy criterion: 0.01
 Exit policy timeout: 0
@@ -331,9 +352,12 @@ INFO:tensorflow:SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/save
 2022-06-28 10:26:13 [INFO] Save quantized model to /tmp/output/quantized/resnet_v1_50/1
 </pre></div>
 </div>
-<p>Benchmark the quantized model:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="n">benchmark</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">quantized</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">size</span> <span class="mi">512</span> <span class="o">--</span><span class="n">mode</span> <span class="n">performance</span>
-<span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">quantized</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+<p><strong>Benchmark the quantized model</strong>:
+Make sure to specify your own file paths for <code class="docutils literal notranslate"><span class="pre">dataset-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">output-dir</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tlt</span> <span class="n">benchmark</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">quantized</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">size</span> <span class="mi">512</span> <span class="o">--</span><span class="n">mode</span> <span class="n">performance</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">quantized</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
 <span class="n">Dataset</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
 <span class="n">Benchmarking</span> <span class="n">mode</span><span class="p">:</span> <span class="n">performance</span>
 <span class="n">Batch</span> <span class="n">size</span><span class="p">:</span> <span class="mi">512</span>
@@ -346,9 +370,12 @@ INFO:tensorflow:SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/save
 <span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">10</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">33</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">Throughput</span><span class="p">:</span> <span class="mf">1056.940</span> <span class="n">images</span><span class="o">/</span><span class="n">sec</span>
 </pre></div>
 </div>
-<p>Do graph optimization on the trained model:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">tlt</span> <span class="n">optimize</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
-<span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+<p><strong>Do graph optimization on the trained model</strong>:
+Make sure to specify your own file paths for <code class="docutils literal notranslate"><span class="pre">dataset-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">output-dir</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tlt</span> <span class="n">optimize</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
 <span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
 <span class="n">Output</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
 <span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
@@ -359,25 +386,39 @@ INFO:tensorflow:SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/save
 <span class="mi">2022</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">28</span> <span class="mi">13</span><span class="p">:</span><span class="mi">51</span><span class="p">:</span><span class="mi">21</span> <span class="p">[</span><span class="n">INFO</span><span class="p">]</span> <span class="n">SavedModel</span> <span class="n">written</span> <span class="n">to</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">optimized</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span><span class="n">saved_model</span><span class="o">.</span><span class="n">pb</span>
 </pre></div>
 </div>
+<p>More CLI Examples:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#/examples/cli/image_classification.md"><span class="xref myst">Image Classification</span></a></p></li>
+<li><p><a class="reference internal" href="#/examples/cli/text_classification.md"><span class="xref myst">Text Classification</span></a></p></li>
+</ul>
 </section>
 <section id="getting-started-with-the-api">
 <h2>Getting Started with the API<a class="headerlink" href="#getting-started-with-the-api" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
 <span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
 <span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Specify a directory for the dataset to be downloaded</span>
+<span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+
+<span class="c1"># Specify a directory for output</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OUTPUT_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;OUTPUT_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
 
 <span class="c1"># Get the model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;resnet_v1_50&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">)</span>
 
 <span class="c1"># Load and preprocess a dataset</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/data/flower_photos&quot;</span><span class="p">,</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s2">&quot;flower_photos&quot;</span><span class="p">),</span>
                                        <span class="n">use_case</span><span class="o">=</span><span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_CLASSIFICATION</span><span class="p">,</span> \
                                        <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">)</span>
 <span class="n">dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">image_size</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">image_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
 <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="mf">.75</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">.25</span><span class="p">)</span>
 
 <span class="c1"># Train the model using the dataset</span>
-<span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/output&quot;</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># Evaluate the trained model</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
@@ -385,29 +426,45 @@ INFO:tensorflow:SavedModel written to: /tmp/output/quantized/resnet_v1_50/1/save
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metric_name</span><span class="p">,</span> <span class="n">metric_value</span><span class="p">))</span>
 
 <span class="c1"># Export the model</span>
-<span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/output&quot;</span><span class="p">)</span>
+<span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
 
-<span class="c1"># Create an INC config file</span>
-<span class="n">inc_config_file</span> <span class="o">=</span> <span class="s2">&quot;/tmp/output/inc_config.yaml&quot;</span>
+<span class="c1"># Create an Intel Neural Compressor config file</span>
+<span class="n">inc_config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;inc_config.yaml&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">write_inc_config_file</span><span class="p">(</span><span class="n">inc_config_file</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                             <span class="n">accuracy_criterion_relative</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">exit_policy_timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                            <span class="n">exit_policy_max_trials</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tuning_workspace</span><span class="o">=</span><span class="s2">&quot;/tmp/output/nc_workspace&quot;</span><span class="p">)</span>
-
-<span class="c1"># Benchmark the trained model using the INC config file</span>
-<span class="n">model</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">inc_config_file</span><span class="p">,</span> <span class="s1">&#39;performance&#39;</span><span class="p">)</span>
+                            <span class="n">exit_policy_max_trials</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tuning_workspace</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;nc_workspace&quot;</span><span class="p">))</span>
 
 <span class="c1"># Quantize the trained model</span>
-<span class="n">quantization_output</span> <span class="o">=</span> <span class="s2">&quot;/tmp/output/quantized_model&quot;</span>
+<span class="n">quantization_output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;quantized_model&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">quantization_output</span><span class="p">,</span> <span class="n">inc_config_file</span><span class="p">)</span>
 
-<span class="c1"># Benchmark the quantized model</span>
+<span class="c1"># Benchmark the trained model using the Intel Neural Compressor config file</span>
 <span class="n">model</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">quantization_output</span><span class="p">,</span> <span class="n">inc_config_file</span><span class="p">,</span> <span class="s1">&#39;performance&#39;</span><span class="p">)</span>
 
 <span class="c1"># Do graph optimization on the trained model</span>
-<span class="n">optimization_output</span> <span class="o">=</span> <span class="s2">&quot;/tmp/output/optimized_model&quot;</span>
+<span class="n">optimization_output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;optimized_model&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">optimize_graph</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">optimization_output</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>More API Examples:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#/notebooks#transfer-learning-tool-tutorial-notebooks"><span class="xref myst">TLT Tutorials</span></a></p></li>
+<li><p><a class="reference internal" href="#/notebooks#transfer-learning-tool-end-to-end-pipelines"><span class="xref myst">TLT End-to-end Pipelines</span></a></p></li>
+</ul>
+<section id="disclaimer">
+<h3>DISCLAIMER:<a class="headerlink" href="#disclaimer" title="Permalink to this heading">¶</a></h3>
+<p>These scripts are not intended for benchmarking Intel platforms. For any performance and/or benchmarking information on specific Intel platforms, visit https://www.intel.ai/blog.</p>
+<p>Intel is committed to the respect of human rights and avoiding complicity in human rights abuses, a policy reflected in the Intel Global Human Rights Principles. Accordingly, by accessing the Intel material on this platform you agree that you will not use the material in a product or application that causes or contributes to a violation of an internationally recognized human right.</p>
+</section>
+<section id="license">
+<h3>License:<a class="headerlink" href="#license" title="Permalink to this heading">¶</a></h3>
+<p>Intel® Transfer Learning Tool is licensed under Apache License Version 2.0.</p>
+</section>
+<section id="datasets">
+<h3>Datasets:<a class="headerlink" href="#datasets" title="Permalink to this heading">¶</a></h3>
+<p>To the extent that any public datasets are referenced by Intel or accessed using tools or code on this site those datasets are provided by the third party indicated as the data source. Intel does not create the data, or datasets, and does not warrant their accuracy or quality. By accessing the public dataset(s) you agree to the terms associated with those datasets and that your use complies with the applicable license. <a class="reference internal" href="#DATASETS.md"><span class="xref myst">DATASETS</span></a></p>
+<p>Intel expressly disclaims the accuracy, adequacy, or completeness of any public datasets, and is not liable for any errors, omissions, or defects in the data, or for any reliance on the data.  Intel is not liable for any liability or damages relating to your use of public datasets.</p>
+</section>
 </section>
 </section>
 

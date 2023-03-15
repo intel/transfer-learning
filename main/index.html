@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -12,6 +12,9 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -26,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="#" class="icon icon-home"> Intel® Transfer Learning Tool
+
+          
+          
+          <a href="#" class="icon icon-home">
+            Intel® Transfer Learning Tool
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -57,7 +64,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a></li>
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Intel® Transfer Learning Tool</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
@@ -68,31 +75,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="intel-transfer-learning-tool">
+  <section id="intel-transfer-learning-tool">
 <h1>Intel® Transfer Learning Tool<a class="headerlink" href="#intel-transfer-learning-tool" title="Permalink to this heading">¶</a></h1>
 <section id="goals">
 <h2>Goals<a class="headerlink" href="#goals" title="Permalink to this heading">¶</a></h2>
@@ -108,7 +91,7 @@ pretrained models</p></li>
 <li><dl class="simple">
 <dt>Low-code API and no-code CLI for:</dt><dd><ul>
 <li><dl class="simple">
-<dt>TensorFlow 2.9 or later</dt><dd><ul>
+<dt>TensorFlow 2.10.0 or later</dt><dd><ul>
 <li><p>Image Classification with 19 models from TFHub</p></li>
 <li><p>Text Classification with 26 models from TFHub</p></li>
 </ul>
@@ -116,9 +99,10 @@ pretrained models</p></li>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>PyTorch 1.11 or later</dt><dd><ul>
-<li><p>Image Classification with 60 models from torchvision</p></li>
-<li><p>Text Classification with 3 models from Hugging Face</p></li>
+<dt>PyTorch 1.13.1 or later</dt><dd><ul>
+<li><p>Image Classification with 60 models from Torchvision</p></li>
+<li><p>Text Classification with 4 models from Hugging Face</p></li>
+<li><p>Image Anomaly Detection with 5 models from Torchvision</p></li>
 </ul>
 </dd>
 </dl>
@@ -129,24 +113,17 @@ pretrained models</p></li>
 </li>
 </ul>
 <figure class="align-center">
-<a class="reference internal image-reference" href="_images/features.png"><img alt="TLT Features" src="_images/features.png" style="width: 703.92px; height: 534.24px;" /></a>
+<a class="reference internal image-reference" href="_images/features.png"><img alt="TLT Features" src="_images/features.png" style="width: 712.3199999999999px; height: 551.04px;" /></a>
 </figure>
 <ul class="simple">
-<li><dl class="simple">
-<dt>Jupyter notebooks:</dt><dd><ul>
-<li><p>5 Computer Vision workflows</p></li>
-<li><p>3 Natural Language Processing workflows</p></li>
-</ul>
-</dd>
-</dl>
-</li>
+<li><p>Jupyter notebooks:</p></li>
 </ul>
 <table class="docutils align-default" id="id1">
 <caption><span class="caption-text">Transfer Learning Tool Tutorial Notebooks</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col style="width: 60.0%" />
-<col style="width: 20.0%" />
-<col style="width: 20.0%" />
+<col style="width: 60%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Notebook</p></th>
@@ -167,14 +144,18 @@ pretrained models</p></li>
 <td><p>Text Classification</p></td>
 <td><p>TensorFlow &amp; TLT</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/TLT_PyTorch_Text_Classification_Transfer_Learning.html"><span class="doc">Text Classification with PyTorch using the Intel® Transfer Learning Tool API</span></a></p></td>
+<td><p>Text Classification</p></td>
+<td><p>PyTorch &amp; TLT</p></td>
+</tr>
 </tbody>
 </table>
 <table class="docutils align-default" id="id2">
 <caption><span class="caption-text">Native Framework Transfer Learning Notebooks</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col style="width: 60.0%" />
-<col style="width: 20.0%" />
-<col style="width: 20.0%" />
+<col style="width: 60%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Notebook</p></th>
@@ -187,32 +168,24 @@ pretrained models</p></li>
 <td><p>Image Classification</p></td>
 <td><p>TensorFlow</p></td>
 </tr>
-<tr class="row-odd"><td><p>Image Classification with PyTorch &amp; torchvision</p></td>
+<tr class="row-odd"><td><p>Image Classification with PyTorch &amp; Torchvision</p></td>
 <td><p>Image Classification</p></td>
 <td><p>PyTorch</p></td>
 </tr>
-<tr class="row-even"><td><p>Object Detection with PyTorch &amp; torchvision</p></td>
-<td><p>Object Detection</p></td>
-<td><p>PyTorch</p></td>
-</tr>
-<tr class="row-odd"><td><p>BERT SQuAD fine tuning with TF Hub</p></td>
+<tr class="row-even"><td><p>BERT SQuAD fine tuning with TF Hub</p></td>
 <td><p>Question Answering</p></td>
 <td><p>TensorFlow</p></td>
 </tr>
-<tr class="row-even"><td><p>BERT Binary Text Classification with TF Hub</p></td>
+<tr class="row-odd"><td><p>BERT Binary Text Classification with TF Hub</p></td>
 <td><p>Text Classification</p></td>
 <td><p>TensorFlow</p></td>
 </tr>
-<tr class="row-odd"><td><p>BERT Multiclass Text Classification with TF Hub</p></td>
+<tr class="row-even"><td><p>BERT Multiclass Text Classification with TF Hub</p></td>
 <td><p>Text Classification</p></td>
 <td><p>TensorFlow</p></td>
 </tr>
-<tr class="row-even"><td><p>Text Classifier fine tuning with PyTorch &amp; Hugging Face</p></td>
+<tr class="row-odd"><td><p>Text Classifier fine tuning with PyTorch &amp; Hugging Face</p></td>
 <td><p>Text Classification</p></td>
-<td><p>PyTorch</p></td>
-</tr>
-<tr class="row-odd"><td><p>Video Classification with PyTorch &amp; torchvision</p></td>
-<td><p>Video Classification</p></td>
 <td><p>PyTorch</p></td>
 </tr>
 </tbody>
@@ -220,9 +193,9 @@ pretrained models</p></li>
 <table class="docutils align-default" id="id3">
 <caption><span class="caption-text">Transfer Learning Tool End-to-End Pipelines</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col style="width: 60.0%" />
-<col style="width: 20.0%" />
-<col style="width: 20.0%" />
+<col style="width: 60%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Notebook</p></th>
@@ -239,6 +212,18 @@ pretrained models</p></li>
 <td><p>Image Classification</p></td>
 <td><p>TensorFlow &amp; TLT</p></td>
 </tr>
+<tr class="row-even"><td><p>Multi-modal Cancer Detection</p></td>
+<td><p>Image &amp; Text Classification</p></td>
+<td><p>TensorFlow &amp; PyTorch &amp; TLT</p></td>
+</tr>
+<tr class="row-odd"><td><p>Document-level Sentiment Analysis</p></td>
+<td><p>Text Classification</p></td>
+<td><p>PyTorch &amp; TLT</p></td>
+</tr>
+<tr class="row-even"><td><p>Anomaly Detection using PyTorch and the Intel® Transfer Learning Tool API</p></td>
+<td><p>Image Anomaly Detection</p></td>
+<td><p>PyTorch &amp; TLT</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -246,8 +231,8 @@ pretrained models</p></li>
 <h2>Models<a class="headerlink" href="#models" title="Permalink to this heading">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 50.0%" />
-<col style="width: 50.0%" />
+<col style="width: 50%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>TensorFlow</p></th>
@@ -439,9 +424,12 @@ pretrained models</p></li>
 <td><p>bert-base-cased</p></td>
 </tr>
 <tr class="row-odd"><td></td>
-<td><p>distilbert-base-uncased</p></td>
+<td><p>bert-large-uncased</p></td>
 </tr>
 <tr class="row-even"><td></td>
+<td><p>distilbert-base-uncased</p></td>
+</tr>
+<tr class="row-odd"><td></td>
 <td><p>clinical-bert</p></td>
 </tr>
 </tbody>

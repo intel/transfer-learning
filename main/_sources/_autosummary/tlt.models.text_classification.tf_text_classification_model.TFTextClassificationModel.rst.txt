@@ -17,6 +17,7 @@
       ~TFTextClassificationModel.benchmark
       ~TFTextClassificationModel.evaluate
       ~TFTextClassificationModel.export
+      ~TFTextClassificationModel.get_inc_config_template_dict
       ~TFTextClassificationModel.load_from_directory
       ~TFTextClassificationModel.optimize_graph
       ~TFTextClassificationModel.predict

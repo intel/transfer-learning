@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Example Notebooks</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Intel® Transfer Learning Tool</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/DEVCATALOG.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="intel-transfer-learning-tool">
+<h1>Intel® Transfer Learning Tool<a class="headerlink" href="#intel-transfer-learning-tool" title="Permalink to this heading">¶</a></h1>
+<p>Transfer learning workflows use the knowledge learned by a pre-trained model on a large dataset to improve the
+performance of a related problem with a smaller dataset. Intel® Transfer Learning Tool makes transfer learning
+workflows easier and faster across a variety of AI use cases. This open-source Python* library leverages public
+pretrained model hubs, Intel-optimized deep learning frameworks, and your custom dataset to efficiently generate new
+models optimized for Intel hardware.</p>
+<p>This document provides information, links, and instructions for the Intel Transfer Learning Tool as well as Jupyter*
+notebooks and examples that demonstrate its usage.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
+<p>The Intel Transfer Learning Tool offers both a low-code API and a no-code CLI for training AI models with TensorFlow*
+and PyTorch*.</p>
+<p>Features:</p>
+<ul class="simple">
+<li><p>PyTorch and TensorFlow support</p></li>
+<li><p>Over 100 image classification and text classification models from Torchvision, TensorFlow datasets, and Hugging Face</p></li>
+<li><p>Automatically create a trainable classification layer customized for your dataset</p></li>
+<li><p>Bring your own dataset or get started quickly with built-in datasets</p></li>
+<li><p>Dataset scaling, cropping, batching, and splitting</p></li>
+<li><p>APIs for prediction, evaluation, and benchmarking</p></li>
+<li><p>Export model for deployment or resume training from checkpoints</p></li>
+</ul>
+<p>Intel Optimizations:</p>
+<ul class="simple">
+<li><p>Boost performance with Intel® Optimization for TensorFlow and Intel® Extension for PyTorch</p></li>
+<li><p>Quantize to INT8 to reduce model size and speed up inference using Intel® Neural Compressor</p></li>
+<li><p>Optimize model for FP32 inference using Intel Neural Compressor</p></li>
+<li><p>Reduce training time with auto-mixed precision for select hardware platforms</p></li>
+<li><p>Further reduce training time with multinode training for PyTorch</p></li>
+</ul>
+<p>For more details, visit the <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">Intel Transfer Learning Tool</a>
+GitHub repository.</p>
+</section>
+<section id="hardware-requirements">
+<h2>Hardware Requirements<a class="headerlink" href="#hardware-requirements" title="Permalink to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Recommended Hardware</p></th>
+<th class="head"><p>Precision</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Intel® 4th Gen Xeon® Scalable Performance processors</p></td>
+<td><p>BF16</p></td>
+</tr>
+<tr class="row-odd"><td><p>Intel® 1st, 2nd, 3rd, and 4th Gen Xeon® Scalable Performance processors</p></td>
+<td><p>FP32</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="how-it-works">
+<h2>How it Works<a class="headerlink" href="#how-it-works" title="Permalink to this heading">¶</a></h2>
+<p>Run simple CLI commands at a bash prompt or make API calls in a Python* script to:</p>
+<ol class="arabic simple">
+<li><p>Download public pretrained models, replace the classification layer, and train them using your own dataset</p></li>
+<li><p>Minimize training time with Intel-optimized frameworks and low-precision features from Intel Neural Compressor</p></li>
+<li><p>Export a saved model optimized for inference on Intel CPUs</p></li>
+</ol>
+<p><img alt="alt text" src="_images/features.png" /></p>
+</section>
+<section id="get-started">
+<h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this heading">¶</a></h2>
+<section id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Linux* system (verified on Ubuntu* 20.04), CPU-only</p></li>
+<li><p>Python3* (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv</p></li>
+<li><p>Install required packages with <code class="docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">build-essential</span> <span class="pre">python3-dev</span> <span class="pre">libgl1</span> <span class="pre">libglib2.0-0</span></code></p></li>
+</ol>
+</section>
+<section id="install">
+<h3>Install<a class="headerlink" href="#install" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">intel</span><span class="o">-</span><span class="n">transfer</span><span class="o">-</span><span class="n">learning</span><span class="o">-</span><span class="n">tool</span>
+</pre></div>
+</div>
+</section>
+<section id="use-the-cli">
+<h3>Use the CLI<a class="headerlink" href="#use-the-cli" title="Permalink to this heading">¶</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">--help</span></code> to see the list of CLI commands. More detailed information on each
+command can be found using <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">&lt;command&gt;</span> <span class="pre">--help</span></code> (like <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">train</span> <span class="pre">--help</span></code>).</p>
+<p>List the available models:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tlt</span> <span class="nb">list</span> <span class="n">models</span> <span class="o">--</span><span class="n">use</span><span class="o">-</span><span class="n">case</span> <span class="n">image_classification</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">------------------------------</span>
+<span class="n">IMAGE</span> <span class="n">CLASSIFICATION</span>
+<span class="o">------------------------------</span>
+<span class="n">alexnet</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">convnext_base</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">convnext_large</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">convnext_small</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">convnext_tiny</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">densenet121</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">densenet161</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">densenet169</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">densenet201</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b0</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b1</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b1</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b2</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b3</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b4</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b4</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b5</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b5</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b6</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b6</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnet_b7</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">efficientnet_b7</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b0</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b1</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b2</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">b3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">efficientnetv2</span><span class="o">-</span><span class="n">s</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">googlenet</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">inception_v3</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">mnasnet0_5</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">mnasnet1_0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">mobilenet_v2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">mobilenet_v2_100_224</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">mobilenet_v3_large</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">mobilenet_v3_small</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">nasnet_large</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">regnet_x_16gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_x_1_6gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_x_32gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_x_3_2gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_x_400mf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_x_800mf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_x_8gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_y_16gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_y_1_6gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_y_32gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_y_3_2gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_y_400mf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_y_800mf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">regnet_y_8gf</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet101</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet152</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet18</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet34</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet50</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnet_v1_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet_v2_101</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnet_v2_50</span> <span class="p">(</span><span class="n">tensorflow</span><span class="p">)</span>
+<span class="n">resnext101_32x8d</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">resnext50_32x4d</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">shufflenet_v2_x0_5</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">shufflenet_v2_x1_0</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vgg11</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vgg11_bn</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vgg13</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vgg13_bn</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vgg16</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vgg16_bn</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vgg19</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vgg19_bn</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vit_b_16</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vit_b_32</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vit_l_16</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">vit_l_32</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">wide_resnet101_2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+<span class="n">wide_resnet50_2</span> <span class="p">(</span><span class="n">pytorch</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Train a model</strong>:
+Make sure to specify your own file paths for <code class="docutils literal notranslate"><span class="pre">dataset-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">output-dir</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tlt</span> <span class="n">train</span> <span class="o">-</span><span class="n">f</span> <span class="n">tensorflow</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="n">resnet_v1_50</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
+<span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
+<span class="n">Training</span> <span class="n">epochs</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">Dataset</span> <span class="nb">dir</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
+<span class="n">Output</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
+<span class="n">Found</span> <span class="mi">3670</span> <span class="n">files</span> <span class="n">belonging</span> <span class="n">to</span> <span class="mi">5</span> <span class="n">classes</span><span class="o">.</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="use-the-api">
+<h3>Use the API<a class="headerlink" href="#use-the-api" title="Permalink to this heading">¶</a></h3>
+<p>This example runs the same workload as above using the API instead of the CLI. Additionally, the model is benchmarked and
+quantized to int8 precision for improved inference performance.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Specify a directory for the dataset to be downloaded</span>
+<span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+
+<span class="c1"># Specify a directory for output</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OUTPUT_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;OUTPUT_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get the model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;resnet_v1_50&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">)</span>
+
+<span class="c1"># Load and preprocess a dataset</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s2">&quot;flower_photos&quot;</span><span class="p">),</span>
+                                       <span class="n">use_case</span><span class="o">=</span><span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_CLASSIFICATION</span><span class="p">,</span> \
+                                       <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">image_size</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">image_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="mf">.75</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">.25</span><span class="p">)</span>
+
+<span class="c1"># Train the model using the dataset</span>
+<span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Evaluate the trained model</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric_value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">metrics_names</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metric_name</span><span class="p">,</span> <span class="n">metric_value</span><span class="p">))</span>
+
+<span class="c1"># Export the model</span>
+<span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+
+<span class="c1"># Create an Intel Neural Compressor config file</span>
+<span class="n">inc_config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;inc_config.yaml&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">write_inc_config_file</span><span class="p">(</span><span class="n">inc_config_file</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">accuracy_criterion_relative</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">exit_policy_timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">exit_policy_max_trials</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tuning_workspace</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;nc_workspace&quot;</span><span class="p">))</span>
+
+<span class="c1"># Quantize the trained model</span>
+<span class="n">quantization_output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;quantized_model&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">quantization_output</span><span class="p">,</span> <span class="n">inc_config_file</span><span class="p">)</span>
+
+<span class="c1"># Benchmark the trained model using the Intel Neural Compressor config file</span>
+<span class="n">model</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">quantization_output</span><span class="p">,</span> <span class="n">inc_config_file</span><span class="p">,</span> <span class="s1">&#39;performance&#39;</span><span class="p">)</span>
+
+<span class="c1"># Do graph optimization on the trained model</span>
+<span class="n">optimization_output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;optimized_model&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">optimize_graph</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">optimization_output</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For more details, visit the <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">Intel Transfer Learning Tool</a>
+GitHub repository.</p>
+</section>
+</section>
+<section id="summary-and-next-steps">
+<h2>Summary and Next Steps<a class="headerlink" href="#summary-and-next-steps" title="Permalink to this heading">¶</a></h2>
+<p>You have just learned how Intel Transfer Learning Tool can be used to quickly develop an AI model and export
+an Intel-optimized saved model for deployment. With the sample CLI and API commands above, you have executed simple
+end-to-end transfer learning workflows. For more details, check out the tutorial Jupyter*
+notebooks, and for real-world examples check out the reference workflows.</p>
+<section id="tutorial-jupyter-notebooks">
+<h3>Tutorial Jupyter* Notebooks<a class="headerlink" href="#tutorial-jupyter-notebooks" title="Permalink to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Notebook</p></th>
+<th class="head"><p>Use Case</p></th>
+<th class="head"><p>Framework</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/text_classification/tlt_api_tf_text_classification">Text Classification with TensorFlow using the Intel® Transfer Learning Tool</a></p></td>
+<td><p>Text Classification</p></td>
+<td><p>TensorFlow and the Intel Transfer Learning Tool API</p></td>
+<td><p>Demonstrates how to use the Intel Transfer Learning Tool API to fine tune a BERT model from TF Hub using binary text classification datasets.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/text_classification/tlt_api_pyt_text_classification">Text Classification with Pytorch using the Intel® Transfer Learning Tool</a></p></td>
+<td><p>Text Classification</p></td>
+<td><p>PyTorch and the Intel Transfer Learning Tool API</p></td>
+<td><p>Demonstrates how to use the Intel Transfer Learning Tool API to fine tune a BERT model from Huggingface using binary text classification datasets.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/image_classification/tlt_api_tf_image_classification">Image Classification with TensorFlow using Intel® Transfer Learning Tool</a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>TensorFlow and the Intel Transfer Learning Tool API</p></td>
+<td><p>Demonstrates how to use the Intel Transfer Learning Tool API to do transfer learning for image classification using a TensorFlow model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/image_classification/tlt_api_pyt_image_classification">Image Classification with PyTorch using Intel® Transfer Learning Tool</a></p></td>
+<td><p>Image Classification</p></td>
+<td><p>PyTorch and the Intel Transfer Learning Tool API</p></td>
+<td><p>Demonstrates how to use the Intel Transfer Learning Tool API to do transfer learning for image classification using a PyTorch model.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h3>
+<p>Coming soon: AI Reference Kits that use Intel Transfer Learning Tool</p>
+</section>
+</section>
+<section id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this heading">¶</a></h2>
+<p>The Intel Transfer Learning Tool team tracks bugs and enhancement requests using
+<a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/issues">GitHub issues</a>. Before submitting a
+suggestion or bug report, search the existing GitHub issues to see if your issue has already been reported.</p>
+<p>*Other names and brands may be claimed as the property of others. <a class="reference external" href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Intel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
