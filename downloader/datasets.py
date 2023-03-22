@@ -20,59 +20,11 @@
 
 import os
 from pydoc import locate
-import shutil
 import tarfile
-import urllib.request
 import zipfile
 
-from ai_downloader.types import DatasetType
-
-
-def download_file(download_url, destination_directory):
-    """
-    Downloads a file using the specified url to the destination directory. Returns the
-    path to the downloaded file.
-    """
-    if not os.path.isdir(destination_directory):
-        os.makedirs(destination_directory)
-
-    destination_file_path = os.path.join(destination_directory, os.path.basename(download_url))
-
-    print("Downloading {} to {}".format(download_url, destination_directory))
-    with urllib.request.urlopen(download_url) as response, open(destination_file_path, 'wb') as out_file:
-        shutil.copyfileobj(response, out_file)
-
-    return destination_file_path
-
-
-def extract_tar_file(tar_file_path, destination_directory):
-    """
-    Extracts a tar file on the local file system to the destination directory. Returns a list
-    of top-level contents (files and folders) of the extracted archive.
-    """
-    if not os.path.isdir(destination_directory):
-        os.makedirs(destination_directory)
-
-    print("Extracting {} to {}".format(tar_file_path, destination_directory))
-    with tarfile.open(tar_file_path) as t:
-        t.extractall(path=destination_directory)
-        contents = {i.split('/')[0] for i in t.getnames()}
-        return list(contents)
-
-
-def extract_zip_file(zip_file_path, destination_directory):
-    """
-    Extracts a zip file on the local file system to the destination directory. Returns a list
-    of top-level contents (files and folders) of the extracted archive.
-    """
-    if not os.path.isdir(destination_directory):
-        os.makedirs(destination_directory)
-
-    print("Extracting {} to {}".format(zip_file_path, destination_directory))
-    with zipfile.ZipFile(zip_file_path, "r") as z:
-        z.extractall(path=destination_directory)
-        contents = {i.split('/')[0] for i in z.namelist()}
-        return list(contents)
+from downloader.types import DatasetType
+from downloader import utils
 
 
 class DataDownloader():
@@ -151,12 +103,12 @@ class DataDownloader():
                 return load_dataset(self._dataset_name, split=split, cache_dir=self._dataset_dir)
 
         elif self._type == DatasetType.GENERIC:
-            file_path = download_file(self._url, self._dataset_dir)
+            file_path = utils.download_file(self._url, self._dataset_dir)
             if os.path.isfile(file_path):
                 if tarfile.is_tarfile(file_path):
-                    contents = extract_tar_file(file_path, self._dataset_dir)
+                    contents = utils.extract_tar_file(file_path, self._dataset_dir)
                 elif zipfile.is_zipfile(file_path):
-                    contents = extract_zip_file(file_path, self._dataset_dir)
+                    contents = utils.extract_zip_file(file_path, self._dataset_dir)
                 else:
                     return file_path
 

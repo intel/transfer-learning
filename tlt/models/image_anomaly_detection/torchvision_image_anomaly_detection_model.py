@@ -19,8 +19,8 @@
 #
 
 import os
-from pydoc import locate
 
+from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
 from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import PyTorchImageAnomalyDetectionModel
 from tlt.utils.file_utils import read_json_file
@@ -45,5 +45,5 @@ class TorchvisionImageAnomalyDetectionModel(PyTorchImageAnomalyDetectionModel):
 
         self._image_size = torchvision_model_map[model_name]["image_size"]
 
-        pretrained_model_class = locate('torchvision.models.{}'.format(self.model_name))
-        self._model = pretrained_model_class(pretrained=True)
+        downloader = ModelDownloader(model_name, hub='torchvision', model_dir=None)
+        self._model = downloader.download()

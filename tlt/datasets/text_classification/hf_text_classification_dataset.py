@@ -27,7 +27,7 @@ from tlt import TLT_BASE_DIR
 from tlt.utils.file_utils import read_json_file
 from tlt.datasets.hf_dataset import HFDataset
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
-from ai_downloader.datasets import DataDownloader
+from downloader.datasets import DataDownloader
 
 DATASET_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "datasets/configs")
 

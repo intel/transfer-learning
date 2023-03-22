@@ -22,7 +22,7 @@ import tensorflow as tf
 
 from tlt.datasets.tf_dataset import TFDataset
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-from ai_downloader.datasets import DataDownloader
+from downloader.datasets import DataDownloader
 
 
 class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):

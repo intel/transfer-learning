@@ -22,7 +22,7 @@ import torch
 
 from tlt.datasets.pytorch_dataset import PyTorchDataset
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-from ai_downloader.datasets import DataDownloader
+from downloader.datasets import DataDownloader
 
 DATASETS = ["CIFAR10", "Food101", "Country211", "DTD", "FGVCAircraft", "RenderedSST2"]
 

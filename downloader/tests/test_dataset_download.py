@@ -7,14 +7,14 @@ from datasets.arrow_dataset import Dataset as HF_Dataset
 from torch.utils.data import Dataset as TV_Dataset
 from tensorflow.data import Dataset as TF_Dataset
 
-from ai_downloader import datasets
-from ai_downloader.types import DatasetType
+from downloader import datasets
+from downloader.types import DatasetType
 
 
 @pytest.mark.parametrize('dataset_name,catalog,url',
-                             [['foo', 'tfds', 'https:...'],
-                              ['bar', 'bar', None],
-                              ['baz', None, None]])
+                         [['foo', 'tfds', 'https:...'],
+                          ['bar', 'bar', None],
+                          ['baz', None, None]])
 def test_bad_download(dataset_name, catalog, url):
     """
     Tests downloader throws ValueError for bad inputs
