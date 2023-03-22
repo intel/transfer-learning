@@ -20,8 +20,8 @@
 
 import os
 import tensorflow as tf
-import tensorflow_hub as hub
 
+from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
 from tlt.models.text_classification.tf_text_classification_model import TFTextClassificationModel
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
@@ -78,9 +78,11 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
     def _get_hub_model(self, num_classes, extra_layers=None):
         if not self._model:
             input_layer = tf.keras.layers.Input(shape=(), dtype=tf.string, name='input_layer')
-            preprocessing_layer = hub.KerasLayer(self._hub_preprocessor, name='preprocessing')
+            preprocessor = ModelDownloader(self._hub_preprocessor, hub='tf_hub', model_dir=None, name='preprocessing')
+            preprocessing_layer = preprocessor.download()
             encoder_inputs = preprocessing_layer(input_layer)
-            encoder_layer = hub.KerasLayer(self._model_url, trainable=True, name='encoder')
+            encoder = ModelDownloader(self._model_url, hub='tf_hub', model_dir=None, trainable=True, name='encoder')
+            encoder_layer = encoder.download()
             outputs = encoder_layer(encoder_inputs)
             net = outputs['pooled_output']
             self._model = tf.keras.Sequential(tf.keras.Model(input_layer, net))

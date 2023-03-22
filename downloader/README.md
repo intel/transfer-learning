@@ -1,6 +1,6 @@
-# AI Downloader
+# Downloader
 
-An easy-to-use, unified tool for downloading and managing all of your AI datasets and models.
+An easy-to-use, unified tool for downloading and managing AI datasets and models.
 
 ## Datasets
 
@@ -17,7 +17,7 @@ An easy-to-use, unified tool for downloading and managing all of your AI dataset
 
 Dataset catalog example:
 ```
-from ai_downloader.datasets import DataDownloader
+from downloader.datasets import DataDownloader
 
 downloader = DataDownloader('tf_flowers', dataset_dir='/home/user/datasets', catalog='tensorflow_datasets')
 downloader.download(split='train')
@@ -25,7 +25,7 @@ downloader.download(split='train')
 
 URL example:
 ```
-from ai_downloader.datasets import DataDownloader
+from downloader.datasets import DataDownloader
 
 downloader = DataDownloader('my_dataset', dataset_dir='/home/user/datasets', url='http://<domain>/<filename>.zip')
 downloader.download()
@@ -33,7 +33,28 @@ downloader.download()
 
 ## Models
 
-Coming soon.
+### Supported Model Hubs
+
+| Source | Info |
+|----------|-----------|
+| TensorFlow Hub | [https://www.tensorflow.org/hub](https://www.tensorflow.org/hub) |
+| Torchvision | [https://pytorch.org/vision/stable/models.html](https://pytorch.org/vision/stable/models.html) |
+| Hugging Face | [https://huggingface.co/models](https://huggingface.co/models) (AutoModelForSequenceClassification type) |
+
+### Usage
+
+Example:
+```
+from downloader.models import ModelDownloader
+
+# Hugging Face
+downloader = ModelDownloader('bert-large-uncased', hub='hugging_face', num_labels=2)
+downloader.download()
+
+# Torchvision
+downloader = ModelDownloader('resnet34', hub='torchvision')
+downloader.download()
+```
 
 ## Build and Install
 
@@ -46,5 +67,5 @@ With an activated environment that has the dependencies for the downloader and `
 the root repository directory:
 
 ```
-py.test -s ai_downloader/tests
+py.test -s downloader/tests
 ```

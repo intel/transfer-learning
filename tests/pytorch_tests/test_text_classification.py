@@ -42,7 +42,7 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
     output_dir = tempfile.mkdtemp()
 
     # Get the dataset
-    dataset = dataset_factory.get_dataset('/tmp/data', 'text_classification', framework, dataset_name,
+    dataset = dataset_factory.get_dataset(output_dir, 'text_classification', framework, dataset_name,
                                           'huggingface', split=["train"], shuffle_files=False)
 
     # Get the model
@@ -163,7 +163,7 @@ def test_initial_checkpoints(model_name, dataset_name):
     checkpoint_dir = os.path.join(output_dir, model_name + '_checkpoints')
 
     # Get the dataset
-    dataset = dataset_factory.get_dataset('/tmp/data', 'text_classification', framework, dataset_name,
+    dataset = dataset_factory.get_dataset(output_dir, 'text_classification', framework, dataset_name,
                                           'huggingface', split=["train"], shuffle_files=False)
 
     # Get the model

@@ -33,7 +33,6 @@ import yaml
 
 # Hugging Face imports
 from transformers import (
-    AutoModelForSequenceClassification,
     AutoTokenizer,
     EvalPrediction,
     TrainingArguments,
@@ -44,6 +43,7 @@ from transformers import (
 
 from datasets.arrow_dataset import Dataset
 
+from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
 from tlt.distributed import TLT_DISTRIBUTED_DIR
 from tlt.utils.file_utils import read_json_file, validate_model_name, verify_directory
@@ -393,17 +393,15 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
         if not self._model:
             self._num_classes = len(dataset.class_names)
-
+            downloader = ModelDownloader(self.hub_name, model_dir=None, hub='hugging_face',
+                                         num_labels=self._num_classes, force_download=force_download)
             try:
-                self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
-                                                                                 num_labels=self._num_classes,
-                                                                                 force_download=force_download)
+                self._model = downloader.download()
             except ProxyError:
                 print('Max retries reached. Sleeping for 10 sec...')
                 time.sleep(10)
-                self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
-                                                                                 num_labels=self._num_classes,
-                                                                                 force_download=force_download)
+                self._model = downloader.download()
+
         if not self._optimizer:
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
@@ -522,8 +520,9 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             if not self._model:
                 # The model hasn't been trained yet, use the original transformers model
                 self._num_classes = len(dataset_or_dataloader.class_names)
-                self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
-                                                                                 num_labels=self._num_classes)
+                downloader = ModelDownloader(self.hub_name, hub='hugging_face', model_dir=None,
+                                             num_labels=self._num_classes)
+                self._model = downloader.download()
 
             # Do the evaluation
             device = torch.device(self._device)

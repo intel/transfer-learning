@@ -23,6 +23,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
 
+from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
 from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
@@ -71,11 +72,10 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
     def _get_hub_model(self, num_classes, extra_layers=None):
 
         if not self._model:
-            feature_extractor_layer = hub.KerasLayer(self.feature_vector_url,
-                                                     input_shape=(self.image_size, self.image_size, 3),
-                                                     trainable=self.do_fine_tuning)
-
-            self._model = tf.keras.Sequential([feature_extractor_layer])
+            downloader = ModelDownloader(self.feature_vector_url, hub='tf_hub', model_dir=None,
+                                         input_shape=(self.image_size, self.image_size, 3),
+                                         trainable=self.do_fine_tuning)
+            self._model = tf.keras.Sequential(downloader.download())
 
             if extra_layers:
                 for layer_size in extra_layers:
