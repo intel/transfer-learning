@@ -685,7 +685,6 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             raise FileExistsError('A file already exists at: {}. Provide a new file path or set overwrite=True',
                                   config_file_path)
 
-        # We can setup the a custom dataset to use the ImageFolder dataset option in INC.
         # They don't have a PyTorch Dataset option, so for now, we only support custom datasets for quantization
 
         if not isinstance(dataset, HFCustomTextClassificationDataset) or \
@@ -720,7 +719,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         if not isinstance(tuning_workspace, str):
             raise ValueError('Invalid value for the nc_workspace directory. Expected a string.')
 
-        # Get the image recognition Intel Neural Compressor template
+        # Get the Intel Neural Compressor template
         config_template = TextClassificationModel.get_inc_config_template_dict(self)
 
         # Collect the different data loaders into a list, so that we can update them all the with the data transforms
