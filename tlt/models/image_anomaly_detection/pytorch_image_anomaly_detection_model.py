@@ -21,16 +21,20 @@
 from numbers import Number
 from tqdm import tqdm
 
-import torch
-from torchvision.models.feature_extraction import create_feature_extractor
 from sklearn.decomposition import PCA
 from sklearn import metrics
 import numpy as np
+import torch
+from torchvision.models.feature_extraction import create_feature_extractor
+import torch.nn as nn
+import os
 
 from tlt.models.image_classification.pytorch_image_classification_model import PyTorchImageClassificationModel
 from tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset \
     import PyTorchCustomImageAnomalyDetectionDataset
-from tlt.utils.file_utils import verify_directory
+from tlt.utils.file_utils import verify_directory, validate_model_name
+
+from tlt.models.image_anomaly_detection.simsiam import builder, utils
 
 
 class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
@@ -43,6 +47,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         Class constructor
         """
         PyTorchImageClassificationModel.__init__(self, model_name, model, optimizer, loss, **kwargs)
+        self.simsiam = False
 
     def _check_train_inputs(self, output_dir, dataset, dataset_type, pooling, kernel_size, pca_threshold):
         verify_directory(output_dir)
@@ -73,15 +78,19 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         Raises:
             ValueError if the parameters are not within the expected values
         """
-        layer_names = [name for name, module in self._model.named_children()]
+        if self.simsiam:
+            model = self._model.encoder
+        else:
+            model = self._model
+        layer_names = [name for name, module in model.named_children()]
         if layer_name not in layer_names:
             raise TypeError("Invalid layer_name for the model. Choose from {}".format(layer_names))
         else:
             self._layer_name = layer_name
 
-        self._model.eval()
+        model.eval()
         return_nodes = {layer: layer for layer in [layer_name]}
-        partial_model = create_feature_extractor(self._model, return_nodes=return_nodes)
+        partial_model = create_feature_extractor(model, return_nodes=return_nodes)
         features = partial_model(data)[layer_name]
         pooling_list = ['avg', 'max']
         if pooling[0] in pooling_list and pooling[0] == 'avg':
@@ -109,25 +118,111 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         principal_components = PCA(threshold)
         return principal_components.fit(features.T)
 
-    def _fit(self, output_dir, dataset, epochs, do_eval, early_stopping, lr_decay):
-        """Main PyTorch training loop with SimSiam model"""
-        pass
+    def train_simsiam(self, dataset, output_dir, epochs, feature_dim,
+                      pred_dim, initial_checkpoints=None):
+        """
+            Trains a SimSiam model using the specified dataset.
 
-    def train(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, output_dir, layer_name, do_eval=True, seed=None,
-              pooling='avg', kernel_size=2, pca_threshold=0.99):
+            Args:
+                dataset (str): Dataset to use when training the model
+                output_dir (str): Path to a writeable directory for output files
+                feature_dim (int): feature dimension
+                pred_dim (int): hidden dimension of the predictor
+                epochs (int): Number of epochs to train the model
+                initial_checkpoints (str): Path to checkpoint weights to load.
+
+            Returns:
+                Model object
+        """
+        self.LR = 0.171842137353148
+        self.optimizer = 'SGD'
+        self.batch_size = 32
+        self.batch_size_ss = 64
+        self.epochs = epochs
+        self.num_workers = 56
+        self.simsiam = True
+
+        print("Creating SIMSIAM feature extractor with the backbone of'{}'".format(self.model_name))
+
+        if initial_checkpoints:
+            checkpoint = torch.load(initial_checkpoints, map_location='cpu')
+            self._model.load_state_dict(checkpoint, strict=False)
+
+        self._model = builder.SimSiam(self._model, feature_dim, pred_dim)
+
+        init_lr = self.LR * self.batch_size / 256
+
+        criterion = nn.CosineSimilarity(dim=1).to('cpu')
+
+        optim_params = [{'params': self._model.encoder.parameters(), 'fix_lr': False},
+                        {'params': self._model.predictor.parameters(), 'fix_lr': True}]
+        optimizer = torch.optim.SGD(optim_params, init_lr, momentum=0.9, weight_decay=1e-4)
+
+        best_least_Loss = float('inf')
+        is_best_ans = False
+
+        valid_model_name = validate_model_name(self.model_name)
+        checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(valid_model_name))
+        verify_directory(checkpoint_dir)
+
+        for epoch in range(0, self.epochs):
+            utils.adjust_learning_rate(optimizer, init_lr, epoch, self.epochs)
+
+            curr_loss = utils._fit(dataset, self._model, criterion, optimizer, epoch)
+
+            if (curr_loss < best_least_Loss):
+                best_least_Loss = curr_loss
+                is_best_ans = True
+                file_name_least_loss = 'simsiam-checkpoint_{:04d}.pth.tar'.format(epoch)
+
+            utils.save_checkpoint({
+                'epoch': epoch + 1,
+                'arch': self.model_name,
+                'state_dict': self._model.state_dict(),
+                'optimizer': optimizer.state_dict(),
+            }, is_best_ans, file_name_least_loss,
+                best_least_Loss, checkpoint_dir)
+            is_best_ans = False
+
+        print('No. Of Epochs=', self.epochs)
+        print('Batch Size =', self.batch_size_ss)
+
+        ckpt = torch.load(os.path.join(checkpoint_dir, file_name_least_loss),
+                          map_location=torch.device('cpu'))
+        state_dict = ckpt['state_dict']
+
+        for k in list(state_dict.keys()):
+            if k.startswith('encoder.') and not k.startswith('encoder.fc'):
+                state_dict[k[len("encoder."):]] = state_dict[k]
+            del state_dict[k]
+
+        self._model.load_state_dict(state_dict, strict=False)
+        # model.load_state_dict(state_dict, strict=False)
+
+    def train(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, output_dir, layer_name,
+              simsiam_dataset: PyTorchCustomImageAnomalyDetectionDataset = None,
+              feature_dim=2048, pred_dim=512, epochs=2, initial_checkpoints=None, do_eval=True,
+              seed=None, pooling='avg', kernel_size=2, pca_threshold=0.99, simsiam=False):
         """
             Trains the model using the specified image anomaly detection dataset.
 
             Args:
-                dataset (ImageClassificationDataset): Dataset to use when training the model
+                dataset (PyTorchCustomImageAnomalyDetectionDataset): Dataset to use when training the model
                 output_dir (str): Path to a writeable directory for output files
                 do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
                     at the end of each epoch
-                seed (int): Optionally set a seed for reproducibility
                 layer_name (str): The layer name whose output is desired for the extracted features
+                simsiam_dataset (PyTorchCustomImageAnomalyDetectionDataset): Dataset to use when training the
+                    Simsiam model.Defaults to None.
+                feature_dim (int): feature dimension. Defaults to 2048.
+                pred_dim (int): hidden dimen.sion of the predictor. Defaults to 512
+                epochs (int): Number of epochs to train the model
+                initial_checkpoints (str): Path to checkpoint weights to load.
+                seed (int): Optionally set a seed for reproducibility
                 pooling (str): Pooling to be applied on the extracted layer ('avg' or 'max'), default is 'avg'
                 kernel_size (int): Kernel size in the pooling layer, default is 2
                 pca_threshold (float): Threshold to apply to PCA model, default is 0.99
+                simsiam (bool): Boolean option to enable/disable simsiam training. Defaults to False.
 
             Returns:
                 Fitted principal components
@@ -138,6 +233,17 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         self._pooling = pooling
         self._kernel_size = kernel_size
         self._pca_threshold = pca_threshold
+        self.batch_size_ss = 64
+        self.simsiam = simsiam
+
+        if self.simsiam:
+            self._check_train_inputs(output_dir, simsiam_dataset, PyTorchCustomImageAnomalyDetectionDataset, pooling,
+                                     kernel_size, pca_threshold)
+            simsiam_dataset.simsiam_dataloader(batch_size=self.batch_size_ss)
+            self.train_simsiam(simsiam_dataset._train_loader, output_dir, epochs, feature_dim,
+                               pred_dim, initial_checkpoints)
+        else:
+            print("Loading '{}' model. Disabled SIMSIAM feature extractor.".format(self.model_name))
 
         images, labels = dataset.get_batch()
         outputs_inner = self.extract_features(images.to(self._device), layer_name, pooling=[pooling, kernel_size])
@@ -160,9 +266,11 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         self._pca_mats = self.pca(data_mats_orig, pca_threshold)
 
         if do_eval and dataset.validation_loader is not None:
-            self.evaluate(dataset)
+            threshold = self.evaluate(dataset)
+        else:
+            threshold = None
 
-        return self._pca_mats
+        return self._pca_mats, threshold
 
     def evaluate(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, use_test_set=False):
         """
@@ -206,11 +314,13 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
             gt = gt.numpy()
 
-        fpr_binary, tpr_binary, _ = metrics.roc_curve(gt, scores)
+        fpr_binary, tpr_binary, thres = metrics.roc_curve(gt, scores)
+        threshold = utils.find_threshold(fpr_binary, tpr_binary, thres)
+        print("Best threshold for classification is ", threshold)
         auc_roc_binary = metrics.auc(fpr_binary, tpr_binary)
         print(f'AUROC computed on {data_length} test images: {auc_roc_binary*100}')
 
-        return auc_roc_binary
+        return threshold
 
     def predict(self, input_samples, return_type='scores', threshold=None):
         """

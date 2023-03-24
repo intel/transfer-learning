@@ -158,23 +158,23 @@ class PyTorchDataset(BaseDataset):
             random.seed(worker_seed)
 
         if self._dataset:
-            self._data_loader = loader(self.dataset, batch_size=batch_size, shuffle=self._shuffle,
+            self._data_loader = loader(self.dataset, batch_size=batch_size, shuffle=False,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
         else:
             self._data_loader = None
         if self._train_indices:
-            self._train_loader = loader(self.train_subset, batch_size=batch_size, shuffle=self._shuffle,
+            self._train_loader = loader(self.train_subset, batch_size=batch_size, shuffle=False,
                                         num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
         else:
             self._train_loader = None
         if self._validation_indices:
-            self._validation_loader = loader(self.validation_subset, batch_size=batch_size, shuffle=self._shuffle,
+            self._validation_loader = loader(self.validation_subset, batch_size=batch_size, shuffle=False,
                                              num_workers=self._num_workers, worker_init_fn=seed_worker,
                                              generator=generator)
         else:
             self._validation_loader = None
         if self._test_indices:
-            self._test_loader = loader(self.test_subset, batch_size=batch_size, shuffle=self._shuffle,
+            self._test_loader = loader(self.test_subset, batch_size=batch_size, shuffle=False,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker,
                                        generator=generator)
         else:

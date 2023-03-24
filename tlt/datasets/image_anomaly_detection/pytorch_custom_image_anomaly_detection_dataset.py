@@ -20,15 +20,17 @@
 
 import os
 import random
+import numpy as np
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import torch
 from torch.utils.data import DataLoader as loader
 from torchvision.datasets import DatasetFolder
+import torchvision.transforms as transforms
 from torchvision.datasets.folder import default_loader, IMG_EXTENSIONS
-import numpy as np
 
 from tlt.datasets.pytorch_dataset import PyTorchDataset
+from tlt.models.image_anomaly_detection.simsiam import loader as ssloader
 
 
 class AnomalyImageFolder(DatasetFolder):
@@ -245,7 +247,8 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             "dataset_dir": dataset_dir
         }
         self._num_workers = num_workers
-        self._shuffle = shuffle_files
+        self.train_sampler = None
+        self._shuffle = self.train_sampler is None
         self._preprocessed = None
         self._train_indices = None
         self._validation_indices = None
@@ -370,23 +373,51 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             good_indices = [idx for idx, target in enumerate(self._dataset.targets) if target == 1]
             good_samples = torch.utils.data.Subset(self._dataset, good_indices)
             self._data_loader = loader(good_samples, batch_size=batch_size, shuffle=self._shuffle,
-                                       num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
+                                       num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator,
+                                       pin_memory=True, sampler=self.train_sampler, drop_last=False)
         else:
             self._data_loader = None
         if self._train_indices:
             self._train_loader = loader(self.train_subset, batch_size=batch_size, shuffle=self._shuffle,
-                                        num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
+                                        num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator,
+                                        pin_memory=True, sampler=self.train_sampler, drop_last=False)
         else:
             self._train_loader = None
         if self._validation_indices or (self._validation_type == 'defined_split' and self._validation_subset):
             self._validation_loader = loader(self.validation_subset, batch_size=batch_size, shuffle=self._shuffle,
                                              num_workers=self._num_workers, worker_init_fn=seed_worker,
-                                             generator=generator)
+                                             generator=generator, pin_memory=True, sampler=self.train_sampler,
+                                             drop_last=False)
         else:
             self._validation_loader = None
         if self._test_indices:
             self._test_loader = loader(self.test_subset, batch_size=batch_size, shuffle=self._shuffle,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker,
-                                       generator=generator)
+                                       generator=generator, pin_memory=True, sampler=self.train_sampler,
+                                       drop_last=False)
         else:
             self._test_loader = None
+
+    def simsiam_dataloader(self, batch_size):
+        """
+        Perform TwoCropsTransform and GaussianBlur on the dataset
+        for SIMSIAM training.
+
+        Args:
+            batch_size (int): desired batch size
+
+        """
+        augmentation = [transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
+                        transforms.RandomApply(
+                            [transforms.ColorJitter(0.1, 0.1, 0.1, 0.1)], p=0.8),
+                        transforms.RandomGrayscale(p=0.2),
+                        transforms.RandomApply(
+                            [ssloader.GaussianBlur([.1, 2.])], p=0.5),
+                        transforms.RandomHorizontalFlip(),
+                        transforms.ToTensor(),
+                        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                             std=[0.229, 0.224, 0.225])]
+
+        self._dataset.transform = ssloader.TwoCropsTransform(
+            transforms.Compose(augmentation))
+        self._make_data_loaders(batch_size=batch_size)
