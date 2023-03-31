@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import inspect
 import os
 import random
 import numpy as np
@@ -26,7 +27,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 import torch
 from torch.utils.data import DataLoader as loader
 from torchvision.datasets import DatasetFolder
-import torchvision.transforms as transforms
+import torchvision.transforms as T
 from torchvision.datasets.folder import default_loader, IMG_EXTENSIONS
 
 from tlt.datasets.pytorch_dataset import PyTorchDataset
@@ -278,6 +279,10 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         self._val_pct = 0
         self._test_pct = 0
 
+        self._simsiam_transform = None
+        self._train_transform = None
+        self._validation_transform = None
+
     @property
     def class_names(self):
         """
@@ -362,7 +367,9 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             self._make_data_loaders(batch_size=self._preprocessed['batch_size'], generator=generator)
 
     def _make_data_loaders(self, batch_size, generator=None):
-        """Make data loaders for the whole dataset and the subsets that have indices defined"""
+        """Make data loaders for the whole dataset and the subsets that have indices defined. Note that this only
+        concerns indices, not transforms. The transforms get applied when the dataloaders are used, not created, so
+        we need to switch transforms appropriately for train/val subsets when the data is ingested."""
         def seed_worker(worker_id):
             worker_seed = torch.initial_seed() % 2**32
             np.random.seed(worker_seed)
@@ -398,26 +405,115 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         else:
             self._test_loader = None
 
-    def simsiam_dataloader(self, batch_size):
+    def simsiam_transform(self, image_size):
         """
-        Perform TwoCropsTransform and GaussianBlur on the dataset
-        for SIMSIAM training.
+        Perform TwoCropsTransform and GaussianBlur on the dataset for SIMSIAM training.
 
         Args:
-            batch_size (int): desired batch size
+            image_size (int): desired image size
 
         """
-        augmentation = [transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
-                        transforms.RandomApply(
-                            [transforms.ColorJitter(0.1, 0.1, 0.1, 0.1)], p=0.8),
-                        transforms.RandomGrayscale(p=0.2),
-                        transforms.RandomApply(
+        augmentation = [T.RandomResizedCrop(image_size, scale=(0.2, 1.)),
+                        T.RandomApply(
+                            [T.ColorJitter(0.1, 0.1, 0.1, 0.1)], p=0.8),
+                        T.RandomGrayscale(p=0.2),
+                        T.RandomApply(
                             [ssloader.GaussianBlur([.1, 2.])], p=0.5),
-                        transforms.RandomHorizontalFlip(),
-                        transforms.ToTensor(),
-                        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                             std=[0.229, 0.224, 0.225])]
+                        T.RandomHorizontalFlip(),
+                        T.ToTensor(),
+                        T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                        ]
 
-        self._dataset.transform = ssloader.TwoCropsTransform(
-            transforms.Compose(augmentation))
+        return ssloader.TwoCropsTransform(T.Compose(augmentation))
+
+    def preprocess(self, image_size='variable', batch_size=32, add_aug=None, **kwargs):
+        """
+        Preprocess the dataset to resize, normalize, and batch the images. Apply augmentation
+        if specified.
+
+            Args:
+                image_size (int or 'variable'): desired square image size (if 'variable', does not alter image size)
+                batch_size (int): desired batch size (default 32)
+                add_aug (None or list[str]): Choice of augmentations ('hflip', 'rotate') to be applied during training
+                kwargs: optional; additional keyword arguments for Resize and Normalize transforms
+            Raises:
+                ValueError if the dataset is not defined or has already been processed
+        """
+        if not (self._dataset):
+            raise ValueError("Unable to preprocess, because the dataset hasn't been defined.")
+
+        if self._preprocessed:
+            raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))
+
+        if not isinstance(batch_size, int) or batch_size < 1:
+            raise ValueError("batch_size should be an positive integer")
+
+        if not image_size == 'variable' and not (isinstance(image_size, int) and image_size >= 1):
+            raise ValueError("Input image_size must be either a positive int or 'variable'")
+
+        # Get the user-specified keyword arguments
+        resize_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(T.Resize).args}
+        normalize_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(T.Normalize).args}
+
+        def get_transform(image_size, add_aug, train=True):
+            """The train argument, if True, will add augmentation transforms, while if False, will add only the
+            Resize and Normalize transforms for validation."""
+            transforms = []
+            if isinstance(image_size, int):
+                transforms.append(T.Resize([image_size, image_size], **resize_args))
+            if train and add_aug is not None:
+                aug_dict = {'hflip': T.RandomHorizontalFlip(),
+                            'rotate': T.RandomRotation(0.5)}
+                aug_list = ['hflip', 'rotate']
+                for option in add_aug:
+                    if option not in aug_list:
+                        raise ValueError("Unsupported augmentation for PyTorch:{}. \
+                        Supported augmentations are {}".format(option, aug_list))
+                    transforms.append(aug_dict[option])
+            transforms.append(T.ToTensor())
+            transforms.append(T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225], **normalize_args))
+
+            return T.Compose(transforms)
+
+        self._simsiam_transform = self.simsiam_transform(image_size)
+        self._train_transform = get_transform(image_size, add_aug, True)
+        self._validation_transform = get_transform(image_size, add_aug, False)
+        self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
         self._make_data_loaders(batch_size=batch_size)
+
+    def get_batch(self, subset='all', simsiam=False):
+        """
+        Get a single batch of images and labels from the dataset.
+
+            Args:
+                subset (str): default "all", can also be "train", "validation", or "test"
+                simsiam (bool): if preprocess() has been previously used on the dataset and this argument is True,
+                                the simsiam transform will be applied, otherwise it will not; default False
+
+            Returns:
+                (examples, labels)
+
+            Raises:
+                ValueError if the dataset is not defined yet or the given subset is not valid
+        """
+        if simsiam:
+            # SimSiam transform can be manually requested with any subset
+            self._dataset.transform = self._simsiam_transform
+        elif subset in ['all', 'train']:
+            # For "train"/"all" subsets, if simsiam is False, the train transform (including augmentation) is applied
+            self._dataset.transform = self._train_transform
+        else:
+            # For "validation"/"test" subsets, if simsiam is False, the validation transform (excluding augmentation)
+            # is applied
+            self._dataset.transform = self._validation_transform
+
+        if subset == 'all' and self._dataset is not None:
+            return next(iter(self._data_loader))
+        elif subset == 'train' and self._train_loader is not None:
+            return next(iter(self._train_loader))
+        elif subset == 'validation' and self._validation_loader is not None:
+            return next(iter(self._validation_loader))
+        elif subset == 'test' and self._test_loader is not None:
+            return next(iter(self._test_loader))
+        else:
+            raise ValueError("Unable to return a batch, because the dataset or subset hasn't been defined.")

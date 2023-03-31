@@ -142,7 +142,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         self.num_workers = 56
         self.simsiam = True
 
-        print("Creating SIMSIAM feature extractor with the backbone of'{}'".format(self.model_name))
+        print("Creating SIMSIAM feature extractor with the backbone of '{}'".format(self.model_name))
 
         if initial_checkpoints:
             checkpoint = torch.load(initial_checkpoints, map_location='cpu')
@@ -170,59 +170,58 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
             curr_loss = utils._fit(dataset, self._model, criterion, optimizer, epoch)
 
-            if (curr_loss < best_least_Loss):
-                best_least_Loss = curr_loss
-                is_best_ans = True
-                file_name_least_loss = 'simsiam-checkpoint_{:04d}.pth.tar'.format(epoch)
+            if self._generate_checkpoints:
+                if (curr_loss < best_least_Loss):
+                    best_least_Loss = curr_loss
+                    is_best_ans = True
+                    file_name_least_loss = 'simsiam-checkpoint_{:04d}.pth.tar'.format(epoch)
 
-            utils.save_checkpoint({
-                'epoch': epoch + 1,
-                'arch': self.model_name,
-                'state_dict': self._model.state_dict(),
-                'optimizer': optimizer.state_dict(),
-            }, is_best_ans, file_name_least_loss,
-                best_least_Loss, checkpoint_dir)
-            is_best_ans = False
+                utils.save_checkpoint({
+                    'epoch': epoch + 1,
+                    'arch': self.model_name,
+                    'state_dict': self._model.state_dict(),
+                    'optimizer': optimizer.state_dict(),
+                }, is_best_ans, file_name_least_loss,
+                    best_least_Loss, checkpoint_dir)
+                is_best_ans = False
 
         print('No. Of Epochs=', self.epochs)
         print('Batch Size =', self.batch_size_ss)
 
-        ckpt = torch.load(os.path.join(checkpoint_dir, file_name_least_loss),
-                          map_location=torch.device('cpu'))
-        state_dict = ckpt['state_dict']
+        if self._generate_checkpoints:
+            ckpt = torch.load(os.path.join(checkpoint_dir, file_name_least_loss),
+                              map_location=torch.device('cpu'))
+            state_dict = ckpt['state_dict']
 
-        for k in list(state_dict.keys()):
-            if k.startswith('encoder.') and not k.startswith('encoder.fc'):
-                state_dict[k[len("encoder."):]] = state_dict[k]
-            del state_dict[k]
+            for k in list(state_dict.keys()):
+                if k.startswith('encoder.') and not k.startswith('encoder.fc'):
+                    state_dict[k[len("encoder."):]] = state_dict[k]
+                del state_dict[k]
 
-        self._model.load_state_dict(state_dict, strict=False)
-        # model.load_state_dict(state_dict, strict=False)
+            self._model.load_state_dict(state_dict, strict=False)
 
     def train(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, output_dir, layer_name,
-              simsiam_dataset: PyTorchCustomImageAnomalyDetectionDataset = None,
-              feature_dim=2048, pred_dim=512, epochs=2, initial_checkpoints=None, do_eval=True,
-              seed=None, pooling='avg', kernel_size=2, pca_threshold=0.99, simsiam=False):
+              feature_dim=2048, pred_dim=512, epochs=2, generate_checkpoints=True,
+              initial_checkpoints=None, seed=None, pooling='avg', kernel_size=2, pca_threshold=0.99,
+              simsiam=False):
         """
             Trains the model using the specified image anomaly detection dataset.
 
             Args:
                 dataset (PyTorchCustomImageAnomalyDetectionDataset): Dataset to use when training the model
                 output_dir (str): Path to a writeable directory for output files
-                do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
-                    at the end of each epoch
                 layer_name (str): The layer name whose output is desired for the extracted features
-                simsiam_dataset (PyTorchCustomImageAnomalyDetectionDataset): Dataset to use when training the
-                    Simsiam model.Defaults to None.
-                feature_dim (int): feature dimension. Defaults to 2048.
-                pred_dim (int): hidden dimen.sion of the predictor. Defaults to 512
+                feature_dim (int): Feature dimension, default is 2048
+                pred_dim (int): Hidden dimension of the predictor, default is 512
                 epochs (int): Number of epochs to train the model
-                initial_checkpoints (str): Path to checkpoint weights to load.
-                seed (int): Optionally set a seed for reproducibility
+                generate_checkpoints (bool): Whether to save/preserve the best weights during SimSiam training,
+                                             default is True
+                initial_checkpoints (str): Path to checkpoint weights to load
+                seed (int): Optional, set a seed for reproducibility
                 pooling (str): Pooling to be applied on the extracted layer ('avg' or 'max'), default is 'avg'
                 kernel_size (int): Kernel size in the pooling layer, default is 2
                 pca_threshold (float): Threshold to apply to PCA model, default is 0.99
-                simsiam (bool): Boolean option to enable/disable simsiam training. Defaults to False.
+                simsiam (bool): Boolean option to enable/disable simsiam training, default is False
 
             Returns:
                 Fitted principal components
@@ -230,6 +229,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         self._check_train_inputs(output_dir, dataset, PyTorchCustomImageAnomalyDetectionDataset, pooling,
                                  kernel_size, pca_threshold)
 
+        self._generate_checkpoints = generate_checkpoints
         self._pooling = pooling
         self._kernel_size = kernel_size
         self._pca_threshold = pca_threshold
@@ -237,14 +237,12 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         self.simsiam = simsiam
 
         if self.simsiam:
-            self._check_train_inputs(output_dir, simsiam_dataset, PyTorchCustomImageAnomalyDetectionDataset, pooling,
-                                     kernel_size, pca_threshold)
-            simsiam_dataset.simsiam_dataloader(batch_size=self.batch_size_ss)
-            self.train_simsiam(simsiam_dataset._train_loader, output_dir, epochs, feature_dim,
-                               pred_dim, initial_checkpoints)
+            dataset._dataset.transform = dataset._simsiam_transform
+            self.train_simsiam(dataset._train_loader, output_dir, epochs, feature_dim, pred_dim, initial_checkpoints)
         else:
             print("Loading '{}' model. Disabled SIMSIAM feature extractor.".format(self.model_name))
 
+        dataset._dataset.transform = dataset._train_transform
         images, labels = dataset.get_batch()
         outputs_inner = self.extract_features(images.to(self._device), layer_name, pooling=[pooling, kernel_size])
         data_mats_orig = torch.empty((outputs_inner.shape[1], len(dataset.train_subset))).to(self._device)
@@ -265,12 +263,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         # PCA
         self._pca_mats = self.pca(data_mats_orig, pca_threshold)
 
-        if do_eval and dataset.validation_loader is not None:
-            threshold = self.evaluate(dataset)
-        else:
-            threshold = None
-
-        return self._pca_mats, threshold
+        return self._pca_mats
 
     def evaluate(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, use_test_set=False):
         """
@@ -280,6 +273,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         (by setting use_test_set=True). Otherwise, all of the good samples in the dataset will be
         used for evaluation.
         """
+        dataset._dataset.transform = dataset._validation_transform
         if use_test_set:
             if dataset.test_subset:
                 eval_loader = dataset.test_loader

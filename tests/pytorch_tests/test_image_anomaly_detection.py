@@ -93,8 +93,7 @@ class TestImageAnomalyDetectionCustomDataset:
         assert len(features) == 32
 
         # Train for 1 epoch
-        model.train(dataset, self._output_dir, layer_name='layer3', do_eval=False, seed=10,
-                    simsiam=False)
+        model.train(dataset, self._output_dir, layer_name='layer3', seed=10, simsiam=False)
 
         # Evaluate
         auroc = model.evaluate(dataset)
@@ -153,8 +152,7 @@ class TestImageAnomalyDetectionCustomDataset:
         assert len(features) == 32
 
         # Train for 1 epoch
-        model.train(dataset, self._output_dir, layer_name='conv2', do_eval=False, seed=10,
-                    simsiam=False)
+        model.train(dataset, self._output_dir, layer_name='conv2', seed=10, simsiam=False)
 
         # Evaluate
         auroc = model.evaluate(dataset)
@@ -178,8 +176,6 @@ class TestImageAnomalyDetectionCustomDataset:
         # Get the dataset
         dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework,
                                                shuffle_files=False)
-        simsiam_dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case,
-                                                       framework=framework, shuffle_files=False)
         assert ['tulips'] == dataset.defect_names
         assert ['bad', 'good'] == dataset.class_names
 
@@ -190,24 +186,15 @@ class TestImageAnomalyDetectionCustomDataset:
         dataset.preprocess(model.image_size, 32)
         dataset.shuffle_split(train_pct=0.5, val_pct=0.5, seed=10)
 
-        # Preprocess the simsiam dataset and split to get small subsets for training and validation
-        simsiam_dataset.preprocess(model.image_size, 32)
-        simsiam_dataset.shuffle_split(train_pct=0.5, val_pct=0.5, seed=10)
-
-        # Extract features
-        images, labels = dataset.get_batch(subset='validation')
-        features = model.extract_features(images, layer_name='layer3', pooling=['avg', 2])
-        assert len(features) == 32
-
         # Train for 1 epoch
         model.train(dataset, self._output_dir, layer_name='layer3', feature_dim=1000, pred_dim=250,
-                    simsiam_dataset=simsiam_dataset, do_eval=False, seed=10, simsiam=True,
-                    initial_checkpoints=None)
+                    seed=10, simsiam=True, initial_checkpoints=None)
 
         # Evaluate
         auroc = model.evaluate(dataset)
         assert isinstance(auroc, float)
 
         # Predict with a batch
+        images, labels = dataset.get_batch(subset='validation')
         predictions = model.predict(images)
         assert len(predictions) == 32
