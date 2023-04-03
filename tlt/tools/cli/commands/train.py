@@ -210,7 +210,7 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
             elif 'model_name' in inspect.getfullargspec(dataset.preprocess).args:  # For HF Text classification
                 dataset.preprocess(model_name=model_name, batch_size=32)
             else:
-                dataset.preprocess(batch_size=32, add_aug=list(add_aug))
+                dataset.preprocess(batch_size=32)
             dataset.shuffle_split()
     except Exception as e:
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "

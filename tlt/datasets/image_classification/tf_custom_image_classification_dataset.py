@@ -52,7 +52,7 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
 
     """
 
-    def __init__(self, dataset_dir, dataset_name=None, color_mode="rgb", shuffle_files=True, seed=None):
+    def __init__(self, dataset_dir, dataset_name=None, color_mode="rgb", shuffle_files=True, seed=None, **kwargs):
         """
         Class constructor
         """
