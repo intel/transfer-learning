@@ -75,7 +75,7 @@ class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
 
     def __init__(self, dataset_dir, dataset_name, csv_file_name, class_names, label_map_func=None,
                  defaults=[tf.string, tf.string], delimiter=",", header=False, select_cols=None, exclude_cols=None,
-                 shuffle_files=True, seed=None):
+                 shuffle_files=True, seed=None, **kwargs):
         """
         Class constructor
         """

@@ -30,7 +30,7 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
     An image classification dataset from the TensorFlow datasets catalog
     """
     def __init__(self, dataset_dir, dataset_name, split=["train"],
-                 as_supervised=True, shuffle_files=True, seed=None):
+                 as_supervised=True, shuffle_files=True, seed=None, **kwargs):
         """
         Class constructor
         """
