@@ -133,7 +133,7 @@ def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mo
         assert model_mock.train.called
 
         # Verify preprocess was called with the right arguments
-        data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[])
+        data_mock.preprocess.assert_called_once_with(batch_size=32)
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0
@@ -182,7 +182,7 @@ def test_train_add_augmentation(mock_inspect, mock_load_dataset, mock_get_model,
         assert model_mock.train.called
 
         # Verify preprocess was called with the right arguments
-        data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[add_aug])
+        data_mock.preprocess.assert_called_once_with(batch_size=32)
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0
@@ -238,7 +238,7 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
                                                      initial_checkpoints=init_checkpoints, early_stopping=False,
                                                      lr_decay=False, ipex_optimize=False, distributed=False,
                                                      hostfile=None, nnodes=1, nproc_per_node=1)
-        data_mock.preprocess.assert_called_once_with(batch_size=32, add_aug=[])
+        data_mock.preprocess.assert_called_once_with(batch_size=32)
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0
