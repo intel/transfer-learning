@@ -162,7 +162,7 @@ class HFCustomTextClassificationDataset(TextClassificationDataset, HFDataset):
         }
 
         self._class_names = class_names
-        self._validation_type = 'custom'
+        self._validation_type = None
         self._preprocessed = {}
         self._shuffle = shuffle_files
         self._num_workers = num_workers

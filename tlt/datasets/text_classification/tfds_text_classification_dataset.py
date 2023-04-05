@@ -70,7 +70,7 @@ class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
         self._preprocessed = None
 
         if len(split) == 1:
-            self._validation_type = 'recall'  # Train & evaluate on the whole dataset
+            self._validation_type = None  # Train & evaluate on the whole dataset
             self._dataset = data[0]
         else:
             self._validation_type = 'defined_split'  # Defined by user or TFDS

@@ -141,7 +141,7 @@ class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
         self._train_pct = 1.0
         self._val_pct = 0
         self._test_pct = 0
-        self._validation_type = 'recall'
+        self._validation_type = None
         self._train_subset = None
         self._validation_subset = None
         self._test_subset = None

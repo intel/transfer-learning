@@ -60,7 +60,7 @@ class HFTextClassificationDataset(TextClassificationDataset, HFDataset):
         }
 
         if len(split) == 1:
-            self._validation_type = 'recall'  # Train & evaluate on the whole dataset
+            self._validation_type = None  # Train & evaluate on the whole dataset
 
             # If only one split is given use it as the main dataset object
             self._dataset = self.load_hf_dataset(dataset_name, split=split[0])

@@ -215,12 +215,12 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             else:
                 raise FileNotFoundError("Found a 'train' directory, but not a 'test' or 'validation' directory.")
         else:
-            self._validation_type = 'recall'
+            self._validation_type = None
             if not os.path.exists(os.path.join(dataset_dir, 'good')):
                 raise FileNotFoundError("Couldn't find 'good' folder in {}".format(dataset_dir))
 
         # Inspect and validate defects
-        if self._validation_type == 'recall':
+        if self._validation_type is None:
             defect_directory = dataset_dir
         elif self._validation_type == 'defined_split':
             defect_directory = os.path.join(dataset_dir, validation_dir)

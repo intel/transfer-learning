@@ -377,18 +377,25 @@ def test_custom_text_classification_extra_columns():
 
 
 class DatasetForTest:
-    def __init__(self, dataset_dir, use_case, dataset_name=None, dataset_catalog=None, class_names=None):
+    def __init__(self, dataset_dir, use_case, dataset_name=None, dataset_catalog=None, class_names=None, splits=None):
         """
         This class wraps initialization for datasets (either from TFDS or custom).
 
-        For a custom dataset, provide a dataset dir and class names. A temporary directory will be created with
-        dummy folders for the specified class names and 50 images in each folder. The dataset factory will be used to
-        load the custom dataset from the dataset directory.
+        For a custom dataset, provide a dataset dir and class names, with or without splits such as ['train',
+        'validation', 'test']. A temporary directory will be created with dummy folders for the specified split
+        subfolders and class names and 50 images in each folder. The dataset factory will be used to load the custom
+        dataset from the dataset directory.
 
         For a dataset from a catalog, provide the dataset_dir, dataset_name, and dataset_catalog.
         The dataset factory will be used to load the specified dataset.
         """
         framework = 'tensorflow'
+
+        def make_n_files(file_dir, n):
+            os.makedirs(file_dir)
+            for i in range(n):
+                img = Image.new(mode='RGB', size=(24, 24))
+                img.save(os.path.join(file_dir, 'img_{}.jpg'.format(i)))
 
         if dataset_name and dataset_catalog:
             self._dataset_catalog = dataset_catalog
@@ -400,12 +407,15 @@ class DatasetForTest:
                 raise TypeError("class_names needs to be a list")
 
             if use_case == 'image_classification':
-                for dir_name in class_names:
-                    image_class_dir = os.path.join(dataset_dir, dir_name)
-                    os.makedirs(image_class_dir)
-                    for n in range(50):
-                        img = Image.new(mode='RGB', size=(24, 24))
-                        img.save(os.path.join(image_class_dir, 'img_{}.jpg'.format(n)))
+                if isinstance(splits, list):
+                    for folder in splits:
+                        for dir_name in class_names:
+                            make_n_files(os.path.join(dataset_dir, folder, dir_name), 50)
+                elif splits is None:
+                    for dir_name in class_names:
+                        make_n_files(os.path.join(dataset_dir, dir_name), 50)
+                else:
+                    raise ValueError("Splits must be None or a list of strings, got {}".format(splits))
             else:
                 raise NotImplementedError("The custom dataset option has only been implemented for images")
 
@@ -443,11 +453,13 @@ tfds_metadata = {
 }
 
 # Dataset parameters used to define datasets that will be initialized and tested using DatasetForTest class.
-# The parameters are: dataset_dir, use_case, dataset_name, dataset_catalog, and class_names, which map to the
-# constructor parameters for DatasetForTest, which initializes the datasets using the dataset factory.
-dataset_params = [("/tmp/data", 'image_classification', "tf_flowers", "tf_datasets", None),
-                  ("/tmp/data", 'image_classification', None, None, ["a", "b", "c"]),
-                  ("/tmp/data", 'text_classification', "glue/cola", "tf_datasets", None)]
+# The parameters are: dataset_dir, use_case, dataset_name, dataset_catalog, class_names, and subfolders, which map to
+# the constructor parameters for DatasetForTest, which initializes the datasets using the dataset factory.
+dataset_params = [("/tmp/data", 'image_classification', "tf_flowers", "tf_datasets", None, None),
+                  ("/tmp/data", 'image_classification', None, None, ["a", "b", "c"], None),
+                  ("/tmp/data", 'text_classification', "glue/cola", "tf_datasets", None, None),
+                  ("/tmp/data", 'image_classification', None, None, ["a", "b", "c"], ['train', 'validation']),
+                  ("/tmp/data", 'image_classification', None, None, ["a", "b"], ['train', 'validation', 'test'])]
 
 
 @pytest.fixture(scope="class", params=dataset_params)
@@ -456,7 +468,7 @@ def test_data(request):
 
     ic_dataset = DatasetForTest(*params)
 
-    dataset_dir, use_case, dataset_name, dataset_catalog, dataset_classes = params
+    dataset_dir, use_case, dataset_name, dataset_catalog, dataset_classes, splits = params
 
     def cleanup():
         ic_dataset.cleanup()
@@ -464,7 +476,7 @@ def test_data(request):
     request.addfinalizer(cleanup)
 
     # Return the tlt dataset along with metadata that tests might need
-    return (ic_dataset.tlt_dataset, dataset_name, dataset_classes, use_case)
+    return (ic_dataset.tlt_dataset, dataset_name, dataset_classes, use_case, splits)
 
 
 @pytest.mark.tensorflow
@@ -479,12 +491,15 @@ class TestImageClassificationDataset:
         """
         Verify the class type, dataset class names, and dataset length after initialization
         """
-        tlt_dataset, dataset_name, dataset_classes, use_case = test_data
+        tlt_dataset, dataset_name, dataset_classes, use_case, splits = test_data
 
         if dataset_name is None:
             assert type(tlt_dataset) == TFCustomImageClassificationDataset
             assert len(tlt_dataset.class_names) == len(dataset_classes)
-            assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
+            if splits is None:
+                assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
+            else:
+                assert len(tlt_dataset.dataset) == len(dataset_classes) * len(splits) * 50
         else:
             if use_case == 'image_classification':
                 assert type(tlt_dataset) == TFImageClassificationDataset
@@ -503,7 +518,7 @@ class TestImageClassificationDataset:
         """
         Ensures that a ValueError is raised when an invalid batch size is passed
         """
-        tlt_dataset, dataset_name, dataset_classes, use_case = test_data
+        tlt_dataset, dataset_name, dataset_classes, use_case, splits = test_data
         with pytest.raises(ValueError):
             if use_case == 'image_classification':
                 tlt_dataset.preprocess(224, batch_size)
@@ -520,7 +535,7 @@ class TestImageClassificationDataset:
         Ensures that a ValueError is raised when an invalid image size is passed. This test only applies to
         image dataset.
         """
-        tlt_dataset, dataset_name, dataset_classes, use_case = test_data
+        tlt_dataset, dataset_name, dataset_classes, use_case, splits = test_data
 
         if use_case == 'image_classification':
             with pytest.raises(ValueError):
@@ -531,7 +546,7 @@ class TestImageClassificationDataset:
         """
         Checks that dataset can be preprocessed only once
         """
-        tlt_dataset, dataset_name, dataset_classes, use_case = test_data
+        tlt_dataset, dataset_name, dataset_classes, use_case, splits = test_data
 
         if use_case == 'image_classification':
             tlt_dataset.preprocess(224, 8)
@@ -556,7 +571,7 @@ class TestImageClassificationDataset:
         """
         Checks that splitting into train, validation, and test subsets will error if inputs are wrong
         """
-        tlt_dataset, dataset_name, dataset_classes, use_case = test_data
+        tlt_dataset, dataset_name, dataset_classes, use_case, splits = test_data
 
         with pytest.raises(Exception) as e:
             tlt_dataset.shuffle_split(train_pct=.5, val_pct=.5, test_pct=.2)
@@ -570,10 +585,13 @@ class TestImageClassificationDataset:
         """
         Checks that dataset can be split into train, validation, and test subsets
         """
-        tlt_dataset, dataset_name, dataset_classes, use_case = test_data
+        tlt_dataset, dataset_name, dataset_classes, use_case, splits = test_data
 
-        # Before the shuffle split, validation type should be recall
-        assert 'recall' == tlt_dataset._validation_type
+        # Before the shuffle split, validation type should be None or defined_split
+        if splits is None:
+            assert tlt_dataset._validation_type is None
+        else:
+            assert 'defined_split' == tlt_dataset._validation_type
 
         # Perform shuffle split with default percentages
         tlt_dataset.shuffle_split(shuffle_files=False)
@@ -581,7 +599,8 @@ class TestImageClassificationDataset:
         default_val_pct = 0.25
 
         # Get the full dataset size
-        dataset_size = tfds_metadata[dataset_name]['size'] if dataset_name else len(dataset_classes) * 50
+        len_splits = 1 if splits is None else len(splits)
+        dataset_size = tfds_metadata[dataset_name]['size'] if dataset_name else len(dataset_classes) * len_splits * 50
 
         # Divide by the batch size that was used to preprocess earlier
         dataset_size = dataset_size / tlt_dataset.info['preprocessing_info']['batch_size']

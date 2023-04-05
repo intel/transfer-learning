@@ -221,7 +221,7 @@ class HFDataset(BaseDataset):
                 self._validation_loader = loader(self.validation_subset, batch_size=batch_size, shuffle=self._shuffle,
                                                  num_workers=self._num_workers, worker_init_fn=seed_worker,
                                                  generator=generator)
-        elif self._validation_type in ['recall', 'custom']:
+        elif self._validation_type is None:
 
             self._data_loader = loader(self._dataset, batch_size=batch_size, shuffle=self._shuffle,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
@@ -259,7 +259,7 @@ class HFDataset(BaseDataset):
                 train_ds = self._dataset.select(self._train_indices)
             else:
                 raise ValueError("train split not specified")
-        elif self._validation_type in ['recall', 'custom']:
+        elif self._validation_type is None:
             train_ds = self._dataset
 
         return train_ds
@@ -276,7 +276,7 @@ class HFDataset(BaseDataset):
                 test_ds = self._dataset.select(self._test_indices)
             else:
                 raise ValueError("test split not specified")
-        elif self._validation_type in ['recall', 'custom']:
+        elif self._validation_type is None:
             test_ds = self._dataset
 
         return test_ds
@@ -292,7 +292,7 @@ class HFDataset(BaseDataset):
                 validation_ds = self._dataset.select(self._validation_indices)
             else:
                 raise ValueError("validation split not specified")
-        elif self._validation_type in ['recall', 'custom']:
+        elif self._validation_type is None:
             validation_ds = self._dataset
 
         return validation_ds
