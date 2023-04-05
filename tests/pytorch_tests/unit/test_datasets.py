@@ -206,19 +206,27 @@ def test_batching_error(dataset_dir, dataset_name, dataset_catalog, class_names)
 
 
 class ImageDatasetForTest:
-    def __init__(self, dataset_dir, dataset_name=None, dataset_catalog=None, class_names=None, use_case=None):
+    def __init__(self, dataset_dir, dataset_name=None, dataset_catalog=None, class_names=None,
+                 splits=None, use_case=None):
         """
         This class wraps initialization for image classification datasets (either from torchvision or custom).
 
-        For a custom dataset, provide a dataset dir and class names. A temporary directory will be created with
-        dummy folders for the specified class names and 50 images in each folder. The dataset factory will be used to
-        load the custom dataset from the dataset directory.
+        For a custom dataset, provide a dataset dir and class names, with or without splits such as ['train',
+        'validation', 'test']. A temporary directory will be created with dummy folders for the specified split
+        subfolders and class names and 50 images in each folder. The dataset factory will be used to load the custom
+        dataset from the dataset directory.
 
         For an image classification dataset from a catalog, provide the dataset_dir, dataset_name, and dataset_catalog.
         The dataset factory will be used to load the specified dataset.
         """
         use_case = 'image_classification' if use_case is None else use_case
         framework = 'pytorch'
+
+        def make_n_files(file_dir, n):
+            os.makedirs(file_dir)
+            for i in range(n):
+                img = Image.new(mode='RGB', size=(24, 24))
+                img.save(os.path.join(file_dir, 'img_{}.jpg'.format(i)))
 
         if dataset_name and dataset_catalog:
             self._dataset_catalog = dataset_catalog
@@ -229,12 +237,15 @@ class ImageDatasetForTest:
             if not isinstance(class_names, list):
                 raise TypeError("class_names needs to be a list")
 
-            for dir_name in class_names:
-                image_class_dir = os.path.join(dataset_dir, dir_name)
-                os.makedirs(image_class_dir)
-                for n in range(50):
-                    img = Image.new(mode='RGB', size=(24, 24))
-                    img.save(os.path.join(image_class_dir, 'img_{}.jpg'.format(n)))
+            if isinstance(splits, list):
+                for folder in splits:
+                    for dir_name in class_names:
+                        make_n_files(os.path.join(dataset_dir, folder, dir_name), 50)
+            elif splits is None:
+                for dir_name in class_names:
+                    make_n_files(os.path.join(dataset_dir, dir_name), 50)
+            else:
+                raise ValueError("Splits must be None or a list of strings, got {}".format(splits))
 
             self._tlt_dataset = load_dataset(dataset_dir, use_case, framework)
 
@@ -268,8 +279,9 @@ torchvision_metadata = {
 # Dataset parameters used to define datasets that will be initialized and tested using TestImageClassificationDataset
 # The parameters are: dataset_dir, dataset_name, dataset_catalog, and class_names, which map to the constructor
 # parameters for ImageDatasetForTest, which initializes the datasets using the dataset factory.
-dataset_params = [("/tmp/data", "CIFAR10", "torchvision", None),
-                  ("/tmp/data", None, None, ["a", "b", "c"])]
+dataset_params = [("/tmp/data", "CIFAR10", "torchvision", None, None),
+                  ("/tmp/data", None, None, ["a", "b", "c"], None),
+                  ("/tmp/data", None, None, ["a", "b", "c"], ['train', 'test'])]
 
 
 @pytest.fixture(scope="class", params=dataset_params)
@@ -278,7 +290,7 @@ def image_classification_data(request):
 
     ic_dataset = ImageDatasetForTest(*params)
 
-    dataset_dir, dataset_name, dataset_catalog, dataset_classes = params
+    dataset_dir, dataset_name, dataset_catalog, dataset_classes, splits = params
 
     def cleanup():
         ic_dataset.cleanup()
@@ -286,7 +298,7 @@ def image_classification_data(request):
     request.addfinalizer(cleanup)
 
     # Return the tlt dataset along with metadata that tests might need
-    return (ic_dataset.tlt_dataset, dataset_name, dataset_classes)
+    return (ic_dataset.tlt_dataset, dataset_name, dataset_classes, splits)
 
 
 @pytest.mark.pytorch
@@ -301,12 +313,15 @@ class TestImageClassificationDataset:
         """
         Verify the class type, dataset class names, and dataset length after initializaion
         """
-        tlt_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes, splits = image_classification_data
 
         if dataset_name is None:
             assert type(tlt_dataset) == PyTorchCustomImageClassificationDataset
             assert len(tlt_dataset.class_names) == len(dataset_classes)
-            assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
+            if splits is None:
+                assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
+            else:
+                assert len(tlt_dataset.dataset) == len(dataset_classes) * len(splits) * 50
         else:
             assert type(tlt_dataset) == TorchvisionImageClassificationDataset
             assert len(tlt_dataset.class_names) == len(torchvision_metadata[dataset_name]['class_names'])
@@ -321,7 +336,7 @@ class TestImageClassificationDataset:
         """
         Ensures that a ValueError is raised when an invalid batch size is passed
         """
-        tlt_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes, splits = image_classification_data
         with pytest.raises(ValueError):
             tlt_dataset.preprocess(224, batch_size)
 
@@ -334,7 +349,7 @@ class TestImageClassificationDataset:
         """
         Ensures that a ValueError is raised when an invalid image size is passed
         """
-        tlt_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes, splits = image_classification_data
         with pytest.raises(ValueError):
             tlt_dataset.preprocess(image_size, batch_size=8)
 
@@ -343,7 +358,7 @@ class TestImageClassificationDataset:
         """
         Checks that dataset can be preprocessed only once
         """
-        tlt_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes, splits = image_classification_data
         tlt_dataset.preprocess(224, 8)
         preprocessing_inputs = {'image_size': 224, 'batch_size': 8}
         assert tlt_dataset._preprocessed == preprocessing_inputs
@@ -358,7 +373,7 @@ class TestImageClassificationDataset:
         """
         Checks that splitting into train, validation, and test subsets will error if inputs are wrong
         """
-        tlt_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes, splits = image_classification_data
 
         with pytest.raises(Exception) as e:
             tlt_dataset.shuffle_split(train_pct=.5, val_pct=.5, test_pct=.2)
@@ -372,10 +387,13 @@ class TestImageClassificationDataset:
         """
         Checks that dataset can be split into train, validation, and test subsets
         """
-        tlt_dataset, dataset_name, dataset_classes = image_classification_data
+        tlt_dataset, dataset_name, dataset_classes, splits = image_classification_data
 
         # Before the shuffle split, validation type should be recall
-        assert 'recall' == tlt_dataset._validation_type
+        if splits is None:
+            assert tlt_dataset._validation_type is None
+        else:
+            assert 'defined_split' == tlt_dataset._validation_type
 
         # Perform shuffle split with default percentages
         tlt_dataset.shuffle_split(seed=10)
@@ -383,7 +401,8 @@ class TestImageClassificationDataset:
         default_val_pct = 0.25
 
         # Get the full dataset size
-        ds_size = torchvision_metadata[dataset_name]['size'] if dataset_name else len(dataset_classes) * 50
+        len_splits = 1 if splits is None else len(splits)
+        ds_size = torchvision_metadata[dataset_name]['size'] if dataset_name else len(dataset_classes) * len_splits * 50
 
         # Divide by the batch size that was used to preprocess earlier
         ds_size = ds_size / tlt_dataset.info['preprocessing_info']['batch_size']
@@ -418,8 +437,8 @@ def test_bad_anomaly_dataset(dataset_dir, dataset_name, dataset_catalog, class_n
         assert "Couldn't find 'good' folder" in str(e)
 
 
-anomaly_dataset_params = [("/tmp/data", None, None, ["good", "bad"], 'anomaly_detection'),
-                          ("/tmp/data", None, None, ["good", "foo", "bar"], 'image_anomaly_detection')]
+anomaly_dataset_params = [("/tmp/data", None, None, ["good", "bad"], None, 'anomaly_detection'),
+                          ("/tmp/data", None, None, ["good", "foo", "bar"], None, 'image_anomaly_detection')]
 
 
 @pytest.fixture(scope="class", params=anomaly_dataset_params)
@@ -428,7 +447,7 @@ def anomaly_detection_data(request):
 
     ad_dataset = ImageDatasetForTest(*params)
 
-    dataset_dir, dataset_name, dataset_catalog, dataset_classes, use_case = params
+    dataset_dir, dataset_name, dataset_catalog, dataset_classes, splits, use_case = params
 
     def cleanup():
         ad_dataset.cleanup()
@@ -495,8 +514,8 @@ class TestImageAnomalyDetectionDataset:
         """
         tlt_dataset, dataset_name, dataset_classes, use_case = anomaly_detection_data
 
-        # Before the shuffle split, validation type should be recall
-        assert 'recall' == tlt_dataset._validation_type
+        # Before the shuffle split, validation type should be None
+        assert tlt_dataset._validation_type is None
 
         # Perform shuffle split with default percentages
         tlt_dataset.shuffle_split(seed=10)

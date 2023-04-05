@@ -38,6 +38,25 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
           ├── class_b
           └── class_c
 
+    For a user-defined split of train, validation, and test subsets, arrange class subfolders in accordingly named
+    subfolders (note: the only acceptable names are 'train', 'validation', and/or 'test').
+
+    .. code-block:: text
+
+        dataset_dir
+          ├── train
+          |   ├── class_a
+          |   ├── class_b
+          |   └── class_c
+          ├── validation
+          |   ├── class_a
+          |   ├── class_b
+          |   └── class_c
+          └── test
+              ├── class_a
+              ├── class_b
+              └── class_c
+
     Args:
         dataset_dir (str): Directory where the data is located. It should contain subdirectories with images for
                            each class.
@@ -73,21 +92,55 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         self._preprocessed = None
         self._seed = seed
 
-        self._dataset = tf.keras.utils.image_dataset_from_directory(
-            self._dataset_dir,
-            batch_size=None,
-            shuffle=shuffle_files,
-            seed=self._seed,
-            color_mode=color_mode)
-        self._class_names = self._dataset.class_names
-
         self._train_pct = 1.0
         self._val_pct = 0
         self._test_pct = 0
-        self._validation_type = 'recall'
+        self._validation_type = None
         self._train_subset = None
         self._validation_subset = None
         self._test_subset = None
+
+        # Determine which layout the images are in - category folders or train/test folders
+        # The validation_type will be "recall" for the former and "defined_split" for the latter
+        if os.path.exists(os.path.join(dataset_dir, 'train')):
+            self._validation_type = 'defined_split'
+            self._train_subset = tf.keras.utils.image_dataset_from_directory(
+                os.path.join(dataset_dir, 'train'),
+                batch_size=None,
+                shuffle=shuffle_files,
+                seed=self._seed,
+                color_mode=color_mode)
+            self._dataset = self._train_subset
+            self._class_names = self._dataset.class_names
+            if os.path.exists(os.path.join(dataset_dir, 'validation')) or \
+                    os.path.exists(os.path.join(dataset_dir, 'test')):
+                if os.path.exists(os.path.join(dataset_dir, 'validation')):
+                    self._validation_subset = tf.keras.utils.image_dataset_from_directory(
+                        os.path.join(dataset_dir, 'validation'),
+                        batch_size=None,
+                        shuffle=shuffle_files,
+                        seed=self._seed,
+                        color_mode=color_mode)
+                    self._dataset = self._dataset.concatenate(self._validation_subset)
+                if os.path.exists(os.path.join(dataset_dir, 'test')):
+                    self._test_subset = tf.keras.utils.image_dataset_from_directory(
+                        os.path.join(dataset_dir, 'test'),
+                        batch_size=None,
+                        shuffle=shuffle_files,
+                        seed=self._seed,
+                        color_mode=color_mode)
+                    self._dataset = self._dataset.concatenate(self._test_subset)
+            else:
+                raise FileNotFoundError("Found a 'train' directory, but not a 'test' or 'validation' directory.")
+        else:
+            self._validation_type = None
+            self._dataset = tf.keras.utils.image_dataset_from_directory(
+                self._dataset_dir,
+                batch_size=None,
+                shuffle=shuffle_files,
+                seed=self._seed,
+                color_mode=color_mode)
+            self._class_names = self._dataset.class_names
 
     @property
     def class_names(self):
