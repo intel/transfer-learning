@@ -24,7 +24,6 @@ import shutil
 import tempfile
 
 from tlt.utils.file_utils import validate_model_name
-
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 
@@ -181,6 +180,69 @@ def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name,
             pass
         else:
             assert 'lr' not in history
+
+    finally:
+        # Delete the temp output directory
+        if os.path.exists(output_dir) and os.path.isdir(output_dir):
+            shutil.rmtree(output_dir)
+
+
+@pytest.mark.integration
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name',
+                         ['small_bert/bert_en_uncased_L-2_H-128_A-2'])
+def test_custom_dataset_workflow(model_name):
+    """
+    Tests the full workflow for TF text classification using a custom dataset
+    """
+    output_dir = tempfile.mkdtemp()
+
+    def label_map_func(x):
+        return int(x == "spam")
+
+    try:
+        # Get the dataset
+        dataset = dataset_factory.load_dataset('/tmp/data/sms_spam_collection', use_case="text_classification",
+                                               framework="tensorflow", csv_file_name="SMSSpamCollection",
+                                               class_names=["ham", "spam"], shuffle_files=False,
+                                               delimiter='\t', header=False, label_map_func=label_map_func)
+        # Get the model
+        model = model_factory.get_model(model_name, "tensorflow")
+
+        # Preprocess the dataset and split to get small subsets for training and validation
+        dataset.shuffle_split(train_pct=0.1, val_pct=0.1, shuffle_files=False)
+        dataset.preprocess(batch_size=32)
+        # Train for 1 epoch
+        history = model.train(dataset=dataset, output_dir=output_dir, epochs=1, seed=10, do_eval=False)
+        assert history is not None
+
+        # Evaluate
+        model.evaluate(dataset)
+
+        # export the saved model
+        saved_model_dir = model.export(output_dir)
+
+        assert os.path.isdir(saved_model_dir)
+        assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
+
+        # Reload the saved model
+        reload_model = model_factory.get_model(model_name, "tensorflow")
+        reload_model.load_from_directory(saved_model_dir)
+
+        # Evaluate
+        metrics = reload_model.evaluate(dataset)
+        assert len(metrics) > 0
+
+        # Quantization
+        inc_config_file_path = 'tlt/models/configs/inc/text_classification_template.yaml'
+        nc_workspace = os.path.join(output_dir, "nc_workspace")
+        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, overwrite=True,
+                                    accuracy_criterion_relative=0.1, exit_policy_max_trials=10,
+                                    exit_policy_timeout=0, tuning_workspace=nc_workspace)
+        quantization_output = os.path.join(output_dir, "quantized", "mocked")
+        os.makedirs(quantization_output, exist_ok=True)
+        model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
+        assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
 
     finally:
         # Delete the temp output directory
