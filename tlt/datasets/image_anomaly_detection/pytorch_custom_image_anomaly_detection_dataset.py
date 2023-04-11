@@ -203,7 +203,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             raise FileNotFoundError("The dataset directory ({}) does not exist".format(dataset_dir))
 
         # Determine which layout the images are in - category folders or train/test folders
-        # The validation_type will be "recall" for the former and "defined_split" for the latter
+        # The validation_type will be None for the former and "defined_split" for the latter
         if os.path.exists(os.path.join(dataset_dir, 'train')):
             self._validation_type = 'defined_split'
             if not os.path.exists(os.path.join(dataset_dir, 'train', 'good')):
@@ -258,14 +258,14 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         valid_classes = ['good'] + defects
         self._dataset = AnomalyImageFolder(dataset_dir, classes=valid_classes)
 
-        # For the train/test layout, initialize indices for the train and validation subsets
+        # For the train/test layout, initialize indices for the train and test subsets
         if self._validation_type == 'defined_split':
             train_img_string = '{}/train/'.format(dataset_dir)
             self._train_indices = [i for i, t in enumerate(self._dataset.imgs) if train_img_string in t[0]]
-            self._validation_indices = [i for i, t in enumerate(self._dataset.imgs) if train_img_string not in t[0]]
+            self._test_indices = [i for i, t in enumerate(self._dataset.imgs) if train_img_string not in t[0]]
             if self._shuffle:
                 random.shuffle(self._train_indices)
-                random.shuffle(self._validation_indices)
+                random.shuffle(self._test_indices)
 
         self._train_subset = None
         self._validation_subset = None
@@ -397,7 +397,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
                                              drop_last=False)
         else:
             self._validation_loader = None
-        if self._test_indices:
+        if self._test_indices or (self._validation_type == 'defined_split' and self._test_subset):
             self._test_loader = loader(self.test_subset, batch_size=batch_size, shuffle=self._shuffle,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker,
                                        generator=generator, pin_memory=True, sampler=self.train_sampler,
