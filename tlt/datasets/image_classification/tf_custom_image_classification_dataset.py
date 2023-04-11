@@ -101,7 +101,7 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         self._test_subset = None
 
         # Determine which layout the images are in - category folders or train/test folders
-        # The validation_type will be "recall" for the former and "defined_split" for the latter
+        # The validation_type will be None for the former and "defined_split" for the latter
         if os.path.exists(os.path.join(dataset_dir, 'train')):
             self._validation_type = 'defined_split'
             self._train_subset = tf.keras.utils.image_dataset_from_directory(
