@@ -28,7 +28,7 @@ Image Classification
    :toctree: _autosummary
    :nosignatures:
 
-    tf_image_classification_dataset.TFImageClassificationDataset
+    tfds_image_classification_dataset.TFDSImageClassificationDataset
     torchvision_image_classification_dataset.TorchvisionImageClassificationDataset
     tf_custom_image_classification_dataset.TFCustomImageClassificationDataset
     pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset

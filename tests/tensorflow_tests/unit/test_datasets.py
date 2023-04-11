@@ -30,9 +30,9 @@ from tlt.datasets.dataset_factory import get_dataset, load_dataset
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
-    from tlt.datasets.image_classification.tf_image_classification_dataset import TFImageClassificationDataset
+    from tlt.datasets.image_classification.tfds_image_classification_dataset import TFDSImageClassificationDataset
 except ModuleNotFoundError:
-    print("WARNING: Unable to import TFImageClassificationDataset. TensorFlow may not be installed")
+    print("WARNING: Unable to import TFDSImageClassificationDataset. TensorFlow may not be installed")
 
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
@@ -54,7 +54,7 @@ def test_tf_flowers_10pct():
     """
     flowers = get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers',
                           'tf_datasets', split=["train[:10%]"])
-    assert type(flowers) == TFImageClassificationDataset
+    assert type(flowers) == TFDSImageClassificationDataset
     assert len(flowers.dataset) < 3670
 
 
@@ -502,7 +502,7 @@ class TestImageClassificationDataset:
                 assert len(tlt_dataset.dataset) == len(dataset_classes) * len(splits) * 50
         else:
             if use_case == 'image_classification':
-                assert type(tlt_dataset) == TFImageClassificationDataset
+                assert type(tlt_dataset) == TFDSImageClassificationDataset
             elif use_case == 'text_classification':
                 assert type(tlt_dataset) == TFDSTextClassificationDataset
 
