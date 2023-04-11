@@ -25,7 +25,7 @@ from tlt.datasets.image_classification.image_classification_dataset import Image
 from downloader.datasets import DataDownloader
 
 
-class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
+class TFDSImageClassificationDataset(ImageClassificationDataset, TFDataset):
     """
     An image classification dataset from the TensorFlow datasets catalog
     """

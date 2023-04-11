@@ -25,8 +25,8 @@ from tlt.utils.types import FrameworkType, UseCaseType
 dataset_map = {
     FrameworkType.TENSORFLOW: {
         UseCaseType.IMAGE_CLASSIFICATION: {
-            "tf_datasets": {"module": "tlt.datasets.image_classification.tf_image_classification_dataset",
-                            "class": "TFImageClassificationDataset"},
+            "tf_datasets": {"module": "tlt.datasets.image_classification.tfds_image_classification_dataset",
+                            "class": "TFDSImageClassificationDataset"},
             "custom": {"module": "tlt.datasets.image_classification.tf_custom_image_classification_dataset",
                        "class": "TFCustomImageClassificationDataset"}
         },
