@@ -83,7 +83,7 @@ from tlt.distributed import TLT_DISTRIBUTED_DIR
               multiple=True,
               default=[],
               help="Choice of data augmentation to be applied during training.")
-@click.option("--ipex_optimize",
+@click.option("--ipex_optimize", "--ipex-optimize",
               required=False,
               is_flag=True,
               help="Boolean option to optimize model with Intel Extension for PyTorch.")
@@ -96,7 +96,7 @@ from tlt.distributed import TLT_DISTRIBUTED_DIR
               default=1,
               type=click.IntRange(min=1),
               help="Number of nodes to run the training job [default: 1]")
-@click.option("--nproc_per_node",
+@click.option("--nproc_per_node", "--nproc-per-node",
               required=False,
               default=1,
               type=click.IntRange(min=1),
@@ -104,7 +104,7 @@ from tlt.distributed import TLT_DISTRIBUTED_DIR
 @click.option("--hostfile",
               required=False,
               default=None,
-              type=str,
+              type=click.Path(exists=True, dir_okay=False),
               help="hostfile with a list of nodes to run distributed training.")
 @click.option("--early-stopping", "--early_stopping",
               type=click.BOOL,
@@ -115,13 +115,17 @@ from tlt.distributed import TLT_DISTRIBUTED_DIR
               default=False,
               help="If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at "
               "the end of each epoch.")
+@click.option("--use-horovod", "--use_horovod",
+              required=False,
+              is_flag=True,
+              help="Use horovod instead of default MPI")
 def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimiter, class_names, dataset_name,
           dataset_catalog, epochs, init_checkpoints, add_aug, early_stopping, lr_decay, ipex_optimize, distributed,
-          nnodes, nproc_per_node, hostfile):
+          nnodes, nproc_per_node, hostfile, use_horovod):
     """
     Trains the model
     """
-    session_log = {}  # Initialize an empty dictionary to store information about this training session
+    session_log = {}  # Initialize an empty dictionary to store information about current training session
     session_verbose = ""
 
     session_log["model_name"] = model_name
@@ -177,12 +181,19 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
 
     print(session_verbose, flush=True)
 
+    # Validate distributed inputs, if given
+    if distributed:
+        if hostfile is None:
+            # TODO: Logic to continute distributed training on single (current) node
+            sys.exit("Error: Specify the hostfile with \'--hostfile\' flag")
+
     from tlt.models import model_factory
     from tlt.datasets import dataset_factory
     # Get the model
     try:
         model = model_factory.get_model(model_name, framework)
     except Exception as e:
+
         sys.exit("Error while getting the model (model name: {}, framework: {}):\n{}".format(
             model_name, framework, str(e)))
     # Get the dataset
@@ -202,16 +213,16 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
                 dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
         else:
             dataset = dataset_factory.get_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
-                                                  dataset_catalog, distributed=distributed)
+                                                  dataset_catalog)
         # TODO: get extra configs like batch size and maybe this doesn't need to be a separate call
         if framework in ['tensorflow', 'pytorch']:
-            if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
+            if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:  # For Image classification
                 dataset.preprocess(image_size=model.image_size, batch_size=32, add_aug=list(add_aug))
             elif 'model_name' in inspect.getfullargspec(dataset.preprocess).args:  # For HF Text classification
                 dataset.preprocess(model_name=model_name, batch_size=32)
-            else:
+            else:  # For TF Text classification
                 dataset.preprocess(batch_size=32)
-            dataset.shuffle_split()
+            dataset.shuffle_split(0.10, 0.10)
     except Exception as e:
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "
                  "dataset name: {}, dataset_catalog: {}):\n{}".format(dataset_dir, model.use_case, model.framework,
@@ -219,8 +230,6 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
 
     if ipex_optimize and framework != 'pytorch':
         sys.exit("ipex_optimize is only supported for pytorch training\n")
-    if distributed and framework != 'pytorch':
-        sys.exit("distributed training is only supported for pytorch\n")
 
     # Train the model using the dataset
     if framework == 'pytorch':
@@ -235,7 +244,8 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     else:
         try:
             model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
-                        early_stopping=early_stopping, lr_decay=lr_decay)
+                        early_stopping=early_stopping, lr_decay=lr_decay, distributed=distributed, hostfile=hostfile,
+                        nnodes=nnodes, nproc_per_node=nproc_per_node, use_horovod=use_horovod)
         except Exception as e:
             sys.exit("There was an error during model training:\n{}".format(str(e)))
 

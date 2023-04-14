@@ -93,7 +93,8 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
-              shuffle_files=True, seed=None, extra_layers=None):
+              shuffle_files=True, seed=None, extra_layers=None, distributed=False, hostfile=None,
+              nnodes=1, nproc_per_node=1, **kwargs):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
@@ -164,10 +165,15 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
                                                                     early_stopping, lr_decay)
 
-        history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
-                                  validation_data=val_data)
-        self._history = history.history
-        return self._history
+        if distributed:
+            self.export_for_distributed(train_data, val_data)
+            self._fit_distributed(epochs, shuffle_files, hostfile, nnodes, nproc_per_node, kwargs.get('use_horovod'))
+            self.cleanup_saved_objects_for_distributed()
+        else:
+            history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
+                                      validation_data=val_data)
+            self._history = history.history
+            return self._history
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """

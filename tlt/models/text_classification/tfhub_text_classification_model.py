@@ -109,7 +109,8 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
 
     def train(self, dataset: TextClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
-              shuffle_files=True, extra_layers=None, seed=None):
+              shuffle_files=True, extra_layers=None, seed=None, distributed=False, hostfile=None, nnodes=1,
+              nproc_per_node=1, **kwargs):
         """
            Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is
            provided, those weights are loaded before training.
@@ -182,12 +183,17 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
                                                                     early_stopping, lr_decay, dataset_num_classes)
 
-        history = self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=shuffle_files,
-                                  callbacks=callbacks)
+        if distributed:
+            self.export_for_distributed(train_data, val_data)
+            self._fit_distributed(epochs, shuffle_files, hostfile, nnodes, nproc_per_node, kwargs.get('use_horovod'))
+            self.cleanup_saved_objects_for_distributed()
+        else:
+            history = self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=shuffle_files,
+                                      callbacks=callbacks)
 
-        self._history = history.history
+            self._history = history.history
 
-        return self._history
+            return self._history
 
     def evaluate(self, dataset: TextClassificationDataset, use_test_set=False):
         """
