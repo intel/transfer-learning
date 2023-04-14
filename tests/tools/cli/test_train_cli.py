@@ -232,8 +232,9 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
         if framework == FrameworkType.TENSORFLOW:
             model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
                                                      initial_checkpoints=init_checkpoints, early_stopping=False,
-                                                     lr_decay=False)
-        else:
+                                                     lr_decay=False, distributed=False, hostfile=None, nnodes=1,
+                                                     nproc_per_node=1, use_horovod=False)
+        elif framework == FrameworkType.PYTORCH:
             model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
                                                      initial_checkpoints=init_checkpoints, early_stopping=False,
                                                      lr_decay=False, ipex_optimize=False, distributed=False,
@@ -293,8 +294,9 @@ def test_train_features(mock_inspect, mock_load_dataset, mock_get_model, model_n
         if framework == FrameworkType.TENSORFLOW:
             model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=15,
                                                      initial_checkpoints=None, early_stopping=early_stopping,
-                                                     lr_decay=lr_decay)
-        else:
+                                                     lr_decay=lr_decay, distributed=False, hostfile=None, nnodes=1,
+                                                     nproc_per_node=1, use_horovod=False)
+        elif framework == FrameworkType.PYTORCH:
             model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=15,
                                                      initial_checkpoints=None, early_stopping=early_stopping,
                                                      lr_decay=lr_decay, ipex_optimize=False, distributed=False,
@@ -344,7 +346,7 @@ def test_train_dataset_catalog(mock_get_dataset, mock_get_model, model_name, fra
         # Verify that the expected calls were made
         mock_get_model.assert_called_once_with(model_name, str(framework))
         mock_get_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework,
-                                                 dataset_name, dataset_catalog, distributed=False)
+                                                 dataset_name, dataset_catalog)
 
         # Verify that the train command exit code is successful
         assert model_mock.train.called
