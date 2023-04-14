@@ -37,7 +37,7 @@ class ModelDownloader():
             Args:
                 model_name (str): Name of the model
                 hub (str, optional): The catalog to download the dataset from; options are 'tf_hub',
-                    'torchvision', and 'hugging_face'
+                    'torchvision', pytorch_hub, and 'hugging_face'
                 model_dir (str): Local destination directory of the model, if None the model hub's default cache
                     directory will be used
                 kwargs (optional): Some model hubs accept additional keyword arguments when downloading
@@ -72,6 +72,24 @@ class ModelDownloader():
             pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
 
             return pretrained_model_class(pretrained=True)
+
+        elif self._type == ModelType.PYTORCH_HUB:
+            from tlt.utils.file_utils import read_json_file
+            from tlt import TLT_BASE_DIR
+            import torch
+
+            if self._model_dir is not None:
+                os.environ['TORCH_HOME'] = self._model_dir
+
+            config_file = os.path.join(TLT_BASE_DIR, "models/configs/pytorch_hub_image_classification_models.json")
+            pytorch_hub_model_map = read_json_file(config_file)
+            self._repo = pytorch_hub_model_map[self._model_name]["repo"]
+
+            # Some models have pretrained=True by default, which error out if passed in load()
+            if pytorch_hub_model_map[self._model_name]["pretrained_default"] == "True":
+                return torch.hub.load(self._repo, self._model_name)
+            else:
+                return torch.hub.load(self._repo, self._model_name, pretrained=True)
 
         elif self._type == ModelType.HUGGING_FACE:
             if self._model_dir is not None:

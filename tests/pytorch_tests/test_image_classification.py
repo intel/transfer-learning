@@ -37,7 +37,7 @@ from tlt.utils.file_utils import download_and_extract_tar_file
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
                          [['efficientnet_b0', 'CIFAR10', None, 2],
-                          ['resnet18', 'CIFAR10', None, 1],
+                          ['resnet18_ssl', 'CIFAR10', None, 1],
                           ['efficientnet_b0', 'CIFAR10', [1024, 512], 6],
                           ['resnet18', 'CIFAR10', [1024, 512], 5]])
 def test_pyt_image_classification(model_name, dataset_name, extra_layers, correct_num_layers):
@@ -227,6 +227,7 @@ class TestImageClassificationCustomDataset:
     @pytest.mark.parametrize('model_name,add_aug,ipex_optimize',
                              [['efficientnet_b0', ['hflip'], True],
                               ['resnet18', ['rotate'], True],
+                              ['resnet18_ssl', ['rotate'], True],
                               ['vit_b_16', None, False]])
     def test_custom_dataset_workflow(self, model_name, add_aug, ipex_optimize):
         """
