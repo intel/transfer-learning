@@ -43,4 +43,15 @@ url = "http://www.cs.toronto.edu/~kriz/cifar.html" }
   year={2016}
 }
 ```
+Model citations
+```
+@misc{yalniz2019billionscale,
+    title={Billion-scale semi-supervised learning for image classification},
+    author={I. Zeki Yalniz and Hervé Jégou and Kan Chen and Manohar Paluri and Dhruv Mahajan},
+    year={2019},
+    eprint={1905.00546},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```
 

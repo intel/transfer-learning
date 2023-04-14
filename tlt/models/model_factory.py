@@ -50,6 +50,8 @@ model_map = {
         {
             "torchvision": {"module": "tlt.models.image_classification.torchvision_image_classification_model",
                             "class": "TorchvisionImageClassificationModel"},
+            "pytorch_hub": {"module": "tlt.models.image_classification.pytorch_hub_image_classification_model",
+                            "class": "PyTorchHubImageClassificationModel"},
             "Custom": {"module": "tlt.models.image_classification.pytorch_image_classification_model",
                        "class": "PyTorchImageClassificationModel"}
         },

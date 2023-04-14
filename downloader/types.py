@@ -55,6 +55,7 @@ class DatasetType(Enum):
 class ModelType(Enum):
     TF_HUB = auto()
     TORCHVISION = auto()
+    PYTORCH_HUB = auto()
     HUGGING_FACE = auto()
     GENERIC = auto()
 
@@ -72,6 +73,8 @@ class ModelType(Enum):
             return ModelType.TF_HUB
         elif model_str in ["torchvision"]:
             return ModelType.TORCHVISION
+        elif model_str in ["pytorch_hub", "pyt_hub", "torch_hub", "torch hub", "pytorch hub"]:
+            return ModelType.PYTORCH_HUB
         elif model_str in ["huggingface", "hugging_face", "hugging face"]:
             return ModelType.HUGGING_FACE
         elif model_str in ["generic"]:

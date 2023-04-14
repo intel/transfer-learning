@@ -43,6 +43,8 @@ class TestModelDownload:
                                {'name': 'encoder', 'trainable': True}],
                               ['resnet34', 'torchvision', {}],
                               ['mobilenet_v2', 'torchvision', {}],
+                              ['resnet18_ssl', 'pytorch_hub', {}],
+                              ['resnet50_swsl', 'pytorch_hub', {}],
                               ['distilbert-base-uncased', 'huggingface', {}],
                               ['bert-base-cased', 'hugging_face', {}]])
     def test_hub_download(self, model_name, hub, kwargs):
@@ -56,6 +58,8 @@ class TestModelDownload:
         if downloader._type == ModelType.TF_HUB:
             assert isinstance(model, KerasLayer)
         elif downloader._type == ModelType.TORCHVISION:
+            assert isinstance(model, Module)
+        elif downloader._type == ModelType.PYTORCH_HUB:
             assert isinstance(model, Module)
         elif downloader._type == ModelType.HUGGING_FACE:
             assert isinstance(model, Module)
