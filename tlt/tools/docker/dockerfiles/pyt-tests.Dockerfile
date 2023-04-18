@@ -31,7 +31,7 @@ RUN python setup.py bdist_wheel
 FROM ${BASE_IMAGE}:${BASE_TAG}
 
 WORKDIR /workspace
-ARG TLT_VERSION=0.3.0
+ARG TLT_VERSION=0.4.0
 
 COPY --from=builder /workspace/dist/intel_transfer_learning_tool-${TLT_VERSION}-py3-none-any.whl .
 COPY --from=builder /workspace/tests /workspace/tests

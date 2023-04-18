@@ -55,10 +55,11 @@ def test_torchvision_image_classification_optimize_graph_not_implemented():
 
         # Verify that the installed version of Intel Neural Compressor throws a SystemError
         from neural_compressor.experimental import Graph_Optimization, common
-        from neural_compressor.utils.utility import set_backend
-        set_backend('pytorch')
+        # set_backend API is no longer available in Neural Compressor v2.0
+        # from neural_compressor.experimental.common.model import set_backend
+        # set_backend('pytorch')
         graph_optimizer = Graph_Optimization()
-        with pytest.raises(SystemExit):
+        with pytest.raises(AssertionError):
             graph_optimizer.model = common.Model(model._model)
 
     finally:

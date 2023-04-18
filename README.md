@@ -51,7 +51,7 @@ pip install intel-transfer-learning-tool
 1. Install the tool by either building and installing the wheel:
    ```
    python setup.py bdist_wheel
-   pip install dist/intel_transfer_learning_tool-0.3.0-py3-none-any.whl
+   pip install dist/intel_transfer_learning_tool-0.4.0-py3-none-any.whl
 
    ```
    Or, do an editable install:
@@ -62,7 +62,7 @@ pip install intel-transfer-learning-tool
 ## Additional Feature-Specific Steps:
 1. For TensorFlow text classification, this is also required:
    ```
-   pip install tensorflow-text==2.10.0
+   pip install tensorflow-text==2.11.0
    ```
 
 1. For distributed/multinode training, [these instructions](/tlt/distributed) are also required.

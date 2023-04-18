@@ -107,10 +107,12 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
                 self.batch_losses = []
                 self.batch_acc = []
 
+            def on_train_batch_begin(self, batch, logs=None):
+                self.model.reset_metrics()
+
             def on_train_batch_end(self, batch, logs=None):
                 self.batch_losses.append(logs['loss'])
                 self.batch_acc.append(logs['acc'])
-                self.model.reset_metrics()
 
         batch_stats_callback = CollectBatchStats()
 
