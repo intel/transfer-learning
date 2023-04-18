@@ -668,8 +668,9 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "model.pt"))
 
         from neural_compressor.experimental import Quantization
-        from neural_compressor.utils.utility import set_backend
-        set_backend('pytorch')
+        # set_backend API is no longer available in Neural Compressor v2.0
+        # from neural_compressor.experimental.common.model import set_backend
+        # set_backend('pytorch')
         quantizer = Quantization(inc_config_path)
         quantizer.model = self._model
         quantized_model = quantizer.fit()
@@ -717,9 +718,9 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             raise FileNotFoundError("The config file was not found at: {}".format(inc_config_path))
 
         from neural_compressor.experimental import Benchmark, common
-        from neural_compressor.utils.utility import set_backend
-
-        set_backend('pytorch')
+        # set_backend API is no longer available in Neural Compressor v2.0
+        # from neural_compressor.experimental.common.model import set_backend
+        # set_backend('pytorch')
 
         if model_type == "fp32":
             evaluator = Benchmark(inc_config_path)
