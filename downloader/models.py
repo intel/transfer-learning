@@ -71,7 +71,7 @@ class ModelDownloader():
                 os.environ['TORCH_HOME'] = self._model_dir
             pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
 
-            return pretrained_model_class(pretrained=True)
+            return pretrained_model_class(**self._args)
 
         elif self._type == ModelType.PYTORCH_HUB:
             from tlt.utils.file_utils import read_json_file
