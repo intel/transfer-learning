@@ -339,24 +339,24 @@
     	"model_hub": "torchvision",
 	"classification_layer": ["heads"],
 	"image_size": 224,
-	"original_dataset": "IMAGENET1K_V2"
+	"original_dataset": "IMAGENET1K_V1"
     },
     "vit_b_32": {
 	"model_hub": "torchvision",
 	"classification_layer": ["heads"],
 	"image_size": 224,
-	"original_dataset": "IMAGENET1K_V2"
+	"original_dataset": "IMAGENET1K_V1"
     },
     "vit_l_16": {
 	"model_hub": "torchvision",
 	"classification_layer": ["heads"],
 	"image_size": 224,
-	"original_dataset": "IMAGENET1K_V2"
+	"original_dataset": "IMAGENET1K_V1"
     },
     "vit_l_32": {
 	"model_hub": "torchvision",
 	"classification_layer": ["heads"],
 	"image_size": 224,
-	"original_dataset": "IMAGENET1K_V2"
+	"original_dataset": "IMAGENET1K_V1"
     }	    
 }

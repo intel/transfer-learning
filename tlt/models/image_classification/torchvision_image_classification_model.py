@@ -51,6 +51,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
         self._classification_layer = torchvision_model_map[model_name]["classification_layer"]
         self._image_size = torchvision_model_map[model_name]["image_size"]
+        self._original_dataset = torchvision_model_map[model_name]["original_dataset"]
 
         # placeholder for model definition
         self._model = None
@@ -58,7 +59,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         self._distributed = False
 
     def _model_downloader(self, model_name):
-        downloader = ModelDownloader(model_name, hub='torchvision', model_dir=None)
+        downloader = ModelDownloader(model_name, hub='torchvision', model_dir=None, weights=self._original_dataset)
         model = downloader.download()
         return model
 
