@@ -57,6 +57,7 @@ class ModelType(Enum):
     TORCHVISION = auto()
     PYTORCH_HUB = auto()
     HUGGING_FACE = auto()
+    KERAS_APPLICATIONS = auto()
     GENERIC = auto()
 
     def __str__(self):
@@ -77,6 +78,8 @@ class ModelType(Enum):
             return ModelType.PYTORCH_HUB
         elif model_str in ["huggingface", "hugging_face", "hugging face"]:
             return ModelType.HUGGING_FACE
+        elif model_str in ["keras", "keras_applications", "keras applications"]:
+            return ModelType.KERAS_APPLICATIONS
         elif model_str in ["generic"]:
             return ModelType.GENERIC
         else:

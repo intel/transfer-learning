@@ -36,8 +36,8 @@ class ModelDownloader():
 
             Args:
                 model_name (str): Name of the model
-                hub (str, optional): The catalog to download the dataset from; options are 'tf_hub',
-                    'torchvision', pytorch_hub, and 'hugging_face'
+                hub (str, optional): The catalog to download the model from; options are 'tf_hub',
+                    'torchvision', 'pytorch_hub', 'hugging_face', and 'keras'
                 model_dir (str): Local destination directory of the model, if None the model hub's default cache
                     directory will be used
                 kwargs (optional): Some model hubs accept additional keyword arguments when downloading
@@ -56,7 +56,7 @@ class ModelDownloader():
         Download the model
 
             Returns:
-                A torch.nn.Module or tensorflow_hub.keras_layer.KerasLayer object
+                A torch.nn.Module, keras.engine.functional.Functional, or tensorflow_hub.keras_layer.KerasLayer object
 
         """
         if self._type == ModelType.TF_HUB:
@@ -98,3 +98,14 @@ class ModelDownloader():
             from transformers import AutoModelForSequenceClassification
 
             return AutoModelForSequenceClassification.from_pretrained(self._model_name, **self._args)
+
+        elif self._type == ModelType.KERAS_APPLICATIONS:
+            if self._model_dir is not None:
+                os.environ['KERAS_HOME'] = self._model_dir
+            try:
+                pretrained_model_class = locate('keras.applications.{}'.format(self._model_name))
+            except TypeError:
+                pretrained_model_class = locate('keras.applications.{}.{}'.format(self._model_name.lower(),
+                                                                                  self._model_name))
+
+            return pretrained_model_class(**self._args)

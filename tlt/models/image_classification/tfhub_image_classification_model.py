@@ -21,7 +21,6 @@
 import os
 import numpy as np
 import tensorflow as tf
-import tensorflow_hub as hub
 
 from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
@@ -69,13 +68,18 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         """
         return self._feature_vector_url
 
+    def _model_downloader(self, model_name, include_top=False):
+        url = self.feature_vector_url if not include_top else self.model_url
+        downloader = ModelDownloader(url, hub='tf_hub', model_dir=None,
+                                     input_shape=(self.image_size, self.image_size, 3),
+                                     trainable=self.do_fine_tuning)
+        model = downloader.download()
+        return tf.keras.Sequential(model)
+
     def _get_hub_model(self, num_classes, extra_layers=None):
 
         if not self._model:
-            downloader = ModelDownloader(self.feature_vector_url, hub='tf_hub', model_dir=None,
-                                         input_shape=(self.image_size, self.image_size, 3),
-                                         trainable=self.do_fine_tuning)
-            self._model = tf.keras.Sequential(downloader.download())
+            self._model = self._model_downloader(self._model_name)
 
             if extra_layers:
                 for layer_size in extra_layers:
@@ -197,9 +201,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
             # The model hasn't been trained yet, use the original ImageNet trained model
             print("The model has not been trained yet, so evaluation is being done using the original model ",
                   "and its classes")
-            original_model = tf.keras.Sequential([
-                hub.KerasLayer(self._model_url, input_shape=(self._image_size, self._image_size) + (3,))
-            ])
+            original_model = self._model_downloader(self._model_name, include_top=True)
             original_model.compile(
                 optimizer=self._optimizer_class(),
                 loss=self._loss,
@@ -230,9 +232,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
 
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
-            original_model = tf.keras.Sequential([
-                hub.KerasLayer(self._model_url, input_shape=(self._image_size, self._image_size) + (3,))
-            ])
+            original_model = self._model_downloader(self._model_name, include_top=True)
             predictions = original_model.predict(input_samples)
         else:
             predictions = self._model.predict(input_samples)

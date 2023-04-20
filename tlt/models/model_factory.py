@@ -33,6 +33,8 @@ model_map = {
         {
             "TFHub": {"module": "tlt.models.image_classification.tfhub_image_classification_model",
                       "class": "TFHubImageClassificationModel"},
+            "Keras": {"module": "tlt.models.image_classification.keras_image_classification_model",
+                      "class": "KerasImageClassificationModel"},
             "Custom": {"module": "tlt.models.image_classification.tf_image_classification_model",
                        "class": "TFImageClassificationModel"}
         },
@@ -276,7 +278,7 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
 
         # Get a sorted list of model names
         model_name_list = list(models[model_use_case].keys())
-        model_name_list.sort()
+        model_name_list.sort(key=str.swapcase)
 
         for model_name in model_name_list:
             for model_framework in models[model_use_case][model_name].keys():

@@ -5,6 +5,7 @@ import tempfile
 
 from torch.nn import Module
 from tensorflow_hub.keras_layer import KerasLayer
+from tensorflow.keras import Model
 
 from downloader import models
 from downloader.types import ModelType
@@ -46,7 +47,9 @@ class TestModelDownload:
                               ['resnet18_ssl', 'pytorch_hub', {}],
                               ['resnet50_swsl', 'pytorch_hub', {}],
                               ['distilbert-base-uncased', 'huggingface', {}],
-                              ['bert-base-cased', 'hugging_face', {}]])
+                              ['bert-base-cased', 'hugging_face', {}],
+                              ['Xception', 'keras_applications', {}],
+                              ['ResNet50', 'keras', {'weights': 'imagenet', 'include_top': False}]])
     def test_hub_download(self, model_name, hub, kwargs):
         """
         Tests downloader for different model hubs
@@ -63,6 +66,8 @@ class TestModelDownload:
             assert isinstance(model, Module)
         elif downloader._type == ModelType.HUGGING_FACE:
             assert isinstance(model, Module)
+        elif downloader._type == ModelType.KERAS_APPLICATIONS:
+            assert isinstance(model, Model)
         else:
             assert False
 

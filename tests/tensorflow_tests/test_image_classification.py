@@ -38,7 +38,8 @@ from tlt.datasets.image_classification.image_classification_dataset import Image
 @pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy,extra_layers,correct_num_layers',
                          [['efficientnet_b0', 'tf_flowers', 0.3125, 0.53125, None, 2],
                           ['resnet_v1_50', 'tf_flowers', 0.40625, 0.59375, None, 2],
-                          ['efficientnet_b0', 'tf_flowers', 0.8125, 0.96875, [1024, 512], 4]])
+                          ['efficientnet_b0', 'tf_flowers', 0.8125, 0.96875, [1024, 512], 4],
+                          ['ResNet50', 'tf_flowers', 0.40625, 0.15625, None, 4]])
 def test_tf_image_classification(model_name, dataset_name, train_accuracy, retrain_accuracy, extra_layers,
                                  correct_num_layers):
     """
@@ -102,7 +103,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     np.testing.assert_almost_equal(reload_metrics, trained_metrics)
 
     # Optimize the graph
-    if model_name == 'resnet_v1_50':
+    if model_name in ['resnet_v1_50', 'ResNet50']:
         optimized_model_dir = os.path.join(output_dir, "optimized")
         os.makedirs(optimized_model_dir, exist_ok=True)
         model.optimize_graph(saved_model_dir, optimized_model_dir)
