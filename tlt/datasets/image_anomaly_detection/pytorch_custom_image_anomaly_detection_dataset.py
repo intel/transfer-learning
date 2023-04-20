@@ -32,6 +32,8 @@ from torchvision.datasets.folder import default_loader, IMG_EXTENSIONS
 
 from tlt.datasets.pytorch_dataset import PyTorchDataset
 from tlt.models.image_anomaly_detection.simsiam import loader as ssloader
+from tlt.models.image_anomaly_detection.cutpaste.cutpaste import CutPasteNormal, CutPasteScar,\
+    CutPaste3Way, CutPasteUnion, get_cutpaste_transforms
 
 
 class AnomalyImageFolder(DatasetFolder):
@@ -185,7 +187,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
                            each class.
         dataset_name (str): optional; Name of the dataset. If no dataset name is given, the dataset_dir folder name
                             will be used as the dataset name.
-        num_workers (int): optional; Number of processes to use for data loading, default is 0
+        num_workers (int): optional; Number of processes to use for data loading, default is 56
         shuffle_files (bool): optional; Whether to shuffle the data. Defaults to True.
         defects (list[str]): Specific defects or category names to use for validation (default: None); if None, all
                              subfolders in the dataset directory will be used.
@@ -195,7 +197,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
 
     """
 
-    def __init__(self, dataset_dir, dataset_name=None, num_workers=0, shuffle_files=True, defects=None):
+    def __init__(self, dataset_dir, dataset_name=None, num_workers=56, shuffle_files=True, defects=None):
         """
         Class constructor
         """
@@ -280,6 +282,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         self._test_pct = 0
 
         self._simsiam_transform = None
+        self._cutpaste_transform = None
         self._train_transform = None
         self._validation_transform = None
 
@@ -311,7 +314,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         """
         return self._dataset
 
-    def shuffle_split(self, train_pct=.75, val_pct=.25, test_pct=0., shuffle_files=True, seed=None):
+    def shuffle_split(self, train_pct=.75, val_pct=0.25, test_pct=0.0, shuffle_files=True, seed=None):
         """
         Randomly split the good examples into train, validation, and test subsets with a pseudo-random seed option.
         All of the bad examples will be split into validation and test subsets with a similar proportion
@@ -426,15 +429,18 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
 
         return ssloader.TwoCropsTransform(T.Compose(augmentation))
 
-    def preprocess(self, image_size='variable', batch_size=32, add_aug=None, **kwargs):
+    def preprocess(self, image_size=224, batch_size=64, add_aug=None, cutpaste_type='normal', **kwargs):
         """
         Preprocess the dataset to resize, normalize, and batch the images. Apply augmentation
         if specified.
 
             Args:
                 image_size (int or 'variable'): desired square image size (if 'variable', does not alter image size)
-                batch_size (int): desired batch size (default 32)
-                add_aug (None or list[str]): Choice of augmentations ('hflip', 'rotate') to be applied during training
+                batch_size (int): desired batch size (default 64)
+                add_aug (None or list[str]): choice of augmentations ('hflip', 'rotate') to be
+                                             applied during training
+                cutpaste_type (str): choice of cutpaste variant ('normal', 'scar', '3way', 'union'),
+                                     default is 'normal'
                 kwargs: optional; additional keyword arguments for Resize and Normalize transforms
             Raises:
                 ValueError if the dataset is not defined or has already been processed
@@ -454,6 +460,10 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         # Get the user-specified keyword arguments
         resize_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(T.Resize).args}
         normalize_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(T.Normalize).args}
+
+        variant_map = {'normal': CutPasteNormal, 'scar': CutPasteScar,
+                       '3way': CutPaste3Way, 'union': CutPasteUnion}
+        variant = variant_map[cutpaste_type]
 
         def get_transform(image_size, add_aug, train=True):
             """The train argument, if True, will add augmentation transforms, while if False, will add only the
@@ -476,12 +486,13 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             return T.Compose(transforms)
 
         self._simsiam_transform = self.simsiam_transform(image_size)
+        self._cutpaste_transform = get_cutpaste_transforms(image_size, variant)
         self._train_transform = get_transform(image_size, add_aug, True)
         self._validation_transform = get_transform(image_size, add_aug, False)
         self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
         self._make_data_loaders(batch_size=batch_size)
 
-    def get_batch(self, subset='all', simsiam=False):
+    def get_batch(self, subset='all', simsiam=False, cutpaste=False):
         """
         Get a single batch of images and labels from the dataset.
 
@@ -489,6 +500,8 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
                 subset (str): default "all", can also be "train", "validation", or "test"
                 simsiam (bool): if preprocess() has been previously used on the dataset and this argument is True,
                                 the simsiam transform will be applied, otherwise it will not; default False
+                cutpaste (bool): if preprocess() has been previously used on the dataset and this argument is True,
+                                the cutpaste transform will be applied, otherwise it will not; default False
 
             Returns:
                 (examples, labels)
@@ -499,12 +512,16 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         if simsiam:
             # SimSiam transform can be manually requested with any subset
             self._dataset.transform = self._simsiam_transform
+        elif cutpaste:
+            # CutPaste transform can be manually requested with any subset
+            self._dataset.transform = self._cutpaste_transform
         elif subset in ['all', 'train']:
-            # For "train"/"all" subsets, if simsiam is False, the train transform (including augmentation) is applied
+            # For "train"/"all" subsets, if simsiam and cutpaste are False,
+            # the train transform (including augmentation) is applied
             self._dataset.transform = self._train_transform
         else:
-            # For "validation"/"test" subsets, if simsiam is False, the validation transform (excluding augmentation)
-            # is applied
+            # For "validation"/"test" subsets, if simsiam and cutpaste are False,
+            # the validation transform (excluding augmentation) is applied
             self._dataset.transform = self._validation_transform
 
         if subset == 'all' and self._dataset is not None:

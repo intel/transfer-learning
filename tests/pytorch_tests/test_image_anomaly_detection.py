@@ -18,18 +18,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as functional
+
 import os
 import pytest
 import shutil
 import tempfile
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as functional
-
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
+from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features
 
 
 class TestImageAnomalyDetectionCustomDataset:
@@ -87,20 +88,21 @@ class TestImageAnomalyDetectionCustomDataset:
         dataset.preprocess(model.image_size, 32)
         dataset.shuffle_split(train_pct=0.5, val_pct=0.5, seed=10)
 
+        # Train for 1 epoch
+        pca_components, trained_model = model.train(dataset, self._output_dir,
+                                                    layer_name='layer3', seed=10, simsiam=False)
+
         # Extract features
         images, labels = dataset.get_batch(subset='validation')
-        features = model.extract_features(images, layer_name='layer3', pooling=['avg', 2])
+        features = extract_features(trained_model, images, layer_name='layer3', pooling=['avg', 2])
         assert len(features) == 32
 
-        # Train for 1 epoch
-        model.train(dataset, self._output_dir, layer_name='layer3', seed=10, simsiam=False)
-
         # Evaluate
-        auroc = model.evaluate(dataset)
+        threshold, auroc = model.evaluate(dataset, pca_components)
         assert isinstance(auroc, float)
 
         # Predict with a batch
-        predictions = model.predict(images)
+        predictions = model.predict(images, pca_components)
         assert len(predictions) == 32
 
     @pytest.mark.integration
@@ -146,20 +148,21 @@ class TestImageAnomalyDetectionCustomDataset:
         dataset.preprocess(image_size=224, batch_size=32)
         dataset.shuffle_split(train_pct=0.5, val_pct=0.5, seed=10)
 
+        # Train for 1 epoch
+        pca_components, trained_model = model.train(dataset, self._output_dir,
+                                                    layer_name='conv2', seed=10, simsiam=False)
+
         # Extract features
         images, labels = dataset.get_batch(subset='validation')
-        features = model.extract_features(images, layer_name='conv2', pooling=['avg', 2])
+        features = extract_features(trained_model, images, layer_name='conv2', pooling=['avg', 2])
         assert len(features) == 32
 
-        # Train for 1 epoch
-        model.train(dataset, self._output_dir, layer_name='conv2', seed=10, simsiam=False)
-
         # Evaluate
-        auroc = model.evaluate(dataset)
+        threshold, auroc = model.evaluate(dataset, pca_components)
         assert isinstance(auroc, float)
 
         # Predict with a batch
-        predictions = model.predict(images)
+        predictions = model.predict(images, pca_components)
         assert len(predictions) == 32
 
     @pytest.mark.integration
@@ -169,6 +172,7 @@ class TestImageAnomalyDetectionCustomDataset:
     def test_simsiam_workflow(self, model_name):
         """
         Tests the workflow for PYT image anomaly detection using a custom dataset
+        and simsiam feature extractor enabled
         """
         framework = 'pytorch'
         use_case = 'image_anomaly_detection'
@@ -187,14 +191,55 @@ class TestImageAnomalyDetectionCustomDataset:
         dataset.shuffle_split(train_pct=0.5, val_pct=0.5, seed=10)
 
         # Train for 1 epoch
-        model.train(dataset, self._output_dir, layer_name='layer3', feature_dim=1000, pred_dim=250,
-                    seed=10, simsiam=True, initial_checkpoints=None)
+        pca_components, trained_model = model.train(dataset, self._output_dir, epochs=1,
+                                                    layer_name='layer3', feature_dim=1000, pred_dim=250,
+                                                    seed=10, simsiam=True, initial_checkpoints=None)
 
         # Evaluate
-        auroc = model.evaluate(dataset)
+        threshold, auroc = model.evaluate(dataset, pca_components)
         assert isinstance(auroc, float)
 
         # Predict with a batch
         images, labels = dataset.get_batch(subset='validation')
-        predictions = model.predict(images)
+        predictions = model.predict(images, pca_components)
+        assert len(predictions) == 32
+
+    @pytest.mark.integration
+    @pytest.mark.pytorch
+    @pytest.mark.parametrize('model_name',
+                             ['resnet18'])
+    def test_cutpaste_workflow(self, model_name):
+        """
+        Tests the workflow for PYT image anomaly detection using a custom dataset
+        and cutpaste feature extractor enabled
+        """
+        framework = 'pytorch'
+        use_case = 'image_anomaly_detection'
+
+        # Get the dataset
+        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework,
+                                               shuffle_files=False)
+        assert ['tulips'] == dataset.defect_names
+        assert ['bad', 'good'] == dataset.class_names
+
+        # Get the model
+        model = model_factory.get_model(model_name, framework, use_case)
+
+        # Preprocess the dataset and split to get small subsets for training and validation
+        dataset.preprocess(model.image_size, 32)
+        dataset.shuffle_split(train_pct=0.5, val_pct=0.25, test_pct=0.25, seed=10)
+
+        # Train for 1 epoch
+        pca_components, trained_model = model.train(dataset, self._output_dir, epochs=1,
+                                                    layer_name='layer3', optim='sgd', freeze_resnet=20,
+                                                    head_layer=2, cutpaste_type='normal', seed=10,
+                                                    cutpaste=True)
+
+        # Evaluate
+        threshold, auroc = model.evaluate(dataset, pca_components, use_test_set=True)
+        assert isinstance(auroc, float)
+
+        # Predict with a batch
+        images, labels = dataset.get_batch(subset='test')
+        predictions = model.predict(images, pca_components)
         assert len(predictions) == 32
