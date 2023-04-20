@@ -252,7 +252,8 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
     return models
 
 
-def print_supported_models(framework: FrameworkType = None, use_case: UseCaseType = None, verbose: bool = False):
+def print_supported_models(framework: FrameworkType = None, use_case: UseCaseType = None, verbose: bool = False,
+                           markdown: bool = False):
     """
     Prints a list of the supported models, categorized by use case. The results can be filtered to only show a given
     framework or use case.
@@ -261,20 +262,31 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
         framework (str or FrameworkType): framework
         use_case (str or UseCaseType): use case
         verbose (boolean): include all model data from the config file in result, default is False
+        markdown (boolean): Print results as markdown tables (used for updating documentation).
+                            Not compatible with verbose=True.
 
     """
     models = get_supported_models(framework, use_case)
 
     for model_use_case in models.keys():
-        print("-" * 30)
-        print(model_use_case.replace("_", " ").upper())
-        print("-" * 30)
+        if markdown:
+            print("## {}\n".format(model_use_case.replace("_", " ").title()))
+        else:
+            print("-" * 30)
+            print(model_use_case.replace("_", " ").upper())
+            print("-" * 30)
 
         if len(models[model_use_case].keys()) == 0:
             filter_message = ""
             if framework is not None:
                 filter_message = "for {}".format(str(framework))
-            print("No {} models are supported at this time {}".format(model_use_case.replace("_", " "), filter_message))
+            print("No {} models are supported at this time {}\n".format(
+                model_use_case.replace("_", " "), filter_message))
+            continue
+
+        if markdown:
+            print("| Model name | Framework | Model Hub |")
+            print("|------------|-----------|-----------|")
 
         # Get a sorted list of model names
         model_name_list = list(models[model_use_case].keys())
@@ -283,9 +295,32 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
         for model_name in model_name_list:
             for model_framework in models[model_use_case][model_name].keys():
 
-                print("{} ({})".format(model_name, model_framework))
+                if markdown:
+                    model_hub = models[model_use_case][model_name][model_framework]["model_hub"] if \
+                        "model_hub" in models[model_use_case][model_name][model_framework].keys() else ""
 
-                if verbose:
+                    # Use proper names
+                    model_hub_map = {
+                        "torchvision": "Torchvision",
+                        "tfhub": "TensorFlow Hub",
+                        "pytorch_hub": "PyTorch Hub",
+                        "huggingface": "Hugging Face"
+                    }
+                    framework_name_map = {
+                        "tensorflow": "TensorFlow",
+                        "pytorch": "PyTorch"
+                    }
+
+                    model_hub = model_hub_map[model_hub.lower()] if model_hub.lower() in model_hub_map.keys() \
+                        else model_hub
+                    model_framework = framework_name_map[model_framework.lower()] if \
+                        model_framework.lower() in framework_name_map.keys() else model_framework
+
+                    print("| {} | {} | {} |".format(model_name, model_framework, model_hub))
+                else:
+                    print("{} ({})".format(model_name, model_framework))
+
+                if verbose and not markdown:
                     for model_attribute, attribute_value in models[model_use_case][model_name][model_framework].items():
                         print("    {}: {}".format(model_attribute, attribute_value))
 

@@ -51,14 +51,19 @@ def list_frameworks():
               flag_value=True,
               default=False,
               help="Verbose output with extra information about each model")
-def list_models(framework, use_case, verbose):
+@click.option("--markdown",
+              flag_value=True,
+              default=False,
+              hidden=True,
+              help="Display the results as markdown. Not compatible with --verbose.")
+def list_models(framework, use_case, verbose, markdown):
     """
     List the supported models and the information that we have about each model from the config files.
     """
     from tlt.models.model_factory import print_supported_models
 
     try:
-        print_supported_models(framework, use_case, verbose)
+        print_supported_models(framework, use_case, verbose, markdown)
     except Exception as e:
         sys.exit("Error while listing the supported models for framework: {}, use case: {}\n  {}".format(
             str(framework), str(use_case), str(e)))
