@@ -26,7 +26,7 @@ from sklearn import decomposition
 
 from tlt.models import model_factory
 from tlt.utils.types import FrameworkType, UseCaseType
-from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features, pca
+from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features, pca, get_feature_extraction_model  # noqa: E501
 
 
 try:
@@ -236,7 +236,7 @@ def test_resnet50_anomaly_extract_pca():
 
     # Call extract_features and PCA on 5 randomly generated images
     data = torch.rand(5, 3, 225, 225)  # NCHW
-    resnet_model = model.load_pretrained_model()
+    resnet_model = get_feature_extraction_model(model._model, 'layer3')
     features = extract_features(resnet_model, data, layer_name='layer3', pooling=['avg', 2])
     assert isinstance(features, torch.Tensor)
     assert len(features) == 5

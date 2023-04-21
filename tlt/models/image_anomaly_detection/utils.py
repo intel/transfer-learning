@@ -73,7 +73,7 @@ class ProgressMeter(object):
         return '[' + fmt + '/' + fmt.format(num_batches) + ']'
 
 
-def _fit_simsiam(train_data_loader, model, criterion, optimizer, epoch):
+def _fit_simsiam(train_data_loader, model, criterion, optimizer, epoch, precision):
     """
     Main PyTorch Simsiam training loop
     """
@@ -88,14 +88,16 @@ def _fit_simsiam(train_data_loader, model, criterion, optimizer, epoch):
     end = time.time()
 
     for i, (inputs, _) in enumerate(train_data_loader):
+        optimizer.zero_grad()
+
         data_time.update(time.time() - end)
         inputs[0] = inputs[0].to('cpu')
         inputs[1] = inputs[1].to('cpu')
-        p1, p2, z1, z2 = model(x1=inputs[0], x2=inputs[1])
-        loss = -(criterion(p1, z2).mean() + criterion(p2, z1).mean()) * 0.5
-        losses.update(loss.item(), inputs[0].size(0))
+        with torch.cpu.amp.autocast(enabled=(precision == 'bfloat16')):
+            p1, p2, z1, z2 = model(x1=inputs[0], x2=inputs[1])
+            loss = -(criterion(p1, z2).mean() + criterion(p2, z1).mean()) * 0.5
 
-        optimizer.zero_grad()
+        losses.update(loss.item(), inputs[0].size(0))
         loss.backward()
         optimizer.step()
 
@@ -106,7 +108,7 @@ def _fit_simsiam(train_data_loader, model, criterion, optimizer, epoch):
     return curr_loss
 
 
-def _fit_cutpaste(train_data_loader, model, criterion, optimizer, epoch, freeze_resnet, scheduler):
+def _fit_cutpaste(train_data_loader, model, criterion, optimizer, epoch, freeze_resnet, scheduler, precision):
     """
     Main PyTorch CutPaste training loop
     """
@@ -132,15 +134,15 @@ def _fit_cutpaste(train_data_loader, model, criterion, optimizer, epoch, freeze_
         # zero the parameter gradients
         optimizer.zero_grad()
         xc = torch.cat(xs, axis=0)
-        embeds, logits = model(xc)
-
         # calculate label
         y = torch.arange(len(xs), device=device)
         y = y.repeat_interleave(xs[0].size(0))
-        loss = criterion(logits, y)
+
+        with torch.cpu.amp.autocast(enabled=(precision == 'bfloat16')):
+            embeds, logits = model(xc)
+            loss = criterion(logits, y)
 
         losses.update(loss.item(), len(data))
-
         # regulize weights:
         loss.backward()
         optimizer.step()

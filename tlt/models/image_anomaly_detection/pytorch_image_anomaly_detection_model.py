@@ -63,15 +63,7 @@ def extract_features(model, data, layer_name, pooling):
     Raises:
         ValueError if the parameters are not within the expected values
     """
-
-    layer_names = [name for name, module in model.named_children()]
-    if layer_name not in layer_names:
-        raise TypeError("Invalid layer_name for the model. Choose from {}".format(layer_names))
-
-    model.eval()
-    return_nodes = {layer: layer for layer in [layer_name]}
-    partial_model = create_feature_extractor(model, return_nodes=return_nodes)
-    features = partial_model(data)[layer_name]
+    features = model(data)[layer_name]
     pooling_list = ['avg', 'max']
     if pooling[0] in pooling_list and pooling[0] == 'avg':
         pool_out = torch.nn.functional.avg_pool2d(features, pooling[1])
@@ -82,6 +74,28 @@ def extract_features(model, data, layer_name, pooling):
     outputs = pool_out.contiguous().view(pool_out.size(0), -1)
 
     return outputs
+
+
+def get_feature_extraction_model(model, layer_name):
+    """
+    Get partial model split by a specified layer name
+    Args:
+        model (PyTorchImageAnomalyDetectionModel/SimSiam/ProjectionNet): Model on which features have to be extracted
+        layer_name (string): The layer name whose output is desired for the extracted features
+    Returns:
+        outputs: Partial model
+
+    Raises:
+        ValueError if the parameters are not within the expected values
+    """
+    layer_names = [name for name, module in model.named_children()]
+    if layer_name not in layer_names:
+        raise TypeError("Invalid layer_name for the model. Choose from {}".format(layer_names))
+
+    model.eval()
+    return_nodes = {layer: layer for layer in [layer_name]}
+    partial_model = create_feature_extractor(model, return_nodes=return_nodes)
+    return partial_model
 
 
 def pca(features, threshold=0.99):
@@ -183,7 +197,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
     def train_simsiam(self, dataset, output_dir, epochs, feature_dim,
                       pred_dim, batch_size=64, initial_checkpoints=None,
-                      generate_checkpoints=False):
+                      generate_checkpoints=False, precision='float32'):
         """
             Trains a SimSiam model using the specified dataset.
 
@@ -196,6 +210,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
                 initial_checkpoints (str): Path to checkpoint weights to load.
                 generate_checkpoints (bool): Whether to save/preserve the best weights during
                                              SimSiam or CutPaste training, default is False.
+                precision (str): precision in which model to be trained, default is float32.
 
             Returns:
                 Model object
@@ -233,7 +248,8 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         print("Fine-tuning Simsiam Model on ", epochs, "epochs using ", num_images, " training images")
         self._model.train()
 
-        model, optimizer = ipex.optimize(self._model, optimizer=optimizer)
+        model, optimizer = ipex.optimize(self._model, optimizer=optimizer,
+                                         dtype=torch.bfloat16 if precision == 'bfloat16' else torch.float32)
 
         valid_model_name = validate_model_name(self.model_name)
         checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(valid_model_name))
@@ -242,7 +258,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         for epoch in range(0, self.epochs):
             utils.adjust_learning_rate(optimizer, init_lr, epoch, self.epochs)
 
-            curr_loss = utils._fit_simsiam(dataloader, model, criterion, optimizer, epoch)
+            curr_loss = utils._fit_simsiam(dataloader, model, criterion, optimizer, epoch, precision)
             if generate_checkpoints:
                 if (curr_loss < best_least_Loss):
                     best_least_Loss = curr_loss
@@ -276,7 +292,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
     def train_cutpaste(self, dataset, output_dir, optim, epochs, freeze_resnet,
                        head_layer, cutpaste_type, initial_checkpoints=None,
-                       generate_checkpoints=False):
+                       generate_checkpoints=False, precision='float32'):
         """
             Trains a CutPaste model using the specified dataset.
 
@@ -292,6 +308,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
                 initial_checkpoints (str): path for feature extractor model
                 generate_checkpoints (bool): Whether to save/preserve the best weights during
                                              SimSiam or CutPaste training, default is False.
+                precision (str): precision in which model to be trained, default is float32.
 
             Returns:
                 Model object
@@ -342,12 +359,13 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
             print("Fine-tuning CUT-PASTE Model on ", epochs, "epochs using ", num_images, " training images")
             self._model.train()
 
-            model, optimizer = ipex.optimize(self._model, optimizer=optimizer)
+            model, optimizer = ipex.optimize(self._model, optimizer=optimizer,
+                                             dtype=torch.bfloat16 if precision == 'bfloat16' else torch.float32)
 
             for step in range(epochs):
                 epoch = int(step / 1)
                 curr_loss = utils._fit_cutpaste(dataloader, model, criterion,
-                                                optimizer, epoch, freeze_resnet, scheduler)
+                                                optimizer, epoch, freeze_resnet, scheduler, precision)
                 if generate_checkpoints:
                     if (curr_loss < best_least_Loss):
                         best_least_Loss = curr_loss
@@ -391,7 +409,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
               batch_size=64, feature_dim=2048, pred_dim=512,
               generate_checkpoints=False, initial_checkpoints=None, seed=None, pooling='avg',
               kernel_size=2, pca_threshold=0.99, simsiam=False, cutpaste=False, cutpaste_type='normal',
-              freeze_resnet=20, head_layer=2, optim='sgd', layer_name='layer3'):
+              freeze_resnet=20, head_layer=2, optim='sgd', layer_name='layer3', precision='float32'):
         """
             Trains the model using the specified image anomaly detection dataset.
 
@@ -417,6 +435,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
                                      the new header with FC layers, default is 20
                 head_layer (int): number of layers in the projection head, default is 1
                 optim (str): Choice of optimizer to use for training, default is sgd
+                precision (str): precision in which model to be trained, default is float32.
 
             Returns:
                 Fitted principal components
@@ -435,15 +454,16 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         if self.simsiam:
             model = self.train_simsiam(dataset, output_dir, epochs, feature_dim,
                                        pred_dim, batch_size, initial_checkpoints,
-                                       generate_checkpoints=False)
+                                       generate_checkpoints=False, precision='float32')
         elif self.cutpaste:
             model = self.train_cutpaste(dataset, output_dir, optim, epochs, freeze_resnet,
                                         head_layer, cutpaste_type, initial_checkpoints,
-                                        generate_checkpoints=False)
+                                        generate_checkpoints=False, precision='float32')
         else:
             model = self.load_pretrained_model()
             print("Loading '{}' model".format(self.model_name))
 
+        model = get_feature_extraction_model(model, layer_name)
         dataset._dataset.transform = dataset._train_transform
         images, labels = dataset.get_batch()
         outputs_inner = extract_features(model, images.to(self._device), layer_name,
@@ -503,6 +523,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
         print("Evaluating on {} test images".format(data_length))
 
+        model = get_feature_extraction_model(self._model, self._layer_name)
         with torch.no_grad():
             gt = torch.zeros(data_length)
             scores = np.empty(data_length)
@@ -510,7 +531,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
             for k, (images, labels) in enumerate(tqdm(eval_loader)):
                 images = images.to(memory_format=torch.channels_last)
                 num_im = images.shape[0]
-                outputs = extract_features(self._model, images, self._layer_name,
+                outputs = extract_features(model, images, self._layer_name,
                                            pooling=[self._pooling, self._kernel_size])
                 feature_shapes = outputs.shape
                 oi = outputs
@@ -553,12 +574,13 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         if return_type == 'class' and not isinstance(threshold, Number):
             raise ValueError("For class prediction, please give a numeric threshold.")
 
+        model = get_feature_extraction_model(self._model, self._layer_name)
         with torch.no_grad():
             scores = np.empty(len(input_samples))
             count = 0
             input_samples = input_samples.to(memory_format=torch.channels_last)
             num_im = input_samples.shape[0]
-            outputs = extract_features(self._model, input_samples, self._layer_name,
+            outputs = extract_features(model, input_samples, self._layer_name,
                                        pooling=[self._pooling, self._kernel_size])
             feature_shapes = outputs.shape
             oi = outputs
