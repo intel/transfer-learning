@@ -1,0 +1,10 @@
+numpy
+Pillow
+prettytable
+scikit-learn-intelex
+intel_extension_for_pytorch
+torch --index-url https://download.pytorch.org/whl/cpu
+torchvision --index-url https://download.pytorch.org/whl/cpu
+tqdm
+pyyaml
+dill
