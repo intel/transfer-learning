@@ -1,0 +1,16 @@
+args:
+  dataset_dir: ./data/train_test_split_images
+  dtype_ft: fp32
+  dtype_inf: fp32
+  finetune: true
+  finetune_output: ./output/finetune_predictions_report.yaml
+  inference: false
+  inference_output: inference_predictions_report.yaml
+  model: resnet_v1_50
+  pipeline: finetune
+  saved_model_dir: ./output/resnet_v1_50/1
+training_args:
+  batch_size: 32
+  bf16: true
+  epochs: 1
+  output_dir: ./output
