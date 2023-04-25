@@ -219,7 +219,7 @@ See the [CLI documentation](https://github.com/IntelAI/transfer-learning-tool/ex
 ## Use the Low-code API
 The following example trains an image classification model with the TensorFlow flowers dataset using the API.
 Additionally, the model is benchmarked and quantized to int8 precision for improved inference performance.
-If you want to run the API using a Jupyter notebook, see the [notebook setup instructions](https://github.com/intel-innersource/frameworks.ai.transfer-learning/blob/develop/notebooks/setup.md).
+If you want to run the API using a Jupyter notebook, see the [notebook setup instructions](https://github.com/IntelAI/transfer-learning-tool/blob/main/notebooks/setup.md).
 
 ```python
 from tlt.datasets import dataset_factory
