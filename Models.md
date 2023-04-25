@@ -13,7 +13,12 @@
 | densenet161 | PyTorch | Torchvision |
 | densenet169 | PyTorch | Torchvision |
 | densenet201 | PyTorch | Torchvision |
-| efficientnet_b0 | TensorFlow* | TensorFlow Hub* |
+| efficientnetv2-b0 | TensorFlow* | TensorFlow Hub* |
+| efficientnetv2-b1 | TensorFlow | TensorFlow Hub |
+| efficientnetv2-b2 | TensorFlow | TensorFlow Hub |
+| efficientnetv2-b3 | TensorFlow | TensorFlow Hub |
+| efficientnetv2-s | TensorFlow | TensorFlow Hub |
+| efficientnet_b0 | TensorFlow | TensorFlow Hub |
 | efficientnet_b0 | PyTorch | Torchvision |
 | efficientnet_b1 | TensorFlow | TensorFlow Hub |
 | efficientnet_b1 | PyTorch | Torchvision |
@@ -29,11 +34,6 @@
 | efficientnet_b6 | PyTorch | Torchvision |
 | efficientnet_b7 | TensorFlow | TensorFlow Hub |
 | efficientnet_b7 | PyTorch | Torchvision |
-| efficientnetv2-b0 | TensorFlow | TensorFlow Hub |
-| efficientnetv2-b1 | TensorFlow | TensorFlow Hub |
-| efficientnetv2-b2 | TensorFlow | TensorFlow Hub |
-| efficientnetv2-b3 | TensorFlow | TensorFlow Hub |
-| efficientnetv2-s | TensorFlow | TensorFlow Hub |
 | googlenet | PyTorch | Torchvision |
 | inception_v3 | TensorFlow | TensorFlow Hub |
 | mnasnet0_5 | PyTorch | Torchvision |
@@ -100,6 +100,44 @@
 | vit_l_32 | PyTorch | Torchvision |
 | wide_resnet101_2 | PyTorch | Torchvision |
 | wide_resnet50_2 | PyTorch | Torchvision |
+| ConvNeXtBase | TensorFlow | Keras* |
+| ConvNeXtLarge | TensorFlow | Keras |
+| ConvNeXtSmall | TensorFlow | Keras |
+| ConvNeXtTiny | TensorFlow | Keras |
+| ConvNeXtXLarge | TensorFlow | Keras |
+| DenseNet121 | TensorFlow | Keras |
+| DenseNet169 | TensorFlow | Keras |
+| DenseNet201 | TensorFlow | Keras |
+| EfficientNetB0 | TensorFlow | Keras |
+| EfficientNetB1 | TensorFlow | Keras |
+| EfficientNetB2 | TensorFlow | Keras |
+| EfficientNetB3 | TensorFlow | Keras |
+| EfficientNetB4 | TensorFlow | Keras |
+| EfficientNetB5 | TensorFlow | Keras |
+| EfficientNetB6 | TensorFlow | Keras |
+| EfficientNetB7 | TensorFlow | Keras |
+| EfficientNetV2B0 | TensorFlow | Keras |
+| EfficientNetV2B1 | TensorFlow | Keras |
+| EfficientNetV2B2 | TensorFlow | Keras |
+| EfficientNetV2B3 | TensorFlow | Keras |
+| EfficientNetV2L | TensorFlow | Keras |
+| EfficientNetV2M | TensorFlow | Keras |
+| EfficientNetV2S | TensorFlow | Keras |
+| InceptionResNetV2 | TensorFlow | Keras |
+| InceptionV3 | TensorFlow | Keras |
+| MobileNet | TensorFlow | Keras |
+| MobileNetV2 | TensorFlow | Keras |
+| NASNetLarge | TensorFlow | Keras |
+| NASNetMobile | TensorFlow | Keras |
+| ResNet101 | TensorFlow | Keras |
+| ResNet101V2 | TensorFlow | Keras |
+| ResNet152 | TensorFlow | Keras |
+| ResNet152V2 | TensorFlow | Keras |
+| ResNet50 | TensorFlow | Keras |
+| ResNet50V2 | TensorFlow | Keras |
+| VGG16 | TensorFlow | Keras |
+| VGG19 | TensorFlow | Keras |
+| Xception | TensorFlow | Keras |
 
 ## Text Classification
 
