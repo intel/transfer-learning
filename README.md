@@ -1,29 +1,3 @@
-# Intel® Transfer Learning Tool Quick Start
-
-## Features
-
-| Use Case | Framework | Optimizations | Datasets |
-|----------|-----------|----------|---------------|
-| Image Classification | PyTorch* | <li>[Intel® Extension for PyTorch*](https://github.com/intel/intel-extension-for-pytorch) <li>Distributed training | <li> Custom datasets <li> [torchvision datasets](https://pytorch.org/vision/stable/datasets.html) |
-| Image Classification | TensorFlow* | <li>[Intel® Optimization for TensorFlow*](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Post-training quantization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor), when using custom datasets <li>FP32 graph optimization using [Intel® Neural Compressor](https://github.com/intel/neural-compressor) <li>Auto mixed precision training on Intel® third or fourth generation Intel® Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets <li> Image classification datasets from the [TensorFlow Dataset catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) |
-| Text Classification | TensorFlow | <li>[Intel® Optimization for TensorFlow](https://www.intel.com/content/www/us/en/developer/articles/guide/optimization-for-tensorflow-installation-guide.html) <li>Auto mixed precision training on Intel® third or fourth generation Xeon® processors (requires TensorFlow 2.9.0 or later) | <li> Custom datasets from .csv files <li> Text classification datasets from the [TensorFlow Datasets catalog](https://www.tensorflow.org/datasets/catalog/overview#image_classification) |
-| Text Classification | PyTorch | <li>[Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) <li>Distributed training | <li> Custom datasets <li> Text Classification datasets from [Hugging Face Dataset catalog](https://huggingface.co/datasets) |
-| Image Anomaly Detection | PyTorch | | <li> Custom datasets |
-
-## Build and Install
-
-**Requirements**:
-1. Linux* system (or WSL2 on Windows*)
-1. Python3* (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
-1. git
-1. `apt-get install build-essential python3-dev`
-1. To run the quantization functions: `apt-get install libgl1 libglib2.0-0`
-
-**Create and activate a Python3 virtual environment**\
-Users are encouraged to use python virtual environments for consistent package management\
-\
-   Using `virtualenv`
-
 # Intel® Transfer Learning Tool
 
 Transfer learning workflows use the knowledge learned by a pre-trained model on a large dataset to improve the
