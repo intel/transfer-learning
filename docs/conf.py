@@ -37,12 +37,13 @@ import glob
 sys.path.insert(0, os.path.abspath('../..'))
 sys.setrecursionlimit(1500)
 import sphinx_rtd_theme
+from datetime import datetime
 
 # -- Project information -----------------------------------------------------
 
 project = 'Intel® Transfer Learning Tool'
-copyright = '2022, Intel'
-author = 'Intel'
+author = 'Intel Corporation'
+copyright = '2022-' + str(datetime.now().year) + u', ' + author
 
 # The full version, including alpha/beta/rc tags
 release = '0.2.0'
@@ -82,6 +83,9 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv3', 'README.md']
 #
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+html_last_updated_fmt = '%b %d, %Y'
+html_show_sphinx = False
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
