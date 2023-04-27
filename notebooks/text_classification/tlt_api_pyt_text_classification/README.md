@@ -40,3 +40,4 @@ Dataset citations:
   howpublished = {UCI Machine Learning Repository}
 }
 ```
+Please see this dataset's applicable license for terms and conditions. Intel Corporation does not own the rights to this data set and does not confer any rights to it.

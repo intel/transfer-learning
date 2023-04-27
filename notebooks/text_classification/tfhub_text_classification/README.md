@@ -31,13 +31,6 @@ Dataset citations:
   url       = {http://www.aclweb.org/anthology/P11-1015}
 }
 
-@misc{misc_sms_spam_collection_228,
-  author       = {Almeida, Tiago},
-  title        = {{SMS Spam Collection}},
-  year         = {2012},
-  howpublished = {UCI Machine Learning Repository}
-}
-
 @misc{zhang2015characterlevel,
     title={Character-level Convolutional Networks for Text Classification},
     author={Xiang Zhang and Junbo Zhao and Yann LeCun},
@@ -46,4 +39,12 @@ Dataset citations:
     archivePrefix={arXiv},
     primaryClass={cs.LG}
 }
+
+@misc{misc_sms_spam_collection_228,
+  author       = {Almeida, Tiago},
+  title        = {{SMS Spam Collection}},
+  year         = {2012},
+  howpublished = {UCI Machine Learning Repository}
+}
 ```
+Please see this dataset's applicable license for terms and conditions. Intel Corporation does not own the rights to this data set and does not confer any rights to it.

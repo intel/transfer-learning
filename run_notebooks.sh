@@ -19,6 +19,7 @@ tf_notebooks=(
     "notebooks/image_classification/tf_image_classification/Image_Classification_Transfer_Learning.ipynb"
     "notebooks/question_answering/tfhub_question_answering/BERT_Question_Answering.ipynb"
     "notebooks/text_classification/tfhub_text_classification/BERT_Binary_Text_Classification.ipynb"
+    "notebooks/text_classification/tfhub_text_classification/BERT_Multi_Text_Classification.ipynb"
 )
 
 pyt_notebooks=(
