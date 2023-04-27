@@ -42,7 +42,7 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
     output_dir = tempfile.mkdtemp()
 
     # Get the dataset
-    dataset = dataset_factory.get_dataset('/tmp/data', 'text_classification', framework, dataset_name,
+    dataset = dataset_factory.get_dataset(output_dir, 'text_classification', framework, dataset_name,
                                           'huggingface', split=["train"], shuffle_files=False)
 
     # Get the model
@@ -163,7 +163,7 @@ def test_initial_checkpoints(model_name, dataset_name):
     checkpoint_dir = os.path.join(output_dir, model_name + '_checkpoints')
 
     # Get the dataset
-    dataset = dataset_factory.get_dataset('/tmp/data', 'text_classification', framework, dataset_name,
+    dataset = dataset_factory.get_dataset(output_dir, 'text_classification', framework, dataset_name,
                                           'huggingface', split=["train"], shuffle_files=False)
 
     # Get the model
@@ -190,6 +190,117 @@ def test_initial_checkpoints(model_name, dataset_name):
 
     assert improved_metrics[0] < trained_metrics[0]  # loss
     assert improved_metrics[1] > trained_metrics[1]  # accuracy
+
+    # Delete the temp output directory
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)
+
+
+@pytest.mark.pytorch
+@pytest.mark.parametrize('model_name,dataset_name',
+                         [['distilbert-base-uncased', 'imdb']])
+def test_freeze_bert(model_name, dataset_name):
+    framework = 'pytorch'
+    output_dir = tempfile.mkdtemp()
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset(output_dir, 'text_classification', framework, dataset_name,
+                                          'huggingface', split=["train"], shuffle_files=False)
+
+    # Get the model
+    model = model_factory.get_model(model_name, framework)
+
+    dataset.preprocess(model_name, batch_size=32)
+    dataset.shuffle_split(train_pct=0.01, val_pct=0.01, seed=10)
+
+    # Train
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
+
+    # Freeze feature layers
+    layer_name = "features"
+    model.freeze_layer(layer_name)
+
+    # Check everything is frozen (not trainable) in the layer
+    for (name, module) in model._model.named_children():
+        if name == layer_name:
+            for param in module.parameters():
+                assert param.requires_grad is False
+
+    # Delete the temp output directory
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)
+
+
+@pytest.mark.pytorch
+@pytest.mark.parametrize('model_name,dataset_name',
+                         [['distilbert-base-uncased', 'imdb']])
+def test_unfreeze_bert(model_name, dataset_name):
+    framework = 'pytorch'
+    output_dir = tempfile.mkdtemp()
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset(output_dir, 'text_classification', framework, dataset_name,
+                                          'huggingface', split=["train"], shuffle_files=False)
+
+    # Get the model
+    model = model_factory.get_model(model_name, framework)
+
+    dataset.preprocess(model_name, batch_size=32)
+    dataset.shuffle_split(train_pct=0.01, val_pct=0.01, seed=10)
+
+    # Train
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
+    layer_name = "features"
+    model.unfreeze_layer(layer_name)
+
+    # Check everything is unfrozen (trainable) in the layer
+    for (name, module) in model._model.named_children():
+        if name == layer_name:
+            for param in module.parameters():
+                assert param.requires_grad is True
+
+    # Delete the temp output directory
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)
+
+
+@pytest.mark.pytorch
+@pytest.mark.parametrize('model_name,dataset_name',
+                         [['distilbert-base-uncased', 'imdb']])
+def test_list_layers_bert(model_name, dataset_name):
+    import io
+    import unittest.mock as mock
+
+    framework = 'pytorch'
+    output_dir = tempfile.mkdtemp()
+
+    # Get the model
+    model = model_factory.get_model(model_name, framework)
+
+    # Get the dataset
+    dataset = dataset_factory.get_dataset(output_dir, 'text_classification', framework, dataset_name,
+                                          'huggingface', split=["train"], shuffle_files=False)
+
+    dataset.preprocess(model_name, batch_size=32)
+    dataset.shuffle_split(train_pct=0.01, val_pct=0.01, seed=10)
+
+    # Train
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False)
+
+    # Mock stdout and sterr to capture the function's output
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    with mock.patch('sys.stdout', stdout), mock.patch('sys.stderr', stderr):
+        model.list_layers(verbose=True)
+    # Assert the function printed the correct output of the trainable layers
+    output = stdout.getvalue().strip()
+    assert 'distilbert' in output
+    assert 'embeddings: 23835648/23835648 parameters are trainable' in output
+    assert 'transformer: 42527232/42527232 parameters are trainable' in output
+    assert 'pre_classifier: 590592/590592 parameters are trainable' in output
+    assert 'dropout: 0/0 parameters are trainable' in output
+    assert 'dropout: 0/0 parameters are trainable' in output
+    assert 'Total Trainable Parameters: 66955010/66955010' in output
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):

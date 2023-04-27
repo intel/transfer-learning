@@ -29,9 +29,11 @@ from tlt.utils.types import FrameworkType, UseCaseType
 try:
     # Do TF specific imports in a try/except to prevent pytest test loading from failing when running in a PyTorch env
     from tlt.models.image_classification.tfhub_image_classification_model import TFHubImageClassificationModel
+    from tlt.models.image_classification.keras_image_classification_model import KerasImageClassificationModel
     from tlt.models.image_classification.tf_image_classification_model import TFImageClassificationModel
 except ModuleNotFoundError:
     TFHubImageClassificationModel = None
+    KerasImageClassificationModel = None
     TFImageClassificationModel = None
     print("WARNING: Unable to import TFHubImageClassificationModel or TFImageClassificationModel. "
           "TensorFlow may not be installed")
@@ -90,6 +92,20 @@ def test_tfhub_model_load(model_name, expected_class, expected_image_size):
 
 
 @pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,expected_class,expected_image_size',
+                         [['ResNet50', KerasImageClassificationModel, 224],
+                          ['Xception', KerasImageClassificationModel, 299]])
+def test_keras_model_load(model_name, expected_class, expected_image_size):
+    """
+    Checks that a model can be downloaded from Keras.applications
+    """
+    model = model_factory.get_model(model_name, 'tensorflow')
+    assert type(model) == expected_class
+    if expected_image_size:
+        assert model.image_size == expected_image_size
+
+
+@pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,use_case,expected_class,expected_image_size,expected_num_classes',
                          [['alexnet', 'image_classification', TFImageClassificationModel, 227, 3],
                           ['alexnet', 'text_classification', TFTextClassificationModel, None, 3]])
@@ -105,10 +121,11 @@ def test_custom_model_load(model_name, use_case, expected_class, expected_image_
 
 
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('model_name,use_case',
-                         [['efficientnet_b0', 'image_classification'],
-                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'text_classification']])
-def test_get_supported_models(model_name, use_case):
+@pytest.mark.parametrize('model_name,use_case,hub',
+                         [['ResNet50', 'image_classification', 'Keras'],
+                          ['efficientnet_b0', 'image_classification', 'TFHub'],
+                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'text_classification', 'TFHub']])
+def test_get_supported_models(model_name, use_case, hub):
     """
     Call get supported models and checks to make sure the dictionary has keys for each use case,
     and checks for a known supported model.
@@ -123,7 +140,7 @@ def test_get_supported_models(model_name, use_case):
     assert model_name in model_dict[use_case]
     model_info = model_dict[use_case][model_name]
     assert str(FrameworkType.TENSORFLOW) in model_info
-    assert 'TFHub' == model_info[str(FrameworkType.TENSORFLOW)]['model_hub']
+    assert hub == model_info[str(FrameworkType.TENSORFLOW)]['model_hub']
 
 
 @pytest.mark.tensorflow
@@ -199,12 +216,15 @@ def test_get_supported_models_bad_use_case(bad_use_case):
                            'TFHubImageClassificationModel._get_hub_model', ['a', 'b', 'c']],
                           ['small_bert/bert_en_uncased_L-2_H-128_A-2',
                            TextClassificationDataset, 'tlt.models.text_classification.tfhub_text_classification_model.'
-                           'TFHubTextClassificationModel._get_hub_model', ['a', 'b']]
+                           'TFHubTextClassificationModel._get_hub_model', ['a', 'b']],
+                          ['ResNet50', ImageClassificationDataset,
+                           'tlt.models.image_classification.keras_image_classification_model.'
+                           'KerasImageClassificationModel._get_hub_model', ['a', 'b', 'c']]
                           ])
-def test_tfhub_model_train(model_name, dataset_type, get_hub_model_patch, class_names):
+def test_tf_model_train(model_name, dataset_type, get_hub_model_patch, class_names):
     """
-    Tests calling train on an TFHub model with a mock dataset and mock model and verifies we get back the return
-    value from the fit function.
+    Tests calling train on an TFHub or Keras model with a mock dataset and mock model and verifies we get back the
+    return value from the fit function.
     """
     model = model_factory.get_model(model_name, 'tensorflow')
 

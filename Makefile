@@ -35,7 +35,7 @@ tlt_test_venv: $(CURDIR)/tests/requirements-test.txt
 	@echo "Building the TLT API in tlt_test_venv env..."
 	@. $(ACTIVATE_TEST_VENV) && pip install --editable .
 	@echo "Required for TensorFlow text classification..."
-	@. $(ACTIVATE_TEST_VENV) && pip install tensorflow-text==2.10.0
+	@. $(ACTIVATE_TEST_VENV) && pip install tensorflow-text==2.11.0
 
 	@echo "Installing test dependencies..."
 	@. $(ACTIVATE_TEST_VENV) && pip install -r $(CURDIR)/tests/requirements-test.txt
@@ -46,7 +46,7 @@ tlt_notebook_venv: $(CURDIR)/notebooks/requirements.txt
 
 	@echo "Installing TF & PYT notebook dependencies..."
 	@. $(ACTIVATE_NOTEBOOK_VENV) && pip install -r $(CURDIR)/notebooks/requirements.txt && \
-	pip install tensorflow-text==2.10.0
+	pip install tensorflow-text==2.11.0
 
 test: unittest integration
 
@@ -60,7 +60,7 @@ integration: tlt_test_venv
 
 lint: tlt_test_venv
 	@echo "Style checks..."
-	@. $(ACTIVATE_TEST_VENV) && flake8 tlt tests
+	@. $(ACTIVATE_TEST_VENV) && flake8 tlt tests downloader
 
 clean:
 	rm -rf tlt_test_venv

@@ -1,0 +1,36 @@
+num_workers: 32 # number of parallel threads to process the data
+precision: float32 # supported options are [float32, bfloat16]
+fine_tune : false
+output_path: ./output  # path to save the checkpoints or final model
+tlt_wf_path: transfer-learning/workflows/vision_anomaly_detection
+dataset:
+  root_dir: ./data  # full path of root directory of MVTEC dataset
+  category_type: hazelnut # category type within MVTEC dataset, i.e. hazelnut or all (for running all categories in MVTEC)
+  batch_size: 32 # inference batch size
+  image_size: 224 # each image resized to this size (224x224)
+model: 
+  name: resnet50 # pretrained backbone model ..choices are [resnet50, resnet18]
+  layer: layer3  # intermediate layer from which features will be extracted
+  pool: 2 # pooling kernel size for average pooling
+  feature_extractor: cutpaste # choices are [pretrained, cutpaste, simsiam]
+#pretrained -  No fine-tuning on custom dataset, features will be extracted from pretrained ResNet model
+#simsiam - fine-tune resnet model on custom dataset using simsiam self-supervised technique
+#cutpaste - fine-tune resnet model on custom datset using cutpaste self-supervised technique
+simsiam:
+  batch_size: 64 # fine-tuning batch size
+  epochs: 2 # number of epochs to fine-tune the model
+  optim: 'sgd' # optimizer
+  model_path: './output' # path to save the checkpoints or final model
+  ckpt: true  # flag for whether intermediate checkpoints would be saved or not
+  initial_ckpt: './simsiam/checkpoint_0099.pth.tar'
+cutpaste:
+  cutpaste_type: '3way' # choices are ['normal', 'scar', '3way', 'union'] for image augmentation
+  head_layer: 2 # number of perceptron layers appended towards the end of ResNet layers
+  freeze_resnet: 20 # number of epochs till resnet layers will be frozen and only head layers will be trained
+  batch_size: 64 # fine-tuning batch size
+  epochs: 2 # number of epochs to fine-tune the model
+  optim: 'sgd' # optimizer
+  model_path: './output' # path to save the checkpoints or final model
+  ckpt: true # flag for whether intermediate checkpoints would be saved or not
+pca:
+  pca_thresholds: 0.99 # PCA select number of components such that it ensures to retain the variance ratio specified

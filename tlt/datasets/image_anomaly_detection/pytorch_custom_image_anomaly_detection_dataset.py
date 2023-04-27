@@ -18,17 +18,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import inspect
 import os
 import random
+import numpy as np
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import torch
 from torch.utils.data import DataLoader as loader
 from torchvision.datasets import DatasetFolder
+import torchvision.transforms as T
 from torchvision.datasets.folder import default_loader, IMG_EXTENSIONS
-import numpy as np
 
 from tlt.datasets.pytorch_dataset import PyTorchDataset
+from tlt.models.image_anomaly_detection.simsiam import loader as ssloader
+from tlt.models.image_anomaly_detection.cutpaste.cutpaste import CutPasteNormal, CutPasteScar,\
+    CutPaste3Way, CutPasteUnion, get_cutpaste_transforms
 
 
 class AnomalyImageFolder(DatasetFolder):
@@ -182,7 +187,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
                            each class.
         dataset_name (str): optional; Name of the dataset. If no dataset name is given, the dataset_dir folder name
                             will be used as the dataset name.
-        num_workers (int): optional; Number of processes to use for data loading, default is 0
+        num_workers (int): optional; Number of processes to use for data loading, default is 56
         shuffle_files (bool): optional; Whether to shuffle the data. Defaults to True.
         defects (list[str]): Specific defects or category names to use for validation (default: None); if None, all
                              subfolders in the dataset directory will be used.
@@ -192,7 +197,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
 
     """
 
-    def __init__(self, dataset_dir, dataset_name=None, num_workers=0, shuffle_files=True, defects=None):
+    def __init__(self, dataset_dir, dataset_name=None, num_workers=56, shuffle_files=True, defects=None):
         """
         Class constructor
         """
@@ -200,7 +205,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             raise FileNotFoundError("The dataset directory ({}) does not exist".format(dataset_dir))
 
         # Determine which layout the images are in - category folders or train/test folders
-        # The validation_type will be "recall" for the former and "defined_split" for the latter
+        # The validation_type will be None for the former and "defined_split" for the latter
         if os.path.exists(os.path.join(dataset_dir, 'train')):
             self._validation_type = 'defined_split'
             if not os.path.exists(os.path.join(dataset_dir, 'train', 'good')):
@@ -212,12 +217,12 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             else:
                 raise FileNotFoundError("Found a 'train' directory, but not a 'test' or 'validation' directory.")
         else:
-            self._validation_type = 'recall'
+            self._validation_type = None
             if not os.path.exists(os.path.join(dataset_dir, 'good')):
                 raise FileNotFoundError("Couldn't find 'good' folder in {}".format(dataset_dir))
 
         # Inspect and validate defects
-        if self._validation_type == 'recall':
+        if self._validation_type is None:
             defect_directory = dataset_dir
         elif self._validation_type == 'defined_split':
             defect_directory = os.path.join(dataset_dir, validation_dir)
@@ -245,7 +250,8 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             "dataset_dir": dataset_dir
         }
         self._num_workers = num_workers
-        self._shuffle = shuffle_files
+        self.train_sampler = None
+        self._shuffle = self.train_sampler is None
         self._preprocessed = None
         self._train_indices = None
         self._validation_indices = None
@@ -254,14 +260,14 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         valid_classes = ['good'] + defects
         self._dataset = AnomalyImageFolder(dataset_dir, classes=valid_classes)
 
-        # For the train/test layout, initialize indices for the train and validation subsets
+        # For the train/test layout, initialize indices for the train and test subsets
         if self._validation_type == 'defined_split':
             train_img_string = '{}/train/'.format(dataset_dir)
             self._train_indices = [i for i, t in enumerate(self._dataset.imgs) if train_img_string in t[0]]
-            self._validation_indices = [i for i, t in enumerate(self._dataset.imgs) if train_img_string not in t[0]]
+            self._test_indices = [i for i, t in enumerate(self._dataset.imgs) if train_img_string not in t[0]]
             if self._shuffle:
                 random.shuffle(self._train_indices)
-                random.shuffle(self._validation_indices)
+                random.shuffle(self._test_indices)
 
         self._train_subset = None
         self._validation_subset = None
@@ -274,6 +280,11 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         self._train_pct = 1.0
         self._val_pct = 0
         self._test_pct = 0
+
+        self._simsiam_transform = None
+        self._cutpaste_transform = None
+        self._train_transform = None
+        self._validation_transform = None
 
     @property
     def class_names(self):
@@ -303,7 +314,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         """
         return self._dataset
 
-    def shuffle_split(self, train_pct=.75, val_pct=.25, test_pct=0., shuffle_files=True, seed=None):
+    def shuffle_split(self, train_pct=.75, val_pct=0.25, test_pct=0.0, shuffle_files=True, seed=None):
         """
         Randomly split the good examples into train, validation, and test subsets with a pseudo-random seed option.
         All of the bad examples will be split into validation and test subsets with a similar proportion
@@ -359,7 +370,9 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             self._make_data_loaders(batch_size=self._preprocessed['batch_size'], generator=generator)
 
     def _make_data_loaders(self, batch_size, generator=None):
-        """Make data loaders for the whole dataset and the subsets that have indices defined"""
+        """Make data loaders for the whole dataset and the subsets that have indices defined. Note that this only
+        concerns indices, not transforms. The transforms get applied when the dataloaders are used, not created, so
+        we need to switch transforms appropriately for train/val subsets when the data is ingested."""
         def seed_worker(worker_id):
             worker_seed = torch.initial_seed() % 2**32
             np.random.seed(worker_seed)
@@ -370,23 +383,154 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
             good_indices = [idx for idx, target in enumerate(self._dataset.targets) if target == 1]
             good_samples = torch.utils.data.Subset(self._dataset, good_indices)
             self._data_loader = loader(good_samples, batch_size=batch_size, shuffle=self._shuffle,
-                                       num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
+                                       num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator,
+                                       pin_memory=True, sampler=self.train_sampler, drop_last=False)
         else:
             self._data_loader = None
         if self._train_indices:
             self._train_loader = loader(self.train_subset, batch_size=batch_size, shuffle=self._shuffle,
-                                        num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
+                                        num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator,
+                                        pin_memory=True, sampler=self.train_sampler, drop_last=False)
         else:
             self._train_loader = None
         if self._validation_indices or (self._validation_type == 'defined_split' and self._validation_subset):
             self._validation_loader = loader(self.validation_subset, batch_size=batch_size, shuffle=self._shuffle,
                                              num_workers=self._num_workers, worker_init_fn=seed_worker,
-                                             generator=generator)
+                                             generator=generator, pin_memory=True, sampler=self.train_sampler,
+                                             drop_last=False)
         else:
             self._validation_loader = None
-        if self._test_indices:
+        if self._test_indices or (self._validation_type == 'defined_split' and self._test_subset):
             self._test_loader = loader(self.test_subset, batch_size=batch_size, shuffle=self._shuffle,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker,
-                                       generator=generator)
+                                       generator=generator, pin_memory=True, sampler=self.train_sampler,
+                                       drop_last=False)
         else:
             self._test_loader = None
+
+    def simsiam_transform(self, image_size):
+        """
+        Perform TwoCropsTransform and GaussianBlur on the dataset for SIMSIAM training.
+
+        Args:
+            image_size (int): desired image size
+
+        """
+        augmentation = [T.RandomResizedCrop(image_size, scale=(0.2, 1.)),
+                        T.RandomApply(
+                            [T.ColorJitter(0.1, 0.1, 0.1, 0.1)], p=0.8),
+                        T.RandomGrayscale(p=0.2),
+                        T.RandomApply(
+                            [ssloader.GaussianBlur([.1, 2.])], p=0.5),
+                        T.RandomHorizontalFlip(),
+                        T.ToTensor(),
+                        T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                        ]
+
+        return ssloader.TwoCropsTransform(T.Compose(augmentation))
+
+    def preprocess(self, image_size=224, batch_size=64, add_aug=None, cutpaste_type='normal', **kwargs):
+        """
+        Preprocess the dataset to resize, normalize, and batch the images. Apply augmentation
+        if specified.
+
+            Args:
+                image_size (int or 'variable'): desired square image size (if 'variable', does not alter image size)
+                batch_size (int): desired batch size (default 64)
+                add_aug (None or list[str]): choice of augmentations ('hflip', 'rotate') to be
+                                             applied during training
+                cutpaste_type (str): choice of cutpaste variant ('normal', 'scar', '3way', 'union'),
+                                     default is 'normal'
+                kwargs: optional; additional keyword arguments for Resize and Normalize transforms
+            Raises:
+                ValueError if the dataset is not defined or has already been processed
+        """
+        if not (self._dataset):
+            raise ValueError("Unable to preprocess, because the dataset hasn't been defined.")
+
+        if self._preprocessed:
+            raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))
+
+        if not isinstance(batch_size, int) or batch_size < 1:
+            raise ValueError("batch_size should be an positive integer")
+
+        if not image_size == 'variable' and not (isinstance(image_size, int) and image_size >= 1):
+            raise ValueError("Input image_size must be either a positive int or 'variable'")
+
+        # Get the user-specified keyword arguments
+        resize_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(T.Resize).args}
+        normalize_args = {k: v for k, v in kwargs.items() if k in inspect.getfullargspec(T.Normalize).args}
+
+        variant_map = {'normal': CutPasteNormal, 'scar': CutPasteScar,
+                       '3way': CutPaste3Way, 'union': CutPasteUnion}
+        variant = variant_map[cutpaste_type]
+
+        def get_transform(image_size, add_aug, train=True):
+            """The train argument, if True, will add augmentation transforms, while if False, will add only the
+            Resize and Normalize transforms for validation."""
+            transforms = []
+            if isinstance(image_size, int):
+                transforms.append(T.Resize([image_size, image_size], **resize_args))
+            if train and add_aug is not None:
+                aug_dict = {'hflip': T.RandomHorizontalFlip(),
+                            'rotate': T.RandomRotation(0.5)}
+                aug_list = ['hflip', 'rotate']
+                for option in add_aug:
+                    if option not in aug_list:
+                        raise ValueError("Unsupported augmentation for PyTorch:{}. \
+                        Supported augmentations are {}".format(option, aug_list))
+                    transforms.append(aug_dict[option])
+            transforms.append(T.ToTensor())
+            transforms.append(T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225], **normalize_args))
+
+            return T.Compose(transforms)
+
+        self._simsiam_transform = self.simsiam_transform(image_size)
+        self._cutpaste_transform = get_cutpaste_transforms(image_size, variant)
+        self._train_transform = get_transform(image_size, add_aug, True)
+        self._validation_transform = get_transform(image_size, add_aug, False)
+        self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
+        self._make_data_loaders(batch_size=batch_size)
+
+    def get_batch(self, subset='all', simsiam=False, cutpaste=False):
+        """
+        Get a single batch of images and labels from the dataset.
+
+            Args:
+                subset (str): default "all", can also be "train", "validation", or "test"
+                simsiam (bool): if preprocess() has been previously used on the dataset and this argument is True,
+                                the simsiam transform will be applied, otherwise it will not; default False
+                cutpaste (bool): if preprocess() has been previously used on the dataset and this argument is True,
+                                the cutpaste transform will be applied, otherwise it will not; default False
+
+            Returns:
+                (examples, labels)
+
+            Raises:
+                ValueError if the dataset is not defined yet or the given subset is not valid
+        """
+        if simsiam:
+            # SimSiam transform can be manually requested with any subset
+            self._dataset.transform = self._simsiam_transform
+        elif cutpaste:
+            # CutPaste transform can be manually requested with any subset
+            self._dataset.transform = self._cutpaste_transform
+        elif subset in ['all', 'train']:
+            # For "train"/"all" subsets, if simsiam and cutpaste are False,
+            # the train transform (including augmentation) is applied
+            self._dataset.transform = self._train_transform
+        else:
+            # For "validation"/"test" subsets, if simsiam and cutpaste are False,
+            # the validation transform (excluding augmentation) is applied
+            self._dataset.transform = self._validation_transform
+
+        if subset == 'all' and self._dataset is not None:
+            return next(iter(self._data_loader))
+        elif subset == 'train' and self._train_loader is not None:
+            return next(iter(self._train_loader))
+        elif subset == 'validation' and self._validation_loader is not None:
+            return next(iter(self._validation_loader))
+        elif subset == 'test' and self._test_loader is not None:
+            return next(iter(self._test_loader))
+        else:
+            raise ValueError("Unable to return a batch, because the dataset or subset hasn't been defined.")

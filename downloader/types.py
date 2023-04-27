@@ -50,3 +50,38 @@ class DatasetType(Enum):
             options = [e.name for e in DatasetType]
             raise ValueError("Unsupported dataset type: {} (Select from: {})".format(
                 dataset_str, options))
+
+
+class ModelType(Enum):
+    TF_HUB = auto()
+    TORCHVISION = auto()
+    PYTORCH_HUB = auto()
+    HUGGING_FACE = auto()
+    KERAS_APPLICATIONS = auto()
+    GENERIC = auto()
+
+    def __str__(self):
+        return self.name.lower()
+
+    @staticmethod
+    def from_str(model_str):
+        if model_str is None:
+            return ModelType.GENERIC
+
+            model_str = model_str.lower()
+
+        if model_str in ["tfhub", "tf_hub", "tf hub", "tensorflow_hub", "tensorflow hub"]:
+            return ModelType.TF_HUB
+        elif model_str in ["torchvision"]:
+            return ModelType.TORCHVISION
+        elif model_str in ["pytorch_hub", "pyt_hub", "torch_hub", "torch hub", "pytorch hub"]:
+            return ModelType.PYTORCH_HUB
+        elif model_str in ["huggingface", "hugging_face", "hugging face"]:
+            return ModelType.HUGGING_FACE
+        elif model_str in ["keras", "keras_applications", "keras applications"]:
+            return ModelType.KERAS_APPLICATIONS
+        elif model_str in ["generic"]:
+            return ModelType.GENERIC
+        else:
+            options = [e.name for e in ModelType]
+            raise ValueError("Unsupported model type: {} (Select from: {})".format(model_str, options))

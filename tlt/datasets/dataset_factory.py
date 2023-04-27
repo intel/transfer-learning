@@ -25,8 +25,8 @@ from tlt.utils.types import FrameworkType, UseCaseType
 dataset_map = {
     FrameworkType.TENSORFLOW: {
         UseCaseType.IMAGE_CLASSIFICATION: {
-            "tf_datasets": {"module": "tlt.datasets.image_classification.tf_image_classification_dataset",
-                            "class": "TFImageClassificationDataset"},
+            "tf_datasets": {"module": "tlt.datasets.image_classification.tfds_image_classification_dataset",
+                            "class": "TFDSImageClassificationDataset"},
             "custom": {"module": "tlt.datasets.image_classification.tf_custom_image_classification_dataset",
                        "class": "TFCustomImageClassificationDataset"}
         },
@@ -61,8 +61,9 @@ dataset_map = {
 def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkType, dataset_name=None, **kwargs):
     """A factory method for loading a custom dataset.
 
-    Image classification datasets expect a directory of images organized with subfolders for each image class. Each
-    subfolder should contain .jpg images for the class. The name of the subfolder will be used as the class label.
+    Image classification datasets expect a directory of images organized with subfolders for each image class, which
+    can themselves be in split directories named 'train', 'validation', and/or 'test'. Each class subfolder should
+    contain .jpg images for the class. The name of the subfolder will be used as the class label.
 
     .. code-block:: text
 
@@ -70,6 +71,24 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
           ├── class_a
           ├── class_b
           └── class_c
+
+    Or:
+
+    .. code-block:: text
+
+        dataset_dir
+          ├── train
+          |   ├── class_a
+          |   ├── class_b
+          |   └── class_c
+          ├── validation
+          |   ├── class_a
+          |   ├── class_b
+          |   └── class_c
+          └── test
+              ├── class_a
+              ├── class_b
+              └── class_c
 
     Text classification datasets are expected to be a directory with text/csv file with two columns: the label and the
     text/sentence to classify. See the TFCustomTextClassificationDataset documentation for a list of the additional

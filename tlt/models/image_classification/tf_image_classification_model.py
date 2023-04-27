@@ -31,6 +31,7 @@ from tlt.datasets.image_classification.image_classification_dataset import Image
 from tlt.datasets.image_classification.tf_custom_image_classification_dataset import TFCustomImageClassificationDataset
 from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.types import FrameworkType, UseCaseType
+from tlt.distributed import TLT_DISTRIBUTED_DIR
 
 
 class TFImageClassificationModel(ImageClassificationModel, TFModel):
@@ -106,10 +107,12 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
                 self.batch_losses = []
                 self.batch_acc = []
 
+            def on_train_batch_begin(self, batch, logs=None):
+                self.model.reset_metrics()
+
             def on_train_batch_end(self, batch, logs=None):
                 self.batch_losses.append(logs['loss'])
                 self.batch_acc.append(logs['acc'])
-                self.model.reset_metrics()
 
         batch_stats_callback = CollectBatchStats()
 
@@ -149,9 +152,60 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         return callbacks, train_dataset, validation_data
 
+    def _fit_distributed(self, epochs, shuffle, hostfile, nnodes, nproc_per_node, use_horovod):
+        import subprocess
+        distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, 'tensorflow', 'run_train_tf.py')
+
+        if use_horovod:
+            run_cmd = 'horovodrun'
+        else:
+            run_cmd = 'mpirun'
+
+            # mpirun requires these flags to be set
+            run_cmd += ' --allow-run-as-root -bind-to none -map-by slot -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH -x PATH -x NCCL_SOCKET_IFNAME=^lo,docker0 -mca pml ob1 -mca btl ^openib -mca btl_tcp_if_exclude lo,docker0'  # noqa: E501
+
+        hostfile_cmd = ''
+        np_cmd = ''
+        if os.path.isfile(hostfile):
+
+            hostfile_info = self._parse_hostfile(hostfile)
+            node_count = 0
+            if sum(hostfile_info['slots']) == 0:
+                for ip_addr in hostfile_info['ip_addresses']:
+                    hostfile_cmd += '{}:{},'.format(ip_addr, nproc_per_node)
+                    node_count += 1
+                    if node_count == nnodes:
+                        break
+
+            elif sum(hostfile_info['slots']) == nnodes * nproc_per_node:
+                for ip_addr, slots in zip(hostfile_info['ip_addresses'], hostfile_info['slots']):
+                    hostfile_cmd += '{}:{},'.format(ip_addr, slots)
+            else:
+                print("WARNING: nproc_per_node and slots in hostfile do not add up. Making equal slots for all nodes")
+                for ip_addr in hostfile_info['ip_addresses']:
+                    hostfile_cmd += '{}:{},'.format(ip_addr, nproc_per_node)
+
+            hostfile_cmd = hostfile_cmd[:-1]  # Remove trailing comma
+
+            # Final check to correct the `-np` flag's value
+            nprocs = nnodes * nproc_per_node
+            np_cmd = str(nprocs)
+        else:
+            raise ValueError("Error: Invalid file \'{}\'".format(hostfile))
+        script_cmd = 'python ' + distributed_vision_script
+        script_cmd += ' --use_case {}'.format('image_classification')
+        script_cmd += ' --epochs {}'.format(epochs)
+        if shuffle:
+            script_cmd += ' --shuffle'
+
+        bash_command = run_cmd.split(' ') + ['-np', np_cmd, '-H', hostfile_cmd] + script_cmd.split(' ')
+        print(' '.join(str(e) for e in bash_command))
+        subprocess.run(bash_command)
+
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
-              shuffle_files=True, seed=None):
+              shuffle_files=True, seed=None, distributed=False, hostfile=None, nnodes=1, nproc_per_node=1,
+              **kwargs):
         """
         Trains the model using the specified image classification dataset. The model is compiled and trained for
         the specified number of epochs. If a path to initial checkpoints is provided, those weights are loaded before
@@ -206,10 +260,21 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
                                                                     early_stopping, lr_decay)
-        history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
-                                  validation_data=val_data)
-        self._history = history.history
-        return self._history
+
+        if distributed:
+            try:
+                self.export_for_distributed(train_data, val_data)
+                self._fit_distributed(epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
+                                      kwargs.get('use_horovod'))
+            except Exception as err:
+                print("Error: \'{}\' occured while distributed training".format(err))
+            finally:
+                self.cleanup_saved_objects_for_distributed()
+        else:
+            history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
+                                      validation_data=val_data)
+            self._history = history.history
+            return self._history
 
     def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
         """

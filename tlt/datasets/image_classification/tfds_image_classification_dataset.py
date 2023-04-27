@@ -22,15 +22,15 @@ import tensorflow as tf
 
 from tlt.datasets.tf_dataset import TFDataset
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-from ai_downloader.datasets import DataDownloader
+from downloader.datasets import DataDownloader
 
 
-class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
+class TFDSImageClassificationDataset(ImageClassificationDataset, TFDataset):
     """
     An image classification dataset from the TensorFlow datasets catalog
     """
     def __init__(self, dataset_dir, dataset_name, split=["train"],
-                 as_supervised=True, shuffle_files=True, seed=None):
+                 as_supervised=True, shuffle_files=True, seed=None, **kwargs):
         """
         Class constructor
         """
@@ -51,7 +51,7 @@ class TFImageClassificationDataset(ImageClassificationDataset, TFDataset):
         self._test_subset = None
 
         if len(split) == 1:
-            self._validation_type = 'recall'  # Train & evaluate on the whole dataset
+            self._validation_type = None  # Train & evaluate on the whole dataset
             self._dataset = data[0]
         else:
             self._validation_type = 'defined_split'  # Defined by user or TFDS

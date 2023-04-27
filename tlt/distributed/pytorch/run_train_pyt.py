@@ -20,7 +20,7 @@
 
 import argparse
 
-from tlt.distributed.utils.pyt_distributed_utils import (
+from tlt.distributed.pytorch.utils.pyt_distributed_utils import (
     DistributedTorch,
     DistributedTrainingArguments
 )

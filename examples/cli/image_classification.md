@@ -19,7 +19,7 @@ mkdir -p ${OUTPUT_DIR}
 
 # Download and extract the dataset
 wget -P ${DATASET_DIR} https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
-tar -xzf ${DATASET_DIR}/flower_photos.tgz
+tar -xzf ${DATASET_DIR}/flower_photos.tgz -C ${DATASET_DIR}
 
 # Set the DATASET_DIR to the extracted images folder
 DATASET_DIR=${DATASET_DIR}/flower_photos
@@ -63,7 +63,6 @@ tlt train \
     --dataset-dir ${DATASET_DIR} \
     --output-dir ${OUTPUT_DIR} \
     --epochs 2
-
 
 # Evaluate the model exported after training
 # Note that your --model-dir path may vary, since each training run creates a new directory

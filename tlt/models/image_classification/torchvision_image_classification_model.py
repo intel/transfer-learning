@@ -19,12 +19,12 @@
 #
 
 import os
-from pydoc import locate
 from tqdm import tqdm
 
 import torch
 import intel_extension_for_pytorch as ipex
 
+from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
 from tlt.distributed import TLT_DISTRIBUTED_DIR
 from tlt.models.image_classification.pytorch_image_classification_model import PyTorchImageClassificationModel
@@ -51,16 +51,21 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
         self._classification_layer = torchvision_model_map[model_name]["classification_layer"]
         self._image_size = torchvision_model_map[model_name]["image_size"]
+        self._original_dataset = torchvision_model_map[model_name]["original_dataset"]
 
         # placeholder for model definition
         self._model = None
         self._num_classes = None
         self._distributed = False
 
+    def _model_downloader(self, model_name):
+        downloader = ModelDownloader(model_name, hub='torchvision', model_dir=None, weights=self._original_dataset)
+        model = downloader.download()
+        return model
+
     def _get_hub_model(self, num_classes, ipex_optimize=True, extra_layers=None):
         if not self._model:
-            pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
-            self._model = pretrained_model_class(pretrained=True)
+            self._model = self._model_downloader(self._model_name)
 
             if not self._do_fine_tuning:
                 for param in self._model.parameters():
@@ -215,8 +220,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             # The model hasn't been trained yet, use the original ImageNet trained model
             print("The model has not been trained yet, so evaluation is being done using the original model ",
                   "and its classes")
-            pretrained_model_class = locate('torchvision.models.{}'.format(self._model_name))
-            model = pretrained_model_class(pretrained=True)
+            model = self._model_downloader(self._model_name)
             optimizer = self._optimizer_class(model.parameters(), lr=self._learning_rate)
             # We shouldn't need ipex.optimize() for evaluation
         else:
@@ -278,8 +282,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
-            pretrained_model_class = locate('torchvision.models.{}'.format(self.model_name))
-            model = pretrained_model_class(pretrained=True)
+            model = self._model_downloader(self._model_name)
             predictions = model(input_samples)
         else:
             self._model.eval()

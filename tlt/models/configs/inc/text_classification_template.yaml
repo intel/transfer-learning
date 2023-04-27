@@ -1,6 +1,6 @@
 model:
-  name: bert
-  framework: pytorch
+  name:
+  framework:
 
 device: cpu
 

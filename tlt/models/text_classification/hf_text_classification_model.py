@@ -33,7 +33,6 @@ import yaml
 
 # Hugging Face imports
 from transformers import (
-    AutoModelForSequenceClassification,
     AutoTokenizer,
     EvalPrediction,
     TrainingArguments,
@@ -44,6 +43,7 @@ from transformers import (
 
 from datasets.arrow_dataset import Dataset
 
+from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
 from tlt.distributed import TLT_DISTRIBUTED_DIR
 from tlt.utils.file_utils import read_json_file, validate_model_name, verify_directory
@@ -393,17 +393,15 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
 
         if not self._model:
             self._num_classes = len(dataset.class_names)
-
+            downloader = ModelDownloader(self.hub_name, model_dir=None, hub='hugging_face',
+                                         num_labels=self._num_classes, force_download=force_download)
             try:
-                self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
-                                                                                 num_labels=self._num_classes,
-                                                                                 force_download=force_download)
+                self._model = downloader.download()
             except ProxyError:
                 print('Max retries reached. Sleeping for 10 sec...')
                 time.sleep(10)
-                self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
-                                                                                 num_labels=self._num_classes,
-                                                                                 force_download=force_download)
+                self._model = downloader.download()
+
         if not self._optimizer:
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
@@ -522,8 +520,9 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             if not self._model:
                 # The model hasn't been trained yet, use the original transformers model
                 self._num_classes = len(dataset_or_dataloader.class_names)
-                self._model = AutoModelForSequenceClassification.from_pretrained(self.hub_name,
-                                                                                 num_labels=self._num_classes)
+                downloader = ModelDownloader(self.hub_name, hub='hugging_face', model_dir=None,
+                                             num_labels=self._num_classes)
+                self._model = downloader.download()
 
             # Do the evaluation
             device = torch.device(self._device)
@@ -686,7 +685,6 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             raise FileExistsError('A file already exists at: {}. Provide a new file path or set overwrite=True',
                                   config_file_path)
 
-        # We can setup the a custom dataset to use the ImageFolder dataset option in INC.
         # They don't have a PyTorch Dataset option, so for now, we only support custom datasets for quantization
 
         if not isinstance(dataset, HFCustomTextClassificationDataset) or \
@@ -721,7 +719,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         if not isinstance(tuning_workspace, str):
             raise ValueError('Invalid value for the nc_workspace directory. Expected a string.')
 
-        # Get the image recognition Intel Neural Compressor template
+        # Get the Intel Neural Compressor template
         config_template = TextClassificationModel.get_inc_config_template_dict(self)
 
         # Collect the different data loaders into a list, so that we can update them all the with the data transforms
@@ -852,3 +850,72 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
             p = subprocess.Popen(["mv", output_dir + "/best_model.pt", output_dir + "/model.pt"],
                                  stdout=subprocess.PIPE)
             stdout, stderr = p.communicate()
+
+    def list_layers(self, verbose=False):
+        """
+        Lists all of the named modules (e.g. features, avgpool, classifier) and layers
+        (ReLU, MaxPool2d, Dropout, Linear, etc) in a given PyTorch model
+
+        Args:
+            verbose (bool): True/False option set by default to be False, displays only high-level modules
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be summarized.')
+
+        # Display a high-level list of the modules e.g. features, avgpool, classifier
+        print("\nModel Layers\n============")
+        for (name, module) in self._model.named_children():
+            if not verbose or not list(module.named_children()):
+                print('{}: {}/{} parameters are trainable'.format(
+                    name, sum(p.numel() for p in module.parameters() if p.requires_grad),
+                    sum(p.numel() for p in module.parameters())))
+            else:
+                print('{}:'.format(name))
+                for (layer_name, layer) in module.named_children():
+                    print('  {}: {}/{} parameters are trainable'.format(
+                        layer_name, sum(p.numel() for p in layer.parameters() if p.requires_grad),
+                        sum(p.numel() for p in layer.parameters())))
+
+        trainable_parameters = sum(p.numel() for p in self._model.parameters() if p.requires_grad)
+        print('\nTotal Trainable Parameters: {}/{}'.format(
+            trainable_parameters,
+            sum(p.numel() for p in self._model.parameters())))
+
+        return trainable_parameters
+
+    def freeze_layer(self, layer_name):
+        """
+        Freezes the model's layer using a layer name
+        Args:
+            layer_name (string): The layer name that will be frozen in the model
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be frozen.')
+
+        # Freeze everything in the layer
+        for (name, module) in self._model.named_children():
+            if name == layer_name:
+                for param in module.parameters():
+                    param.requires_grad = False
+
+        return
+
+    def unfreeze_layer(self, layer_name):
+        """
+        Unfreezes the model's layer using a layer name
+        Args:
+            layer_name (string): The layer name that will be frozen in the model
+        """
+
+        if self._model is None:
+            raise RuntimeError('The model must be trained at least one epoch before its layers can be unfrozen.')
+
+        # Unfreeze everything in the layer
+        for (name, module) in self._model.named_children():
+            if name == layer_name:
+                for param in module.parameters():
+                    param.requires_grad = True
+
+        return

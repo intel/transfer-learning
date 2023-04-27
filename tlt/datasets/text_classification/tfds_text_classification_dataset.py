@@ -25,7 +25,7 @@ from tlt import TLT_BASE_DIR
 from tlt.datasets.tf_dataset import TFDataset
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
 from tlt.utils.file_utils import read_json_file
-from ai_downloader.datasets import DataDownloader
+from downloader.datasets import DataDownloader
 
 DATASET_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "datasets/configs")
 config_file = os.path.join(DATASET_CONFIG_DIR, "tf_text_classification_datasets.json")
@@ -37,7 +37,7 @@ class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
     """
     A text classification dataset from the TensorFlow datasets catalog
     """
-    def __init__(self, dataset_dir, dataset_name, split=["train"], shuffle_files=True):
+    def __init__(self, dataset_dir, dataset_name, split=["train"], shuffle_files=True, **kwargs):
         if not isinstance(split, list):
             raise ValueError("Value of split argument must be a list.")
 
@@ -70,7 +70,7 @@ class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
         self._preprocessed = None
 
         if len(split) == 1:
-            self._validation_type = 'recall'  # Train & evaluate on the whole dataset
+            self._validation_type = None  # Train & evaluate on the whole dataset
             self._dataset = data[0]
         else:
             self._validation_type = 'defined_split'  # Defined by user or TFDS

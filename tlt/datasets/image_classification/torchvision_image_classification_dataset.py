@@ -22,7 +22,7 @@ import torch
 
 from tlt.datasets.pytorch_dataset import PyTorchDataset
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
-from ai_downloader.datasets import DataDownloader
+from downloader.datasets import DataDownloader
 
 DATASETS = ["CIFAR10", "Food101", "Country211", "DTD", "FGVCAircraft", "RenderedSST2"]
 
@@ -70,7 +70,7 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
                     self._dataset = downloader.download(split='test')
                 except TypeError:
                     raise ValueError('No test split was found for this dataset: {}'.format(dataset_name))
-            self._validation_type = 'recall'  # Train & evaluate on the whole dataset
+            self._validation_type = None  # Train & evaluate on the whole dataset
         else:
             # If there are multiple splits, concatenate them for _dataset and define indices
             if 'train' in split:

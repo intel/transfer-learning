@@ -27,7 +27,7 @@ from tlt import TLT_BASE_DIR
 from tlt.utils.file_utils import read_json_file
 from tlt.datasets.hf_dataset import HFDataset
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
-from ai_downloader.datasets import DataDownloader
+from downloader.datasets import DataDownloader
 
 DATASET_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "datasets/configs")
 
@@ -60,7 +60,7 @@ class HFTextClassificationDataset(TextClassificationDataset, HFDataset):
         }
 
         if len(split) == 1:
-            self._validation_type = 'recall'  # Train & evaluate on the whole dataset
+            self._validation_type = None  # Train & evaluate on the whole dataset
 
             # If only one split is given use it as the main dataset object
             self._dataset = self.load_hf_dataset(dataset_name, split=split[0])
