@@ -8,6 +8,8 @@ on:
       - main
       - r0.1
       - r0.2
+      - r0.3
+      - r0.4
     tags:
       - '**'
     paths:
