@@ -1,0 +1,37 @@
+﻿tlt.datasets.text\_classification.text\_classification\_dataset.TextClassificationDataset
+=========================================================================================
+
+.. currentmodule:: tlt.datasets.text_classification.text_classification_dataset
+
+.. autoclass:: TextClassificationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TextClassificationDataset.__init__
+      ~TextClassificationDataset.get_batch
+      ~TextClassificationDataset.get_str_label
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TextClassificationDataset.class_names
+      ~TextClassificationDataset.dataset
+      ~TextClassificationDataset.dataset_catalog
+      ~TextClassificationDataset.dataset_dir
+      ~TextClassificationDataset.dataset_name
+      ~TextClassificationDataset.test_subset
+      ~TextClassificationDataset.train_subset
+      ~TextClassificationDataset.validation_subset
+   
+   

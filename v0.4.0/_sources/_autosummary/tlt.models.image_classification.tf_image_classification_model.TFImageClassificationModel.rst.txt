@@ -1,0 +1,48 @@
+﻿tlt.models.image\_classification.tf\_image\_classification\_model.TFImageClassificationModel
+============================================================================================
+
+.. currentmodule:: tlt.models.image_classification.tf_image_classification_model
+
+.. autoclass:: TFImageClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFImageClassificationModel.__init__
+      ~TFImageClassificationModel.benchmark
+      ~TFImageClassificationModel.cleanup_saved_objects_for_distributed
+      ~TFImageClassificationModel.evaluate
+      ~TFImageClassificationModel.export
+      ~TFImageClassificationModel.export_for_distributed
+      ~TFImageClassificationModel.get_inc_config_template_dict
+      ~TFImageClassificationModel.load_from_directory
+      ~TFImageClassificationModel.optimize_graph
+      ~TFImageClassificationModel.predict
+      ~TFImageClassificationModel.quantize
+      ~TFImageClassificationModel.set_auto_mixed_precision
+      ~TFImageClassificationModel.train
+      ~TFImageClassificationModel.write_inc_config_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFImageClassificationModel.do_fine_tuning
+      ~TFImageClassificationModel.dropout_layer_rate
+      ~TFImageClassificationModel.framework
+      ~TFImageClassificationModel.image_size
+      ~TFImageClassificationModel.learning_rate
+      ~TFImageClassificationModel.model_name
+      ~TFImageClassificationModel.num_classes
+      ~TFImageClassificationModel.use_case
+   
+   

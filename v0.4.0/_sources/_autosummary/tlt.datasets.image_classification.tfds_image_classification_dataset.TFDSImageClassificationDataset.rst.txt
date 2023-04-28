@@ -1,0 +1,39 @@
+﻿tlt.datasets.image\_classification.tfds\_image\_classification\_dataset.TFDSImageClassificationDataset
+======================================================================================================
+
+.. currentmodule:: tlt.datasets.image_classification.tfds_image_classification_dataset
+
+.. autoclass:: TFDSImageClassificationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFDSImageClassificationDataset.__init__
+      ~TFDSImageClassificationDataset.get_batch
+      ~TFDSImageClassificationDataset.preprocess
+      ~TFDSImageClassificationDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFDSImageClassificationDataset.class_names
+      ~TFDSImageClassificationDataset.dataset
+      ~TFDSImageClassificationDataset.dataset_catalog
+      ~TFDSImageClassificationDataset.dataset_dir
+      ~TFDSImageClassificationDataset.dataset_name
+      ~TFDSImageClassificationDataset.info
+      ~TFDSImageClassificationDataset.test_subset
+      ~TFDSImageClassificationDataset.train_subset
+      ~TFDSImageClassificationDataset.validation_subset
+   
+   

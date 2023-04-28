@@ -1,0 +1,43 @@
+﻿tlt.datasets.image\_classification.pytorch\_custom\_image\_classification\_dataset.PyTorchCustomImageClassificationDataset
+==========================================================================================================================
+
+.. currentmodule:: tlt.datasets.image_classification.pytorch_custom_image_classification_dataset
+
+.. autoclass:: PyTorchCustomImageClassificationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PyTorchCustomImageClassificationDataset.__init__
+      ~PyTorchCustomImageClassificationDataset.get_batch
+      ~PyTorchCustomImageClassificationDataset.preprocess
+      ~PyTorchCustomImageClassificationDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PyTorchCustomImageClassificationDataset.class_names
+      ~PyTorchCustomImageClassificationDataset.data_loader
+      ~PyTorchCustomImageClassificationDataset.dataset
+      ~PyTorchCustomImageClassificationDataset.dataset_catalog
+      ~PyTorchCustomImageClassificationDataset.dataset_dir
+      ~PyTorchCustomImageClassificationDataset.dataset_name
+      ~PyTorchCustomImageClassificationDataset.info
+      ~PyTorchCustomImageClassificationDataset.test_loader
+      ~PyTorchCustomImageClassificationDataset.test_subset
+      ~PyTorchCustomImageClassificationDataset.train_loader
+      ~PyTorchCustomImageClassificationDataset.train_subset
+      ~PyTorchCustomImageClassificationDataset.validation_loader
+      ~PyTorchCustomImageClassificationDataset.validation_subset
+   
+   

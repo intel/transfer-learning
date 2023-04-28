@@ -1,0 +1,40 @@
+﻿tlt.datasets.text\_classification.tf\_custom\_text\_classification\_dataset.TFCustomTextClassificationDataset
+=============================================================================================================
+
+.. currentmodule:: tlt.datasets.text_classification.tf_custom_text_classification_dataset
+
+.. autoclass:: TFCustomTextClassificationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFCustomTextClassificationDataset.__init__
+      ~TFCustomTextClassificationDataset.get_batch
+      ~TFCustomTextClassificationDataset.get_str_label
+      ~TFCustomTextClassificationDataset.preprocess
+      ~TFCustomTextClassificationDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFCustomTextClassificationDataset.class_names
+      ~TFCustomTextClassificationDataset.dataset
+      ~TFCustomTextClassificationDataset.dataset_catalog
+      ~TFCustomTextClassificationDataset.dataset_dir
+      ~TFCustomTextClassificationDataset.dataset_name
+      ~TFCustomTextClassificationDataset.info
+      ~TFCustomTextClassificationDataset.test_subset
+      ~TFCustomTextClassificationDataset.train_subset
+      ~TFCustomTextClassificationDataset.validation_subset
+   
+   

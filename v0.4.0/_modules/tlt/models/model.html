@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.models.model &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks.html">Example Notebooks</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tlt.models.model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tlt.models.model</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+
+<span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets.dataset</span> <span class="kn">import</span> <span class="n">BaseDataset</span>
+
+
+<div class="viewcode-block" id="BaseModel"><a class="viewcode-back" href="../../../_autosummary/tlt.models.model.BaseModel.html#tlt.models.model.BaseModel">[docs]</a><span class="k">class</span> <span class="nc">BaseModel</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for a pretrained model that can be used for transfer learning</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseModel.__init__"><a class="viewcode-back" href="../../../_autosummary/tlt.models.model.BaseModel.html#tlt.models.model.BaseModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class constructor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_framework</span> <span class="o">=</span> <span class="n">framework</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_case</span> <span class="o">=</span> <span class="n">use_case</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span> <span class="o">=</span> <span class="mf">0.001</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Name of the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">framework</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Framework with which the model is compatible</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_framework</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">use_case</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use case (or category) to which the model belongs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_case</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">learning_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Learning rate for the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span>
+
+    <span class="nd">@learning_rate</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">learning_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">load_from_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a model from a directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">BaseDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">do_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the model using the specified dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">BaseDataset</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the model using the specified dataset.</span>
+
+<span class="sd">        Returns the loss and metrics for the model in test mode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_samples</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates predictions for the input samples.</span>
+
+<span class="sd">        The input samples can be a BaseDataset type of object or a numpy array.</span>
+<span class="sd">        Returns a numpy array of predictions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export the serialized model to an output directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">write_inc_config_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file_path</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes an Intel Neural Compressor compatible config file to the specified path usings args from the</span>
+<span class="sd">        specified dataset and parameters. This is currently only supported for TF custom image classification</span>
+<span class="sd">        datasets.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config_file_path (str): Destination path on where to write the .yaml config file.</span>
+<span class="sd">            dataset (BaseDataset): A tlt dataset object</span>
+<span class="sd">            batch_size (int): Batch size to use for quantization and evaluation</span>
+<span class="sd">            overwrite (bool): Specify whether or not to overwrite the config_file_path, if it already exists</span>
+<span class="sd">                              (default: False)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileExistsError if the config file already exists and overwrite is set to False</span>
+<span class="sd">            ValueError if the parameters are not within the expected values</span>
+<span class="sd">            NotImplementedError if the model or dataset does not support INC yet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">quantize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">inc_config_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir</span>
+<span class="sd">        using the specified config file. The quantized model is written to the output directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            saved_model_dir (str): Source directory for the model to quantize.</span>
+<span class="sd">            output_dir (str): Writable output directory to save the quantized model</span>
+<span class="sd">            inc_config_path (str): Path to an INC config file (.yaml)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError if the model does not support INC yet</span>
+<span class="sd">            NotADirectoryError if the saved_model_dir is not a directory</span>
+<span class="sd">            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file</span>
+<span class="sd">            is not found.</span>
+<span class="sd">            FileExistsError if the output_dir already has a saved_model.pb file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">optimize_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the saved_model_dir</span>
+<span class="sd">        and writes the inference-optimized model to the output_dir. Graph optimization includes converting</span>
+<span class="sd">        variables to constants, removing training-only operations like checkpoint saving, stripping out parts</span>
+<span class="sd">        of the graph that are never reached, removing debug operations like CheckNumerics, folding batch</span>
+<span class="sd">        normalization ops into the pre-calculated weights, and fusing common operations into unified versions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            saved_model_dir (str): Source directory for the model to optimize</span>
+<span class="sd">            output_dir (str): Writable output directory to save the optimized model</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError if the model does not support INC yet</span>
+<span class="sd">            NotADirectoryError if the saved_model_dir is not a directory</span>
+<span class="sd">            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir</span>
+<span class="sd">            FileExistsError if the output_dir already has a saved_model.pb file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">benchmark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">inc_config_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;performance&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use INC to benchmark the specified model for performance or accuracy.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            saved_model_dir (str): Path to the directory where the saved model is located</span>
+<span class="sd">            inc_config_path (str): Path to an INC config file (.yaml)</span>
+<span class="sd">            mode (str): performance or accuracy (defaults to performance)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError if the model does not support INC yet</span>
+<span class="sd">            NotADirectoryError if the saved_model_dir is not a directory</span>
+<span class="sd">            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file</span>
+<span class="sd">            is not found.</span>
+<span class="sd">            ValueError if an unexpected mode is provided</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;INC benchmarking is not supported for this model&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 27, 2023.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

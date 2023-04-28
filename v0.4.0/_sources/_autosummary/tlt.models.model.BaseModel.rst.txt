@@ -1,0 +1,40 @@
+﻿tlt.models.model.BaseModel
+==========================
+
+.. currentmodule:: tlt.models.model
+
+.. autoclass:: BaseModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseModel.__init__
+      ~BaseModel.benchmark
+      ~BaseModel.evaluate
+      ~BaseModel.export
+      ~BaseModel.load_from_directory
+      ~BaseModel.optimize_graph
+      ~BaseModel.predict
+      ~BaseModel.quantize
+      ~BaseModel.train
+      ~BaseModel.write_inc_config_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseModel.framework
+      ~BaseModel.learning_rate
+      ~BaseModel.model_name
+      ~BaseModel.use_case
+   
+   

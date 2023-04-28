@@ -1,0 +1,43 @@
+﻿tlt.models.tf\_model.TFModel
+============================
+
+.. currentmodule:: tlt.models.tf_model
+
+.. autoclass:: TFModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFModel.__init__
+      ~TFModel.benchmark
+      ~TFModel.cleanup_saved_objects_for_distributed
+      ~TFModel.evaluate
+      ~TFModel.export
+      ~TFModel.export_for_distributed
+      ~TFModel.load_from_directory
+      ~TFModel.optimize_graph
+      ~TFModel.predict
+      ~TFModel.quantize
+      ~TFModel.set_auto_mixed_precision
+      ~TFModel.train
+      ~TFModel.write_inc_config_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFModel.framework
+      ~TFModel.learning_rate
+      ~TFModel.model_name
+      ~TFModel.use_case
+   
+   

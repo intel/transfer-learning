@@ -1,0 +1,43 @@
+﻿tlt.models.text\_classification.text\_classification\_model.TextClassificationModel
+===================================================================================
+
+.. currentmodule:: tlt.models.text_classification.text_classification_model
+
+.. autoclass:: TextClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TextClassificationModel.__init__
+      ~TextClassificationModel.benchmark
+      ~TextClassificationModel.evaluate
+      ~TextClassificationModel.export
+      ~TextClassificationModel.get_inc_config_template_dict
+      ~TextClassificationModel.load_from_directory
+      ~TextClassificationModel.optimize_graph
+      ~TextClassificationModel.predict
+      ~TextClassificationModel.quantize
+      ~TextClassificationModel.train
+      ~TextClassificationModel.write_inc_config_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TextClassificationModel.dropout_layer_rate
+      ~TextClassificationModel.framework
+      ~TextClassificationModel.learning_rate
+      ~TextClassificationModel.model_name
+      ~TextClassificationModel.num_classes
+      ~TextClassificationModel.use_case
+   
+   

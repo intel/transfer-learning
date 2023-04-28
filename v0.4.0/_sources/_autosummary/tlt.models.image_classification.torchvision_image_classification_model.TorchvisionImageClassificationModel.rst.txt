@@ -1,0 +1,49 @@
+﻿tlt.models.image\_classification.torchvision\_image\_classification\_model.TorchvisionImageClassificationModel
+==============================================================================================================
+
+.. currentmodule:: tlt.models.image_classification.torchvision_image_classification_model
+
+.. autoclass:: TorchvisionImageClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TorchvisionImageClassificationModel.__init__
+      ~TorchvisionImageClassificationModel.benchmark
+      ~TorchvisionImageClassificationModel.evaluate
+      ~TorchvisionImageClassificationModel.export
+      ~TorchvisionImageClassificationModel.export_for_distributed
+      ~TorchvisionImageClassificationModel.freeze_layer
+      ~TorchvisionImageClassificationModel.get_inc_config_template_dict
+      ~TorchvisionImageClassificationModel.list_layers
+      ~TorchvisionImageClassificationModel.load_from_directory
+      ~TorchvisionImageClassificationModel.optimize_graph
+      ~TorchvisionImageClassificationModel.predict
+      ~TorchvisionImageClassificationModel.quantize
+      ~TorchvisionImageClassificationModel.train
+      ~TorchvisionImageClassificationModel.unfreeze_layer
+      ~TorchvisionImageClassificationModel.write_inc_config_file
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TorchvisionImageClassificationModel.do_fine_tuning
+      ~TorchvisionImageClassificationModel.dropout_layer_rate
+      ~TorchvisionImageClassificationModel.framework
+      ~TorchvisionImageClassificationModel.image_size
+      ~TorchvisionImageClassificationModel.learning_rate
+      ~TorchvisionImageClassificationModel.model_name
+      ~TorchvisionImageClassificationModel.num_classes
+      ~TorchvisionImageClassificationModel.use_case
+   
+   

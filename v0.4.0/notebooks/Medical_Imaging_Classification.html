@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API" href="Remote_Sensing_Image_Scene_Classification.html" />
+    <link rel="prev" title="Text Classification fine tuning using Pytorch and the Intel® Transfer Learning Tool API" href="TLT_PyTorch_Text_Classification_Transfer_Learning.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../notebooks.html">Example Notebooks</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="TLT_PyTorch_Image_Classification_Transfer_Learning.html">Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TLT_TF_Image_Classification_Transfer_Learning.html">Transfer Learning for Image Classification using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TLT_TF_Text_Classification_Transfer_Learning.html">Text Classification fine tuning using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TLT_PyTorch_Text_Classification_Transfer_Learning.html">Text Classification fine tuning using Pytorch and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Import-dependencies-and-setup-parameters">1. Import dependencies and setup parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Get-the-model">2. Get the model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Option-A:-Load-a-model">Option A: Load a model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Option-B:-Load-a-pretrained-checkpoint">Option B: Load a pretrained checkpoint</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Get-the-dataset">3. Get the dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Prepare-the-dataset">4. Prepare the dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#5.-Transfer-Learning">5. Transfer Learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#6.-Evaluate">6. Evaluate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#7.-Export">7. Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#8.-Inference">8. Inference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Dataset-Citations">Dataset Citations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Remote_Sensing_Image_Scene_Classification.html">Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks.html#environment-setup-and-running-the-notebooks">Environment Setup and Running the Notebooks</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../notebooks.html">Example Notebooks</a></li>
+      <li class="breadcrumb-item active">Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/Medical_Imaging_Classification.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Medical-Imaging-Classification-(Colorectal-histology)-using-TensorFlow-and-the-Intel®-Transfer-Learning-Tool-API">
+<h1>Medical Imaging Classification (Colorectal histology) using TensorFlow and the Intel® Transfer Learning Tool API<a class="headerlink" href="#Medical-Imaging-Classification-(Colorectal-histology)-using-TensorFlow-and-the-Intel®-Transfer-Learning-Tool-API" title="Permalink to this heading">¶</a></h1>
+<p>This notebook facilitates implementation of medical imaging classification using Transfer Learning Toolkit. It performs Multi-class texture analysis in colorectal cancer histology dataset. The workflow uses pretrained SOTA models ( RESNET V1.5) from TF hub and transfers the knowledge from a pretrained domain to a different custom domain achieving required accuracy.</p>
+<section id="1.-Import-dependencies-and-setup-parameters">
+<h2>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span>
+
+<span class="c1">#tlt imports</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
+
+<span class="kn">from</span> <span class="nn">notebooks.plot_utils</span> <span class="kn">import</span> <span class="n">plot_curves</span>
+
+<span class="c1"># Specify a directory for the dataset to be downloaded</span>
+<span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+
+<span class="c1"># Specify a directory for output</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OUTPUT_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;OUTPUT_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dataset directory:&quot;</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output directory:&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Get-the-model">
+<h2>2. Get the model<a class="headerlink" href="#2.-Get-the-model" title="Permalink to this heading">¶</a></h2>
+<p>In this step, we call the Intel Transfer Learning Tool model factory to list supported TensorFlow image classification models. This is a list of pretrained models from TFHub that we tested with our API. Optionally, the verbose=True argument can be added to the print_supported_models function call to get more information about each model (such as the link to TFHub, image size, the original dataset, etc).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># See a list of available models</span>
+<span class="n">model_factory</span><span class="o">.</span><span class="n">print_supported_models</span><span class="p">(</span><span class="n">use_case</span><span class="o">=</span><span class="s1">&#39;image_classification&#39;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s1">&#39;tensorflow&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Option-A:-Load-a-model">
+<h3>Option A: Load a model<a class="headerlink" href="#Option-A:-Load-a-model" title="Permalink to this heading">¶</a></h3>
+<p>Next, use the model factory to get one of the models listed in the previous cell. The <code class="docutils literal notranslate"><span class="pre">get_model</span></code> function returns a model object that will later be used for training. By default, resnet_v1_50 is used for training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;resnet_v1_50&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Option-B:-Load-a-pretrained-checkpoint">
+<h3>Option B: Load a pretrained checkpoint<a class="headerlink" href="#Option-B:-Load-a-pretrained-checkpoint" title="Permalink to this heading">¶</a></h3>
+<p>Optionally, to continue training using a pretrained checkpoint, the user can specify the path to folder containing <strong>saved_model.pb</strong>. The user can specify the path in <strong>model</strong> parameter.</p>
+<p><em>Note: The path is same as saved_model_dir</em></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Load a pretrained checkpoint</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;resnet_v1_50&#39;</span><span class="p">,</span>
+                                 <span class="n">model</span><span class="o">=</span><span class="s1">&#39;/home/intel/output/resnet_v1_50/1&#39;</span><span class="p">,</span>
+                                 <span class="n">framework</span><span class="o">=</span><span class="s1">&#39;tensorflow&#39;</span><span class="p">,</span> <span class="n">use_case</span><span class="o">=</span><span class="s1">&#39;image_classification&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="3.-Get-the-dataset">
+<h2>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Permalink to this heading">¶</a></h2>
+<p>Use dataset <strong>colorectal_histology</strong> from the TensorFlow Datasets catalog</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="n">dataset_dir</span><span class="p">,</span>
+                                      <span class="n">use_case</span><span class="o">=</span><span class="s1">&#39;image_classification&#39;</span><span class="p">,</span>
+                                      <span class="n">framework</span><span class="o">=</span><span class="s1">&#39;tensorflow&#39;</span><span class="p">,</span>
+                                      <span class="n">dataset_name</span><span class="o">=</span><span class="s1">&#39;colorectal_histology&#39;</span><span class="p">,</span>
+                                      <span class="n">dataset_catalog</span><span class="o">=</span><span class="s1">&#39;tf_datasets&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Class names:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="4.-Prepare-the-dataset">
+<h2>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Permalink to this heading">¶</a></h2>
+<p>Once you have your dataset from Option A or Option B above, use the following cells to preprocess the dataset. We resize the images to match the selected models and batch the images, then split them into training and validation subsets. Data augmentation can be applied by specifying the augmentations to be applied in <strong>add_aug</strong> parameter. Supported augmentations are 1. hvflip - RandomHorizontalandVerticalFlip 2. hflip - RandomHorizontalFlip 3. vflip - RandomVerticalFlip 4. rotate - RandomRotate
+5. zoom - RandomZoom</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Preprocess the dataset with an image size that matches the model and a batch size of 32</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">image_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">add_aug</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hvflip&#39;</span><span class="p">,</span> <span class="s1">&#39;rotate&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Split the dataset into training, validation and test subsets</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="mf">.80</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">.10</span><span class="p">,</span> <span class="n">test_pct</span><span class="o">=</span><span class="mf">0.10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="5.-Transfer-Learning">
+<h2>5. Transfer Learning<a class="headerlink" href="#5.-Transfer-Learning" title="Permalink to this heading">¶</a></h2>
+<p>This step calls the model’s train function with the dataset that was just prepared. The training function will get the TFHub feature vector and add on a dense layer based on the number of classes in the dataset. The model is then compiled and trained based on the number of epochs specified in the argument. With the do_eval paramter set to True by default, this step will also show how the model can be evaluated and will return a list of metrics calculated from the dataset’s validation subset. ###
+Arguments #### Required - <strong>dataset</strong> (ImageClassificationDataset, required): Dataset to use when training the model - <strong>output_dir</strong> (str): Path to a writeable directory for checkpoint files - <strong>epochs</strong> (int): Number of epochs to train the model (default: 1) #### Optional - <strong>initial_checkpoints</strong> (str): Path to checkpoint weights to load. If the path provided is a directory, the latest checkpoint will be used. - <strong>early_stopping</strong> (bool): Enable early stopping if convergence is reached while
+training at the end of each epoch. (default: False) - <strong>lr_decay</strong> (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at the end of each epoch. - <strong>enable_auto_mixed_precision</strong> (bool or None): Enable auto mixed precision for training. Mixed precision uses both 16-bit and 32-bit floating point types to make training run faster and use less memory. It is recommended to enable auto mixed precision training when running on platforms that support
+bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that does not support bfloat16, it can be detrimental to the training performance. If enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when running with Intel fourth generation Xeon processors, and disabled for other platforms. - <strong>extra_layers</strong> (list[int]): Optionally insert additional dense layers between the base model and output layer. This can help
+increase accuracy when fine-tuning a TFHub model. The input should be a list of integers representing the number and size of the layers, for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the second with 512 neurons.</p>
+<p>Note: refer to release documentation for an up-to-date list of train arguments and their current descriptions</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Mixed precision uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.</span>
+<span class="c1"># It is recommended to enable auto mixed precision training when running on platforms that support</span>
+<span class="c1"># bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that</span>
+<span class="c1"># does not support bfloat16, it can be detrimental to the training performance.</span>
+<span class="c1"># If enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
+<span class="c1"># running with Intel fourth generation Xeon processors, and disabled for other platforms.</span>
+<span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># Train the model using the dataset</span>
+<span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                      <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">early_stopping</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="6.-Evaluate">
+<h2>6. Evaluate<a class="headerlink" href="#6.-Evaluate" title="Permalink to this heading">¶</a></h2>
+<p>The next step shows how the model can be evaluated. The model’s evaluate function returns a list of metrics calculated from the dataset’s validation subset.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate model on validation subset</span>
+<span class="n">val_loss</span><span class="p">,</span> <span class="n">val_acc</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation Accuracy :&quot;</span><span class="p">,</span> <span class="n">val_acc</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation Loss :&quot;</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_curves</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_checkpoints&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">)))</span>
+<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_checkpoints&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">),</span> <span class="s1">&#39;hist.pkl&#39;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="7.-Export">
+<h2>7. Export<a class="headerlink" href="#7.-Export" title="Permalink to this heading">¶</a></h2>
+<p>Next, we can call the model export function to generate a saved_model.pb. The model is saved in a format that is ready to use with TensorFlow Serving. Each time the model is exported, a new numbered directory is created, which allows serving to pick up the latest model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="8.-Inference">
+<h2>8. Inference<a class="headerlink" href="#8.-Inference" title="Permalink to this heading">¶</a></h2>
+<p>To perform only Inference using a saved model, follow the steps below 1. Execute Step 2(b) to load a pretrained checkpoint with the appropriate model name. 2. Execute Steps 3 and 4 to load and prepare the dataset. 3. Continue with the steps below</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_checkpoints&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">),</span> <span class="s1">&#39;hist.pkl&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+<span class="n">plot_curves</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_checkpoints&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span><span class="p">,</span> <span class="n">accuracy</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Test accuracy :&#39;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We get the test subset from our dataset, and use that to call predict on our model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">actual_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_test_subset</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">predicted_labels</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">_test_subset</span><span class="p">)</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">classification_report</span><span class="p">(</span><span class="n">actual_labels</span><span class="p">,</span> <span class="n">predicted_labels</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Classification report&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Dataset-Citations">
+<h2>Dataset Citations<a class="headerlink" href="#Dataset-Citations" title="Permalink to this heading">¶</a></h2>
+<p>&#64;article{kather2016multi, title={Multi-class texture analysis in colorectal cancer histology}, author={Kather, Jakob Nikolas and Weis, Cleo-Aron and Bianconi, Francesco and Melchers, Susanne M and Schad, Lothar R and Gaiser, Timo and Marx, Alexander and Z{“o}llner, Frank Gerrit}, journal={Scientific reports}, volume={6}, pages={27988}, year={2016}, publisher={Nature Publishing Group} }</p>
+<p>Kather, J. N., Zöllner, F. G., Bianconi, F., Melchers, S. M., Schad, L. R., Gaiser, T., Marx, A., &amp; Weis, C.-A. (2016). Collection of textures in colorectal cancer histology [Data set]. Zenodo. <a class="reference external" href="https://doi.org/10.5281/zenodo.53169">https://doi.org/10.5281/zenodo.53169</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="TLT_PyTorch_Text_Classification_Transfer_Learning.html" class="btn btn-neutral float-left" title="Text Classification fine tuning using Pytorch and the Intel® Transfer Learning Tool API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Remote_Sensing_Image_Scene_Classification.html" class="btn btn-neutral float-right" title="Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 27, 2023.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

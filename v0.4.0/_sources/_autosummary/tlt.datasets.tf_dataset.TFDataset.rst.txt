@@ -1,0 +1,36 @@
+﻿tlt.datasets.tf\_dataset.TFDataset
+==================================
+
+.. currentmodule:: tlt.datasets.tf_dataset
+
+.. autoclass:: TFDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFDataset.__init__
+      ~TFDataset.get_batch
+      ~TFDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFDataset.dataset
+      ~TFDataset.dataset_catalog
+      ~TFDataset.dataset_dir
+      ~TFDataset.dataset_name
+      ~TFDataset.test_subset
+      ~TFDataset.train_subset
+      ~TFDataset.validation_subset
+   
+   

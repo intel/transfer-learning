@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.models.text_classification.tf_text_classification_model &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notebooks.html">Example Notebooks</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tlt.models.text_classification.tf_text_classification_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tlt.models.text_classification.tf_text_classification_model</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">tlt.models.tf_model</span> <span class="kn">import</span> <span class="n">TFModel</span>
+<span class="kn">from</span> <span class="nn">tlt.models.text_classification.text_classification_model</span> <span class="kn">import</span> <span class="n">TextClassificationModel</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets.text_classification.text_classification_dataset</span> <span class="kn">import</span> <span class="n">TextClassificationDataset</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets.text_classification.tf_custom_text_classification_dataset</span> <span class="kn">import</span> <span class="n">TFCustomTextClassificationDataset</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">verify_directory</span><span class="p">,</span> <span class="n">validate_model_name</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
+<span class="kn">from</span> <span class="nn">tlt.distributed</span> <span class="kn">import</span> <span class="n">TLT_DISTRIBUTED_DIR</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="c1"># Note that tensorflow_text isn&#39;t used directly but the import is required to register ops used by the</span>
+<span class="c1"># BERT text preprocessor</span>
+<span class="kn">import</span> <span class="nn">tensorflow_text</span>  <span class="c1"># noqa: F401</span>
+
+
+<div class="viewcode-block" id="TFTextClassificationModel"><a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.html#tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel">[docs]</a><span class="k">class</span> <span class="nc">TFTextClassificationModel</span><span class="p">(</span><span class="n">TextClassificationModel</span><span class="p">,</span> <span class="n">TFModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to represent a TF pretrained model that can be used for binary text classification</span>
+<span class="sd">    fine tuning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TFTextClassificationModel.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.html#tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># extra properties that should become configurable in the future</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dropout_layer_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span> <span class="o">=</span> <span class="mf">1e-08</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_checkpoints</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># placeholder for model definition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">TFModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">,</span> <span class="n">UseCaseType</span><span class="o">.</span><span class="n">TEXT_CLASSIFICATION</span><span class="p">)</span>
+        <span class="n">TextClassificationModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">,</span> <span class="n">UseCaseType</span><span class="o">.</span><span class="n">TEXT_CLASSIFICATION</span><span class="p">,</span>
+                                         <span class="n">dropout_layer_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dropout_layer_rate</span><span class="p">)</span>
+
+        <span class="c1"># set up the configurable optimizer and loss functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_optimizer_loss</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_class</span> <span class="o">=</span> <span class="n">optimizer</span> <span class="k">if</span> <span class="n">optimizer</span> <span class="k">else</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opt_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_class</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># This gets initialized later</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loss_class</span> <span class="o">=</span> <span class="n">loss</span>  <span class="c1"># This can be None, default function is defined later</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_class</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_loss_class</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_args</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># This gets initialized later</span>
+
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_directory</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The model input must be a keras Model, string, or None but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span>
+
+    <span class="k">def</span> <span class="nf">_get_train_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">,</span> <span class="n">do_eval</span><span class="p">,</span> <span class="n">early_stopping</span><span class="p">,</span>
+                             <span class="n">lr_decay</span><span class="p">,</span> <span class="n">dataset_num_classes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">BinaryCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">dataset_num_classes</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> \
+                <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_class</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_loss_args</span><span class="p">)</span>
+
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">BinaryAccuracy</span><span class="p">()</span> <span class="k">if</span> <span class="n">dataset_num_classes</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">CategoricalAccuracy</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_class</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span><span class="p">,</span>
+                                                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_opt_args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_loss</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">initial_checkpoints</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">):</span>
+                <span class="n">initial_checkpoints</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">latest_checkpoint</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">)</span>
+
+        <span class="k">class</span> <span class="nc">CollectBatchStats</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">batch_losses</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">batch_acc</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">def</span> <span class="nf">on_train_batch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">logs</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+
+                    <span class="c1"># Find the name of the accuracy key</span>
+                    <span class="n">accuracy_key</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">for</span> <span class="n">log_key</span> <span class="ow">in</span> <span class="n">logs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="s1">&#39;acc&#39;</span> <span class="ow">in</span> <span class="n">log_key</span><span class="p">:</span>
+                            <span class="n">accuracy_key</span> <span class="o">=</span> <span class="n">log_key</span>
+                            <span class="k">break</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">batch_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logs</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">])</span>
+
+                    <span class="k">if</span> <span class="n">accuracy_key</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">batch_acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logs</span><span class="p">[</span><span class="n">accuracy_key</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">reset_metrics</span><span class="p">()</span>
+
+        <span class="n">batch_stats_callback</span> <span class="o">=</span> <span class="n">CollectBatchStats</span><span class="p">()</span>
+
+        <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch_stats_callback</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">early_stopping</span><span class="p">:</span>
+            <span class="n">stop_early_callback</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+            <span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stop_early_callback</span><span class="p">)</span>
+
+        <span class="c1"># Create a callback for generating checkpoints</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_checkpoints</span><span class="p">:</span>
+            <span class="n">valid_model_name</span> <span class="o">=</span> <span class="n">validate_model_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+            <span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_checkpoints&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">valid_model_name</span><span class="p">))</span>
+            <span class="n">verify_directory</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+            <span class="n">checkpoint_callback</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
+                <span class="n">filepath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">valid_model_name</span><span class="p">),</span> <span class="n">save_weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checkpoint directory:&quot;</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">)</span>
+            <span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checkpoint_callback</span><span class="p">)</span>
+
+        <span class="c1"># Create a callback for learning rate decay</span>
+        <span class="k">if</span> <span class="n">do_eval</span> <span class="ow">and</span> <span class="n">lr_decay</span><span class="p">:</span>
+            <span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ReduceLROnPlateau</span><span class="p">(</span>
+                <span class="n">monitor</span><span class="o">=</span><span class="s1">&#39;val_loss&#39;</span><span class="p">,</span>
+                <span class="n">factor</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                <span class="n">patience</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+                <span class="n">cooldown</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">min_lr</span><span class="o">=</span><span class="mf">0.0000000001</span><span class="p">))</span>
+
+        <span class="n">train_data</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_subset</span> <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_subset</span> <span class="k">else</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dataset</span>
+        <span class="n">validation_data</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span> <span class="k">if</span> <span class="n">do_eval</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">callbacks</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">validation_data</span>
+
+    <span class="k">def</span> <span class="nf">_fit_distributed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">hostfile</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="p">,</span> <span class="n">use_horovod</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">subprocess</span>
+        <span class="n">distributed_vision_script</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TLT_DISTRIBUTED_DIR</span><span class="p">,</span> <span class="s1">&#39;tensorflow&#39;</span><span class="p">,</span> <span class="s1">&#39;run_train_tf.py&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">use_horovod</span><span class="p">:</span>
+            <span class="n">run_cmd</span> <span class="o">=</span> <span class="s1">&#39;horovodrun&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">run_cmd</span> <span class="o">=</span> <span class="s1">&#39;mpirun&#39;</span>
+
+            <span class="c1"># mpirun requires these flags to be set</span>
+            <span class="n">run_cmd</span> <span class="o">+=</span> <span class="s1">&#39; --allow-run-as-root -bind-to none -map-by slot -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH -x PATH -x NCCL_SOCKET_IFNAME=^lo,docker0 -mca pml ob1 -mca btl ^openib -mca btl_tcp_if_exclude lo,docker0&#39;</span>  <span class="c1"># noqa: E501</span>
+
+        <span class="n">hostfile_cmd</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">np_cmd</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">hostfile</span><span class="p">):</span>
+
+            <span class="n">hostfile_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_hostfile</span><span class="p">(</span><span class="n">hostfile</span><span class="p">)</span>
+            <span class="n">node_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;slots&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ip_addr</span> <span class="ow">in</span> <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;ip_addresses&#39;</span><span class="p">]:</span>
+                    <span class="n">hostfile_cmd</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">,&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="p">)</span>
+                    <span class="n">node_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">node_count</span> <span class="o">==</span> <span class="n">nnodes</span><span class="p">:</span>
+                        <span class="k">break</span>
+
+            <span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;slots&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">nnodes</span> <span class="o">*</span> <span class="n">nproc_per_node</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ip_addr</span><span class="p">,</span> <span class="n">slots</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;ip_addresses&#39;</span><span class="p">],</span> <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;slots&#39;</span><span class="p">]):</span>
+                    <span class="n">hostfile_cmd</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">,&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: nproc_per_node and slots in hostfile do not add up. Making equal slots for all nodes&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">ip_addr</span> <span class="ow">in</span> <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;ip_addresses&#39;</span><span class="p">]:</span>
+                    <span class="n">hostfile_cmd</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">,&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="p">)</span>
+
+            <span class="n">hostfile_cmd</span> <span class="o">=</span> <span class="n">hostfile_cmd</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Remove trailing comma</span>
+
+            <span class="c1"># Final check to correct the `-np` flag&#39;s value</span>
+            <span class="c1"># nprocs = len(hostfile_info[&#39;ip_addresses&#39;]) * nproc_per_node</span>
+            <span class="n">nprocs</span> <span class="o">=</span> <span class="n">nnodes</span> <span class="o">*</span> <span class="n">nproc_per_node</span>
+            <span class="n">np_cmd</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">nprocs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error: Invalid file </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hostfile</span><span class="p">))</span>
+
+        <span class="n">script_cmd</span> <span class="o">=</span> <span class="s1">&#39;python &#39;</span> <span class="o">+</span> <span class="n">distributed_vision_script</span>
+        <span class="n">script_cmd</span> <span class="o">+=</span> <span class="s1">&#39; --use_case </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;text_classification&#39;</span><span class="p">)</span>
+        <span class="n">script_cmd</span> <span class="o">+=</span> <span class="s1">&#39; --epochs </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epochs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+            <span class="n">script_cmd</span> <span class="o">+=</span> <span class="s1">&#39; --shuffle&#39;</span>
+
+        <span class="n">bash_command</span> <span class="o">=</span> <span class="n">run_cmd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;-np&#39;</span><span class="p">,</span> <span class="n">np_cmd</span><span class="p">,</span> <span class="s1">&#39;-H&#39;</span><span class="p">,</span> <span class="n">hostfile_cmd</span><span class="p">]</span> <span class="o">+</span> <span class="n">script_cmd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">bash_command</span><span class="p">))</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">bash_command</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">do_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">early_stopping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lr_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">distributed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hostfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+              <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">           Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is</span>
+<span class="sd">           provided, those weights are loaded before training.</span>
+
+<span class="sd">           Args:</span>
+<span class="sd">               dataset (TextClassificationDataset): The dataset to use for training. If a train subset has been</span>
+<span class="sd">                                                    defined, that subset will be used to fit the model. Otherwise, the</span>
+<span class="sd">                                                    entire non-partitioned dataset will be used.</span>
+<span class="sd">               output_dir (str): A writeable output directory to write checkpoint files during training</span>
+<span class="sd">               epochs (int): The number of training epochs [default: 1]</span>
+<span class="sd">               initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the</span>
+<span class="sd">                    latest checkpoint will be used.</span>
+<span class="sd">               do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated</span>
+<span class="sd">                    at the end of each epoch.</span>
+<span class="sd">               early_stopping (bool): Enable early stopping if convergence is reached while training at the end of each</span>
+<span class="sd">                    epoch.</span>
+<span class="sd">               lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss</span>
+<span class="sd">                    is applied at the end of each epoch.</span>
+<span class="sd">               enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision</span>
+<span class="sd">                    uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.</span>
+<span class="sd">                    It is recommended to enable auto mixed precision training when running on platforms that support</span>
+<span class="sd">                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that</span>
+<span class="sd">                    does not support bfloat16, it can be detrimental to the training performance. If</span>
+<span class="sd">                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
+<span class="sd">                    running with Intel fourth generation Xeon processors, and disabled for other platforms.</span>
+<span class="sd">               shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.</span>
+<span class="sd">               seed (int): Optionally set a seed for reproducibility.</span>
+
+<span class="sd">           Returns:</span>
+<span class="sd">               History object from the model.fit() call</span>
+
+<span class="sd">           Raises:</span>
+<span class="sd">               FileExistsError if the output directory is a file</span>
+<span class="sd">               TypeError if the dataset specified is not a TextClassificationDataset</span>
+<span class="sd">               TypeError if the output_dir parameter is not a string</span>
+<span class="sd">               TypeError if the epochs parameter is not a integer</span>
+<span class="sd">               TypeError if the initial_checkpoints parameter is not a string</span>
+<span class="sd">               NotImplementedError if the specified dataset has more than 2 classes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_train_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">)</span>
+
+        <span class="n">dataset_num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dataset_num_classes</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Training is only supported for binary text classification. The specified dataset&quot;</span>
+                                      <span class="s2">&quot; has </span><span class="si">{}</span><span class="s2"> classes, but expected 2 classes.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_num_classes</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="c1"># Set auto mixed precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_auto_mixed_precision</span><span class="p">(</span><span class="n">enable_auto_mixed_precision</span><span class="p">)</span>
+
+        <span class="n">callbacks</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">val_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_train_callbacks</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">,</span> <span class="n">do_eval</span><span class="p">,</span>
+                                                                    <span class="n">early_stopping</span><span class="p">,</span> <span class="n">lr_decay</span><span class="p">,</span> <span class="n">dataset_num_classes</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">distributed</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">export_for_distributed</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">val_data</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fit_distributed</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="p">,</span> <span class="n">hostfile</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="p">,</span>
+                                      <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_horovod&#39;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s2"> occured while distributed training&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_saved_objects_for_distributed</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">val_data</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle_files</span><span class="p">,</span>
+                                      <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">history</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
+
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">           If there is a validation set, evaluation will be done on it (by default) or on the test set (by setting</span>
+<span class="sd">           use_test_set=True). Otherwise, the entire non-partitioned dataset will be used for evaluation.</span>
+
+<span class="sd">           Args:</span>
+<span class="sd">               dataset (TextClassificationDataset): The dataset to use for evaluation.</span>
+<span class="sd">               use_test_set (bool): Specify if the test partition of the dataset should be used for evaluation.</span>
+<span class="sd">                                    [default: False)</span>
+
+<span class="sd">           Returns:</span>
+<span class="sd">               Dictionary with loss and accuracy metrics</span>
+
+<span class="sd">           Raises:</span>
+<span class="sd">               TypeError if the dataset specified is not a TextClassificationDataset</span>
+<span class="sd">               ValueError if the use_test_set=True and no test subset has been defined in the dataset.</span>
+<span class="sd">               ValueError if the model has not been trained or loaded yet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">TextClassificationDataset</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The dataset must be a TextClassificationDataset but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="n">use_test_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test_subset</span><span class="p">:</span>
+                <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test_subset</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No test subset is defined&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span><span class="p">:</span>
+            <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dataset</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model must be trained or loaded before evaluation.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">eval_dataset</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_samples</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">           Generates predictions for the specified input samples.</span>
+
+<span class="sd">           Args:</span>
+<span class="sd">               input_samples (str, list, numpy array, tensor, tf.data dataset or a generator keras.utils.Sequence):</span>
+<span class="sd">                    Input samples to use to predict. These will be sent to the tf.keras.Model predict() function.</span>
+
+<span class="sd">           Returns:</span>
+<span class="sd">               Numpy array of scores</span>
+
+<span class="sd">           Raises:</span>
+<span class="sd">               ValueError if the model has not been trained or loaded yet.</span>
+<span class="sd">               ValueError if there is a mismatch between the input_samples and the model&#39;s expected input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model must be trained or loaded before predicting.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># If a single string is passed in, make it a list so that it&#39;s compatible with the keras model predict</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_samples</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">input_samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_samples</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">input_samples</span><span class="p">))</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">write_inc_config_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file_path</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                              <span class="n">resize_interpolation</span><span class="o">=</span><span class="s1">&#39;bicubic&#39;</span><span class="p">,</span> <span class="n">accuracy_criterion_relative</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">exit_policy_timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                              <span class="n">exit_policy_max_trials</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">tuning_random_seed</span><span class="o">=</span><span class="mi">9527</span><span class="p">,</span>
+                              <span class="n">tuning_workspace</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes an Intel Neural Compressor compatible config file to the specified path usings args from the specified</span>
+<span class="sd">        dataset and parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config_file_path (str): Destination path on where to write the .yaml config file.</span>
+<span class="sd">            dataset (BaseDataset): A tlt dataset object</span>
+<span class="sd">            batch_size (int): Batch size to use for quantization and evaluation</span>
+<span class="sd">            overwrite (bool): Specify whether or not to overwrite the config_file_path, if it already exists</span>
+<span class="sd">                              (default: False)</span>
+<span class="sd">            resize_interpolation (str): Interpolation type. Select from: &#39;bilinear&#39;, &#39;nearest&#39;, &#39;bicubic&#39;</span>
+<span class="sd">                                        (default: bicubic)</span>
+<span class="sd">            accuracy_criterion_relative (float): Relative accuracy loss (default: 0.01, which is 1%)</span>
+<span class="sd">            exit_policy_timeout (int): Tuning timeout in seconds (default: 0). Tuning processing finishes when the</span>
+<span class="sd">                                       timeout or max_trials is reached. A tuning timeout of 0 means that the tuning</span>
+<span class="sd">                                       phase stops when the accuracy criterion is met.</span>
+<span class="sd">            exit_policy_max_trials (int): Maximum number of tuning trials (default: 50). Tuning processing finishes when</span>
+<span class="sd">                                          the timeout or or max_trials is reached.</span>
+<span class="sd">            tuning_random_seed (int): Random seed for deterministic tuning (default: 9527).</span>
+<span class="sd">            tuning_workspace (dir): Path the Intel Neural Compressor nc_workspace folder. If the string is empty and the</span>
+<span class="sd">                                    OUTPUT_DIR env var is set, that output directory will be used. If the string is</span>
+<span class="sd">                                    empty and the OUTPUT_DIR env var is not set, the default Intel Neural Compressor</span>
+<span class="sd">                                    nc_workspace location will be used.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            FileExistsError if the config file already exists and overwrite is set to False.</span>
+<span class="sd">            ValueError if the parameters are not within the expected values</span>
+<span class="sd">            NotImplementedError if the dataset type is not TFCustomImageClassificationDataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s1">&#39;A file already exists at: </span><span class="si">{}</span><span class="s1">. Provide a new file path or set overwrite=True&#39;</span><span class="p">,</span>
+                                  <span class="n">config_file_path</span><span class="p">)</span>
+
+        <span class="c1"># They don&#39;t have a Tensorflow Dataset option, so for now, we only support custom datasets for quantization</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">TFCustomTextClassificationDataset</span><span class="p">)</span> <span class="ow">or</span> \
+                <span class="n">dataset</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">TFCustomTextClassificationDataset</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;quantization has only been implemented for tensorflow text classification &#39;</span>
+                                      <span class="s1">&#39;models with custom datasets&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">batch_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value for batch size (</span><span class="si">{}</span><span class="s1">). Expected a positive integer.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">resize_interpolation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bilinear&#39;</span><span class="p">,</span> <span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="s1">&#39;bicubic&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value for resize interpolation (</span><span class="si">{}</span><span class="s1">). Expected one of the following values: &#39;</span>
+                             <span class="s1">&#39;bilinear, nearest, bicubic&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">resize_interpolation</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">accuracy_criterion_relative</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">accuracy_criterion_relative</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> \
+                <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">accuracy_criterion_relative</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value for the accuracy criterion (</span><span class="si">{}</span><span class="s1">). Expected a float value between 0.0 &#39;</span>
+                             <span class="s1">&#39;and 1.0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">accuracy_criterion_relative</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">exit_policy_timeout</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exit_policy_timeout</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">exit_policy_timeout</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value for the exit policy timeout (</span><span class="si">{}</span><span class="s1">). Expected a positive integer or 0.&#39;</span><span class="o">.</span>
+                             <span class="nb">format</span><span class="p">(</span><span class="n">exit_policy_timeout</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">exit_policy_max_trials</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exit_policy_max_trials</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">exit_policy_max_trials</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value for max trials (</span><span class="si">{}</span><span class="s1">). Expected an integer greater than 0.&#39;</span><span class="o">.</span>
+                             <span class="nb">format</span><span class="p">(</span><span class="n">exit_policy_timeout</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">tuning_random_seed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tuning_random_seed</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tuning_random_seed</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value for tuning random seed (</span><span class="si">{}</span><span class="s1">). Expected a positive integer.&#39;</span><span class="o">.</span>
+                             <span class="nb">format</span><span class="p">(</span><span class="n">tuning_random_seed</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tuning_workspace</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value for the nc_workspace directory. Expected a string.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Get the Intel Neural Compressor template</span>
+        <span class="n">config_template</span> <span class="o">=</span> <span class="n">TextClassificationModel</span><span class="o">.</span><span class="n">get_inc_config_template_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Collect the different data loaders into a list, so that we can update them all the with the data transforms</span>
+        <span class="n">dataloader_configs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># If tuning_workspace is undefined, use the OUTPUT_DIR, if the env var exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tuning_workspace</span><span class="p">:</span>
+            <span class="n">output_dir_env_var</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;OUTPUT_DIR&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">output_dir_env_var</span><span class="p">:</span>
+                <span class="n">tuning_workspace</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir_env_var</span><span class="p">,</span> <span class="s1">&#39;nc_workspace&#39;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tuning_workspace:&quot;</span><span class="p">,</span> <span class="n">tuning_workspace</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;quantization&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;calibration&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;quantization&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> \
+                <span class="ow">and</span> <span class="s2">&quot;dataloader&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;quantization&quot;</span><span class="p">][</span><span class="s2">&quot;calibration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">dataloader_configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;quantization&quot;</span><span class="p">][</span><span class="s2">&quot;calibration&quot;</span><span class="p">][</span><span class="s2">&quot;dataloader&quot;</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DATALOADER CONFIGS&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">dataloader_configs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;evaluation&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;accuracy&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;evaluation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> \
+                    <span class="s2">&quot;dataloader&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;evaluation&quot;</span><span class="p">][</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">dataloader_configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;evaluation&quot;</span><span class="p">][</span><span class="s2">&quot;accuracy&quot;</span><span class="p">][</span><span class="s2">&quot;dataloader&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">&quot;performance&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;evaluation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> \
+                    <span class="s2">&quot;dataloader&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;evaluation&quot;</span><span class="p">][</span><span class="s2">&quot;performance&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">dataloader_configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;evaluation&quot;</span><span class="p">][</span><span class="s2">&quot;performance&quot;</span><span class="p">][</span><span class="s2">&quot;dataloader&quot;</span><span class="p">])</span>
+
+        <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;quantization&quot;</span><span class="p">][</span><span class="s2">&quot;approach&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;post_training_dynamic_quant&quot;</span>
+
+        <span class="c1"># Update the data loader configs</span>
+        <span class="k">for</span> <span class="n">dataloader_config</span> <span class="ow">in</span> <span class="n">dataloader_configs</span><span class="p">:</span>
+            <span class="c1"># Update dataset directory for the custom dataset</span>
+            <span class="k">if</span> <span class="s2">&quot;dataset&quot;</span> <span class="ow">in</span> <span class="n">dataloader_config</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;bert&quot;</span> <span class="ow">in</span> <span class="n">dataloader_config</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># These cause errors when trying to benchmark</span>
+                <span class="n">dataloader_config</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">][</span><span class="s2">&quot;bert&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dataset_dir</span>
+                <span class="n">dataloader_config</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">][</span><span class="s2">&quot;bert&quot;</span><span class="p">][</span><span class="s2">&quot;label_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dataset_dir</span>
+
+            <span class="n">dataloader_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_size</span>
+
+        <span class="k">if</span> <span class="s2">&quot;tuning&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;accuracy_criterion&quot;</span><span class="p">][</span><span class="s2">&quot;relative&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accuracy_criterion_relative</span>
+
+            <span class="k">if</span> <span class="n">exit_policy_timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;exit_policy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;timeout&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;exit_policy&quot;</span><span class="p">][</span><span class="s2">&quot;timeout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exit_policy_timeout</span>
+
+            <span class="k">if</span> <span class="n">exit_policy_max_trials</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;exit_policy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;max_trials&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;exit_policy&quot;</span><span class="p">][</span><span class="s2">&quot;max_trials&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exit_policy_max_trials</span>
+
+            <span class="k">if</span> <span class="n">tuning_random_seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;random_seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tuning_random_seed</span>
+
+            <span class="k">if</span> <span class="n">tuning_workspace</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;workspace&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;workspace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+                <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;workspace&quot;</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tuning_workspace</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># No tuning_workspace is defined, so remove it from the config</span>
+                <span class="k">if</span> <span class="s2">&quot;workspace&quot;</span> <span class="ow">in</span> <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;workspace&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">][</span><span class="s2">&quot;workspace&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">config_template</span><span class="p">[</span><span class="s2">&quot;tuning&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;workspace&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Create the directory where the file will be written, if it doesn&#39;t already exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">))</span>
+
+        <span class="c1"># Write the config file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config_template</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">quantize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">inc_config_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir</span>
+<span class="sd">        using the specified config file. The quantized model is written to the output directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            saved_model_dir (str): Source directory for the model to quantize.</span>
+<span class="sd">            output_dir (str): Writable output directory to save the quantized model</span>
+<span class="sd">            inc_config_path (str): Path to an Intel Neural Compressor config file (.yaml)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotADirectoryError if the model is not a directory</span>
+<span class="sd">            FileNotFoundError if a saved_model.pb is not found in the model or if the inc_config_path file</span>
+<span class="sd">            is not found.</span>
+<span class="sd">            FileExistsError if the output_dir already has a saved_model.pb file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The saved model directory should exist and contain a saved_model.pb file</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span><span class="s2">&quot;The saved model directory (</span><span class="si">{}</span><span class="s2">) does not exist.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="s2">&quot;saved_model.pb&quot;</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;The saved model directory (</span><span class="si">{}</span><span class="s2">) should have a saved_model.pb file&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">saved_model_dir</span><span class="p">))</span>
+
+        <span class="c1"># Verify that the config file exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">inc_config_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;The config file was not found at: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">inc_config_path</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Verify that the output directory doesn&#39;t already have a saved_model.pb file</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;saved_model.pb&quot;</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s2">&quot;A saved model already exists at:&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;saved_model.pb&quot;</span><span class="p">))</span>
+
+        <span class="kn">from</span> <span class="nn">neural_compressor.experimental</span> <span class="kn">import</span> <span class="n">Quantization</span>
+
+        <span class="n">quantizer</span> <span class="o">=</span> <span class="n">Quantization</span><span class="p">(</span><span class="n">inc_config_path</span><span class="p">)</span>
+        <span class="n">quantizer</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+        <span class="n">quantized_model</span> <span class="o">=</span> <span class="n">quantizer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+        <span class="c1"># If quantization was successful, save the model</span>
+        <span class="k">if</span> <span class="n">quantized_model</span><span class="p">:</span>
+            <span class="n">quantized_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 27, 2023.
+      </span></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
