@@ -49,10 +49,10 @@ Run simple CLI commands at a bash prompt or make API calls in a Python* script t
 ## Get Started
 
 ### Requirements
-* Linux* system (validated on Ubuntu* 20.04)
+* Linux* system (validated on Ubuntu* 20.04/22.04 LTS)
 * Python3* (3.8, 3.9, or 3.10), Pip and Conda/Virtualenv
 * Install required packages with `apt-get install build-essential python3-dev libgl1 libglib2.0-0`
-* git (only required for the "Advanced/Developer Installation")
+* git (only required for the "Developer Installation")
 
 ### Create and activate a Python3 virtual environment
 We encourage you to use a python virtual environment (virtualenv or conda) for consistent package management.
