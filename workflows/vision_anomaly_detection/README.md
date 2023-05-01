@@ -5,7 +5,7 @@ Deep-learning based visual anomaly detection workload. The inputs are images of 
 3) Convert PCA components to the original feature space using PCA kernel learned in step 2.
 4) Compute the information loss between original image and rgenerated image through PCA. If the loss is below a thresold, the input image is a 'good' image otherwise an anomaly.
 
-This workflow demonstrates Anomaly Detection workflows/pipelines using tlt toolkit to be run along with Intel optimized software represented using toolkits, domainkits, packages, frameworks and other libraries for effective use of Intel hardware leveraging Intel's AI instructions for fast processing and increased performance.The workflows can be easily used by applications or reference kits showcasing usage.
+This workflow demonstrates Anomaly Detection workflows/pipelines using Intel® Transfer Learning Tool to be run along with Intel optimized software represented using toolkits, domainkits, packages, frameworks and other libraries for effective use of Intel hardware leveraging Intel's AI instructions for fast processing and increased performance.The workflows can be easily used by applications or reference kits showcasing usage.
 
 The workflow supports:
 - Fine-tuning and inference on custom dataset
@@ -43,7 +43,7 @@ docker build \
     --build-arg https_proxy=${https_proxy} \
     ../../ \
      -f ./Dockerfile \
-     -t intel:tlt-anomaly
+     -t intel/ai-workflows:beta-tlt-anomaly-detection
 ```
 
 ## Run Container
@@ -56,6 +56,6 @@ docker run --rm \
     -v /path/to/simsiam/checkpoint_0099.pth.tar:/workspace/workflows/vision_anomaly_detection/simsiam/checkpoint_0099.pth.tar \
     -v $PWD/output:/workspace/workflows/vision_anomaly_detection/output \
     --shm-size=8GB \
-    intel:tlt-anomaly \
+    intel/ai-workflows:beta-tlt-anomaly-detection \
     python ./src/vision_anomaly_wrapper.py --config_file ./config/config.yaml
 ```
