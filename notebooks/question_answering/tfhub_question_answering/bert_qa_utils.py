@@ -26,7 +26,7 @@ import tensorflow as tf
 sys.path.append(os.environ["TF_MODELS_DIR"])
 
 from official.common import distribute_utils
-from official.nlp.bert.run_squad_helper import get_dataset_fn
+from official.legacy.bert.run_squad_helper import get_dataset_fn
 from tlt.utils.file_utils import download_file
 from zipfile import ZipFile
 
