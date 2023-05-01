@@ -16,8 +16,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-ARG IMAGE_NAME=amr-registry.caas.intel.com/aiops/transfer-learning
-ARG IMAGE_TAG=prod
+ARG IMAGE_NAME=intel/ai-workflows
+ARG IMAGE_TAG=transfer-learning-0.4.0
 FROM ${IMAGE_NAME}:${IMAGE_TAG}
 
 COPY . /workspace/
