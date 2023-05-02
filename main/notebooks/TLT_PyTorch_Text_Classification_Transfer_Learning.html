@@ -49,7 +49,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../notebooks.html">Example Notebooks</a><ul class="current">
@@ -183,7 +183,8 @@
 </pre></div>
 </div>
 <p>If the .csv has more columns, the <code class="docutils literal notranslate"><span class="pre">select_cols</span></code> or <code class="docutils literal notranslate"><span class="pre">exclude_cols</span></code> parameters can be used to filter out which columns are parsed.</p>
-<p>This example is downloading the <a class="reference external" href="https://archive-beta.ics.uci.edu/ml/datasets/sms+spam+collection">SMS Spam Collection</a> dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text messages that are either being classified as <code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>. The first column in the data file has the label (<code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>) and the second column is the text of the SMS mesage.</p>
+<p>This example is downloading the <a class="reference external" href="https://archive-beta.ics.uci.edu/ml/datasets/sms+spam+collection">SMS Spam Collection</a> dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text messages that are either being classified as <code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>. The first column in the data file has the label (<code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>) and the second column is the text of the SMS mesage. (Note: Please see this dataset’s applicable license for terms and conditions. Intel
+Corporation does not own the rights to this data set and does not confer any rights to it.)</p>
 <p>When using your own dataset, update the path to your dataset directory, as well the other variables with properties about the dataset like the csv file name, class names, delimiter, header, and the map function (if string labels need to be translated into numerical values).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -233,7 +234,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_name</span> <span class="o">=</span> <span class="s2">&quot;imdb&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_name</span> <span class="o">=</span> <span class="s2">&quot;tweet_eval/sentiment&quot;</span>
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">use_case</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span>
                                       <span class="n">dataset_catalog</span><span class="o">=</span><span class="s2">&quot;huggingface&quot;</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -291,6 +292,25 @@
 </pre></div>
 </div>
 </div>
+<p>A complete model summary can be printed for all modules in case any need to be unfrozen:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">list_layers</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Layers can be unfrozen by passing their string names, such as the following:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">unfreeze_layer</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span> <span class="c1"># Unfreezes the features layers</span>
+<span class="n">model</span><span class="o">.</span><span class="n">list_layers</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </section>
 </section>
 </section>
@@ -316,13 +336,13 @@
     <span class="n">sentence</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">score</span> <span class="o">=</span> <span class="n">batch_predictions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
     <span class="n">prediction_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sentence</span><span class="p">,</span>
-                            <span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">),</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">get_str_label</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">)),</span>
                             <span class="n">dataset</span><span class="o">.</span><span class="n">get_str_label</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">data_batch</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))])</span>
     <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="n">max_items</span><span class="p">:</span>
         <span class="k">break</span>
 
 <span class="c1"># Display the results using a data frame</span>
-<span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">prediction_list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Input Text&quot;</span><span class="p">,</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="s2">&quot;Actual Label&quot;</span><span class="p">])</span>
+<span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">prediction_list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Input Text&quot;</span><span class="p">,</span> <span class="s2">&quot;Predicted Label&quot;</span><span class="p">,</span> <span class="s2">&quot;Actual Label&quot;</span><span class="p">])</span>
 <span class="n">result_df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">hide</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -335,7 +355,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="s2">&quot;Terrible movie&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="s2">&quot;Good movie&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted score:&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted label:&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_str_label</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="p">)))</span>
@@ -357,7 +377,7 @@
 </section>
 <section id="8.-Quantization">
 <h2>8. Quantization<a class="headerlink" href="#8.-Quantization" title="Permalink to this heading">¶</a></h2>
-<p>In this section, the Intel Transfer Learning Tool API uses Intel® Neural Compressor (INC) to benchmark and quantize the model to get optimal inference performance. Note that this feature has only been implemented for use with custom text classification datasets. If you used a dataset from the Huggingface dataset catalog, this will not work.</p>
+<p>In this section, the Intel Transfer Learning Tool API uses Intel® Neural Compressor (INC) to quantize the model to get optimal inference performance. Note that this feature has only been implemented for use with custom text classification datasets. If you used a dataset from the Huggingface dataset catalog, this will not work.</p>
 <p>First, we create a config file to use with Intel Neural Compressor based on your model, dataset, and other quantization parameters. If you want more control over the configuration, you can provide your own custom yaml path for the inc_config_file instead of using the file generated by write_inc_config_file().</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -419,6 +439,14 @@
   url       = {http://www.aclweb.org/anthology/P11-1015}
 }
 
+@inproceedings{rosenthal2017semeval,
+  title={SemEval-2017 task 4: Sentiment analysis in Twitter},
+  author={Rosenthal, Sara and Farra, Noura and Nakov, Preslav},
+  booktitle={Proceedings of the 11th international workshop on semantic evaluation (SemEval-2017)},
+  pages={502--518},
+  year={2017}
+}
+
 @misc{misc_sms_spam_collection_228,
   author       = {Almeida, Tiago},
   title        = {{SMS Spam Collection}},
@@ -427,6 +455,7 @@
 }
 </pre></div>
 </div>
+<p>Please see this dataset’s applicable license for terms and conditions. Intel Corporation does not own the rights to this data set and does not confer any rights to it.</p>
 </section>
 </section>
 
@@ -441,12 +470,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

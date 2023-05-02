@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+  <title>tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -46,7 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#datasets">Datasets</a><ul class="current">
@@ -80,9 +80,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API Reference</a></li>
-      <li class="breadcrumb-item active">tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset</li>
+      <li class="breadcrumb-item active">tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -90,22 +90,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tlt-datasets-image-classification-tf-image-classification-dataset-tfimageclassificationdataset">
-<h1>tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset<a class="headerlink" href="#tlt-datasets-image-classification-tf-image-classification-dataset-tfimageclassificationdataset" title="Permalink to this heading">¶</a></h1>
+  <section id="tlt-datasets-image-classification-tfds-image-classification-dataset-tfdsimageclassificationdataset">
+<h1>tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset<a class="headerlink" href="#tlt-datasets-image-classification-tfds-image-classification-dataset-tfdsimageclassificationdataset" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlt.datasets.image_classification.tf_image_classification_dataset.</span></span><span class="sig-name descname"><span class="pre">TFImageClassificationDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['train']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_supervised</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/datasets/image_classification/tf_image_classification_dataset.html#TFImageClassificationDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlt.datasets.image_classification.tfds_image_classification_dataset.</span></span><span class="sig-name descname"><span class="pre">TFDSImageClassificationDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['train']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_supervised</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/datasets/image_classification/tfds_image_classification_dataset.html#TFDSImageClassificationDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>An image classification dataset from the TensorFlow datasets catalog</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['train']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_supervised</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/datasets/image_classification/tf_image_classification_dataset.html#TFImageClassificationDataset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['train']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_supervised</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/datasets/image_classification/tfds_image_classification_dataset.html#TFDSImageClassificationDataset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class constructor</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.__init__" title="tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(dataset_dir, dataset_name[, split, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.__init__" title="tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(dataset_dir, dataset_name[, split, ...])</p></td>
 <td><p>Class constructor</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_batch</span></code>([subset])</p></td>
@@ -166,12 +166,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

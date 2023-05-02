@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../notebooks.html">Example Notebooks</a></li>
@@ -109,7 +109,6 @@
 
 <span class="c1"># Hugging Face imports</span>
 <span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AutoModelForSequenceClassification</span><span class="p">,</span>
     <span class="n">AutoTokenizer</span><span class="p">,</span>
     <span class="n">EvalPrediction</span><span class="p">,</span>
     <span class="n">TrainingArguments</span><span class="p">,</span>
@@ -120,6 +119,7 @@
 
 <span class="kn">from</span> <span class="nn">datasets.arrow_dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
+<span class="kn">from</span> <span class="nn">downloader.models</span> <span class="kn">import</span> <span class="n">ModelDownloader</span>
 <span class="kn">from</span> <span class="nn">tlt</span> <span class="kn">import</span> <span class="n">TLT_BASE_DIR</span>
 <span class="kn">from</span> <span class="nn">tlt.distributed</span> <span class="kn">import</span> <span class="n">TLT_DISTRIBUTED_DIR</span>
 <span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">read_json_file</span><span class="p">,</span> <span class="n">validate_model_name</span><span class="p">,</span> <span class="n">verify_directory</span>
@@ -469,17 +469,15 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">)</span>
-
+            <span class="n">downloader</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="s1">&#39;hugging_face&#39;</span><span class="p">,</span>
+                                         <span class="n">num_labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">,</span>
-                                                                                 <span class="n">num_labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span><span class="p">,</span>
-                                                                                 <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
             <span class="k">except</span> <span class="n">ProxyError</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Max retries reached. Sleeping for 10 sec...&#39;</span><span class="p">)</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">,</span>
-                                                                                 <span class="n">num_labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span><span class="p">,</span>
-                                                                                 <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span><span class="p">)</span>
 
@@ -598,8 +596,9 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
                 <span class="c1"># The model hasn&#39;t been trained yet, use the original transformers model</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_or_dataloader</span><span class="o">.</span><span class="n">class_names</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">,</span>
-                                                                                 <span class="n">num_labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span><span class="p">)</span>
+                <span class="n">downloader</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="s1">&#39;hugging_face&#39;</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                             <span class="n">num_labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 
             <span class="c1"># Do the evaluation</span>
             <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
@@ -762,7 +761,6 @@
             <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s1">&#39;A file already exists at: </span><span class="si">{}</span><span class="s1">. Provide a new file path or set overwrite=True&#39;</span><span class="p">,</span>
                                   <span class="n">config_file_path</span><span class="p">)</span>
 
-        <span class="c1"># We can setup the a custom dataset to use the ImageFolder dataset option in INC.</span>
         <span class="c1"># They don&#39;t have a PyTorch Dataset option, so for now, we only support custom datasets for quantization</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">HFCustomTextClassificationDataset</span><span class="p">)</span> <span class="ow">or</span> \
@@ -797,7 +795,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tuning_workspace</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid value for the nc_workspace directory. Expected a string.&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Get the image recognition Intel Neural Compressor template</span>
+        <span class="c1"># Get the Intel Neural Compressor template</span>
         <span class="n">config_template</span> <span class="o">=</span> <span class="n">TextClassificationModel</span><span class="o">.</span><span class="n">get_inc_config_template_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># Collect the different data loaders into a list, so that we can update them all the with the data transforms</span>
@@ -927,7 +925,76 @@
             <span class="c1"># Change the model filename from best_model.pt to model.pt to match our convention</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;mv&quot;</span><span class="p">,</span> <span class="n">output_dir</span> <span class="o">+</span> <span class="s2">&quot;/best_model.pt&quot;</span><span class="p">,</span> <span class="n">output_dir</span> <span class="o">+</span> <span class="s2">&quot;/model.pt&quot;</span><span class="p">],</span>
                                  <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
-            <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span></div>
+            <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">list_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lists all of the named modules (e.g. features, avgpool, classifier) and layers</span>
+<span class="sd">        (ReLU, MaxPool2d, Dropout, Linear, etc) in a given PyTorch model</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            verbose (bool): True/False option set by default to be False, displays only high-level modules</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;The model must be trained at least one epoch before its layers can be summarized.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Display a high-level list of the modules e.g. features, avgpool, classifier</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Model Layers</span><span class="se">\n</span><span class="s2">============&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">named_children</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">named_children</span><span class="p">()):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1"> parameters are trainable&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">),</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">())))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">named_children</span><span class="p">():</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  </span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1"> parameters are trainable&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">layer_name</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">),</span>
+                        <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">parameters</span><span class="p">())))</span>
+
+        <span class="n">trainable_parameters</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Total Trainable Parameters: </span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">trainable_parameters</span><span class="p">,</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())))</span>
+
+        <span class="k">return</span> <span class="n">trainable_parameters</span>
+
+    <span class="k">def</span> <span class="nf">freeze_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Freezes the model&#39;s layer using a layer name</span>
+<span class="sd">        Args:</span>
+<span class="sd">            layer_name (string): The layer name that will be frozen in the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;The model must be trained at least one epoch before its layers can be frozen.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Freeze everything in the layer</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">named_children</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">layer_name</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+                    <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">unfreeze_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unfreezes the model&#39;s layer using a layer name</span>
+<span class="sd">        Args:</span>
+<span class="sd">            layer_name (string): The layer name that will be frozen in the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;The model must be trained at least one epoch before its layers can be unfrozen.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Unfreeze everything in the layer</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">named_children</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">layer_name</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+                    <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span></div>
 </pre></div>
 
            </div>
@@ -937,12 +1004,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

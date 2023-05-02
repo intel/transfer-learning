@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks.html">Example Notebooks</a></li>
@@ -109,6 +109,8 @@
         <span class="p">{</span>
             <span class="s2">&quot;TFHub&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.models.image_classification.tfhub_image_classification_model&quot;</span><span class="p">,</span>
                       <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TFHubImageClassificationModel&quot;</span><span class="p">},</span>
+            <span class="s2">&quot;Keras&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.models.image_classification.keras_image_classification_model&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;KerasImageClassificationModel&quot;</span><span class="p">},</span>
             <span class="s2">&quot;Custom&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.models.image_classification.tf_image_classification_model&quot;</span><span class="p">,</span>
                        <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TFImageClassificationModel&quot;</span><span class="p">}</span>
         <span class="p">},</span>
@@ -126,6 +128,8 @@
         <span class="p">{</span>
             <span class="s2">&quot;torchvision&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.models.image_classification.torchvision_image_classification_model&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TorchvisionImageClassificationModel&quot;</span><span class="p">},</span>
+            <span class="s2">&quot;pytorch_hub&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.models.image_classification.pytorch_hub_image_classification_model&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;PyTorchHubImageClassificationModel&quot;</span><span class="p">},</span>
             <span class="s2">&quot;Custom&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.models.image_classification.pytorch_image_classification_model&quot;</span><span class="p">,</span>
                        <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;PyTorchImageClassificationModel&quot;</span><span class="p">}</span>
         <span class="p">},</span>
@@ -324,7 +328,8 @@
     <span class="k">return</span> <span class="n">models</span></div>
 
 
-<div class="viewcode-block" id="print_supported_models"><a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.print_supported_models">[docs]</a><span class="k">def</span> <span class="nf">print_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="print_supported_models"><a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.print_supported_models">[docs]</a><span class="k">def</span> <span class="nf">print_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                           <span class="n">markdown</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prints a list of the supported models, categorized by use case. The results can be filtered to only show a given</span>
 <span class="sd">    framework or use case.</span>
@@ -333,31 +338,65 @@
 <span class="sd">        framework (str or FrameworkType): framework</span>
 <span class="sd">        use_case (str or UseCaseType): use case</span>
 <span class="sd">        verbose (boolean): include all model data from the config file in result, default is False</span>
+<span class="sd">        markdown (boolean): Print results as markdown tables (used for updating documentation).</span>
+<span class="sd">                            Not compatible with verbose=True.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">models</span> <span class="o">=</span> <span class="n">get_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">use_case</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">model_use_case</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">model_use_case</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">markdown</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;## </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_use_case</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">model_use_case</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">filter_message</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
             <span class="k">if</span> <span class="n">framework</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">filter_message</span> <span class="o">=</span> <span class="s2">&quot;for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">framework</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No </span><span class="si">{}</span><span class="s2"> models are supported at this time </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_use_case</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">),</span> <span class="n">filter_message</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No </span><span class="si">{}</span><span class="s2"> models are supported at this time </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">model_use_case</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">),</span> <span class="n">filter_message</span><span class="p">))</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">markdown</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;| Model name | Framework | Model Hub |&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;|------------|-----------|-----------|&quot;</span><span class="p">)</span>
 
         <span class="c1"># Get a sorted list of model names</span>
         <span class="n">model_name_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="n">model_name_list</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">model_name_list</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="nb">str</span><span class="o">.</span><span class="n">swapcase</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">model_name_list</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">model_framework</span> <span class="ow">in</span> <span class="n">models</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">][</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
 
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">model_framework</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">markdown</span><span class="p">:</span>
+                    <span class="n">model_hub</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">][</span><span class="n">model_name</span><span class="p">][</span><span class="n">model_framework</span><span class="p">][</span><span class="s2">&quot;model_hub&quot;</span><span class="p">]</span> <span class="k">if</span> \
+                        <span class="s2">&quot;model_hub&quot;</span> <span class="ow">in</span> <span class="n">models</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">][</span><span class="n">model_name</span><span class="p">][</span><span class="n">model_framework</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
-                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="c1"># Use proper names</span>
+                    <span class="n">model_hub_map</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;torchvision&quot;</span><span class="p">:</span> <span class="s2">&quot;Torchvision&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;tfhub&quot;</span><span class="p">:</span> <span class="s2">&quot;TensorFlow Hub&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;pytorch_hub&quot;</span><span class="p">:</span> <span class="s2">&quot;PyTorch Hub&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;huggingface&quot;</span><span class="p">:</span> <span class="s2">&quot;Hugging Face&quot;</span>
+                    <span class="p">}</span>
+                    <span class="n">framework_name_map</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span> <span class="s2">&quot;TensorFlow&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;pytorch&quot;</span><span class="p">:</span> <span class="s2">&quot;PyTorch&quot;</span>
+                    <span class="p">}</span>
+
+                    <span class="n">model_hub</span> <span class="o">=</span> <span class="n">model_hub_map</span><span class="p">[</span><span class="n">model_hub</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="k">if</span> <span class="n">model_hub</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">model_hub_map</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> \
+                        <span class="k">else</span> <span class="n">model_hub</span>
+                    <span class="n">model_framework</span> <span class="o">=</span> <span class="n">framework_name_map</span><span class="p">[</span><span class="n">model_framework</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="k">if</span> \
+                        <span class="n">model_framework</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">framework_name_map</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="n">model_framework</span>
+
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;| </span><span class="si">{}</span><span class="s2"> | </span><span class="si">{}</span><span class="s2"> | </span><span class="si">{}</span><span class="s2"> |&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">model_framework</span><span class="p">,</span> <span class="n">model_hub</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">model_framework</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">markdown</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">model_attribute</span><span class="p">,</span> <span class="n">attribute_value</span> <span class="ow">in</span> <span class="n">models</span><span class="p">[</span><span class="n">model_use_case</span><span class="p">][</span><span class="n">model_name</span><span class="p">][</span><span class="n">model_framework</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_attribute</span><span class="p">,</span> <span class="n">attribute_value</span><span class="p">))</span>
 
@@ -384,12 +423,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

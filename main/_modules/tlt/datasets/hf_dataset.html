@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks.html">Example Notebooks</a></li>
@@ -297,7 +297,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
                                                  <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span>
                                                  <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_data_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
                                        <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
@@ -335,7 +335,7 @@
                 <span class="n">train_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;train split not specified&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">train_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
 
         <span class="k">return</span> <span class="n">train_ds</span>
@@ -352,7 +352,7 @@
                 <span class="n">test_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;test split not specified&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">test_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
 
         <span class="k">return</span> <span class="n">test_ds</span>
@@ -368,7 +368,7 @@
                 <span class="n">validation_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_indices</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;validation split not specified&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">validation_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
 
         <span class="k">return</span> <span class="n">validation_ds</span>
@@ -402,12 +402,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

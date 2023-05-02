@@ -15,8 +15,10 @@
    
       ~TFImageClassificationModel.__init__
       ~TFImageClassificationModel.benchmark
+      ~TFImageClassificationModel.cleanup_saved_objects_for_distributed
       ~TFImageClassificationModel.evaluate
       ~TFImageClassificationModel.export
+      ~TFImageClassificationModel.export_for_distributed
       ~TFImageClassificationModel.get_inc_config_template_dict
       ~TFImageClassificationModel.load_from_directory
       ~TFImageClassificationModel.optimize_graph

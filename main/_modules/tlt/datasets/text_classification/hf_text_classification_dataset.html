@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../notebooks.html">Example Notebooks</a></li>
@@ -103,7 +103,7 @@
 <span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">read_json_file</span>
 <span class="kn">from</span> <span class="nn">tlt.datasets.hf_dataset</span> <span class="kn">import</span> <span class="n">HFDataset</span>
 <span class="kn">from</span> <span class="nn">tlt.datasets.text_classification.text_classification_dataset</span> <span class="kn">import</span> <span class="n">TextClassificationDataset</span>
-<span class="kn">from</span> <span class="nn">ai_downloader.datasets</span> <span class="kn">import</span> <span class="n">DataDownloader</span>
+<span class="kn">from</span> <span class="nn">downloader.datasets</span> <span class="kn">import</span> <span class="n">DataDownloader</span>
 
 <span class="n">DATASET_CONFIG_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TLT_BASE_DIR</span><span class="p">,</span> <span class="s2">&quot;datasets/configs&quot;</span><span class="p">)</span>
 
@@ -136,7 +136,7 @@
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="s1">&#39;recall&#39;</span>  <span class="c1"># Train &amp; evaluate on the whole dataset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Train &amp; evaluate on the whole dataset</span>
 
             <span class="c1"># If only one split is given use it as the main dataset object</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_hf_dataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -242,12 +242,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

@@ -46,7 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../cli.html">CLI Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../cli.html#tlt">tlt</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Image Classification Intel® Transfer Learning Tool CLI Examples</a><ul>
@@ -106,7 +106,7 @@ mkdir<span class="w"> </span>-p<span class="w"> </span><span class="si">${</span
 
 <span class="c1"># Download and extract the dataset</span>
 wget<span class="w"> </span>-P<span class="w"> </span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span><span class="w"> </span>https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
-tar<span class="w"> </span>-xzf<span class="w"> </span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span>/flower_photos.tgz
+tar<span class="w"> </span>-xzf<span class="w"> </span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span>/flower_photos.tgz<span class="w"> </span>-C<span class="w"> </span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span>
 
 <span class="c1"># Set the DATASET_DIR to the extracted images folder</span>
 <span class="nv">DATASET_DIR</span><span class="o">=</span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span>/flower_photos
@@ -150,7 +150,6 @@ tlt<span class="w"> </span>train<span class="w"> </span><span class="se">\</span
 <span class="w">    </span>--output-dir<span class="w"> </span><span class="si">${</span><span class="nv">OUTPUT_DIR</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--epochs<span class="w"> </span><span class="m">2</span>
 
-
 <span class="c1"># Evaluate the model exported after training</span>
 <span class="c1"># Note that your --model-dir path may vary, since each training run creates a new directory</span>
 tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="se">\</span>
@@ -184,12 +183,11 @@ tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

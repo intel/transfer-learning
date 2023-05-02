@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tlt.datasets.image_classification.tf_image_classification_dataset &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+  <title>tlt.datasets.image_classification.tfds_image_classification_dataset &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../notebooks.html">Example Notebooks</a></li>
@@ -64,7 +64,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">tlt.datasets.image_classification.tf_image_classification_dataset</li>
+      <li class="breadcrumb-item active">tlt.datasets.image_classification.tfds_image_classification_dataset</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -73,7 +73,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for tlt.datasets.image_classification.tf_image_classification_dataset</h1><div class="highlight"><pre>
+  <h1>Source code for tlt.datasets.image_classification.tfds_image_classification_dataset</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="c1">#</span>
@@ -98,15 +98,15 @@
 
 <span class="kn">from</span> <span class="nn">tlt.datasets.tf_dataset</span> <span class="kn">import</span> <span class="n">TFDataset</span>
 <span class="kn">from</span> <span class="nn">tlt.datasets.image_classification.image_classification_dataset</span> <span class="kn">import</span> <span class="n">ImageClassificationDataset</span>
-<span class="kn">from</span> <span class="nn">ai_downloader.datasets</span> <span class="kn">import</span> <span class="n">DataDownloader</span>
+<span class="kn">from</span> <span class="nn">downloader.datasets</span> <span class="kn">import</span> <span class="n">DataDownloader</span>
 
 
-<div class="viewcode-block" id="TFImageClassificationDataset"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.html#tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset">[docs]</a><span class="k">class</span> <span class="nc">TFImageClassificationDataset</span><span class="p">(</span><span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">TFDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="TFDSImageClassificationDataset"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.html#tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset">[docs]</a><span class="k">class</span> <span class="nc">TFDSImageClassificationDataset</span><span class="p">(</span><span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">TFDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An image classification dataset from the TensorFlow datasets catalog</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="TFImageClassificationDataset.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.html#tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span>
-                 <span class="n">as_supervised</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TFDSImageClassificationDataset.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.html#tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span>
+                 <span class="n">as_supervised</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class constructor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -127,7 +127,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_test_subset</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="s1">&#39;recall&#39;</span>  <span class="c1"># Train &amp; evaluate on the whole dataset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Train &amp; evaluate on the whole dataset</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="s1">&#39;defined_split&#39;</span>  <span class="c1"># Defined by user or TFDS</span>
@@ -226,12 +226,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

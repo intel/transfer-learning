@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks.html">Example Notebooks</a></li>
@@ -288,8 +288,6 @@
         <li><a href="cli.html#cmdoption-tlt-train-hostfile">tlt-train command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --inc-config
 
@@ -308,6 +306,8 @@
         <li><a href="cli.html#cmdoption-tlt-quantize-inc-config">tlt-quantize command line option</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --init-checkpoints
 
@@ -320,6 +320,13 @@
 
       <ul>
         <li><a href="cli.html#cmdoption-tlt-train-init-checkpoints">tlt-train command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --ipex-optimize
+
+      <ul>
+        <li><a href="cli.html#cmdoption-tlt-train-ipex_optimize">tlt-train command line option</a>
 </li>
       </ul></li>
       <li>
@@ -416,6 +423,13 @@
 </li>
       </ul></li>
       <li>
+    --nproc-per-node
+
+      <ul>
+        <li><a href="cli.html#cmdoption-tlt-train-nproc_per_node">tlt-train command line option</a>
+</li>
+      </ul></li>
+      <li>
     --nproc_per_node
 
       <ul>
@@ -463,10 +477,24 @@
 </li>
       </ul></li>
       <li>
+    --use-horovod
+
+      <ul>
+        <li><a href="cli.html#cmdoption-tlt-train-use-horovod">tlt-train command line option</a>
+</li>
+      </ul></li>
+      <li>
     --use_case
 
       <ul>
         <li><a href="cli.html#cmdoption-tlt-list-models-use-case">tlt-list-models command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --use_horovod
+
+      <ul>
+        <li><a href="cli.html#cmdoption-tlt-train-use-horovod">tlt-train command line option</a>
 </li>
       </ul></li>
       <li>
@@ -509,7 +537,7 @@
 </li>
         <li><a href="_autosummary/tlt.datasets.image_classification.tf_custom_image_classification_dataset.TFCustomImageClassificationDataset.html#tlt.datasets.image_classification.tf_custom_image_classification_dataset.TFCustomImageClassificationDataset.__init__">(tlt.datasets.image_classification.tf_custom_image_classification_dataset.TFCustomImageClassificationDataset method)</a>
 </li>
-        <li><a href="_autosummary/tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.html#tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.__init__">(tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset method)</a>
+        <li><a href="_autosummary/tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.html#tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.__init__">(tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset method)</a>
 </li>
         <li><a href="_autosummary/tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset.html#tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset.__init__">(tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset method)</a>
 </li>
@@ -671,13 +699,13 @@
 </li>
       <li><a href="_autosummary/tlt.datasets.tf_dataset.TFDataset.html#tlt.datasets.tf_dataset.TFDataset">TFDataset (class in tlt.datasets.tf_dataset)</a>
 </li>
+      <li><a href="_autosummary/tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset.html#tlt.datasets.image_classification.tfds_image_classification_dataset.TFDSImageClassificationDataset">TFDSImageClassificationDataset (class in tlt.datasets.image_classification.tfds_image_classification_dataset)</a>
+</li>
       <li><a href="_autosummary/tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset.html#tlt.datasets.text_classification.tfds_text_classification_dataset.TFDSTextClassificationDataset">TFDSTextClassificationDataset (class in tlt.datasets.text_classification.tfds_text_classification_dataset)</a>
 </li>
       <li><a href="_autosummary/tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.html#tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel">TFHubImageClassificationModel (class in tlt.models.image_classification.tfhub_image_classification_model)</a>
 </li>
       <li><a href="_autosummary/tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel.html#tlt.models.text_classification.tfhub_text_classification_model.TFHubTextClassificationModel">TFHubTextClassificationModel (class in tlt.models.text_classification.tfhub_text_classification_model)</a>
-</li>
-      <li><a href="_autosummary/tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset.html#tlt.datasets.image_classification.tf_image_classification_dataset.TFImageClassificationDataset">TFImageClassificationDataset (class in tlt.datasets.image_classification.tf_image_classification_dataset)</a>
 </li>
       <li><a href="_autosummary/tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.html#tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel">TFImageClassificationModel (class in tlt.models.image_classification.tf_image_classification_model)</a>
 </li>
@@ -858,6 +886,8 @@
 </li>
         <li><a href="cli.html#cmdoption-tlt-train-init-checkpoints">--init_checkpoints</a>
 </li>
+        <li><a href="cli.html#cmdoption-tlt-train-ipex_optimize">--ipex-optimize</a>
+</li>
         <li><a href="cli.html#cmdoption-tlt-train-ipex_optimize">--ipex_optimize</a>
 </li>
         <li><a href="cli.html#cmdoption-tlt-train-lr-decay">--lr-decay</a>
@@ -870,11 +900,17 @@
 </li>
         <li><a href="cli.html#cmdoption-tlt-train-nnodes">--nnodes</a>
 </li>
+        <li><a href="cli.html#cmdoption-tlt-train-nproc_per_node">--nproc-per-node</a>
+</li>
         <li><a href="cli.html#cmdoption-tlt-train-nproc_per_node">--nproc_per_node</a>
 </li>
         <li><a href="cli.html#cmdoption-tlt-train-output-dir">--output-dir</a>
 </li>
         <li><a href="cli.html#cmdoption-tlt-train-output-dir">--output_dir</a>
+</li>
+        <li><a href="cli.html#cmdoption-tlt-train-use-horovod">--use-horovod</a>
+</li>
+        <li><a href="cli.html#cmdoption-tlt-train-use-horovod">--use_horovod</a>
 </li>
         <li><a href="cli.html#cmdoption-tlt-train-d">-d</a>
 </li>
@@ -911,12 +947,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

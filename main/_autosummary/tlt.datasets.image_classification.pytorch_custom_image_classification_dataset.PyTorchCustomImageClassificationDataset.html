@@ -46,7 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#datasets">Datasets</a><ul class="current">
@@ -102,6 +102,23 @@ contain .jpg images for the class. The name of the subfolder will be used as the
   ├── class_a
   ├── class_b
   └── class_c
+</pre></div>
+</div>
+<p>For a user-defined split of train, validation, and test subsets, arrange class subfolders in accordingly named
+subfolders (note: the only acceptable names are ‘train’, ‘validation’, and/or ‘test’).</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>dataset_dir
+  ├── train
+  |   ├── class_a
+  |   ├── class_b
+  |   └── class_c
+  ├── validation
+  |   ├── class_a
+  |   ├── class_b
+  |   └── class_c
+  └── test
+      ├── class_a
+      ├── class_b
+      └── class_c
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -201,12 +218,11 @@ will be used as the dataset name.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

@@ -49,7 +49,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../notebooks.html">Example Notebooks</a><ul class="current">
@@ -70,6 +70,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#6.-Predict">6. Predict</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#7.-Export-the-saved-model">7. Export the saved model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#8.-Quantization">8. Quantization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Citations">Citations</a></li>
 </ul>
 </li>
@@ -116,7 +117,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
@@ -182,7 +184,8 @@
 </pre></div>
 </div>
 <p>If the .csv has more columns, the <code class="docutils literal notranslate"><span class="pre">select_cols</span></code> or <code class="docutils literal notranslate"><span class="pre">exclude_cols</span></code> parameters can be used to filter out which columns are parsed.</p>
-<p>This example is downloading the <a class="reference external" href="https://archive-beta.ics.uci.edu/ml/datasets/sms+spam+collection">SMS Spam Collection</a> dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text messages that are either being classified as <code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>. The first column in the data file has the label (<code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>) and the second column is the text of the SMS mesage.</p>
+<p>This example is downloading the <a class="reference external" href="https://archive-beta.ics.uci.edu/ml/datasets/sms+spam+collection">SMS Spam Collection</a> dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text messages that are either being classified as <code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>. The first column in the data file has the label (<code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>) and the second column is the text of the SMS mesage. (Note: Please see this dataset’s applicable license for terms and conditions. Intel
+Corporation does not own the rights to this data set and does not confer any rights to it.)</p>
 <p>When using your own dataset, update the path to your dataset directory, as well the other variables with properties about the dataset like the csv file name, class names, delimiter, header, and the map function (if string labels need to be translated into numerical values).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -233,13 +236,14 @@
 </section>
 <section id="Option-B:-Use-the-TFDS-catalog">
 <h3>Option B: Use the TFDS catalog<a class="headerlink" href="#Option-B:-Use-the-TFDS-catalog" title="Permalink to this heading">¶</a></h3>
-<p>Option B allows for using a dataset from the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview">TensorFlow datasets catalog</a>. The dataset factory currently supports the following TFDS text classification datasets: <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews">imdb_reviews</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews">glue/sst2</a>, and <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config">glue/cola</a>.</p>
+<p>Option B allows for using a dataset from the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview">TensorFlow datasets catalog</a>. The dataset factory currently supports the following TFDS text classification datasets: <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews">imdb_reviews</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews">glue/sst2</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config">glue/cola</a>, and
+<a class="reference external" href="https://www.tensorflow.org/datasets/catalog/ag_news_subset">ag_news_subset</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Supported datasets: imdb_reviews, glue/sst2, glue/cola</span>
-<span class="n">dataset_name</span> <span class="o">=</span> <span class="s2">&quot;imdb_reviews&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Supported datasets: imdb_reviews, glue/sst2, glue/cola, ag_news_subset</span>
+<span class="n">dataset_name</span> <span class="o">=</span> <span class="s2">&quot;ag_news_subset&quot;</span>
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">use_case</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span>
                                       <span class="n">dataset_catalog</span><span class="o">=</span><span class="s2">&quot;tf_datasets&quot;</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -320,21 +324,28 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 
 <span class="c1"># Maximum number of rows to show in the data frame</span>
 <span class="n">max_items</span> <span class="o">=</span> <span class="mi">10</span>
-
+<span class="n">num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">)</span>
 <span class="c1"># Collect the sentence text, score, and actual label for the batch</span>
 <span class="n">prediction_list</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">actual_label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">data_batch</span><span class="p">,</span> <span class="n">labels</span><span class="p">)):</span>
     <span class="n">sentence</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
     <span class="n">score</span> <span class="o">=</span> <span class="n">batch_predictions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">num_classes</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+
     <span class="n">prediction_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sentence</span><span class="p">,</span>
-                            <span class="n">tf</span><span class="o">.</span><span class="n">get_static_value</span><span class="p">(</span><span class="n">score</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="nb">max</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_static_value</span><span class="p">(</span><span class="n">score</span><span class="p">)),</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">get_str_label</span><span class="p">(</span><span class="n">prediction</span><span class="p">),</span>
                             <span class="n">dataset</span><span class="o">.</span><span class="n">get_str_label</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">actual_label</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))])</span>
     <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="n">max_items</span><span class="p">:</span>
         <span class="k">break</span>
 
 <span class="c1"># Display the results using a data frame</span>
-<span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">prediction_list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Input Text&quot;</span><span class="p">,</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="s2">&quot;Actual Label&quot;</span><span class="p">])</span>
-<span class="n">result_df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">hide</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+<span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">prediction_list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Input Text&quot;</span><span class="p">,</span> <span class="s2">&quot;Prediction Score&quot;</span><span class="p">,</span> <span class="s2">&quot;Prediction&quot;</span><span class="p">,</span> <span class="s2">&quot;Actual Label&quot;</span><span class="p">])</span>
+<span class="c1"># Center the column headers and hide the index</span>
+<span class="n">result_df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">set_table_styles</span><span class="p">([{</span><span class="s1">&#39;selector&#39;</span><span class="p">:</span> <span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="s1">&#39;props&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="s1">&#39;text-align&#39;</span><span class="p">,</span> <span class="s1">&#39;center&#39;</span><span class="p">)]}])</span><span class="o">.</span><span class="n">hide</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -343,9 +354,14 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="s2">&quot;Awesome movie&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">score</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="s2">&quot;Awesome movie!&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted score:&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="k">if</span> <span class="n">num_classes</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted score:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted label:&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_str_label</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="p">)))</span>
 </pre></div>
 </div>
@@ -359,6 +375,56 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="8.-Quantization">
+<h2>8. Quantization<a class="headerlink" href="#8.-Quantization" title="Permalink to this heading">¶</a></h2>
+<p>In this section, the Intel Transfer Learning Tool API uses Intel® Neural Compressor (INC) to quantize the model to get optimal inference performance. Note that this feature has only been implemented for use with custom text classification datasets. If you used a dataset from the Tensorflow dataset catalog, this will not work.</p>
+<p>First, we create a config file to use with Intel Neural Compressor based on your model, dataset, and other quantization parameters. If you want more control over the configuration, you can provide your own custom yaml path for the inc_config_file instead of using the file generated by write_inc_config_file().</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">yaml</span>
+<span class="c1"># Create an output directory for quantization output with the same base name as our saved model directory</span>
+<span class="n">quantization_output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;quantized_models&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                                       <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">))</span>
+
+<span class="c1"># Create a tuning workspace directory for INC</span>
+<span class="n">nc_workspace</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;nc_workspace&#39;</span><span class="p">)</span>
+
+<span class="c1"># Relative accuracy loss (1%)</span>
+<span class="n">relative_accuracy_criterion</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+<span class="c1"># Define the exit policy timeout (in seconds) and max number of trials. The tuning processing finishes when</span>
+<span class="c1"># the timeout or max trials is reached. A tuning timeout of 0 means that the tuning phase stops when the</span>
+<span class="c1"># accuracy criterion is met.</span>
+<span class="n">timeout</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">max_trials</span><span class="o">=</span><span class="mi">15</span>
+
+<span class="c1"># Write an Intel Neural Compressor config file based on the dataset that we are using</span>
+<span class="n">inc_config_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;inc_configs&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">),</span>
+                               <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.yaml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">write_inc_config_file</span><span class="p">(</span><span class="n">inc_config_file</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">accuracy_criterion_relative</span><span class="o">=</span><span class="n">relative_accuracy_criterion</span><span class="p">,</span> <span class="n">exit_policy_timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+                            <span class="n">exit_policy_max_trials</span><span class="o">=</span><span class="n">max_trials</span><span class="p">,</span> <span class="n">tuning_workspace</span><span class="o">=</span><span class="n">nc_workspace</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">inc_config_file</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;INC config file has been written to: </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">inc_config_file</span><span class="p">))</span>
+    <span class="c1"># Print configs for informational purposes</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">inc_config_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<p>Next we use INC to automatically search for the optimal quantization recipe for low-precision model inference within the accuracy loss constrains defined in the config. Running post training quantization may take several minutes, depending on your hardware and the exit policy (timeout and max trials).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="n">quantization_output_dir</span><span class="p">,</span> <span class="n">inc_config_file</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -377,11 +443,13 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
   url       = {http://www.aclweb.org/anthology/P11-1015}
 }
 
-@inproceedings{wang2019glue,
-  title={{GLUE}: A Multi-Task Benchmark and Analysis Platform for Natural Language Understanding},
-  author={Wang, Alex and Singh, Amanpreet and Michael, Julian and Hill, Felix and Levy, Omer and Bowman, Samuel R.},
-  note={In the Proceedings of ICLR.},
-  year={2019}
+@misc{zhang2015characterlevel,
+    title={Character-level Convolutional Networks for Text Classification},
+    author={Xiang Zhang and Junbo Zhao and Yann LeCun},
+    year={2015},
+    eprint={1509.01626},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
 }
 
 @misc{misc_sms_spam_collection_228,
@@ -392,6 +460,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 }
 </pre></div>
 </div>
+<p>Please see this dataset’s applicable license for terms and conditions. Intel Corporation does not own the rights to this data set and does not confer any rights to it.</p>
 </section>
 </section>
 
@@ -406,12 +475,11 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

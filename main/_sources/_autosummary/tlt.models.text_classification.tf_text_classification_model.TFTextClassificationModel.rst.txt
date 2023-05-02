@@ -15,8 +15,10 @@
    
       ~TFTextClassificationModel.__init__
       ~TFTextClassificationModel.benchmark
+      ~TFTextClassificationModel.cleanup_saved_objects_for_distributed
       ~TFTextClassificationModel.evaluate
       ~TFTextClassificationModel.export
+      ~TFTextClassificationModel.export_for_distributed
       ~TFTextClassificationModel.get_inc_config_template_dict
       ~TFTextClassificationModel.load_from_directory
       ~TFTextClassificationModel.optimize_graph

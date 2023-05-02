@@ -46,7 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../api.html#datasets">Datasets</a></li>
@@ -121,8 +121,14 @@ fine tuning.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_for_distributed</span></code>(output_dir, dataset)</p></td>
 <td><p>Helper function to export dataset and model objects to disk for distributed job</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_inc_config_template_dict</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">freeze_layer</span></code>(layer_name)</p></td>
+<td><p>Freezes the model's layer using a layer name :param layer_name: The layer name that will be frozen in the model :type layer_name: string</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_inc_config_template_dict</span></code>()</p></td>
 <td><p>Returns a dictionary for a config template compatible with the Intel Neural Compressor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_layers</span></code>([verbose])</p></td>
+<td><p>Lists all of the named modules (e.g.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_directory</span></code>(model_dir, num_classes)</p></td>
 <td><p>Loads a saved pytorch model from the given model_dir directory</p></td>
@@ -139,7 +145,10 @@ fine tuning.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">train</span></code>(dataset, output_dir[, epochs, ...])</p></td>
 <td><p>Trains the model using the specified text classification dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_inc_config_file</span></code>(config_file_path, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unfreeze_layer</span></code>(layer_name)</p></td>
+<td><p>Unfreezes the model's layer using a layer name :param layer_name: The layer name that will be frozen in the model :type layer_name: string</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_inc_config_file</span></code>(config_file_path, ...)</p></td>
 <td><p>Writes an INC compatible config file to the specified path usings args from the specified dataset and parameters.</p></td>
 </tr>
 </tbody>
@@ -182,12 +191,11 @@ fine tuning.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

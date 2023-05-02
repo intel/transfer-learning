@@ -15,8 +15,10 @@
    
       ~TFModel.__init__
       ~TFModel.benchmark
+      ~TFModel.cleanup_saved_objects_for_distributed
       ~TFModel.evaluate
       ~TFModel.export
+      ~TFModel.export_for_distributed
       ~TFModel.load_from_directory
       ~TFModel.optimize_graph
       ~TFModel.predict

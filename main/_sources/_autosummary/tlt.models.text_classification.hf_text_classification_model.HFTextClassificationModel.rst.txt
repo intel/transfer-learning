@@ -18,12 +18,15 @@
       ~HFTextClassificationModel.evaluate
       ~HFTextClassificationModel.export
       ~HFTextClassificationModel.export_for_distributed
+      ~HFTextClassificationModel.freeze_layer
       ~HFTextClassificationModel.get_inc_config_template_dict
+      ~HFTextClassificationModel.list_layers
       ~HFTextClassificationModel.load_from_directory
       ~HFTextClassificationModel.optimize_graph
       ~HFTextClassificationModel.predict
       ~HFTextClassificationModel.quantize
       ~HFTextClassificationModel.train
+      ~HFTextClassificationModel.unfreeze_layer
       ~HFTextClassificationModel.write_inc_config_file
    
    

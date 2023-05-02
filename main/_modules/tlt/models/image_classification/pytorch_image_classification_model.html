@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../notebooks.html">Example Notebooks</a></li>
@@ -744,8 +744,9 @@
                 <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s2">&quot;A saved model already exists at:&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;model.pt&quot;</span><span class="p">))</span>
 
         <span class="kn">from</span> <span class="nn">neural_compressor.experimental</span> <span class="kn">import</span> <span class="n">Quantization</span>
-        <span class="kn">from</span> <span class="nn">neural_compressor.utils.utility</span> <span class="kn">import</span> <span class="n">set_backend</span>
-        <span class="n">set_backend</span><span class="p">(</span><span class="s1">&#39;pytorch&#39;</span><span class="p">)</span>
+        <span class="c1"># set_backend API is no longer available in Neural Compressor v2.0</span>
+        <span class="c1"># from neural_compressor.experimental.common.model import set_backend</span>
+        <span class="c1"># set_backend(&#39;pytorch&#39;)</span>
         <span class="n">quantizer</span> <span class="o">=</span> <span class="n">Quantization</span><span class="p">(</span><span class="n">inc_config_path</span><span class="p">)</span>
         <span class="n">quantizer</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
         <span class="n">quantized_model</span> <span class="o">=</span> <span class="n">quantizer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
@@ -793,9 +794,9 @@
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;The config file was not found at: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">inc_config_path</span><span class="p">))</span>
 
         <span class="kn">from</span> <span class="nn">neural_compressor.experimental</span> <span class="kn">import</span> <span class="n">Benchmark</span><span class="p">,</span> <span class="n">common</span>
-        <span class="kn">from</span> <span class="nn">neural_compressor.utils.utility</span> <span class="kn">import</span> <span class="n">set_backend</span>
-
-        <span class="n">set_backend</span><span class="p">(</span><span class="s1">&#39;pytorch&#39;</span><span class="p">)</span>
+        <span class="c1"># set_backend API is no longer available in Neural Compressor v2.0</span>
+        <span class="c1"># from neural_compressor.experimental.common.model import set_backend</span>
+        <span class="c1"># set_backend(&#39;pytorch&#39;)</span>
 
         <span class="k">if</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;fp32&quot;</span><span class="p">:</span>
             <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Benchmark</span><span class="p">(</span><span class="n">inc_config_path</span><span class="p">)</span>
@@ -842,12 +843,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

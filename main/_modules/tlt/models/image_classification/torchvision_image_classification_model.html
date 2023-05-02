@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../notebooks.html">Example Notebooks</a></li>
@@ -95,12 +95,12 @@
 <span class="c1">#</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">pydoc</span> <span class="kn">import</span> <span class="n">locate</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">intel_extension_for_pytorch</span> <span class="k">as</span> <span class="nn">ipex</span>
 
+<span class="kn">from</span> <span class="nn">downloader.models</span> <span class="kn">import</span> <span class="n">ModelDownloader</span>
 <span class="kn">from</span> <span class="nn">tlt</span> <span class="kn">import</span> <span class="n">TLT_BASE_DIR</span>
 <span class="kn">from</span> <span class="nn">tlt.distributed</span> <span class="kn">import</span> <span class="n">TLT_DISTRIBUTED_DIR</span>
 <span class="kn">from</span> <span class="nn">tlt.models.image_classification.pytorch_image_classification_model</span> <span class="kn">import</span> <span class="n">PyTorchImageClassificationModel</span>
@@ -127,16 +127,21 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_classification_layer</span> <span class="o">=</span> <span class="n">torchvision_model_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s2">&quot;classification_layer&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_image_size</span> <span class="o">=</span> <span class="n">torchvision_model_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s2">&quot;image_size&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_original_dataset</span> <span class="o">=</span> <span class="n">torchvision_model_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s2">&quot;original_dataset&quot;</span><span class="p">]</span>
 
         <span class="c1"># placeholder for model definition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_distributed</span> <span class="o">=</span> <span class="kc">False</span></div>
 
+    <span class="k">def</span> <span class="nf">_model_downloader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+        <span class="n">downloader</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="s1">&#39;torchvision&#39;</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_original_dataset</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">model</span>
+
     <span class="k">def</span> <span class="nf">_get_hub_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
-            <span class="n">pretrained_model_class</span> <span class="o">=</span> <span class="n">locate</span><span class="p">(</span><span class="s1">&#39;torchvision.models.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">pretrained_model_class</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_downloader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_fine_tuning</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
@@ -291,8 +296,7 @@
             <span class="c1"># The model hasn&#39;t been trained yet, use the original ImageNet trained model</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The model has not been trained yet, so evaluation is being done using the original model &quot;</span><span class="p">,</span>
                   <span class="s2">&quot;and its classes&quot;</span><span class="p">)</span>
-            <span class="n">pretrained_model_class</span> <span class="o">=</span> <span class="n">locate</span><span class="p">(</span><span class="s1">&#39;torchvision.models.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span><span class="p">))</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">pretrained_model_class</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_downloader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span><span class="p">)</span>
             <span class="n">optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_class</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span><span class="p">)</span>
             <span class="c1"># We shouldn&#39;t need ipex.optimize() for evaluation</span>
         <span class="k">else</span><span class="p">:</span>
@@ -354,8 +358,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The model has not been trained yet, so predictions are being done using the original model&quot;</span><span class="p">)</span>
-            <span class="n">pretrained_model_class</span> <span class="o">=</span> <span class="n">locate</span><span class="p">(</span><span class="s1">&#39;torchvision.models.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">))</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">pretrained_model_class</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_downloader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span><span class="p">)</span>
             <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">input_samples</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
@@ -377,12 +380,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../notebooks.html">Example Notebooks</a></li>
@@ -96,8 +96,8 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">tensorflow_hub</span> <span class="k">as</span> <span class="nn">hub</span>
 
+<span class="kn">from</span> <span class="nn">downloader.models</span> <span class="kn">import</span> <span class="n">ModelDownloader</span>
 <span class="kn">from</span> <span class="nn">tlt</span> <span class="kn">import</span> <span class="n">TLT_BASE_DIR</span>
 <span class="kn">from</span> <span class="nn">tlt.models.text_classification.tf_text_classification_model</span> <span class="kn">import</span> <span class="n">TFTextClassificationModel</span>
 <span class="kn">from</span> <span class="nn">tlt.datasets.text_classification.text_classification_dataset</span> <span class="kn">import</span> <span class="n">TextClassificationDataset</span>
@@ -154,9 +154,11 @@
     <span class="k">def</span> <span class="nf">_get_hub_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
             <span class="n">input_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;input_layer&#39;</span><span class="p">)</span>
-            <span class="n">preprocessing_layer</span> <span class="o">=</span> <span class="n">hub</span><span class="o">.</span><span class="n">KerasLayer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hub_preprocessor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;preprocessing&#39;</span><span class="p">)</span>
+            <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hub_preprocessor</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="s1">&#39;tf_hub&#39;</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;preprocessing&#39;</span><span class="p">)</span>
+            <span class="n">preprocessing_layer</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
             <span class="n">encoder_inputs</span> <span class="o">=</span> <span class="n">preprocessing_layer</span><span class="p">(</span><span class="n">input_layer</span><span class="p">)</span>
-            <span class="n">encoder_layer</span> <span class="o">=</span> <span class="n">hub</span><span class="o">.</span><span class="n">KerasLayer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_url</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;encoder&#39;</span><span class="p">)</span>
+            <span class="n">encoder</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_url</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="s1">&#39;tf_hub&#39;</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;encoder&#39;</span><span class="p">)</span>
+            <span class="n">encoder_layer</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
             <span class="n">outputs</span> <span class="o">=</span> <span class="n">encoder_layer</span><span class="p">(</span><span class="n">encoder_inputs</span><span class="p">)</span>
             <span class="n">net</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;pooled_output&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">input_layer</span><span class="p">,</span> <span class="n">net</span><span class="p">))</span>
@@ -183,7 +185,8 @@
 
     <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
               <span class="n">do_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">early_stopping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lr_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-              <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+              <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">distributed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hostfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">           Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is</span>
 <span class="sd">           provided, those weights are loaded before training.</span>
@@ -256,12 +259,17 @@
         <span class="n">callbacks</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">val_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_train_callbacks</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">,</span> <span class="n">do_eval</span><span class="p">,</span>
                                                                     <span class="n">early_stopping</span><span class="p">,</span> <span class="n">lr_decay</span><span class="p">,</span> <span class="n">dataset_num_classes</span><span class="p">)</span>
 
-        <span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">val_data</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle_files</span><span class="p">,</span>
-                                  <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">distributed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_for_distributed</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">val_data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fit_distributed</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="p">,</span> <span class="n">hostfile</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_horovod&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_saved_objects_for_distributed</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">val_data</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle_files</span><span class="p">,</span>
+                                      <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">history</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">history</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
 
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -331,12 +339,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

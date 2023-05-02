@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notebooks.html">Example Notebooks</a></li>
@@ -101,8 +101,8 @@
 <span class="n">dataset_map</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">:</span> <span class="p">{</span>
         <span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_CLASSIFICATION</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;tf_datasets&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.datasets.image_classification.tf_image_classification_dataset&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TFImageClassificationDataset&quot;</span><span class="p">},</span>
+            <span class="s2">&quot;tf_datasets&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.datasets.image_classification.tfds_image_classification_dataset&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TFDSImageClassificationDataset&quot;</span><span class="p">},</span>
             <span class="s2">&quot;custom&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="s2">&quot;tlt.datasets.image_classification.tf_custom_image_classification_dataset&quot;</span><span class="p">,</span>
                        <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;TFCustomImageClassificationDataset&quot;</span><span class="p">}</span>
         <span class="p">},</span>
@@ -137,8 +137,9 @@
 <div class="viewcode-block" id="load_dataset"><a class="viewcode-back" href="../../../api.html#tlt.datasets.dataset_factory.load_dataset">[docs]</a><span class="k">def</span> <span class="nf">load_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A factory method for loading a custom dataset.</span>
 
-<span class="sd">    Image classification datasets expect a directory of images organized with subfolders for each image class. Each</span>
-<span class="sd">    subfolder should contain .jpg images for the class. The name of the subfolder will be used as the class label.</span>
+<span class="sd">    Image classification datasets expect a directory of images organized with subfolders for each image class, which</span>
+<span class="sd">    can themselves be in split directories named &#39;train&#39;, &#39;validation&#39;, and/or &#39;test&#39;. Each class subfolder should</span>
+<span class="sd">    contain .jpg images for the class. The name of the subfolder will be used as the class label.</span>
 
 <span class="sd">    .. code-block:: text</span>
 
@@ -146,6 +147,24 @@
 <span class="sd">          ├── class_a</span>
 <span class="sd">          ├── class_b</span>
 <span class="sd">          └── class_c</span>
+
+<span class="sd">    Or:</span>
+
+<span class="sd">    .. code-block:: text</span>
+
+<span class="sd">        dataset_dir</span>
+<span class="sd">          ├── train</span>
+<span class="sd">          |   ├── class_a</span>
+<span class="sd">          |   ├── class_b</span>
+<span class="sd">          |   └── class_c</span>
+<span class="sd">          ├── validation</span>
+<span class="sd">          |   ├── class_a</span>
+<span class="sd">          |   ├── class_b</span>
+<span class="sd">          |   └── class_c</span>
+<span class="sd">          └── test</span>
+<span class="sd">              ├── class_a</span>
+<span class="sd">              ├── class_b</span>
+<span class="sd">              └── class_c</span>
 
 <span class="sd">    Text classification datasets are expected to be a directory with text/csv file with two columns: the label and the</span>
 <span class="sd">    text/sentence to classify. See the TFCustomTextClassificationDataset documentation for a list of the additional</span>
@@ -267,12 +286,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

@@ -49,7 +49,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../notebooks.html">Example Notebooks</a><ul class="current">
@@ -149,7 +149,8 @@
 </section>
 <section id="2.-Get-the-model">
 <h2>2. Get the model<a class="headerlink" href="#2.-Get-the-model" title="Permalink to this heading">¶</a></h2>
-<p>In this step, we call the Intel Transfer Learning Tool model factory to list supported TensorFlow image classification models. This is a list of pretrained models from <a class="reference external" href="https://tfhub.dev">TFHub</a> that we tested with our API. Optionally, the <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> argument can be added to the <code class="docutils literal notranslate"><span class="pre">print_supported_models</span></code> function call to get more information about each model (such as the link to TFHub, image size, the original dataset, etc).</p>
+<p>In this step, we call the Intel Transfer Learning Tool model factory to list supported TensorFlow image classification models. This is a list of pretrained models from <a class="reference external" href="https://tfhub.dev">TFHub</a> and <a class="reference external" href="https://keras.io/api/applications/">Keras.applications</a> that we tested with our API. Optionally, the <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> argument can be added to the <code class="docutils literal notranslate"><span class="pre">print_supported_models</span></code> function call to get more information about each model (such as the link to the hub, image size, the original dataset,
+etc).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -315,7 +316,7 @@
 </section>
 <section id="6.-Transfer-Learning">
 <h2>6. Transfer Learning<a class="headerlink" href="#6.-Transfer-Learning" title="Permalink to this heading">¶</a></h2>
-<p>This step calls the model’s train function with the dataset that was just prepared. The training function will get the TFHub feature vector and add on a dense layer based on the number of classes in the dataset. The model is then compiled and trained based on the number of epochs specified in the argument. With the do_eval paramter set to True by default, this step will also show how the model can be evaluated and will return a list of metrics calculated from the dataset’s validation subset.</p>
+<p>This step calls the model’s train function with the dataset that was just prepared. The training function will get the base model and add on a dense layer based on the number of classes in the dataset. The model is then compiled and trained based on the number of epochs specified in the argument. With the do_eval paramter set to True by default, this step will also show how the model can be evaluated and will return a list of metrics calculated from the dataset’s validation subset.</p>
 <section id="Arguments">
 <h3>Arguments<a class="headerlink" href="#Arguments" title="Permalink to this heading">¶</a></h3>
 <section id="Required">
@@ -334,7 +335,7 @@
 <li><p><strong>lr_decay</strong> (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at the end of each epoch.</p></li>
 <li><p><strong>enable_auto_mixed_precision</strong> (bool or None): Enable auto mixed precision for training. Mixed precision uses both 16-bit and 32-bit floating point types to make training run faster and use less memory. It is recommended to enable auto mixed precision training when running on platforms that support bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that does not support bfloat16, it can be detrimental to the training performance. If
 enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when running with Intel fourth generation Xeon processors, and disabled for other platforms.</p></li>
-<li><p><strong>extra_layers</strong> (list[int]): Optionally insert additional dense layers between the base model and output layer. This can help increase accuracy when fine-tuning a TFHub model. The input should be a list of integers representing the number and size of the layers, for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the second with 512 neurons.</p></li>
+<li><p><strong>extra_layers</strong> (list[int]): Optionally insert additional dense layers between the base model and output layer. This can help increase accuracy when fine-tuning. The input should be a list of integers representing the number and size of the layers, for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the second with 512 neurons.</p></li>
 </ul>
 <p>Note: refer to release documentation for an up-to-date list of train arguments and their current descriptions</p>
 <div class="nbinput nblast docutils container">
@@ -343,7 +344,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="c1"># Train using the pretrained model from TF Hub with the new dataset</span>
+<span class="c1"># Train using the pretrained model from TF Hub or Keras.applications with the new dataset</span>
 <span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                       <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="n">enable_auto_mixed_precision</span><span class="p">)</span>
 </pre></div>
@@ -532,12 +533,11 @@ url = &quot;http://download.tensorflow.org/example_images/flower_photos.tgz&quot
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

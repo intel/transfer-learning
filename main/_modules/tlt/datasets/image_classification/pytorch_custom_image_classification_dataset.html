@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Intel® Transfer Learning Tool</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../notebooks.html">Example Notebooks</a></li>
@@ -95,6 +95,7 @@
 <span class="c1">#</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">datasets</span>
 
 <span class="kn">from</span> <span class="nn">tlt.datasets.pytorch_dataset</span> <span class="kn">import</span> <span class="n">PyTorchDataset</span>
@@ -113,6 +114,25 @@
 <span class="sd">          ├── class_a</span>
 <span class="sd">          ├── class_b</span>
 <span class="sd">          └── class_c</span>
+
+<span class="sd">    For a user-defined split of train, validation, and test subsets, arrange class subfolders in accordingly named</span>
+<span class="sd">    subfolders (note: the only acceptable names are &#39;train&#39;, &#39;validation&#39;, and/or &#39;test&#39;).</span>
+
+<span class="sd">    .. code-block:: text</span>
+
+<span class="sd">        dataset_dir</span>
+<span class="sd">          ├── train</span>
+<span class="sd">          |   ├── class_a</span>
+<span class="sd">          |   ├── class_b</span>
+<span class="sd">          |   └── class_c</span>
+<span class="sd">          ├── validation</span>
+<span class="sd">          |   ├── class_a</span>
+<span class="sd">          |   ├── class_b</span>
+<span class="sd">          |   └── class_c</span>
+<span class="sd">          └── test</span>
+<span class="sd">              ├── class_a</span>
+<span class="sd">              ├── class_b</span>
+<span class="sd">              └── class_c</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dataset_dir (str): Directory where the data is located. It should contain subdirectories with images for</span>
@@ -152,24 +172,49 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_validation_indices</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_dir</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_class_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">classes</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_train_pct</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_val_pct</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_test_pct</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="s1">&#39;recall&#39;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_train_subset</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validation_subset</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_test_subset</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_subset</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Determine which layout the images are in - category folders or train/test folders</span>
+        <span class="c1"># The validation_type will be None for the former and &quot;defined_split&quot; for the latter</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="s1">&#39;defined_split&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">classes</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">))</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span>
+                                                                                                      <span class="s1">&#39;test&#39;</span><span class="p">)):</span>
+                <span class="n">train_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
+                <span class="n">validation_length</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">)):</span>
+                    <span class="n">validation_data</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">))</span>
+                    <span class="n">validation_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">validation_data</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ConcatDataset</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">validation_data</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_validation_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_length</span><span class="p">,</span> <span class="n">train_length</span> <span class="o">+</span> <span class="n">validation_length</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)):</span>
+                    <span class="n">test_data</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">))</span>
+                    <span class="n">test_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ConcatDataset</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">test_data</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">train_length</span> <span class="o">+</span> <span class="n">validation_length</span><span class="p">,</span>
+                                               <span class="n">train_length</span> <span class="o">+</span> <span class="n">validation_length</span> <span class="o">+</span> <span class="n">test_length</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Found a &#39;train&#39; directory, but not a &#39;test&#39; or &#39;validation&#39; directory.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_dir</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">classes</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">class_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the list of class names</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">classes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_class_names</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -193,12 +238,11 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Intel.</p>
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on May 02, 2023.
+      </span></p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>
