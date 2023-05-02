@@ -111,7 +111,7 @@ on making code changes.
     pip install tensorflow-text==2.11.0
     ```
 
- 1. For distributed/multinode training, follow these additional [distributed training instructions](https://github.com/IntelAI/transfer-learning-tool/tlt/distributed).
+ 1. For distributed/multinode training, follow these additional [distributed training instructions](https://github.com/IntelAI/transfer-learning-tool/tree/main/tlt/distributed).
 
 ### Verify Installation
 
@@ -160,13 +160,13 @@ efficientnet_b1 (tensorflow)
 ...
 ```
 
-See the [full list of supported models](https://github.com/IntelAI/transfer-learning-tool/Models.md).
+See the [full list of supported models](https://github.com/IntelAI/transfer-learning-tool/tree/main/Models.md).
 
 **Train a model**:
 This example uses the CLI to train an image classifier to identify different types of flowers.
 Make sure to specify your own file paths for `dataset-dir` and `output-dir`. The `dataset-dir` should
 point to the [extracted flowers dataset](#prepare-the-dataset). For more information on using different
-datasets, see the [CLI examples](https://github.com/IntelAI/transfer-learning-tool/examples/cli/).
+datasets, see the [CLI examples](https://github.com/IntelAI/transfer-learning-tool/tree/main/examples/cli).
 ```
 tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
 ```
@@ -188,12 +188,12 @@ is printed out to the console. A numbered folder is created for each training ru
 The training command also evalutes the trained model and prints out accuracy and loss metrics.
 Evaluation can also be called separately using `tlt eval`. The trained model can also be benchmarked
 using `tlt benchmark` or quantized using `tlt quantize`.
-See the [CLI documentation](https://github.com/IntelAI/transfer-learning-tool/examples/cli/README.md) for more examples using the CLI.
+See the [CLI documentation](https://github.com/IntelAI/transfer-learning-tool/tree/main/examples/cli/README.md) for more examples using the CLI.
 
 ## Use the Low-code API
 The following example trains an image classification model with the TensorFlow flowers dataset using the API.
 Additionally, the model is benchmarked and quantized to int8 precision for improved inference performance.
-If you want to run the API using a Jupyter notebook, see the [notebook setup instructions](https://github.com/IntelAI/transfer-learning-tool/blob/main/notebooks/setup.md).
+If you want to run the API using a Jupyter notebook, see the [notebook setup instructions](https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/setup.md).
 
 ```python
 from tlt.datasets import dataset_factory
@@ -271,8 +271,8 @@ notebooks, and for real-world examples check out the reference workflows.
 
 Check out these Reference Kits and Workflows that use Intel Transfer Learning Tool:
 
-* [Breast Cancer Detection]()
-* [Anomaly Detection]()
+* [Breast Cancer Detection](https://github.com/IntelAI/transfer-learning/tree/main/workflows/disease_prediction)
+* [Anomaly Detection](https://github.com/IntelAI/transfer-learning/tree/main/workflows/vision_anomaly_detection)
 
 ## Support
 
