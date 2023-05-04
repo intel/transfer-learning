@@ -58,16 +58,16 @@ from tlt.datasets.text_classification.hf_custom_text_classification_dataset impo
 MODEL_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "models/configs")
 
 
-class HFTextClassificationModel(TextClassificationModel, HFModel):
+class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
     """
-    Class to represent a Hugging Face pretrained model that can be used for multi-class text classification
+    Class to represent a PyTorch Hugging Face pretrained model that can be used for multi-class text classification
     fine tuning.
     """
 
     def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
 
         hf_model_map = read_json_file(os.path.join(
-            TLT_BASE_DIR, "models/configs/hf_text_classification_models.json"))
+            TLT_BASE_DIR, "models/configs/pytorch_hf_text_classification_models.json"))
 
         # extra properties that will become configurable in the future
         self._model_name = model_name
@@ -94,7 +94,7 @@ class HFTextClassificationModel(TextClassificationModel, HFModel):
         self._loss = self._loss_class(**self._loss_args)
 
         # model definition
-        config_dict = read_json_file(os.path.join(MODEL_CONFIG_DIR, "hf_text_classification_models.json"))
+        config_dict = read_json_file(os.path.join(MODEL_CONFIG_DIR, "pytorch_hf_text_classification_models.json"))
         self.hub_name = config_dict[self._model_name]["hub_name"]
         self._model = None
         self._num_classes = None

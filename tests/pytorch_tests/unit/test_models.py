@@ -43,7 +43,7 @@ try:
     from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset   # noqa: E501
     from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import \
         PyTorchCustomImageClassificationDataset  # noqa: E501
-    from tlt.models.text_classification.hf_text_classification_model import HFTextClassificationModel  # noqa: E501
+    from tlt.models.text_classification.pytorch_hf_text_classification_model import PyTorchHFTextClassificationModel  # noqa: E501
 except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageClassificationModel and TorchvisionImageClassificationDataset. "
           "Torch may not be installed")
@@ -211,7 +211,7 @@ def test_torchvision_efficientnet_b0_train():
 @pytest.mark.pytorch
 def test_bert_train():
     model = model_factory.get_model('distilbert-base-uncased', 'pytorch')
-    assert type(model) == HFTextClassificationModel
+    assert type(model) == PyTorchHFTextClassificationModel
     with patch('tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset') as mock_dataset:  # noqa: E501
         mock_dataset.__class__ = HFTextClassificationDataset
         mock_dataset.train_subset = ['1', '2', '3']

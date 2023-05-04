@@ -31,10 +31,6 @@ from tlt.utils.types import FrameworkType, UseCaseType
 from tlt.distributed import TLT_DISTRIBUTED_DIR
 import yaml
 
-# Note that tensorflow_text isn't used directly but the import is required to register ops used by the
-# BERT text preprocessor
-import tensorflow_text  # noqa: F401
-
 
 class TFTextClassificationModel(TextClassificationModel, TFModel):
     """
@@ -72,12 +68,14 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
             self._model = None
         elif isinstance(model, str):
             self.load_from_directory(model)
-            self._num_classes = self._model.output.shape[-1]
         elif isinstance(model, tf.keras.Model):
             self._model = model
-            self._num_classes = self._model.output.shape[-1]
         else:
             raise TypeError("The model input must be a keras Model, string, or None but found a {}".format(type(model)))
+
+        if self._model:
+            # Get the number of classes based on the shape of the last layer. If the shape is 1, assume 2 classes.
+            self._num_classes = self._model.output.shape[-1] if self._model.output.shape[-1] > 1 else 2
 
     @property
     def num_classes(self):
@@ -158,7 +156,8 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
 
         return callbacks, train_data, validation_data
 
-    def _fit_distributed(self, epochs, shuffle, hostfile, nnodes, nproc_per_node, use_horovod):
+    def _fit_distributed(self, epochs, shuffle, hostfile, nnodes, nproc_per_node, use_horovod, hf_bert_tokenizer=None,
+                         max_seq_length=None):
         import subprocess
         distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, 'tensorflow', 'run_train_tf.py')
 
@@ -205,6 +204,10 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         script_cmd += ' --epochs {}'.format(epochs)
         if shuffle:
             script_cmd += ' --shuffle'
+        if hf_bert_tokenizer:
+            script_cmd += ' --hf_bert_tokenizer {}'.format(hf_bert_tokenizer)
+        if max_seq_length:
+            script_cmd += ' --max_seq_length {}'.format(max_seq_length)
 
         bash_command = run_cmd.split(' ') + ['-np', np_cmd, '-H', hostfile_cmd] + script_cmd.split(' ')
         print(' '.join(str(e) for e in bash_command))

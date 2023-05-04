@@ -30,11 +30,11 @@ from tlt.models import model_factory
 
 @pytest.mark.integration
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
-                         [['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews', None, 3],
-                          ['small_bert/bert_en_uncased_L-2_H-256_A-4', 'glue/sst2', None, 3],
-                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews', [512, 128], 5]])
-def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, correct_num_layers):
+@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers,model_hub',
+                         [['google/bert_uncased_L-2_H-128_A-2', 'imdb_reviews', None, 5, 'huggingface'],
+                          ['google/bert_uncased_L-2_H-256_A-4', 'glue/sst2', None, 5, 'huggingface'],
+                          ['google/bert_uncased_L-2_H-128_A-2', 'imdb_reviews', [512, 128], 7, 'huggingface']])
+def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, correct_num_layers, model_hub):
     """
     Tests basic transfer learning functionality for TensorFlow binary text classification using TF Datasets
     """
@@ -95,7 +95,8 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
         assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
 
         # Reload the saved model
-        reload_model = model_factory.load_model(model_name, saved_model_dir, framework, 'text_classification')
+        reload_model = model_factory.load_model(model_name, saved_model_dir, framework, 'text_classification',
+                                                model_hub)
 
         # Evaluate
         reload_metrics = reload_model.evaluate(dataset)
@@ -106,7 +107,8 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
         assert (reload_predictions == predictions).all()
 
         # Retrain from checkpoints and verify that accuracy metric is the expected type
-        retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, 'text_classification')
+        retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, 'text_classification',
+                                                 model_hub)
         retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
                             shuffle_files=False, do_eval=False)
 
@@ -132,11 +134,11 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name, dataset_name, epochs, learning_rate, do_eval, \
                          lr_decay, accuracy, val_accuracy, lr_final',
-                         [['small_bert/bert_en_uncased_L-2_H-128_A-2', 'glue/sst2', 1,
+                         [['google/bert_uncased_L-2_H-128_A-2', 'glue/sst2', 1,
                            .005, False, False, None, None, 0.005],
-                          ['small_bert/bert_en_uncased_L-2_H-256_A-4', 'glue/sst2',
+                          ['google/bert_uncased_L-2_H-256_A-4', 'glue/sst2',
                            1, .001, True, True, 0.34375, 0.4256, 0.001],
-                          ['small_bert/bert_en_uncased_L-2_H-128_A-2', 'imdb_reviews',
+                          ['google/bert_uncased_L-2_H-128_A-2', 'imdb_reviews',
                            15, .005, True, True, None, None, 0.001]])
 def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name,
                                                        epochs, learning_rate, do_eval,
@@ -190,7 +192,7 @@ def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name,
 @pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name',
-                         ['small_bert/bert_en_uncased_L-2_H-128_A-2'])
+                         ['google/bert_uncased_L-2_H-128_A-2'])
 def test_custom_dataset_workflow(model_name):
     """
     Tests the full workflow for TF text classification using a custom dataset

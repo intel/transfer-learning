@@ -42,7 +42,6 @@ RUN apt-get update && \
     apt-get install -y build-essential libgl1 libglib2.0-0 python3.9-dev && \
     pip install --upgrade pip && \
     pip install intel_transfer_learning_tool-${TLT_VERSION}-py3-none-any.whl[tensorflow] && \
-    pip install tensorflow-text==2.11.0 && \
     rm intel_transfer_learning_tool-${TLT_VERSION}-py3-none-any.whl && \
     pip install -r tests/requirements-test.txt
 

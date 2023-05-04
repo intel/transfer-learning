@@ -23,9 +23,6 @@ conda create --name tlt_test_venv python=3.9
 # Install tlt for TensorFlow and/or PyTorch
 pip3 install --editable .
 
-# Required for TensorFlow text classification
-pip3 install tensorflow-text==2.11.0
-
 # Install the test requirements
 pip3 install -r tests/requirements-test.txt
 ```

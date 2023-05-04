@@ -36,7 +36,7 @@ the native framework notebooks.
    pip install --upgrade pip
    pip install -r ${TLT_REPO}/notebooks/requirements.txt
    ```
-   This is only required for TensorFlow text classification notebooks:
+   This is only required for TensorFlow text classification notebooks that use TF Hub:
    ```
    pip install tensorflow-text==2.11.0
    ```

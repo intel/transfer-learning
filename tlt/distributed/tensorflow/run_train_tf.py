@@ -50,6 +50,10 @@ if __name__ == '__main__':
                         'sqrt(batch_size/batch_denom) and uses global batch size for all the processes. For '
                         'strong scaling, lr is scaled by world size and divides global batch size by world size '
                         '(default: weak)')
+    parser.add_argument('--max_seq_length', type=int, default=128,
+                        help='Maximum sequence length that the model will be used with')
+    parser.add_argument('--hf_bert_tokenizer', type=str, required=False, default=None,
+                        help='Name of the Hugging Face BertTokenizer to use to prepare the data.')
 
     args = parser.parse_args()
 
@@ -64,7 +68,9 @@ if __name__ == '__main__':
         scaling=args.scaling,
         batch_size=args.batch_size,
         batch_denom=args.batch_denom,
-        shuffle=args.shuffle
+        shuffle=args.shuffle,
+        max_seq_length=args.max_seq_length,
+        hf_bert_tokenizer=args.hf_bert_tokenizer
     )
 
     dtf.launch_distributed_job(training_args)

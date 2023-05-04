@@ -61,8 +61,7 @@ COPY . /tmp/intel-transfer-learning
 WORKDIR /tmp/intel-transfer-learning
 
 RUN ${PYTHON} setup.py bdist_wheel && \
-    pip install -f https://download.pytorch.org/whl/cpu/torch_stable.html --no-cache-dir dist/*.whl && \
-    pip install --no-cache-dir 'tensorflow-text==2.11.0'
+    pip install -f https://download.pytorch.org/whl/cpu/torch_stable.html --no-cache-dir dist/*.whl
 
 # TLT target for deployment
 FROM tlt-base as tlt-prod

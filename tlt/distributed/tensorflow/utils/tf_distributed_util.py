@@ -29,6 +29,7 @@ import numpy as np
 # import horovod
 import horovod.tensorflow.keras as hvd
 
+from tlt.utils.dataset_utils import prepare_huggingface_input_data
 from tlt.distributed import TLT_DISTRIBUTED_DIR
 
 
@@ -101,14 +102,33 @@ class DistributedTF:
         # Horovod: write logs on worker 0.
         verbose = 1 if hvd.rank() == 0 else 0
 
+        x_input_data = training_args.train_data
+        y_target_data = None
+        val_data = training_args.val_data
+
+        # Prepare dataset for Hugging Face text classification
+        if training_args.hf_bert_tokenizer:
+            bert_tokenizer_name = training_args.hf_bert_tokenizer
+            max_seq_length = training_args.max_seq_length
+            tokenized_data, labels = prepare_huggingface_input_data(x_input_data, bert_tokenizer_name, max_seq_length)
+            x_input_data = [tokenized_data['input_ids'], tokenized_data['attention_mask']]
+            y_target_data = tf.convert_to_tensor(labels)
+
+            if training_args.val_data:
+                tokenized_val_data, val_labels = prepare_huggingface_input_data(training_args.val_data,
+                                                                                bert_tokenizer_name, max_seq_length)
+                val_data = ([tokenized_val_data['input_ids'], tokenized_val_data['attention_mask']],
+                            tf.convert_to_tensor(val_labels))
+
         start = time.time()
         steps_per_epoch_per_worker = len(training_args.train_data) // batch_size
         steps_per_epoch_per_worker = steps_per_epoch_per_worker // hvd.size()
         if hvd.size() > 2:
             steps_per_epoch_per_worker += 1
         self.history = model.fit(
-            training_args.train_data,
-            validation_data=training_args.val_data,
+            x=x_input_data,
+            y=y_target_data,
+            validation_data=val_data,
             callbacks=callbacks,
             steps_per_epoch=steps_per_epoch_per_worker,
             epochs=training_args.epochs,

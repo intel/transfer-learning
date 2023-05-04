@@ -106,12 +106,7 @@ on making code changes.
       ```
 
 ### Additional Feature-Specific Steps:
- 1. For TensorFlow text classification, this tensorflow-text Python library is also required:
-    ```
-    pip install tensorflow-text==2.11.0
-    ```
-
- 1. For distributed/multinode training, follow these additional [distributed training instructions](https://github.com/IntelAI/transfer-learning-tool/tree/main/tlt/distributed).
+ * For distributed/multinode training, follow these additional [distributed training instructions](https://github.com/IntelAI/transfer-learning-tool/tree/main/tlt/distributed).
 
 ### Verify Installation
 

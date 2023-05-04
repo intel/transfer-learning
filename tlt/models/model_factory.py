@@ -40,8 +40,11 @@ model_map = {
         },
         UseCaseType.TEXT_CLASSIFICATION:
         {
+            "huggingface": {"module": "tlt.models.text_classification.tf_hf_text_classification_model",
+                            "class": "TFHFTextClassificationModel"},
             "TFHub": {"module": "tlt.models.text_classification.tfhub_text_classification_model",
                       "class": "TFHubTextClassificationModel"},
+
             "Custom": {"module": "tlt.models.text_classification.tf_text_classification_model",
                        "class": "TFTextClassificationModel"}
         }
@@ -58,8 +61,8 @@ model_map = {
                        "class": "PyTorchImageClassificationModel"}
         },
         UseCaseType.TEXT_CLASSIFICATION: {
-            "huggingface": {"module": "tlt.models.text_classification.hf_text_classification_model",
-                            "class": "HFTextClassificationModel"},
+            "huggingface": {"module": "tlt.models.text_classification.pytorch_hf_text_classification_model",
+                            "class": "PyTorchHFTextClassificationModel"},
         },
         UseCaseType.IMAGE_ANOMALY_DETECTION:
         {
@@ -72,7 +75,8 @@ model_map = {
 }
 
 
-def load_model(model_name: str, model, framework: FrameworkType = None, use_case: UseCaseType = None, **kwargs):
+def load_model(model_name: str, model, framework: FrameworkType = None, use_case: UseCaseType = None,
+               model_hub: str = None, **kwargs):
     """A factory method for loading an existing model.
 
         Args:
@@ -80,6 +84,7 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
             model (model or str): model object or directory with a saved_model.pb or model.pt file to load
             framework (str or FrameworkType): framework
             use_case (str or UseCaseType): use case
+            model_hub (str): The model hub where the model originated
             kwargs: optional; additional keyword arguments for optimizer and loss function configuration.
                 The `optimizer` and `loss` arguments can be set to Optimizer and Loss classes, depending on the model's
                 framework (examples: `optimizer=tf.keras.optimizers.Adam` for TensorFlow,
@@ -105,8 +110,10 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
     if use_case is not None and not isinstance(use_case, UseCaseType):
         use_case = UseCaseType.from_str(use_case)
 
-    model_class = locate('{}.{}'.format(model_map[framework][use_case]['Custom']['module'],
-                                        model_map[framework][use_case]['Custom']['class']))
+    model_hub = model_hub if model_hub else 'Custom'
+
+    model_class = locate('{}.{}'.format(model_map[framework][use_case][model_hub]['module'],
+                                        model_map[framework][use_case][model_hub]['class']))
     return model_class(model_name, model, **kwargs)
 
 

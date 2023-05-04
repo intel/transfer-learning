@@ -49,7 +49,9 @@ class TestModelDownload:
                               ['distilbert-base-uncased', 'huggingface', {}],
                               ['bert-base-cased', 'hugging_face', {}],
                               ['Xception', 'keras_applications', {}],
-                              ['ResNet50', 'keras', {'weights': 'imagenet', 'include_top': False}]])
+                              ['ResNet50', 'keras', {'weights': 'imagenet', 'include_top': False}],
+                              ['google/bert_uncased_L-2_H-128_A-2', 'tf_bert_huggingface', {}],
+                              ['bert-base-uncased', 'tf_bert_hugging_face', {}]])
     def test_hub_download(self, model_name, hub, kwargs):
         """
         Tests downloader for different model hubs
@@ -67,6 +69,8 @@ class TestModelDownload:
         elif downloader._type == ModelType.HUGGING_FACE:
             assert isinstance(model, Module)
         elif downloader._type == ModelType.KERAS_APPLICATIONS:
+            assert isinstance(model, Model)
+        elif downloader._type == ModelType.TF_BERT_HUGGINGFACE:
             assert isinstance(model, Model)
         else:
             assert False

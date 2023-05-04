@@ -195,7 +195,7 @@ class TFModel(BaseModel):
 
     def cleanup_saved_objects_for_distributed(self):
         dirs = ['train_data', 'val_data', 'variables', 'assets', 'model_checkpoints']
-        files = ['checkpoint', 'keras_metadata.pb']
+        files = ['checkpoint', 'keras_metadata.pb', 'fingerprint.pb']
 
         for f in os.listdir(TLT_DISTRIBUTED_DIR):
             full_path = os.path.join(TLT_DISTRIBUTED_DIR, f)
