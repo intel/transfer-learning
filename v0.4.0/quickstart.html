@@ -20,9 +20,7 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="CLI Reference" href="cli.html" />
-    <link rel="prev" title="Intel® Transfer Learning Tool" href="index.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,39 +43,17 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Intel® Transfer Learning Tool</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hardware-requirements">Hardware Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it Works</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#get-started">Get Started</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#create-and-activate-a-python3-virtual-environment">Create and activate a Python3 virtual environment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#basic-installation">Basic Installation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#developer-installation">Developer Installation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#additional-feature-specific-steps">Additional Feature-Specific Steps:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#verify-installation">Verify Installation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#prepare-the-dataset">Prepare the Dataset</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#use-the-no-code-cli">Use the No-code CLI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#use-the-low-code-api">Use the Low-code API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#summary-and-next-steps">Summary and Next Steps</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tutorial-jupyter-notebooks">Tutorial Jupyter* Notebooks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#support">Support</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#disclaimer">DISCLAIMER:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#license">License:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#datasets">Datasets:</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_it_works.html">How it Works</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_started.html">Get Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Supported Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
 </ul>
 
         </div>
@@ -162,7 +138,7 @@ and PyTorch*.</p>
 <li><p>Minimize training time with Intel-optimized frameworks and low-precision features from Intel Neural Compressor</p></li>
 <li><p>Export a saved model optimized for inference on Intel CPUs</p></li>
 </ol>
-<p><img alt="Alt text" src="_images/features.png" /></p>
+<p><img alt="alt text" src="https://raw.githubusercontent.com/IntelAI/transfer-learning/main/docs/images/features.png" /></p>
 </section>
 <section id="get-started">
 <h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this heading">¶</a></h2>
@@ -243,7 +219,7 @@ command, which displays help information about the Intel Transfer Learning Tool:
 </section>
 <section id="prepare-the-dataset">
 <h3>Prepare the Dataset<a class="headerlink" href="#prepare-the-dataset" title="Permalink to this heading">¶</a></h3>
-<p>The Intel Transfer Learn Tool can use datasets from dataset catalogs or custom datasets that you have on your machine.</p>
+<p>The Intel Transfer Learning Tool can use datasets from dataset catalogs or custom datasets that you have on your machine.</p>
 <p>The following CLI and API examples use the custom dataset option (<code class="docutils literal notranslate"><span class="pre">--dataset-dir</span></code>) with the TensorFlow flowers dataset.
 Prior to running these examples, download the flowers dataset from
 <a class="reference external" href="https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz">https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz</a>
@@ -279,7 +255,7 @@ command can be found using <code class="docutils literal notranslate"><span clas
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>See the <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/tree/main/Models.md">full list of supported models</a>.</p>
+<p>See the <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/blob/main/Models.md">full list of supported models</a>.</p>
 <p><strong>Train a model</strong>:
 This example uses the CLI to train an image classifier to identify different types of flowers.
 Make sure to specify your own file paths for <code class="docutils literal notranslate"><span class="pre">dataset-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">output-dir</span></code>. The <code class="docutils literal notranslate"><span class="pre">dataset-dir</span></code> should
@@ -304,13 +280,13 @@ is printed out to the console. A numbered folder is created for each training ru
 <p>The training command also evalutes the trained model and prints out accuracy and loss metrics.
 Evaluation can also be called separately using <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">eval</span></code>. The trained model can also be benchmarked
 using <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">benchmark</span></code> or quantized using <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">quantize</span></code>.
-See the <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/tree/main/examples/cli/README.md">CLI documentation</a> for more examples using the CLI.</p>
+See the <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/blob/main/examples/cli/README.md">CLI documentation</a> for more examples using the CLI.</p>
 </section>
 <section id="use-the-low-code-api">
 <h2>Use the Low-code API<a class="headerlink" href="#use-the-low-code-api" title="Permalink to this heading">¶</a></h2>
 <p>The following example trains an image classification model with the TensorFlow flowers dataset using the API.
 Additionally, the model is benchmarked and quantized to int8 precision for improved inference performance.
-If you want to run the API using a Jupyter notebook, see the <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/setup.md">notebook setup instructions</a>.</p>
+If you want to run the API using a Jupyter notebook, see the <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/blob/main/notebooks/setup.md">notebook setup instructions</a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
 <span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
 <span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
@@ -432,7 +408,7 @@ suggestion or bug report, search the existing GitHub issues to see if your issue
 </section>
 <section id="datasets">
 <h3>Datasets:<a class="headerlink" href="#datasets" title="Permalink to this heading">¶</a></h3>
-<p>To the extent that any public datasets are referenced by Intel or accessed using tools or code on this site those datasets are provided by the third party indicated as the data source. Intel does not create the data, or datasets, and does not warrant their accuracy or quality. By accessing the public dataset(s) you agree to the terms associated with those datasets and that your use complies with the applicable license. <a class="reference internal" href="#DATASETS.md"><span class="xref myst">DATASETS</span></a></p>
+<p>To the extent that any public datasets are referenced by Intel or accessed using tools or code on this site those datasets are provided by the third party indicated as the data source. Intel does not create the data, or datasets, and does not warrant their accuracy or quality. By accessing the public dataset(s) you agree to the terms associated with those datasets and that your use complies with the applicable license. <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/blob/main/DATASETS.md">DATASETS</a></p>
 <p>Intel expressly disclaims the accuracy, adequacy, or completeness of any public datasets, and is not liable for any errors, omissions, or defects in the data, or for any reliance on the data.  Intel is not liable for any liability or damages relating to your use of public datasets.</p>
 </section>
 </section>
@@ -441,16 +417,13 @@ suggestion or bug report, search the existing GitHub issues to see if your issue
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Intel® Transfer Learning Tool" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="cli.html" class="btn btn-neutral float-right" title="CLI Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on May 02, 2023.
+      <span class="lastupdated">Last updated on May 05, 2023.
       </span></p>
   </div>
 

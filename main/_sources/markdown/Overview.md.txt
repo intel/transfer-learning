@@ -1,0 +1,21 @@
+## Overview
+
+The Intel® Transfer Learning Tool offers both a low-code API and a no-code CLI for training AI models with TensorFlow*
+and PyTorch*.
+
+Features:
+* PyTorch and TensorFlow support
+* Over 100 image classification and text classification models from Torchvision, TensorFlow datasets, and Hugging Face
+* Automatically create a trainable classification layer customized for your dataset
+* Bring your own dataset or get started quickly with built-in datasets
+* Dataset scaling, cropping, batching, and splitting
+* APIs for prediction, evaluation, and benchmarking
+* Export model for deployment or resume training from checkpoints
+
+Intel Optimizations:
+* Boost performance with Intel® Optimization for TensorFlow and Intel® Extension for PyTorch
+* Quantize to INT8 to reduce model size and speed up inference using Intel® Neural Compressor
+* Optimize model for FP32 inference using Intel Neural Compressor
+* Reduce training time with auto-mixed precision for select hardware platforms
+* Further reduce training time with multinode training for PyTorch
+

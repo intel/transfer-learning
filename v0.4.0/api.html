@@ -46,7 +46,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Intel® Transfer Learning Tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_it_works.html">How it Works</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_started.html">Get Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#datasets">Datasets</a><ul>
@@ -81,7 +84,10 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Supported Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
 </ul>
 
         </div>
@@ -415,11 +421,17 @@ Not compatible with verbose=True.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.html#tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel" title="tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_image_classification_model.TFImageClassificationModel</span></code></a></p></td>
 <td><p>Class to represent a TF custom pretrained model for image classification</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.html#tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel" title="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">torchvision_image_classification_model.TorchvisionImageClassificationModel</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.html#tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel" title="tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keras_image_classification_model.KerasImageClassificationModel</span></code></a></p></td>
+<td><p>Class to represent a Keras.applications pretrained model for image classification</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.html#tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel" title="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">torchvision_image_classification_model.TorchvisionImageClassificationModel</span></code></a></p></td>
 <td><p>Class to represent a Torchvision pretrained model for image classification</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.html#tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel" title="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_image_classification_model.PyTorchImageClassificationModel</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.html#tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel" title="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_image_classification_model.PyTorchImageClassificationModel</span></code></a></p></td>
 <td><p>Class to represent a PyTorch model for image classification</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.html#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel" title="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel</span></code></a></p></td>
+<td><p>Class to represent a PyTorch Hub pretrained model for image classification</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.image_classification_model.ImageClassificationModel.html#tlt.models.image_classification.image_classification_model.ImageClassificationModel" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_classification_model.ImageClassificationModel</span></code></a></p></td>
 <td><p>Base class to represent a pretrained model for image classification</p></td>
@@ -485,7 +497,7 @@ Not compatible with verbose=True.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on May 02, 2023.
+      <span class="lastupdated">Last updated on May 05, 2023.
       </span></p>
   </div>
 

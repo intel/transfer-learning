@@ -1,0 +1,154 @@
+# Get Started 
+### Prepare the Dataset
+
+The Intel® Transfer Learning Tool can use datasets from dataset catalogs or custom datasets that you have on your machine.
+
+The following CLI and API examples use the custom dataset option (`--dataset-dir`) with the TensorFlow flowers dataset.
+Prior to running these examples, download the flowers dataset from
+[https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz](https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz)
+and extract the files to a folder on your machine. After extracting the dataset,
+you should have a `flower_photos` folder with subfolders for `daisy`, `dandelion`,
+`roses`, `sunflower`, and `tulips`.
+
+### Use the No-code CLI
+Use `tlt --help` to see the list of CLI commands. More detailed information on each
+command can be found using `tlt <command> --help` (like `tlt train --help`).
+
+List the available models:
+```
+tlt list models --use-case image_classification
+```
+```
+------------------------------
+IMAGE CLASSIFICATION
+------------------------------
+alexnet (pytorch)
+convnext_base (pytorch)
+convnext_large (pytorch)
+convnext_small (pytorch)
+convnext_tiny (pytorch)
+densenet121 (pytorch)
+densenet161 (pytorch)
+densenet169 (pytorch)
+densenet201 (pytorch)
+efficientnet_b0 (pytorch)
+efficientnet_b0 (tensorflow)
+efficientnet_b1 (pytorch)
+efficientnet_b1 (tensorflow)
+...
+```
+
+See the [full list of supported models](https://github.com/IntelAI/transfer-learning-tool/blob/main/Models.md).
+
+**Train a model**:
+This example uses the CLI to train an image classifier to identify different types of flowers.
+Make sure to specify your own file paths for `dataset-dir` and `output-dir`. The `dataset-dir` should
+point to the [extracted flowers dataset](#prepare-the-dataset). For more information on using different
+datasets, see the [CLI examples](https://github.com/IntelAI/transfer-learning-tool/tree/main/examples/cli).
+```
+tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir /tmp/dataset/flower_photos --output-dir /tmp/output
+```
+```
+Model name: resnet_v1_50
+Framework: tensorflow
+Dataset name: tf_flowers
+Training epochs: 1
+Dataset dir: /tmp/dataset/flower_photos
+Output directory: /tmp/output
+Found 3670 files belonging to 5 classes.
+...
+Saved model directory: /tmp/output/resnet_v1_50/1
+```
+
+After training completes, the model is exported to the output directory specified in your command. The actual directory name
+is printed out to the console. A numbered folder is created for each training run.
+
+The training command also evalutes the trained model and prints out accuracy and loss metrics.
+Evaluation can also be called separately using `tlt eval`. The trained model can also be benchmarked
+using `tlt benchmark` or quantized using `tlt quantize`.
+See the [CLI documentation](https://github.com/IntelAI/transfer-learning-tool/blob/main/examples/cli/README.md) for more examples using the CLI.
+
+### Use the Low-code API
+The following example trains an image classification model with the TensorFlow flowers dataset using the API.
+Additionally, the model is benchmarked and quantized to int8 precision for improved inference performance.
+If you want to run the API using a Jupyter notebook, see the [notebook setup instructions](https://github.com/IntelAI/transfer-learning-tool/blob/main/notebooks/setup.md).
+
+```python
+from tlt.datasets import dataset_factory
+from tlt.models import model_factory
+from tlt.utils.types import FrameworkType, UseCaseType
+import os
+
+# Specify the directory where the TensorFlow flowers dataset has been downloaded and extracted
+# (https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz)
+dataset_dir = os.environ["DATASET_DIR"] if "DATASET_DIR" in os.environ else \
+    os.path.join(os.environ["HOME"], "dataset")
+
+# Specify a directory for output
+output_dir = os.environ["OUTPUT_DIR"] if "OUTPUT_DIR" in os.environ else \
+    os.path.join(os.environ["HOME"], "output")
+
+# Get the model
+model = model_factory.get_model(model_name="resnet_v1_50", framework=FrameworkType.TENSORFLOW)
+
+# Load and preprocess a dataset
+dataset = dataset_factory.load_dataset(dataset_dir = os.path.join(dataset_dir, "flower_photos"),
+                                       use_case=UseCaseType.IMAGE_CLASSIFICATION, \
+                                       framework=FrameworkType.TENSORFLOW)
+dataset.preprocess(image_size=model.image_size, batch_size=32)
+dataset.shuffle_split(train_pct=.75, val_pct=.25)
+
+# Train the model using the dataset
+model.train(dataset, output_dir=output_dir, epochs=1)
+
+# Evaluate the trained model
+metrics = model.evaluate(dataset)
+for metric_name, metric_value in zip(model._model.metrics_names, metrics):
+    print("{}: {}".format(metric_name, metric_value))
+
+# Export the model
+saved_model_dir = model.export(output_dir=output_dir)
+
+# Create an Intel Neural Compressor config file
+inc_config_file = os.path.join(output_dir, "inc_config.yaml")
+model.write_inc_config_file(inc_config_file, dataset=dataset, batch_size=512, overwrite=True,
+                            accuracy_criterion_relative=0.01, exit_policy_timeout=0,
+                            exit_policy_max_trials=10, tuning_workspace=os.path.join(output_dir, "nc_workspace"))
+
+# Quantize the trained model
+quantization_output = os.path.join(output_dir, "quantized_model")
+model.quantize(saved_model_dir, quantization_output, inc_config_file)
+
+# Benchmark the trained model using the Intel Neural Compressor config file
+model.benchmark(quantization_output, inc_config_file, 'performance')
+
+# Do graph optimization on the trained model
+optimization_output = os.path.join(output_dir, "optimized_model")
+model.optimize_graph(saved_model_dir, optimization_output)
+```
+
+For more information on the API see: [https://intel.github.io/intel-transfer-learning/](https://intel.github.io/intel-transfer-learning/).
+
+### Summary and Next Steps
+
+You have just learned how Intel Transfer Learning Tool can be used to quickly develop an AI model and export
+an Intel-optimized saved model for deployment. With the sample CLI and API commands above, you have executed simple
+end-to-end transfer learning workflows. For more details, check out the tutorial Jupyter*
+notebooks, and for real-world examples check out the reference workflows.
+
+### Tutorial Jupyter* Notebooks
+
+| Notebook | Use Case | Framework| Description |
+| ---------| ---------|----------|-------------|
+| [Text Classification with TensorFlow using the Intel® Transfer Learning Tool](https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/text_classification/tlt_api_tf_text_classification) | Text Classification | TensorFlow and the Intel Transfer Learning Tool API | Demonstrates how to use the Intel Transfer Learning Tool API to fine tune a BERT model from TF Hub using binary text classification datasets. |
+| [Text Classification with Pytorch using the Intel® Transfer Learning Tool](https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/text_classification/tlt_api_pyt_text_classification) | Text Classification | PyTorch and the Intel Transfer Learning Tool API | Demonstrates how to use the Intel Transfer Learning Tool API to fine tune a BERT model from Huggingface using binary text classification datasets. |
+| [Image Classification with TensorFlow using Intel® Transfer Learning Tool](https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/image_classification/tlt_api_tf_image_classification) | Image Classification | TensorFlow and the Intel Transfer Learning Tool API | Demonstrates how to use the Intel Transfer Learning Tool API to do transfer learning for image classification using a TensorFlow model. |
+| [Image Classification with PyTorch using Intel® Transfer Learning Tool](https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/image_classification/tlt_api_pyt_image_classification) | Image Classification | PyTorch and the Intel Transfer Learning Tool API | Demonstrates how to use the Intel Transfer Learning Tool API to do transfer learning for image classification using a PyTorch model. |
+
+### Examples
+
+Check out these Reference Kits and Workflows that use Intel Transfer Learning Tool:
+
+* [Breast Cancer Detection](https://github.com/IntelAI/transfer-learning/tree/main/workflows/disease_prediction)
+* [Anomaly Detection](https://github.com/IntelAI/transfer-learning/tree/main/workflows/vision_anomaly_detection)
+

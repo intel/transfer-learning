@@ -1,0 +1,76 @@
+## Installation 
+### Hardware Requirements
+
+| Recommended Hardware         | Precision  |
+| ---------------------------- | ---------- |
+| Intel® 4th Gen Xeon® Scalable Performance processors | BF16 |
+| Intel® 1st, 2nd, 3rd, and 4th Gen Xeon® Scalable Performance processors | FP32 |
+
+### Software Requirements
+* Linux* system (validated on Ubuntu* 20.04/22.04 LTS)
+* Python3* (3.8, 3.9, or 3.10), Pip and Conda/Virtualenv
+* Install required packages with `apt-get install build-essential python3-dev libgl1 libglib2.0-0`
+* git (only required for the "Developer Installation")
+
+### Create and activate a Python3 virtual environment
+We encourage you to use a python virtual environment (virtualenv or conda) for consistent package management.
+There are two ways to do this:
+
+a. Using `virtualenv`:
+   ```
+   virtualenv -p python3 tlt_dev_venv
+   source tlt_dev_venv/bin/activate
+   ```
+
+b. Or `conda`:
+   ```
+   conda create --name tlt_dev_venv python=3.9
+   conda activate tlt_dev_venv
+   ```
+
+### Basic Installation
+```
+pip install intel-transfer-learning-tool
+```
+
+### Developer Installation
+Use these instructions to install the Intel® Transfer Learning Tool using a clone of the
+GitHub repository. This can be done instead of the basic pip install, if you plan
+on making code changes.
+
+1. Clone this repo and navigate to the repo directory:
+   ```
+   git clone https://github.com/IntelAI/transfer-learning.git
+
+   cd transfer-learning
+   ```
+
+2. Install the Intel Transfer Learning Tool by either:
+
+   a. Building and installing the wheel:
+      ```
+      python setup.py bdist_wheel
+      pip install dist/intel_transfer_learning_tool-0.4.0-py3-none-any.whl
+      ```
+
+   b. Or, do an editable install to avoid having to rebuild and install after each code change:
+      ```
+      pip install --editable .
+      ```
+
+### Additional Feature-Specific Steps:
+ 1. For TensorFlow text classification, this tensorflow-text Python library is also required:
+    ```
+    pip install tensorflow-text==2.11.0
+    ```
+
+ 1. For distributed/multinode training, follow these additional [distributed training instructions](https://github.com/IntelAI/transfer-learning-tool/tree/main/tlt/distributed).
+
+### Verify Installation
+
+Verify that your installation was successful by using the following
+command, which displays help information about the Intel Transfer Learning Tool:
+```
+tlt --help
+```
+
