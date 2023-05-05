@@ -244,7 +244,7 @@ optimization_output = os.path.join(output_dir, "optimized_model")
 model.optimize_graph(saved_model_dir, optimization_output)
 ```
 
-For more information on the API see: [https://intel.github.io/intel-transfer-learning/](https://intel.github.io/intel-transfer-learning/).
+For more information on the API see: [https://intelai.github.io/transfer-learning](https://intelai.github.io/transfer-learning).
 
 ## Summary and Next Steps
 
