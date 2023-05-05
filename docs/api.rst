@@ -95,8 +95,10 @@ Image Classification
 
    tfhub_image_classification_model.TFHubImageClassificationModel
    tf_image_classification_model.TFImageClassificationModel
+   keras_image_classification_model.KerasImageClassificationModel
    torchvision_image_classification_model.TorchvisionImageClassificationModel
    pytorch_image_classification_model.PyTorchImageClassificationModel
+   pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel
    image_classification_model.ImageClassificationModel
 
 Text Classification
