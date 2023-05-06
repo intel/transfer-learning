@@ -222,7 +222,7 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
                 dataset.preprocess(model_name=model_name, batch_size=32)
             else:  # For TF Text classification
                 dataset.preprocess(batch_size=32)
-            dataset.shuffle_split(0.10, 0.10)
+            dataset.shuffle_split()
     except Exception as e:
         sys.exit("Error while getting the dataset (dataset dir: {}, use case: {}, framework: {}, "
                  "dataset name: {}, dataset_catalog: {}):\n{}".format(dataset_dir, model.use_case, model.framework,

@@ -31,6 +31,7 @@ import horovod.tensorflow.keras as hvd
 
 from tlt.utils.dataset_utils import prepare_huggingface_input_data
 from tlt.distributed import TLT_DISTRIBUTED_DIR
+from pydoc import locate
 
 
 class DistributedTrainingArguments:
@@ -47,8 +48,15 @@ class DistributedTF:
         hvd.init()
 
         model = training_args.model
-        optimizer = training_args.optimizer
+        optimizer_config = training_args.optimizer.get_config()
         loss = training_args.loss
+
+        legacy_optimizer_class = locate('tensorflow.keras.optimizers.legacy.{}'.format(optimizer_config['name']))
+        legacy_optimizer_config = legacy_optimizer_class().get_config()
+        legacy_optimizer = legacy_optimizer_class.from_config(
+            {k: v for k, v in optimizer_config.items() if k in legacy_optimizer_config})
+
+        optimizer = legacy_optimizer
 
         # Horovod: pin GPU to be used to process local rank (one GPU per process)
         gpus = tf.config.experimental.list_physical_devices('GPU')

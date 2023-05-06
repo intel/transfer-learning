@@ -38,6 +38,7 @@ class TestModelDownload:
             print("Deleting test directory:", cls._model_dir)
             shutil.rmtree(cls._model_dir)
 
+    @pytest.mark.skip(reason='TODO: Solve test fails with urllib.error.HTTPError: HTTP Error 403: rate limit exceeded')
     @pytest.mark.parametrize('model_name,hub,kwargs',
                              [['https://tfhub.dev/google/efficientnet/b0/feature-vector/1', 'tf_hub', {}],
                               ['https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/3', 'tfhub',

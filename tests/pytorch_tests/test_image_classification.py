@@ -33,6 +33,7 @@ from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
 
 
+@pytest.mark.skip(reason='TODO: Solve test fails with urllib.error.HTTPError: HTTP Error 403: rate limit exceeded')
 @pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
@@ -223,6 +224,7 @@ class TestImageClassificationCustomDataset:
                 print("Deleting test directory:", dir)
                 shutil.rmtree(dir)
 
+    @pytest.mark.skip(reason='TODO: Solve test fails with urllib.error.HTTPError: HTTP Error 403: rate limit exceeded')
     @pytest.mark.pytorch
     @pytest.mark.parametrize('model_name,add_aug,ipex_optimize',
                              [['efficientnet_b0', ['hflip'], True],
