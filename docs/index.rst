@@ -1,6 +1,3 @@
-Intel® Transfer Learning Tool
-=============================
-
 .. include:: markdown/Welcome.md
    :parser: myst_parser.sphinx_
 
