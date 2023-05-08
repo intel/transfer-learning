@@ -39,7 +39,7 @@ from tlt.datasets.image_classification.image_classification_dataset import Image
                          [['efficientnet_b0', 'tf_flowers', 0.3125, 0.53125, None, 2],
                           ['resnet_v1_50', 'tf_flowers', 0.40625, 0.59375, None, 2],
                           ['efficientnet_b0', 'tf_flowers', 0.8125, 0.96875, [1024, 512], 4],
-                          ['ResNet50', 'tf_flowers', 0.40625, 0.15625, None, 4]])
+                          ['ResNet50', 'tf_flowers', 0.34375, 0.625, None, 4]])
 def test_tf_image_classification(model_name, dataset_name, train_accuracy, retrain_accuracy, extra_layers,
                                  correct_num_layers):
     """
@@ -57,7 +57,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     model = model_factory.get_model(model_name, framework)
 
     # Preprocess the dataset
-    dataset.preprocess(model.image_size, 32)
+    dataset.preprocess(model.image_size, 32, preprocessor=model.preprocessor)
     dataset.shuffle_split(shuffle_files=False)
 
     # Evaluate before training
@@ -263,7 +263,7 @@ class TestImageClassificationCustomDataset:
 
         # Preprocess the dataset and split to get small subsets for training and validation
         dataset.shuffle_split(train_pct=0.1, val_pct=0.1, shuffle_files=False)
-        dataset.preprocess(model.image_size, 32)
+        dataset.preprocess(model.image_size, 32, preprocessor=model.preprocessor)
 
         # Train for 1 epoch
         history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False, seed=10,

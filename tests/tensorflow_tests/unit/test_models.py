@@ -103,6 +103,7 @@ def test_keras_model_load(model_name, expected_class, expected_image_size):
     assert type(model) == expected_class
     if expected_image_size:
         assert model.image_size == expected_image_size
+    assert callable(model.preprocessor)
 
 
 @pytest.mark.tensorflow

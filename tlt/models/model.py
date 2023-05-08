@@ -37,6 +37,7 @@ class BaseModel(abc.ABC):
         self._framework = framework
         self._use_case = use_case
         self._learning_rate = 0.001
+        self._preprocessor = None
 
     @property
     def model_name(self):
@@ -69,6 +70,13 @@ class BaseModel(abc.ABC):
     @learning_rate.setter
     def learning_rate(self, value):
         self._learning_rate = value
+
+    @property
+    def preprocessor(self):
+        """
+        Preprocessor for the model
+        """
+        return self._preprocessor
 
     @abc.abstractmethod
     def load_from_directory(self, model_dir: str):

@@ -15,7 +15,7 @@ The notebook performs the following steps:
 
 ## Running the notebook
 
-To run the notebook, follow the instructions to setup the [PyTorch notebook environment](/notebooks#pytorch-environment).
+To run the notebook, follow the instructions to setup the [PyTorch notebook environment](/notebooks/setup.md).
 
 ## References
 

@@ -108,14 +108,6 @@
 | DenseNet121 | TensorFlow | Keras |
 | DenseNet169 | TensorFlow | Keras |
 | DenseNet201 | TensorFlow | Keras |
-| EfficientNetB0 | TensorFlow | Keras |
-| EfficientNetB1 | TensorFlow | Keras |
-| EfficientNetB2 | TensorFlow | Keras |
-| EfficientNetB3 | TensorFlow | Keras |
-| EfficientNetB4 | TensorFlow | Keras |
-| EfficientNetB5 | TensorFlow | Keras |
-| EfficientNetB6 | TensorFlow | Keras |
-| EfficientNetB7 | TensorFlow | Keras |
 | EfficientNetV2B0 | TensorFlow | Keras |
 | EfficientNetV2B1 | TensorFlow | Keras |
 | EfficientNetV2B2 | TensorFlow | Keras |

@@ -15,7 +15,7 @@ The notebook performs the following steps:
 
 ## Running the notebook
 
-To run the notebook, follow the instructions to setup the [TensorFlow notebook environment](/notebooks/setup.md#tensorflow-environment).
+To run the notebook, follow the instructions to setup the [TensorFlow notebook environment](/notebooks/setup.md).
 
 ## References
 

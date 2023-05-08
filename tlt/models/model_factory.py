@@ -275,6 +275,19 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
     """
     models = get_supported_models(framework, use_case)
 
+    # Proper names
+    model_hub_map = {
+        "torchvision": "Torchvision",
+        "tfhub": "TensorFlow Hub",
+        "pytorch_hub": "PyTorch Hub",
+        "huggingface": "Hugging Face",
+        "keras": "Keras Applications"
+    }
+    framework_name_map = {
+        "tensorflow": "TensorFlow",
+        "pytorch": "PyTorch"
+    }
+
     for model_use_case in models.keys():
         if markdown:
             print("## {}\n".format(model_use_case.replace("_", " ").title()))
@@ -301,31 +314,17 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
 
         for model_name in model_name_list:
             for model_framework in models[model_use_case][model_name].keys():
+                model_hub = models[model_use_case][model_name][model_framework]["model_hub"] if \
+                    "model_hub" in models[model_use_case][model_name][model_framework].keys() else ""
+                model_hub_display = model_hub_map[model_hub.lower()] if model_hub.lower() in model_hub_map.keys() \
+                    else model_hub
+                model_framework_display = framework_name_map[model_framework.lower()] if \
+                    model_framework.lower() in framework_name_map.keys() else model_framework
 
                 if markdown:
-                    model_hub = models[model_use_case][model_name][model_framework]["model_hub"] if \
-                        "model_hub" in models[model_use_case][model_name][model_framework].keys() else ""
-
-                    # Use proper names
-                    model_hub_map = {
-                        "torchvision": "Torchvision",
-                        "tfhub": "TensorFlow Hub",
-                        "pytorch_hub": "PyTorch Hub",
-                        "huggingface": "Hugging Face"
-                    }
-                    framework_name_map = {
-                        "tensorflow": "TensorFlow",
-                        "pytorch": "PyTorch"
-                    }
-
-                    model_hub = model_hub_map[model_hub.lower()] if model_hub.lower() in model_hub_map.keys() \
-                        else model_hub
-                    model_framework = framework_name_map[model_framework.lower()] if \
-                        model_framework.lower() in framework_name_map.keys() else model_framework
-
-                    print("| {} | {} | {} |".format(model_name, model_framework, model_hub))
+                    print("| {} | {} | {} |".format(model_name, model_framework_display, model_hub_display))
                 else:
-                    print("{} ({})".format(model_name, model_framework))
+                    print("{} ({} model from {})".format(model_name, model_framework_display, model_hub_display))
 
                 if verbose and not markdown:
                     for model_attribute, attribute_value in models[model_use_case][model_name][model_framework].items():
