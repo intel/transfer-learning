@@ -19,9 +19,9 @@
 import json
 import pytest
 import os
-from mock import MagicMock, mock_open, patch
+from mock import mock_open, patch
 
-from tlt.utils.platform_util import PlatformUtil, CPUInfo
+from tlt.utils.platform_util import PlatformUtil, OptimizedPlatformUtil, CPUInfo
 from test_utils import platform_config
 
 
@@ -67,7 +67,7 @@ def test_platform_util_lscpu_parsing(get_cpuset_mock, platform_mock, subprocess_
     os_mock.return_value = True
     get_cpuset_mock.return_value = "0-111"
     subprocess_mock.return_value = platform_config.LSCPU_OUTPUT
-    platform_util = PlatformUtil(MagicMock(verbose=True))
+    platform_util = PlatformUtil(verbose=True)
     platform_util.linux_init()
     assert platform_util.num_cpu_sockets == 2
     assert platform_util.num_cores_per_socket == 28
@@ -102,7 +102,7 @@ def test_platform_util_known_cpu_types(get_cpuset_mock, platform_mock, subproces
     lscpu_value = lscpu_value.replace(original_model_value, new_model_value)
 
     subprocess_mock.return_value = lscpu_value
-    platform_util = PlatformUtil(MagicMock(verbose=True))
+    platform_util = PlatformUtil(verbose=True)
     platform_util.linux_init()
     assert platform_util.cpu_type == expected_type
 
@@ -118,7 +118,7 @@ def test_platform_util_unsupported_os(platform_mock, subprocess_mock, os_mock):
     # Mac is not supported yet
     platform_mock.return_value = "Mac"
     with pytest.raises(NotImplementedError) as e:
-        PlatformUtil(MagicMock(verbose=True))
+        PlatformUtil(verbose=True)
     assert "Mac Support not yet implemented" in str(e)
 
 
@@ -187,7 +187,7 @@ def test_numa_cpu_core_list(get_cpuset_mock, subprocess_mock, subprocess_popen_m
     get_cpuset_mock.return_value = "0-111"
     os_mock.return_value = True
     subprocess_mock.return_value = platform_config.LSCPU_OUTPUT
-    platform_util = PlatformUtil(MagicMock(verbose=True))
+    platform_util = PlatformUtil(verbose=True, numa_cores_per_instance="socket")
 
     # ensure there are 2 items in the list since there are 2 sockets
     assert len(platform_util.cpu_core_list) == 2
@@ -206,7 +206,7 @@ def test_platform_util_wmic_parsing(platform_mock, subprocess_mock, os_mock):
     platform_mock.return_value = "Windows"
     os_mock.return_value = True
     subprocess_mock.return_value = platform_config.WMIC_OUTPUT
-    platform_util = PlatformUtil(MagicMock(verbose=True))
+    platform_util = PlatformUtil(verbose=True)
     platform_util.windows_init()
     assert platform_util.num_cpu_sockets == 2
     assert platform_util.num_cores_per_socket == 28
@@ -240,7 +240,7 @@ def test_get_list_from_string_ranges(get_cpuset_mock, platform_mock, subprocess_
     subprocess_mock.return_value = platform_config.LSCPU_OUTPUT
     get_cpuset_mock.return_value = cpuset_range
     os_mock.return_value = True
-    platform_util = PlatformUtil(MagicMock())
+    platform_util = PlatformUtil()
     result = platform_util._get_list_from_string_ranges(cpuset_range)
     assert result == expected_list
 
@@ -265,7 +265,7 @@ def test_numa_cpu_core_list_cpuset(path_exists_mock, subprocess_mock, subprocess
     path_exists_mock.return_value = True
     cpuset_mock = mock_open(read_data=cpuset_range)
     with patch("builtins.open", cpuset_mock):
-        platform_util = PlatformUtil(MagicMock(verbose=True, numa_cores_per_instance=4))
+        platform_util = PlatformUtil(verbose=True, numa_cores_per_instance=4)
 
     # ensure there are 2 items in the list since there are 2 sockets
     assert len(platform_util.cpu_core_list) == 2
@@ -296,7 +296,7 @@ def test_platform_utils_num_sockets_with_cpuset(get_cpuset_mock, platform_mock, 
     os_mock.return_value = True
     get_cpuset_mock.return_value = cpuset_range
     subprocess_mock.return_value = platform_config.LSCPU_OUTPUT
-    platform_util = PlatformUtil(MagicMock(verbose=True))
+    platform_util = PlatformUtil(verbose=True)
     platform_util.linux_init()
     assert platform_util.num_cpu_sockets == expected_num_sockets
 
@@ -309,5 +309,58 @@ def test_platform_util_with_no_args(platform_mock, subprocess_mock):
     """
     platform_mock.return_value = platform_config.SYSTEM_TYPE
     subprocess_mock.return_value = platform_config.LSCPU_OUTPUT
-    platform_util = PlatformUtil("")
+    platform_util = PlatformUtil()
     assert platform_util.num_logical_cpus == 112
+
+
+@pytest.mark.common
+@pytest.mark.parametrize('omp_num_threads,omp_thread_limit,kmp_blocktime,kmp_affinity,'
+                         'tf_num_intraop_threads,tf_num_interop_threads,'
+                         'tf_enable_mkl_native_format,ld_preload',
+                         [[-1, None, None, None, None, None, None, None],
+                          [1000, None, None, None, None, None, None, None],
+                          [None, 0, None, None, None, None, None, None],
+                          [None, 1000, None, None, None, None, None, None],
+                          [None, None, -1, None, None, None, None, None],
+                          [None, None, None, 'garbage_string', None, None, None, None],
+                          [None, None, None, None, -1, None, None, None],
+                          [None, None, None, None, None, -1, None, None],
+                          [None, None, None, None, None, None, -1, None],
+                          [None, None, None, None, None, None, None, 'path/to/non_so_file.txt'],
+                          [None, None, None, None, None, None, None, 'path/to/invalid_file.so']])
+def test_optimized_platform_util_invalid_args(omp_num_threads, omp_thread_limit, kmp_blocktime,
+                                              kmp_affinity, tf_num_intraop_threads, tf_num_interop_threads,
+                                              tf_enable_mkl_native_format, ld_preload):
+    with pytest.raises((ValueError, FileNotFoundError)):
+        OptimizedPlatformUtil(omp_num_threads, omp_thread_limit, kmp_blocktime, kmp_affinity,
+                              tf_num_intraop_threads, tf_num_interop_threads,
+                              tf_enable_mkl_native_format, ld_preload)
+
+
+@pytest.mark.common
+@pytest.mark.parametrize('omp_num_threads,omp_thread_limit,kmp_blocktime,kmp_affinity,'
+                         'tf_num_intraop_threads,tf_num_interop_threads,'
+                         'tf_enable_mkl_native_format,ld_preload',
+                         [[28, 112, 0, 'granularity=fine', 28, 2, 1, '/tmp/valid_file.so']])
+def test_optimized_platform_util_set_env_vars(omp_num_threads, omp_thread_limit, kmp_blocktime,
+                                              kmp_affinity, tf_num_intraop_threads, tf_num_interop_threads,
+                                              tf_enable_mkl_native_format, ld_preload):
+    try:
+        with open('/tmp/valid_file.so', 'x'):
+            OptimizedPlatformUtil(omp_num_threads, omp_thread_limit, kmp_blocktime, kmp_affinity,
+                                  tf_num_intraop_threads, tf_num_interop_threads,
+                                  tf_enable_mkl_native_format, ld_preload)
+
+            assert 'OMP_NUM_THREADS' in os.environ and os.environ.get('OMP_NUM_THREADS') == str(omp_num_threads)
+            assert 'OMP_THREAD_LIMIT' in os.environ and os.environ.get('OMP_THREAD_LIMIT') == str(omp_thread_limit)
+            assert 'KMP_BLOCKTIME' in os.environ and os.environ.get('KMP_BLOCKTIME') == str(kmp_blocktime)
+            assert 'KMP_AFFINITY' in os.environ and os.environ.get('KMP_AFFINITY') == kmp_affinity
+            assert 'TF_NUM_INTRAOP_THREADS' in os.environ and os.environ.get(
+                'TF_NUM_INTRAOP_THREADS') == str(tf_num_intraop_threads)
+            assert 'TF_NUM_INTEROP_THREADS' in os.environ and os.environ.get(
+                'TF_NUM_INTEROP_THREADS') == str(tf_num_interop_threads)
+            assert 'TF_ENABLE_MKL_NATIVE_FORMAT' in os.environ and os.environ.get(
+                'TF_ENABLE_MKL_NATIVE_FORMAT') == str(tf_enable_mkl_native_format)
+            assert 'LD_PRELOAD' in os.environ and os.environ.get('LD_PRELOAD') == ld_preload
+    finally:
+        os.remove('/tmp/valid_file.so')

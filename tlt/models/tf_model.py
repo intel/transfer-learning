@@ -123,7 +123,7 @@ class TFModel(BaseModel):
             # Determine whether or not to enable this based on the CPU type
             try:
                 # Only enable auto mixed precision for SPR
-                enable_auto_mixed_precision = PlatformUtil(args=None).cpu_type == 'SPR'
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
             except Exception as e:
                 if auto_mixed_precision_supported:
                     print("Unable to determine the CPU type:", str(e))
