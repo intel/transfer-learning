@@ -222,5 +222,5 @@ Starting graph optimization
 ```
 
 More CLI examples can be found here:
-* [Image classification examples](/docs/examples/cli/image_classification.md)
-* [Text classification examples](/docs/examples/cli/text_classification.md)
+* [Image classification examples](/examples/cli/image_classification.md)
+* [Text classification examples](/examples/cli/text_classification.md)

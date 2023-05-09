@@ -2,7 +2,7 @@
 
 This notebook demonstrates how to use the Intel Transfer Learning Tool API to do fine tuning for
 text classification using various [BERT](https://arxiv.org/abs/1810.04805) models
-from [TF Hub](https://tfhub.dev).
+from [Hugging Face](https://huggingface.co).
 
 The notebook performs the following steps:
 1. Install dependencies and setup parameters
