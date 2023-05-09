@@ -44,7 +44,7 @@ Run simple CLI commands at a bash prompt or make API calls in a Python* script t
 2. Minimize training time with Intel-optimized frameworks and low-precision features from Intel Neural Compressor
 3. Export a saved model optimized for inference on Intel CPUs
 
-![alt text](/docs/images/features.png "TLT CLI and API")
+![alt text](https://raw.githubusercontent.com/IntelAI/transfer-learning/main/docs/images/features.png "TLT CLI and API")
 
 ## Get Started
 
@@ -118,7 +118,7 @@ tlt --help
 
 ### Prepare the Dataset
 
-The Intel Transfer Learn Tool can use datasets from dataset catalogs or custom datasets that you have on your machine.
+The Intel Transfer Learning Tool can use datasets from dataset catalogs or custom datasets that you have on your machine.
 
 The following CLI and API examples use the custom dataset option (`--dataset-dir`) with the TensorFlow flowers dataset.
 Prior to running these examples, download the flowers dataset from
@@ -155,7 +155,7 @@ efficientnet_b1 (tensorflow)
 ...
 ```
 
-See the [full list of supported models](https://github.com/IntelAI/transfer-learning-tool/tree/main/Models.md).
+See the [full list of supported models](https://github.com/IntelAI/transfer-learning-tool/blob/main/Models.md).
 
 **Train a model**:
 This example uses the CLI to train an image classifier to identify different types of flowers.
@@ -183,12 +183,12 @@ is printed out to the console. A numbered folder is created for each training ru
 The training command also evalutes the trained model and prints out accuracy and loss metrics.
 Evaluation can also be called separately using `tlt eval`. The trained model can also be benchmarked
 using `tlt benchmark` or quantized using `tlt quantize`.
-See the [CLI documentation](https://github.com/IntelAI/transfer-learning-tool/tree/main/examples/cli/README.md) for more examples using the CLI.
+See the [CLI documentation](https://github.com/IntelAI/transfer-learning-tool/blob/main/examples/cli/README.md) for more examples using the CLI.
 
 ## Use the Low-code API
 The following example trains an image classification model with the TensorFlow flowers dataset using the API.
 Additionally, the model is benchmarked and quantized to int8 precision for improved inference performance.
-If you want to run the API using a Jupyter notebook, see the [notebook setup instructions](https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/setup.md).
+If you want to run the API using a Jupyter notebook, see the [notebook setup instructions](https://github.com/IntelAI/transfer-learning-tool/blob/main/notebooks/setup.md).
 
 ```python
 from tlt.datasets import dataset_factory
@@ -244,7 +244,7 @@ optimization_output = os.path.join(output_dir, "optimized_model")
 model.optimize_graph(saved_model_dir, optimization_output)
 ```
 
-For more information on the API see: [https://intel.github.io/intel-transfer-learning/](https://intel.github.io/intel-transfer-learning/).
+For more information on the API see: [https://intelai.github.io/transfer-learning](https://intelai.github.io/transfer-learning).
 
 ## Summary and Next Steps
 
@@ -286,6 +286,6 @@ Intel is committed to the respect of human rights and avoiding complicity in hum
 Intel® Transfer Learning Tool is licensed under Apache License Version 2.0.
 
 #### Datasets: ####
-To the extent that any public datasets are referenced by Intel or accessed using tools or code on this site those datasets are provided by the third party indicated as the data source. Intel does not create the data, or datasets, and does not warrant their accuracy or quality. By accessing the public dataset(s) you agree to the terms associated with those datasets and that your use complies with the applicable license. [DATASETS](DATASETS.md)
+To the extent that any public datasets are referenced by Intel or accessed using tools or code on this site those datasets are provided by the third party indicated as the data source. Intel does not create the data, or datasets, and does not warrant their accuracy or quality. By accessing the public dataset(s) you agree to the terms associated with those datasets and that your use complies with the applicable license. [DATASETS](https://github.com/IntelAI/transfer-learning-tool/blob/main/DATASETS.md)
 
 Intel expressly disclaims the accuracy, adequacy, or completeness of any public datasets, and is not liable for any errors, omissions, or defects in the data, or for any reliance on the data.  Intel is not liable for any liability or damages relating to your use of public datasets.

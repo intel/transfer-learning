@@ -41,8 +41,8 @@ from tlt.utils.types import FrameworkType
               required=False,
               type=click.Path(exists=True, dir_okay=False),
               help="Path to a config file (yaml) that will be used to quantize the model using the Intel Neural "
-                   "Compressor. The INC config examples for quantization can be found at: "
-                   "https://github.com/intel/neural-compressor/tree/master/examples. "
+                   "Compressor. The config examples for quantization can be found at the Intel Neural Compressor GitHub"
+                   " repo (https://github.com/intel/neural-compressor/tree/master/examples). "
                    "If no INC config file is provided, a default config file will be generated.")
 @click.option("--batch-size", "--batch_size",
               required=False,
