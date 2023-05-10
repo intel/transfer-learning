@@ -105,7 +105,7 @@ on making code changes.
       pip install --editable .
       ```
 
-### Additional Feature-Specific Steps:
+### Additional Feature-Specific Steps
  * For distributed/multinode training, follow these additional [distributed training instructions](https://github.com/IntelAI/transfer-learning-tool/tree/main/tlt/distributed).
 
 ### Verify Installation
@@ -277,15 +277,15 @@ suggestion or bug report, search the existing GitHub issues to see if your issue
 
 *Other names and brands may be claimed as the property of others. [Trademarks](http://www.intel.com/content/www/us/en/legal/trademarks.html)
 
-#### DISCLAIMER: ####
+#### DISCLAIMER ####
 These scripts are not intended for benchmarking Intel platforms. For any performance and/or benchmarking information on specific Intel platforms, visit https://www.intel.ai/blog.
 
 Intel is committed to the respect of human rights and avoiding complicity in human rights abuses, a policy reflected in the Intel Global Human Rights Principles. Accordingly, by accessing the Intel material on this platform you agree that you will not use the material in a product or application that causes or contributes to a violation of an internationally recognized human right.
 
-#### License: ####
+#### License ####
 Intel® Transfer Learning Tool is licensed under Apache License Version 2.0.
 
-#### Datasets: ####
+#### Datasets ####
 To the extent that any public datasets are referenced by Intel or accessed using tools or code on this site those datasets are provided by the third party indicated as the data source. Intel does not create the data, or datasets, and does not warrant their accuracy or quality. By accessing the public dataset(s) you agree to the terms associated with those datasets and that your use complies with the applicable license. [DATASETS](https://github.com/IntelAI/transfer-learning-tool/blob/main/DATASETS.md)
 
 Intel expressly disclaims the accuracy, adequacy, or completeness of any public datasets, and is not liable for any errors, omissions, or defects in the data, or for any reliance on the data.  Intel is not liable for any liability or damages relating to your use of public datasets.

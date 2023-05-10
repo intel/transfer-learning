@@ -94,4 +94,5 @@ html_static_path = []
 autodoc_member_order = 'bysource'
 nbsphinx_execute = 'never'
 myst_heading_anchors = 2
+suppress_warnings = ["myst.xref_missing", "myst.header"]
 

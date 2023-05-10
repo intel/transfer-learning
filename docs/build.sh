@@ -33,6 +33,18 @@ elif [[ ${COMMAND} == "html" ]]; then
 
     # We don't want to mess with the original README.md, so create a copy of it before we start editing
     cp ../README.md ${TEMP_DIR}/Welcome.md
+    # Remove badges and convert links
+    sed -i '/badge\.svg/d' ${TEMP_DIR}/Welcome.md
+    sed -i 's#https://github.com/IntelAI/transfer-learning-tool/tree/main/tlt/distributed#<distributed>#g' ${TEMP_DIR}/Welcome.md
+    sed -i 's#https://github.com/IntelAI/transfer-learning-tool/blob/main/Models.md#<models>#g' ${TEMP_DIR}/Welcome.md
+    sed -i 's#https://github.com/IntelAI/transfer-learning-tool/tree/main/examples/cli#<examples/cli/general>#g' ${TEMP_DIR}/Welcome.md
+    sed -i 's#https://github.com/IntelAI/transfer-learning-tool/blob/main/examples/cli/README.md#<cli>#g' ${TEMP_DIR}/Welcome.md
+    sed -i 's|https://github.com/IntelAI/transfer-learning-tool/blob/main/notebooks/setup.md|<notebooks.rst#environment-setup-and-running-the-notebooks>|g' ${TEMP_DIR}/Welcome.md
+    sed -i 's#https://github.com/IntelAI/transfer-learning-tool/blob/main/DATASETS.md#<datasets>#g' ${TEMP_DIR}/Welcome.md
+    sed -i 's#https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/text_classification/tlt_api_tf_text_classification#<notebooks/TLT_TF_Text_Classification_Transfer_Learning>#g' ${TEMP_DIR}/Welcome.md
+    sed -i 's#https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/text_classification/tlt_api_pyt_text_classification#<notebooks/TLT_PyTorch_Text_Classification_Transfer_Learning>#g' ${TEMP_DIR}/Welcome.md
+    sed -i 's#https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/image_classification/tlt_api_tf_image_classification#<notebooks/TLT_TF_Image_Classification_Transfer_Learning>#g' ${TEMP_DIR}/Welcome.md
+    sed -i 's#https://github.com/IntelAI/transfer-learning-tool/tree/main/notebooks/image_classification/tlt_api_pyt_image_classification#<notebooks/TLT_PyTorch_Image_Classification_Transfer_Learning>#g' ${TEMP_DIR}/Welcome.md
 
     # Create an Overview doc
     sed -n '/^ *## Overview *$/,/^ *## Hardware Requirements *$/p' ${TEMP_DIR}/Welcome.md > ${TEMP_DIR}/Overview.md
@@ -69,10 +81,8 @@ elif [[ ${COMMAND} == "html" ]]; then
 
     # Create a Legal Information doc
     echo "# Legal Information " > ${TEMP_DIR}/Legal.md
-    sed -n '/#### DISCLAIMER: ####/,$p' ${TEMP_DIR}/Welcome.md >> ${TEMP_DIR}/Legal.md
-    sed -i 's/#### DISCLAIMER: ####/#### Disclaimer/g' ${TEMP_DIR}/Legal.md
-    sed -i 's/#### License: ####/#### License/g' ${TEMP_DIR}/Legal.md
-    sed -i 's/#### Datasets: ####/#### Datasets/g' ${TEMP_DIR}/Legal.md
+    sed -n '/#### DISCLAIMER ####/,$p' ${TEMP_DIR}/Welcome.md >> ${TEMP_DIR}/Legal.md
+    sed -i 's/#### DISCLAIMER ####/#### Disclaimer/g' ${TEMP_DIR}/Legal.md
     # Change the first instance of Intel to include the registered trademark symbol
     sed -i '0,/Intel/{s/Intel/Intel®/}' ${TEMP_DIR}/Legal.md
 fi
