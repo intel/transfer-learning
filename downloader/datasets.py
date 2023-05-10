@@ -22,6 +22,7 @@ import os
 from pydoc import locate
 import tarfile
 import zipfile
+import inspect
 
 from downloader.types import DatasetType
 from downloader import utils
@@ -89,11 +90,16 @@ class DataDownloader():
                              **self._args)
 
         elif self._type == DatasetType.TORCHVISION:
+            from torchvision.datasets import __all__ as torchvision_datasets
             dataset_class = locate('torchvision.datasets.{}'.format(self._dataset_name))
-            try:
-                return dataset_class(self._dataset_dir, download=True, split=split)
-            except TypeError:
-                return dataset_class(self._dataset_dir, download=True, train=split == 'train')
+            if dataset_class:
+                params = inspect.signature(dataset_class).parameters
+                kwargs = dict(download=True, split=split, train=split == 'train')
+                kwargs = dict([(k, v) for k, v in kwargs.items() if k in params])
+                return dataset_class(self._dataset_dir, **kwargs)
+            else:
+                raise ValueError("Torchvision dataset {} not found in following: {}"
+                                 .format(self._dataset_name, torchvision_datasets))
 
         elif self._type == DatasetType.HUGGING_FACE:
             from datasets import load_dataset
