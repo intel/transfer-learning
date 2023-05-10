@@ -170,8 +170,9 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                                                                     early_stopping, lr_decay)
 
         if distributed:
-            self.export_for_distributed(train_data, val_data)
-            self._fit_distributed(epochs, shuffle_files, hostfile, nnodes, nproc_per_node, kwargs.get('use_horovod'))
+            saved_objects_dir = self.export_for_distributed("saved_objects", train_data, val_data)
+            self._fit_distributed(saved_objects_dir, epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
+                                  kwargs.get('use_horovod'))
             self.cleanup_saved_objects_for_distributed()
         else:
             history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,

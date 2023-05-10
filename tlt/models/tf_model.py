@@ -24,6 +24,7 @@ import dill
 import re
 import shutil
 import random
+import tempfile
 import numpy as np
 import tensorflow as tf
 
@@ -31,7 +32,6 @@ from tlt.models.model import BaseModel
 from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.platform_util import PlatformUtil
 from tlt.utils.types import FrameworkType, UseCaseType
-from tlt.distributed import TLT_DISTRIBUTED_DIR
 
 
 class TFModel(BaseModel):
@@ -171,44 +171,63 @@ class TFModel(BaseModel):
         else:
             raise ValueError("Unable to export the model, because it hasn't been loaded or trained yet")
 
-    def export_for_distributed(self, train_data, val_data):
+    def export_for_distributed(self, export_dir=None, train_data=None, val_data=None):
+        """
+        Exports the model, optimizer, loss, train data and validation data to the export_dir for distributed
+        script to access. Note that the export_dir must be accessible to all the nodes. For example: NFS shared
+        systems. Note that the export_dir is created using mkdtemp which reults in a unique dir name. For
+        example: "<export_dir_Am83Iw". If the export_dir is None, the default name is "saved_objects"
+
+        Args:
+            export_dir (str): Directory name to export the model, optimizer, loss, train data and validation
+                data. export_dir must be accessible to all the nodes. For example: NFS shared systems. export_dir
+                is created using mkdtemp which reults in a unique dir name. Forexample: "<export_dir_Am83Iw".
+                If the export_dir is None, the default name is "saved_objects"
+            train_data (TFDataset): Train dataset
+            val_data (TFDataset): Validation dataset
+        """
+
+        temp_dir_prefix = os.path.join(os.environ['HOME'], "saved_objects_") if export_dir is None else export_dir + "_"
+        self._temp_dir = tempfile.mkdtemp(prefix=temp_dir_prefix)
+
         # Save the model
+        print('Saving the model...', end='', flush=True)
         tf.keras.models.save_model(
             model=self._model,
-            filepath=TLT_DISTRIBUTED_DIR,
+            filepath=self._temp_dir,
             overwrite=True,
             include_optimizer=False
         )
+        print('Done')
 
         # Save the optimizer object
-        tf.train.Checkpoint(optimizer=self._optimizer).save(os.path.join(TLT_DISTRIBUTED_DIR, 'saved_optimizer'))
+        print('Saving the optimizer...', end='', flush=True)
+        tf.train.Checkpoint(optimizer=self._optimizer).save(
+            os.path.join(self._temp_dir, 'saved_optimizer'))
+        print('Done')
 
         # Save the loss class name and its args
-        with open(os.path.join(TLT_DISTRIBUTED_DIR, 'saved_loss'), 'wb') as f:
+        print('Saving the loss...', end='', flush=True)
+        with open(os.path.join(self._temp_dir, 'saved_loss'), 'wb') as f:
             dill.dump((self._loss_class, self._loss_args), f)
+            print('Done')
 
         # Save the dataset(s)
-        train_data.save(os.path.join(TLT_DISTRIBUTED_DIR, 'train_data'))
-        print(type(train_data))
+        print('Saving the train data...', end='', flush=True)
+        train_data.save(os.path.join(self._temp_dir, 'train_data'))
+        print('Done')
         if val_data:
-            val_data.save(os.path.join(TLT_DISTRIBUTED_DIR, 'val_data'))
+            print('Saving the validation data...', end='', flush=True)
+            val_data.save(os.path.join(self._temp_dir, 'val_data'))
+            print('Done')
+        return self._temp_dir
 
     def cleanup_saved_objects_for_distributed(self):
-        dirs = ['train_data', 'val_data', 'variables', 'assets', 'model_checkpoints']
-        files = ['checkpoint', 'keras_metadata.pb', 'fingerprint.pb']
-
-        for f in os.listdir(TLT_DISTRIBUTED_DIR):
-            full_path = os.path.join(TLT_DISTRIBUTED_DIR, f)
-            if os.path.isdir(full_path) and f in dirs:
-                try:
-                    shutil.rmtree(full_path)
-                except FileNotFoundError:
-                    print("'{}' already cleaned up.".format(f))
-            elif os.path.isfile(full_path) and (f in files or f.startswith('saved')):
-                try:
-                    os.remove(full_path)
-                except FileNotFoundError:
-                    print("'{}' already cleaned up.".format(f))
+        try:
+            print('Cleaning saved objects...')
+            shutil.rmtree(self._temp_dir)
+        except OSError as ose:
+            print('Error while cleaning the saved obects: {}'.format(ose))
 
     def _parse_hostfile(self, hostfile):
         """

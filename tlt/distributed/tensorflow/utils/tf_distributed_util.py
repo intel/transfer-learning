@@ -23,15 +23,13 @@ import dill
 import time
 
 import tensorflow as tf
-import tensorflow_text  # noqa: F401
 import numpy as np
 
 # import horovod
 import horovod.tensorflow.keras as hvd
 
-from tlt.utils.dataset_utils import prepare_huggingface_input_data
-from tlt.distributed import TLT_DISTRIBUTED_DIR
 from pydoc import locate
+from tlt.utils.dataset_utils import prepare_huggingface_input_data
 
 
 class DistributedTrainingArguments:
@@ -103,7 +101,7 @@ class DistributedTF:
         # Horovod: save checkpoints only on worker 0 to prevent other workers from corrupting them.
         if hvd.rank() == 0:
             model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(
-                TLT_DISTRIBUTED_DIR, 'model_checkpoints'), save_weights_only=False, monitor='val_acc',
+                os.environ['HOME'], 'model_checkpoints'), save_weights_only=False, monitor='val_acc',
                 mode='max', save_best_only=True)
             callbacks.append(model_checkpoint_callback)
 
@@ -151,23 +149,22 @@ class DistributedTF:
             print("Time per epoch in seconds = ", ((end - start) / len(self.history.history['loss'])))
             print("Maximum validation accuracy = ", np.max(self.history.history['val_acc']))
 
-    @classmethod
-    def load_saved_objects(cls):
+    def load_saved_objects(self, saved_objects_dir):
         # Load the saved_model.pb
-        model = tf.keras.models.load_model(filepath=TLT_DISTRIBUTED_DIR, compile=False)
+        model = tf.keras.models.load_model(filepath=saved_objects_dir, compile=False)
 
         # Load the optimizer and restore its state
         checkpoint = tf.train.Checkpoint(optimizer=tf.optimizers.Adam())
-        checkpoint.restore(os.path.join(TLT_DISTRIBUTED_DIR, 'saved_optimizer-1'))
+        checkpoint.restore(os.path.join(saved_objects_dir, 'saved_optimizer-1'))
 
         # Load the saved loss class name and instatiate the loss
-        with open(os.path.join(TLT_DISTRIBUTED_DIR, 'saved_loss'), 'rb') as f:
+        with open(os.path.join(saved_objects_dir, 'saved_loss'), 'rb') as f:
             loss_class, loss_args = dill.load(f)
 
         # load the dataset(s)
-        train_data = tf.data.Dataset.load(os.path.join(TLT_DISTRIBUTED_DIR, 'train_data'))
+        train_data = tf.data.Dataset.load(os.path.join(saved_objects_dir, 'train_data'))
         try:
-            val_data = tf.data.Dataset.load(os.path.join(TLT_DISTRIBUTED_DIR, 'val_data'))
+            val_data = tf.data.Dataset.load(os.path.join(saved_objects_dir, 'val_data'))
         except FileNotFoundError:
             val_data = None
 

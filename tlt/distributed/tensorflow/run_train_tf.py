@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import os
 import argparse
 
 from tlt.distributed.tensorflow.utils.tf_distributed_util import (
@@ -25,9 +26,6 @@ from tlt.distributed.tensorflow.utils.tf_distributed_util import (
     DistributedTrainingArguments
 )
 
-
-dtf = DistributedTF()
-model, optimizer, loss, train_data, val_data = dtf.load_saved_objects()
 
 if __name__ == '__main__':
 
@@ -50,12 +48,20 @@ if __name__ == '__main__':
                         'sqrt(batch_size/batch_denom) and uses global batch size for all the processes. For '
                         'strong scaling, lr is scaled by world size and divides global batch size by world size '
                         '(default: weak)')
+    parser.add_argument('--saved_objects_dir', type=str, required=True, help='Path to TLT saved distributed objects.'
+                        'The path must be accessible to all the nodes. For example: mounted NFS drive')
     parser.add_argument('--max_seq_length', type=int, default=128,
                         help='Maximum sequence length that the model will be used with')
     parser.add_argument('--hf_bert_tokenizer', type=str, required=False, default=None,
                         help='Name of the Hugging Face BertTokenizer to use to prepare the data.')
 
     args = parser.parse_args()
+
+    if not os.path.isdir(args.saved_objects_dir):
+        raise ValueError("'{}' is not a valid directory path".format(args.saved_objects_dir))
+
+    dtf = DistributedTF()
+    model, optimizer, loss, train_data, val_data = dtf.load_saved_objects(args.saved_objects_dir)
 
     training_args = DistributedTrainingArguments(
         use_case=args.use_case,

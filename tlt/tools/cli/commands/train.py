@@ -193,7 +193,6 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     try:
         model = model_factory.get_model(model_name, framework)
     except Exception as e:
-
         sys.exit("Error while getting the model (model name: {}, framework: {}):\n{}".format(
             model_name, framework, str(e)))
     # Get the dataset

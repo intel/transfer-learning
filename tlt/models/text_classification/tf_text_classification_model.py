@@ -156,8 +156,8 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
 
         return callbacks, train_data, validation_data
 
-    def _fit_distributed(self, epochs, shuffle, hostfile, nnodes, nproc_per_node, use_horovod, hf_bert_tokenizer=None,
-                         max_seq_length=None):
+    def _fit_distributed(self, saved_objects_dir, epochs, shuffle, hostfile, nnodes, nproc_per_node, use_horovod,
+                         hf_bert_tokenizer=None, max_seq_length=None):
         import subprocess
         distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, 'tensorflow', 'run_train_tf.py')
 
@@ -202,6 +202,7 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         script_cmd = 'python ' + distributed_vision_script
         script_cmd += ' --use_case {}'.format('text_classification')
         script_cmd += ' --epochs {}'.format(epochs)
+        script_cmd += ' --saved_objects_dir {}'.format(saved_objects_dir)
         if shuffle:
             script_cmd += ' --shuffle'
         if hf_bert_tokenizer:
@@ -274,8 +275,8 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
 
         if distributed:
             try:
-                self.export_for_distributed(train_data, val_data)
-                self._fit_distributed(epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
+                saved_objects_dir = self.export_for_distributed("saved_objects", train_data, val_data)
+                self._fit_distributed(saved_objects_dir, epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
                                       kwargs.get('use_horovod'))
             except Exception as err:
                 print("Error: \'{}\' occured while distributed training".format(err))

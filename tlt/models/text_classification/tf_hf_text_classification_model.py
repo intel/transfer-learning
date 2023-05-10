@@ -171,8 +171,8 @@ class TFHFTextClassificationModel(TFTextClassificationModel):
         if distributed:
             try:
                 self._history = None
-                self.export_for_distributed(train_data, val_data)
-                self._fit_distributed(epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
+                saved_objects_dir = self.export_for_distributed("saved_objects", train_data, val_data)
+                self._fit_distributed(saved_objects_dir, epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
                                       kwargs.get('use_horovod'), self._hub_name, self._max_seq_length)
             finally:
                 self.cleanup_saved_objects_for_distributed()

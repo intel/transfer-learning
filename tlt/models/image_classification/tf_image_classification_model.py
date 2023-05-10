@@ -152,7 +152,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         return callbacks, train_dataset, validation_data
 
-    def _fit_distributed(self, epochs, shuffle, hostfile, nnodes, nproc_per_node, use_horovod):
+    def _fit_distributed(self, saved_objects_dir, epochs, shuffle, hostfile, nnodes, nproc_per_node, use_horovod):
         import subprocess
         distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, 'tensorflow', 'run_train_tf.py')
 
@@ -195,6 +195,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         script_cmd = 'python ' + distributed_vision_script
         script_cmd += ' --use_case {}'.format('image_classification')
         script_cmd += ' --epochs {}'.format(epochs)
+        script_cmd += ' --saved_objects_dir {}'.format(saved_objects_dir)
         if shuffle:
             script_cmd += ' --shuffle'
 
@@ -263,8 +264,8 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         if distributed:
             try:
-                self.export_for_distributed(train_data, val_data)
-                self._fit_distributed(epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
+                saved_objects_dir = self.export_for_distributed("saved_objects", train_data, val_data)
+                self._fit_distributed(saved_objects_dir, epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
                                       kwargs.get('use_horovod'))
             except Exception as err:
                 print("Error: \'{}\' occured while distributed training".format(err))
