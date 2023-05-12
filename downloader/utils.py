@@ -19,9 +19,9 @@
 #
 
 import os
-import shutil
 import tarfile
 import requests
+import shutil
 import zipfile
 
 
