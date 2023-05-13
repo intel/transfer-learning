@@ -97,7 +97,7 @@ on making code changes.
    a. Building and installing the wheel:
       ```
       python setup.py bdist_wheel
-      pip install dist/intel_transfer_learning_tool-0.4.0-py3-none-any.whl
+      pip install dist/intel_transfer_learning_tool-0.5.0-py3-none-any.whl
       ```
 
    b. Or, do an editable install to avoid having to rebuild and install after each code change:

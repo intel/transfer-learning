@@ -1,2 +1,2 @@
-dill==0.3.6
-horovod==0.26.1
+dill~=0.3.6
+horovod~=0.27.0

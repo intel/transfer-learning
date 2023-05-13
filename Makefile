@@ -44,7 +44,7 @@ tlt_notebook_venv: $(CURDIR)/notebooks/requirements.txt
 
 	@echo "Installing TF & PYT notebook dependencies..."
 	@. $(ACTIVATE_NOTEBOOK_VENV) && pip install -r $(CURDIR)/notebooks/requirements.txt && \
-	pip install tensorflow-text==2.11.0
+	pip install tensorflow-text==2.12.0
 
 test: unittest integration
 

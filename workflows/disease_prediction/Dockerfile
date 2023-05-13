@@ -17,7 +17,7 @@
 #
 
 ARG IMAGE_NAME=intel/ai-workflows
-ARG IMAGE_TAG=transfer-learning-0.4.0
+ARG IMAGE_TAG=transfer-learning-0.5.0
 FROM ${IMAGE_NAME}:${IMAGE_TAG}
 
 COPY . /workspace

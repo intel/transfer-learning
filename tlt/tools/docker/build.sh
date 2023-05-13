@@ -19,7 +19,7 @@
 TEST_CONTAINER=${TEST_CONTAINER:-False}
 
 # TLT_VERSION used in the name of the wheel that's installed
-TLT_VERSION=${TLT_VERSION:-0.4.0}
+TLT_VERSION=${TLT_VERSION:-0.5.0}
 
 if [[ -z "${FRAMEWORK}" ]]; then
     echo "The FRAMEWORK environment variable is undefined. Set FRAMEWORK to build tlt for either tensorflow or pytorch"

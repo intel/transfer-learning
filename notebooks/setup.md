@@ -38,7 +38,7 @@ the native framework notebooks.
    ```
    This is only required for TensorFlow text classification notebooks that use TF Hub:
    ```
-   pip install tensorflow-text==2.11.0
+   pip install tensorflow-text==2.12.0
    ```
 3. Set environment variables for the path to the dataset folder and an output directory.
    The dataset and output directories can be empty. The notebook will download the dataset to
