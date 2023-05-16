@@ -50,7 +50,7 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
 
     # Preprocess the dataset
     dataset.preprocess(model_name, batch_size=32)
-    dataset.shuffle_split(train_pct=0.01, val_pct=0.01, seed=10)
+    dataset.shuffle_split(train_pct=0.02, val_pct=0.01, seed=6)
     assert dataset._validation_type == 'shuffle_split'
 
     # Evaluate before training
@@ -88,7 +88,7 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
 
     # Ensure we get 'NotImplementedError' for graph_optimization
     with pytest.raises(NotImplementedError):
-        model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
+        model.optimize_graph(os.path.join(saved_model_dir, 'optimized'))
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
@@ -146,7 +146,7 @@ def test_custom_dataset_workflow(model_name):
                                 exit_policy_timeout=0, tuning_workspace=nc_workspace)
     quantization_output = os.path.join(output_dir, "quantized", model_name)
     os.makedirs(quantization_output, exist_ok=True)
-    model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
+    model.quantize(quantization_output, inc_config_file_path)
     assert os.path.exists(os.path.join(quantization_output, "model.pt"))
 
     # Delete the temp output directory

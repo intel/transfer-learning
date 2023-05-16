@@ -85,7 +85,7 @@ def optimize(model_dir, output_dir):
 
         # Call the graph optimization API
         print("Starting graph optimization", flush=True)
-        model.optimize_graph(model_dir, optimized_output_dir)
+        model.optimize_graph(optimized_output_dir)
 
     except Exception as e:
         sys.exit("An error occurred during graph optimization: {}".format(str(e)))

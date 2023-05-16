@@ -799,13 +799,12 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         with open(config_file_path, "w") as config_file:
             yaml.dump(config_template, config_file, sort_keys=False)
 
-    def quantize(self, saved_model_dir, output_dir, inc_config_path):
+    def quantize(self, output_dir, inc_config_path):
         """
-        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
+        Performs post training quantization using the Intel Neural Compressor on the model
         using the specified config file. The quantized model is written to the output directory.
 
         Args:
-            saved_model_dir (str): Source directory for the model to quantize.
             output_dir (str): Writable output directory to save the quantized model
             inc_config_path (str): Path to an INC config file (.yaml)
 
@@ -813,18 +812,10 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             None
 
         Raises:
-            NotADirectoryError if the model is not a directory
             FileNotFoundError if a model.pt is not found in the model or if the inc_config_path file
             is not found.
             FileExistsError if the output_dir already has a model.pt file
         """
-        # The saved model directory should exist and contain a model.pt file
-        if not os.path.isdir(saved_model_dir):
-            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
-        if not os.path.isfile(os.path.join(saved_model_dir, "model.pt")):
-            raise FileNotFoundError("The saved model directory ({}) should have a model.pt file".format(
-                saved_model_dir))
-
         # Verify that the config file exists
         if not os.path.isfile(inc_config_path):
             raise FileNotFoundError("The config file was not found at: {}".format(inc_config_path))

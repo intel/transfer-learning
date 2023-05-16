@@ -67,7 +67,7 @@ def test_torchvision_image_classification_optimize_graph_not_implemented():
         # Graph optimization is not enabled for PyTorch, so this should fail
         with patch('neural_compressor.experimental.Graph_Optimization'):
             with pytest.raises(NotImplementedError):
-                model.optimize_graph(saved_model_dir, output_dir)
+                model.optimize_graph(output_dir)
 
         # Verify that the installed version of Intel Neural Compressor throws a SystemError
         from neural_compressor.experimental import Graph_Optimization, common
@@ -326,7 +326,7 @@ def test_pyt_image_classification_quantization():
             with patch('neural_compressor.experimental.Quantization') as mock_q:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
-                model.quantize(saved_model_dir, output_dir, dummy_config_file)
+                model.quantize(output_dir, dummy_config_file)
                 mock_q.assert_called_with(dummy_config_file)
     finally:
         if os.path.exists(output_dir):
@@ -336,9 +336,9 @@ def test_pyt_image_classification_quantization():
 
 
 @pytest.mark.pytorch
-def test_pyt_image_classification_quantization_model_does_not_exist():
+def test_pyt_image_classification_benchmark_model_does_not_exist():
     """
-    Verifies the error that gets raise if quantization or INC benchmarking is done with a model that does not exist
+    Verifies the error that gets raise if benchmarking is done with a model that does not exist
     """
     try:
         output_dir = tempfile.mkdtemp()
@@ -347,20 +347,8 @@ def test_pyt_image_classification_quantization_model_does_not_exist():
         model = model_factory.get_model('efficientnet_b0', 'pytorch')
         with patch('tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset') as mock_dataset:  # noqa: E501
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
-            with patch('neural_compressor.experimental.Quantization'):
-
-                # Generate a random name that wouldn't exist
-                random_dir = str(uuid.uuid4())
-
-                # It's not a directory, so we expect an error
-                with pytest.raises(NotADirectoryError):
-                    model.quantize(random_dir, output_dir, dummy_config_file)
-
-                saved_model_dir = tempfile.mkdtemp()
-
-                # An empty directory with no saved model should also generate an error
-                with pytest.raises(FileNotFoundError):
-                    model.quantize(saved_model_dir, output_dir, dummy_config_file)
+            random_dir = str(uuid.uuid4())
+            saved_model_dir = tempfile.mkdtemp()
 
             with patch('neural_compressor.experimental.Benchmark'):
                 # It's not a directory, so we expect an error

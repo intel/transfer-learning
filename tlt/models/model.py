@@ -143,13 +143,12 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def quantize(self, saved_model_dir, output_dir, inc_config_path):
+    def quantize(self, output_dir, inc_config_path):
         """
-        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
+        Performs post training quantization using the Intel Neural Compressor on the model
         using the specified config file. The quantized model is written to the output directory.
 
         Args:
-            saved_model_dir (str): Source directory for the model to quantize.
             output_dir (str): Writable output directory to save the quantized model
             inc_config_path (str): Path to an INC config file (.yaml)
 
@@ -158,7 +157,6 @@ class BaseModel(abc.ABC):
 
         Raises:
             NotImplementedError if the model does not support INC yet
-            NotADirectoryError if the saved_model_dir is not a directory
             FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found.
             FileExistsError if the output_dir already has a saved_model.pb file
@@ -166,9 +164,9 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def optimize_graph(self, saved_model_dir, output_dir):
+    def optimize_graph(self, output_dir):
         """
-        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the saved_model_dir
+        Performs FP32 graph optimization using the Intel Neural Compressor on the model
         and writes the inference-optimized model to the output_dir. Graph optimization includes converting
         variables to constants, removing training-only operations like checkpoint saving, stripping out parts
         of the graph that are never reached, removing debug operations like CheckNumerics, folding batch

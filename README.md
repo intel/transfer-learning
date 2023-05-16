@@ -234,14 +234,14 @@ model.write_inc_config_file(inc_config_file, dataset=dataset, batch_size=512, ov
 
 # Quantize the trained model
 quantization_output = os.path.join(output_dir, "quantized_model")
-model.quantize(saved_model_dir, quantization_output, inc_config_file)
+model.quantize(quantization_output, inc_config_file)
 
 # Benchmark the trained model using the Intel Neural Compressor config file
 model.benchmark(quantization_output, inc_config_file, 'performance')
 
 # Do graph optimization on the trained model
 optimization_output = os.path.join(output_dir, "optimized_model")
-model.optimize_graph(saved_model_dir, optimization_output)
+model.optimize_graph(optimization_output)
 ```
 
 For more information on the API see: [https://intelai.github.io/transfer-learning](https://intelai.github.io/transfer-learning).

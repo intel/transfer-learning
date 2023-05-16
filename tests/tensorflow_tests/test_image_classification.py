@@ -106,7 +106,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     if model_name in ['resnet_v1_50', 'ResNet50']:
         optimized_model_dir = os.path.join(output_dir, "optimized")
         os.makedirs(optimized_model_dir, exist_ok=True)
-        model.optimize_graph(saved_model_dir, optimized_model_dir)
+        model.optimize_graph(optimized_model_dir)
         assert os.path.isfile(os.path.join(optimized_model_dir, "saved_model.pb"))
 
     # Test generating an Intel Neural Compressor config file (not implemented yet for TFDS)
@@ -313,7 +313,7 @@ class TestImageClassificationCustomDataset:
 
             quantization_output = os.path.join(self._output_dir, "quantized", model_name)
             os.makedirs(quantization_output)
-            model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
+            model.quantize(quantization_output, inc_config_file_path)
             assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
             model.benchmark(quantization_output, inc_config_file_path)
 

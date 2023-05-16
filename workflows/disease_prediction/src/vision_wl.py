@@ -47,7 +47,7 @@ def quantize_model(output_dir, saved_model_dir, model):
     inc_config_file = os.path.join(root_folder, "config.yaml")
 
     # inc_config_file = 'vision/config.yaml'
-    model.quantize(saved_model_dir, quantization_output_dir, inc_config_file)
+    model.quantize(quantization_output_dir, inc_config_file)
 
 
 def clean_output_folder(output_dir, model_name):

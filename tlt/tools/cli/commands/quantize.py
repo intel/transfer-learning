@@ -157,7 +157,7 @@ def quantize(model_dir, dataset_dir, inc_config, batch_size, accuracy_criterion,
 
         # Call the quantization API
         print("Starting post-training quantization", flush=True)
-        model.quantize(model_dir, quantized_output_dir, inc_config)
+        model.quantize(quantized_output_dir, inc_config)
 
     except Exception as e:
         sys.exit("An error occurred during quantization: {}".format(str(e)))

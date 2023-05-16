@@ -97,7 +97,7 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
 
     # Ensure we get not implemented errors for graph_optimization
     with pytest.raises(NotImplementedError):
-        model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
+        model.optimize_graph(os.path.join(saved_model_dir, 'optimized'))
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
@@ -185,7 +185,7 @@ def test_pyt_image_classification_custom_model():
 
     # Ensure we get not implemented errors for graph_optimization
     with pytest.raises(NotImplementedError):
-        model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
+        model.optimize_graph(os.path.join(saved_model_dir, 'optimized'))
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
@@ -284,7 +284,7 @@ class TestImageClassificationCustomDataset:
             model.benchmark(saved_model_dir, inc_config_file_path, model_type='fp32')
             quantization_output = os.path.join(self._output_dir, "quantized", model_name)
             os.makedirs(quantization_output, exist_ok=True)
-            model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
+            model.quantize(quantization_output, inc_config_file_path)
             assert os.path.exists(os.path.join(quantization_output, "model.pt"))
             model.benchmark(quantization_output, inc_config_file_path, model_type='int8')
 

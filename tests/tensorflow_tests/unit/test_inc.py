@@ -298,53 +298,8 @@ def test_tf_image_classification_quantization():
             with patch('neural_compressor.experimental.Quantization') as mock_q:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
 
-                model.quantize(saved_model_dir, output_dir, dummy_config_file)
+                model.quantize(output_dir, dummy_config_file)
                 mock_q.assert_called_with(dummy_config_file)
-    finally:
-        if os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
-        if os.path.exists(saved_model_dir):
-            shutil.rmtree(saved_model_dir)
-
-
-@pytest.mark.tensorflow
-def test_tf_image_classification_quantization_model_does_not_exist():
-    """
-    Verifies the error that gets raise if quantization or Intel Neural Compressor benchmarking is done with a model
-    that does not exist
-    """
-    try:
-        output_dir = tempfile.mkdtemp()
-        dummy_config_file = os.path.join(output_dir, "config.yaml")
-        Path(dummy_config_file).touch()
-        model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
-                as mock_dataset:
-            mock_dataset.dataset_dir = "/tmp/data/my_photos"
-            with patch('neural_compressor.experimental.Quantization'):
-
-                # Generate a random name that wouldn't exist
-                random_dir = str(uuid.uuid4())
-
-                # It's not a directory, so we expect an error
-                with pytest.raises(NotADirectoryError):
-                    model.quantize(random_dir, output_dir, dummy_config_file)
-
-                saved_model_dir = tempfile.mkdtemp()
-
-                # An empty directory with no saved model should alos generate an error
-                with pytest.raises(FileNotFoundError):
-                    model.quantize(saved_model_dir, output_dir, dummy_config_file)
-
-            with patch('neural_compressor.experimental.Benchmark'):
-                # It's not a directory, so we expect an error
-                with pytest.raises(NotADirectoryError):
-                    model.benchmark(random_dir, dummy_config_file)
-
-                # An empty directory with no saved model should alos generate an error
-                with pytest.raises(FileNotFoundError):
-                    model.benchmark(saved_model_dir, dummy_config_file)
-
     finally:
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)
@@ -369,7 +324,7 @@ def test_tf_image_classification_optimize_graph():
                 as mock_dataset:
             with patch('neural_compressor.experimental.Graph_Optimization') as mock_o:
                 mock_dataset.dataset_dir = "/tmp/data/my_photos"
-                model.optimize_graph(saved_model_dir, output_dir)
+                model.optimize_graph(output_dir)
                 mock_o.assert_called()
     finally:
         if os.path.exists(output_dir):
@@ -379,9 +334,9 @@ def test_tf_image_classification_optimize_graph():
 
 
 @pytest.mark.tensorflow
-def test_tf_image_classification_optimize_graph_model_does_not_exist():
+def test_tf_image_classification_benchmark_model_does_not_exist():
     """
-    Verifies the error that gets raise if graph optimization is done with a model that does not exist
+    Verifies the error that gets raise if benchmarking is done with a model that does not exist
     """
     try:
         output_dir = tempfile.mkdtemp()
@@ -391,21 +346,8 @@ def test_tf_image_classification_optimize_graph_model_does_not_exist():
         with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
                 as mock_dataset:
             mock_dataset.dataset_dir = "/tmp/data/my_photos"
-            with patch('neural_compressor.experimental.Graph_Optimization'):
-
-                # Generate a random name that wouldn't exist
-                random_dir = str(uuid.uuid4())
-
-                # It's not a directory, so we expect an error
-                with pytest.raises(NotADirectoryError):
-                    model.optimize_graph(random_dir, output_dir)
-
-                saved_model_dir = tempfile.mkdtemp()
-
-                # An empty directory with no saved model should alos generate an error
-                with pytest.raises(FileNotFoundError):
-                    model.optimize_graph(saved_model_dir, output_dir)
-
+            random_dir = str(uuid.uuid4())
+            saved_model_dir = tempfile.mkdtemp()
             with patch('neural_compressor.experimental.Benchmark'):
                 # It's not a directory, so we expect an error
                 with pytest.raises(NotADirectoryError):

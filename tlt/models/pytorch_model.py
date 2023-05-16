@@ -104,9 +104,9 @@ class PyTorchModel(BaseModel):
         self._model = dill.loads(model_copy)
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
-    def optimize_graph(self, saved_model_dir, output_dir):
+    def optimize_graph(self, output_dir):
         """
-        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the saved_model_dir
+        Performs FP32 graph optimization using the Intel Neural Compressor on the model
         and writes the inference-optimized model to the output_dir. Graph optimization includes converting
         variables to constants, removing training-only operations like checkpoint saving, stripping out parts
         of the graph that are never reached, removing debug operations like CheckNumerics, folding batch

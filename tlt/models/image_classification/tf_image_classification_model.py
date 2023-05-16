@@ -482,33 +482,24 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         with open(config_file_path, "w") as config_file:
             yaml.dump(config_template, config_file)
 
-    def optimize_graph(self, saved_model_dir, output_dir):
+    def optimize_graph(self, output_dir):
         """
-        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the saved_model_dir
+        Performs FP32 graph optimization using the Intel Neural Compressor on the model
         and writes the inference-optimized model to the output_dir. Graph optimization includes converting
         variables to constants, removing training-only operations like checkpoint saving, stripping out parts
         of the graph that are never reached, removing debug operations like CheckNumerics, folding batch
         normalization ops into the pre-calculated weights, and fusing common operations into unified versions.
 
         Args:
-            saved_model_dir (str): Source directory for the model to optimize
             output_dir (str): Writable output directory to save the optimized model
 
         Returns:
             None
 
         Raises:
-            NotADirectoryError if the saved_model_dir is not a directory
             FileNotFoundError if a saved_model.pb is not found in the saved_model_dir
             FileExistsError if the output_dir already has a saved_model.pb file
         """
-        # The saved model directory should exist and contain a saved_model.pb file
-        if not os.path.isdir(saved_model_dir):
-            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
-        if not os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb")):
-            raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
-                saved_model_dir))
-
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         else:
@@ -519,20 +510,19 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         from neural_compressor.experimental import Graph_Optimization
 
         graph_optimizer = Graph_Optimization()
-        graph_optimizer.model = saved_model_dir
+        graph_optimizer.model = self._model
         optimized_graph = graph_optimizer()
 
         # If optimization was successful, save the model
         if optimized_graph:
             optimized_graph.save(output_dir)
 
-    def quantize(self, saved_model_dir, output_dir, inc_config_path):
+    def quantize(self, output_dir, inc_config_path):
         """
-        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
+        Performs post training quantization using the Intel Neural Compressor on the model
         using the specified config file. The quantized model is written to the output directory
 
         Args:
-            saved_model_dir (str): Source directory for the model to quantize.
             output_dir (str): Writable output directory to save the quantized model
             inc_config_path (str): Path to an INC config file (.yaml)
 
@@ -540,18 +530,10 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             None
 
         Raises:
-            NotADirectoryError if the saved_model_dir is not a directory
             FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found.
             FileExistsError if the output_dir already has a saved_model.pb file
         """
-        # The saved model directory should exist and contain a saved_model.pb file
-        if not os.path.isdir(saved_model_dir):
-            raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
-        if not os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb")):
-            raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
-                saved_model_dir))
-
         # Verify that the config file exists
         if not os.path.isfile(inc_config_path):
             raise FileNotFoundError("The config file was not found at: {}".format(inc_config_path))
@@ -566,7 +548,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         from neural_compressor.experimental import Quantization
 
         quantizer = Quantization(inc_config_path)
-        quantizer.model = saved_model_dir
+        quantizer.model = self._model
         quantized_model = quantizer.fit()
 
         # If quantization was successful, save the model

@@ -243,7 +243,7 @@ def test_custom_dataset_workflow(model_name):
                                     exit_policy_timeout=0, tuning_workspace=nc_workspace)
         quantization_output = os.path.join(output_dir, "quantized", "mocked")
         os.makedirs(quantization_output, exist_ok=True)
-        model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
+        model.quantize(quantization_output, inc_config_file_path)
         assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
 
     finally:
