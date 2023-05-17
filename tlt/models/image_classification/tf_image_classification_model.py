@@ -143,10 +143,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
                 cooldown=1,
                 min_lr=0.0000000001))
 
-        if dataset._validation_type == 'shuffle_split':
-            train_dataset = dataset.train_subset
-        else:
-            train_dataset = dataset.dataset
+        train_dataset = dataset.train_subset if dataset.train_subset else dataset.dataset
 
         validation_data = dataset.validation_subset if do_eval else None
 
@@ -206,7 +203,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
               shuffle_files=True, seed=None, distributed=False, hostfile=None, nnodes=1, nproc_per_node=1,
-              **kwargs):
+              callbacks=None, **kwargs):
         """
         Trains the model using the specified image classification dataset. The model is compiled and trained for
         the specified number of epochs. If a path to initial checkpoints is provided, those weights are loaded before
@@ -232,6 +229,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
                 running with Intel fourth generation Xeon processors, and disabled for other platforms.
             shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.
             seed (int): Optionally set a seed for reproducibility.
+            callbacks (list): List of keras.callbacks.Callback instances to apply during training.
 
         Returns:
             History object from the model.fit() call
@@ -244,7 +242,6 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
            TypeError if the initial_checkpoints parameter is not a string
            RuntimeError if the number of model classes is different from the number of dataset classes
         """
-
         self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
 
         dataset_num_classes = len(dataset.class_names)
@@ -254,13 +251,21 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             raise RuntimeError("The number of model outputs ({}) differs from the number of dataset classes ({})".
                                format(self.num_classes, dataset_num_classes))
 
+        if callbacks and not isinstance(callbacks, list):
+            callbacks = list(callbacks) if isinstance(callbacks, tuple) else [callbacks]
+
+        if callbacks and not all(isinstance(callback, tf.keras.callbacks.Callback) for callback in callbacks):
+            raise TypeError('Callbacks must be tf.keras.callbacks.Callback instances')
+
         self._set_seed(seed)
 
         # Set auto mixed precision
         self.set_auto_mixed_precision(enable_auto_mixed_precision)
 
-        callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
-                                                                    early_stopping, lr_decay)
+        train_callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints,
+                                                                          do_eval, early_stopping, lr_decay)
+        if callbacks:
+            train_callbacks += callbacks
 
         if distributed:
             try:
@@ -272,12 +277,12 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             finally:
                 self.cleanup_saved_objects_for_distributed()
         else:
-            history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
+            history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=train_callbacks,
                                       validation_data=val_data)
             self._history = history.history
             return self._history
 
-    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
+    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False, callbacks=None):
         """
         Evaluate the accuracy of the model on a dataset.
 
@@ -295,9 +300,15 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         else:
             eval_dataset = dataset.dataset
 
-        return self._model.evaluate(eval_dataset)
+        if callbacks and not isinstance(callbacks, list):
+            callbacks = list(callbacks) if isinstance(callbacks, tuple) else [callbacks]
 
-    def predict(self, input_samples, return_type='class'):
+        if callbacks and not all(isinstance(callback, tf.keras.callbacks.Callback) for callback in callbacks):
+            raise TypeError('Callbacks must be tf.keras.callbacks.Callback instances')
+
+        return self._model.evaluate(eval_dataset, callbacks=callbacks)
+
+    def predict(self, input_samples, return_type='class', callbacks=None):
         """
         Perform feed-forward inference and predict the classes of the input_samples.
 
@@ -306,6 +317,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             return_type (str): Using 'class' will return the highest scoring class (default), using 'scores' will
                                return the raw output/logits of the last layer of the network, using 'probabilities' will
                                return the output vector after applying a softmax function (so results sum to 1)
+            callbacks (list): List of keras.callbacks.Callback instances to apply during predict
 
         Returns:
             List of classes, probability vectors, or raw score vectors
@@ -317,7 +329,13 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         if not isinstance(return_type, str) or return_type not in return_types:
             raise ValueError('Invalid return_type ({}). Expected one of {}.'.format(return_type, return_types))
 
-        predictions = self._model.predict(input_samples)
+        if callbacks and not isinstance(callbacks, list):
+            callbacks = list(callbacks) if isinstance(callbacks, tuple) else [callbacks]
+
+        if callbacks and not all(isinstance(callback, tf.keras.callbacks.Callback) for callback in callbacks):
+            raise TypeError('Callbacks must be tf.keras.callbacks.Callback instances')
+
+        predictions = self._model.predict(input_samples, callbacks=callbacks)
         if return_type == 'class':
             return np.argmax(predictions, axis=-1)
         elif return_type == 'probabilities':
@@ -432,6 +450,15 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             "Rescale": {}
         }
 
+        data_load_dir = dataset.dataset_dir
+
+        # If the dataset has a defined split, use the validation or test directory
+        if dataset._validation_type == 'defined_split':
+            if os.path.exists(os.path.join(data_load_dir, 'validation')):
+                data_load_dir = os.path.join(data_load_dir, 'validation')
+            elif os.path.exists(os.path.join(data_load_dir, 'test')):
+                data_load_dir = os.path.join(data_load_dir, 'test')
+
         # Update the data loader configs
         for dataloader_config in dataloader_configs:
             # Set the transform configs for resizing and rescaling
@@ -439,7 +466,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
             # Update dataset directory for the custom dataset
             if "dataset" in dataloader_config.keys() and "ImageFolder" in dataloader_config["dataset"].keys():
-                dataloader_config["dataset"]["ImageFolder"]["root"] = dataset.dataset_dir
+                dataloader_config["dataset"]["ImageFolder"]["root"] = data_load_dir
 
             dataloader_config["batch_size"] = batch_size
 

@@ -21,8 +21,9 @@
 import os
 import pytest
 import shutil
-import uuid
 import tempfile
+import uuid
+import yaml
 
 from pathlib import Path
 from unittest.mock import patch
@@ -74,6 +75,56 @@ def test_tf_image_classification_config_file_overwrite():
 
             # Writing the config file again should work with overwrite=True
             model.write_inc_config_file(config_file, mock_dataset, batch_size=batch_size, overwrite=True)
+    finally:
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+
+
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('validation_folder,validation_type',
+                         [['test', 'defined_split'],
+                          ['validation', 'defined_split']])
+@patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset')
+def test_tf_image_classification_defined_split_inc_config(mock_dataset, validation_folder, validation_type):
+    """
+    Tests writing an Intel Neural Compressor config file for an image classification dataset that has a 'defined split'
+    to verify that the data loader directory has the expected directory
+    """
+    try:
+        temp_dir = tempfile.mkdtemp()
+        model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+        with patch('tlt.models.image_classification.tf_image_classification_model.os.path.exists') as mock_path_exists:
+            config_file = os.path.join(temp_dir, "config.yaml")
+            batch_size = 24
+            dataset_dir = "/tmp/data/my_photos"
+            mock_dataset.dataset_dir = dataset_dir
+            mock_dataset._validation_type = validation_type
+            nc_workspace = os.path.join(temp_dir, "nc_workspace")
+
+            def mocked_path_exists(dir_path):
+                if dir_path.startswith(dataset_dir):
+                    return os.path.basename(dir_path) == validation_folder
+                else:
+                    return True
+
+            mock_path_exists.side_effect = mocked_path_exists
+
+            model.write_inc_config_file(config_file, mock_dataset, batch_size=batch_size, tuning_workspace=nc_workspace)
+            assert os.path.exists(config_file)
+
+            with open(config_file) as f:
+                config_dict = yaml.safe_load(f)
+
+            # Check that the config has the expected data loader path
+            expected_path = os.path.join(dataset_dir, validation_folder)
+
+            assert config_dict["quantization"]["calibration"]["dataloader"]["dataset"]["ImageFolder"]["root"] == \
+                   expected_path
+            assert config_dict["evaluation"]["accuracy"]["dataloader"]["dataset"]["ImageFolder"]["root"] == \
+                   expected_path
+            assert config_dict["evaluation"]["performance"]["dataloader"]["dataset"]["ImageFolder"]["root"] == \
+                   expected_path
+
     finally:
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)

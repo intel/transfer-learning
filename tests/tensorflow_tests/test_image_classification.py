@@ -412,3 +412,114 @@ def test_train_add_aug_mock(add_aug):
         # Test train without eval
         return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=False)
         assert return_val == expected_return_value
+
+
+@pytest.mark.tensorflow
+def test_custom_callback():
+    """
+    Tests passing custom callbacks to the TensorFlow image classification train, evaluate, and predict functions.
+    """
+    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+
+    with patch('tlt.models.image_classification.tfhub_image_classification_model.'
+               'TFHubImageClassificationModel._get_hub_model') as mock_get_hub_model:
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = ImageClassificationDataset
+        mock_dataset.validation_subset = [1, 2, 3]
+
+        mock_dataset.class_names = ['a', 'b', 'c']
+        mock_model = MagicMock()
+        expected_return_value = {"result": True}
+        mock_history = MagicMock()
+        mock_history.history = expected_return_value
+
+        class TestCallbackMethod(keras.callbacks.Callback):
+            pass
+
+        test_callback = TestCallbackMethod()
+
+        def mock_fit(dataset, epochs, shuffle, callbacks, validation_data=None):
+            # We should have more than one callback since TLT them and we added a custom one
+            assert isinstance(callbacks, list)
+            assert len(callbacks) > 1
+
+            # We should have one callback that's our test callback
+            assert (len([x for x in callbacks if x.__class__.__name__ == 'TestCallbackMethod']) == 1)
+
+            return mock_history
+
+        def mock_evaluate(dataset, callbacks=None):
+            assert isinstance(callbacks, list)
+            assert len(callbacks) == 1
+            assert (len([x for x in callbacks if x.__class__.__name__ == 'TestCallbackMethod']) == 1)
+            return [.98, 0.13]
+
+        def mock_predict(input_samples, callbacks=None):
+            assert isinstance(callbacks, list)
+            assert len(callbacks) == 1
+            assert (len([x for x in callbacks if x.__class__.__name__ == 'TestCallbackMethod']) == 1)
+            return [1.0, 0.5]
+
+        mock_model.fit.side_effect = mock_fit
+        mock_model.evaluate.side_effect = mock_evaluate
+        mock_model.predict.side_effect = mock_predict
+        mock_get_hub_model.return_value = mock_model
+
+        # Test custom callback as a single item, list, or tuple
+        custom_callbacks = [test_callback, [test_callback], (test_callback)]
+
+        for custom_callback in custom_callbacks:
+            # Test train with custom callback
+            return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=False, callbacks=custom_callback)
+            assert return_val == expected_return_value
+            mock_model.fit.assert_called_once()
+            mock_model.fit.reset_mock()
+
+            # Test evaluate with custom callback
+            model.evaluate(mock_dataset, callbacks=custom_callback)
+            mock_model.evaluate.assert_called_once()
+            mock_model.evaluate.reset_mock()
+
+            # Test predict with custom callback
+            model.predict([], callbacks=custom_callback)
+            mock_model.predict.assert_called_once()
+            mock_model.predict.reset_mock()
+
+
+@pytest.mark.tensorflow
+@patch('tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel._get_hub_model')
+def test_invalid_callback_types(mock_get_hub_model):
+    """
+    Tests passing custom callbacks of the wrong type to train, predict, and evaluate
+    """
+    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = ImageClassificationDataset
+    mock_dataset.validation_subset = [1, 2, 3]
+
+    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_model = MagicMock()
+    expected_return_value = {"result": True}
+    mock_history = MagicMock()
+    mock_history.history = expected_return_value
+
+    class TestCallbackMethod(keras.callbacks.Callback):
+        pass
+
+    good_callback = TestCallbackMethod()
+    bad_callback = 1
+
+    mock_model.fit = MagicMock()
+    mock_model.evaluate = MagicMock()
+    mock_model.predict = MagicMock()
+    mock_get_hub_model.return_value = mock_model
+
+    with pytest.raises(TypeError, match="Callbacks must be tf.keras.callbacks.Callback instances"):
+        model.train(mock_dataset, output_dir="/tmp/output", do_eval=False, callbacks=[good_callback, bad_callback])
+
+    with pytest.raises(TypeError, match="Callbacks must be tf.keras.callbacks.Callback instances"):
+        model.evaluate(mock_dataset, callbacks=[good_callback, bad_callback])
+
+    with pytest.raises(TypeError, match="Callbacks must be tf.keras.callbacks.Callback instances"):
+        model.predict([], callbacks=[good_callback, bad_callback])

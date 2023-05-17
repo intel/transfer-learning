@@ -583,7 +583,7 @@ class OptimizedPlatformUtil(PlatformUtil):
 
         for env_var_name, env_var_value in self.env_vars_dict.items():
             if env_var_value is not None:
-                if env_var_name not in os.environ:
+                if env_var_name not in os.environ or self.force_reset_env_vars:
                     os.environ[env_var_name] = str(env_var_value)
                 else:
                     warning_string += "WARNING: The value for {} has already been set to {}. " \
