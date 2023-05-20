@@ -48,6 +48,7 @@ class TestDatasetDownload:
             print("Deleting test directory:", cls._dataset_dir)
             shutil.rmtree(cls._dataset_dir)
 
+    @pytest.mark.integration
     @pytest.mark.parametrize('dataset_name,catalog,split,kwargs,size',
                              [['tf_flowers', 'tfds', 'train', {}, 3670],
                               ['CIFAR10', 'torchvision', 'train', {}, 50000],

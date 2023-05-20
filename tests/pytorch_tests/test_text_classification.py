@@ -154,6 +154,7 @@ def test_custom_dataset_workflow(model_name):
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['distilbert-base-uncased', 'imdb']])
@@ -196,6 +197,7 @@ def test_initial_checkpoints(model_name, dataset_name):
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['distilbert-base-uncased', 'imdb']])
@@ -231,6 +233,7 @@ def test_freeze_bert(model_name, dataset_name):
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['distilbert-base-uncased', 'imdb']])
@@ -264,6 +267,7 @@ def test_unfreeze_bert(model_name, dataset_name):
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['distilbert-base-uncased', 'imdb']])

@@ -301,6 +301,7 @@ def image_classification_data(request):
     return (ic_dataset.tlt_dataset, dataset_name, dataset_classes, splits)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 class TestImageClassificationDataset:
     """
@@ -308,7 +309,6 @@ class TestImageClassificationDataset:
     tests will be run once for each of the dataset defined in the dataset_params list.
     """
 
-    @pytest.mark.pytorch
     def test_class_names_and_size(self, image_classification_data):
         """
         Verify the class type, dataset class names, and dataset length after initializaion
@@ -327,7 +327,6 @@ class TestImageClassificationDataset:
             assert len(tlt_dataset.class_names) == len(torchvision_metadata[dataset_name]['class_names'])
             assert len(tlt_dataset.dataset) == torchvision_metadata[dataset_name]['size']
 
-    @pytest.mark.pytorch
     @pytest.mark.parametrize('batch_size',
                              ['foo',
                               -17,
@@ -340,7 +339,6 @@ class TestImageClassificationDataset:
         with pytest.raises(ValueError):
             tlt_dataset.preprocess(224, batch_size)
 
-    @pytest.mark.pytorch
     @pytest.mark.parametrize('image_size',
                              ['foo',
                               -17,
@@ -353,7 +351,6 @@ class TestImageClassificationDataset:
         with pytest.raises(ValueError):
             tlt_dataset.preprocess(image_size, batch_size=8)
 
-    @pytest.mark.pytorch
     def test_preprocessing(self, image_classification_data):
         """
         Checks that dataset can be preprocessed only once
@@ -368,7 +365,6 @@ class TestImageClassificationDataset:
         assert 'Data has already been preprocessed: {}'.format(preprocessing_inputs) == str(e.value)
         print(tlt_dataset.info)
 
-    @pytest.mark.pytorch
     def test_shuffle_split_errors(self, image_classification_data):
         """
         Checks that splitting into train, validation, and test subsets will error if inputs are wrong
@@ -382,7 +378,6 @@ class TestImageClassificationDataset:
             tlt_dataset.shuffle_split(train_pct=1, val_pct=0)
         assert 'Percentage arguments must be floats.' == str(e.value)
 
-    @pytest.mark.pytorch
     def test_shuffle_split(self, image_classification_data):
         """
         Checks that dataset can be split into train, validation, and test subsets
@@ -459,6 +454,7 @@ def anomaly_detection_data(request):
 
 
 # Tests for Image Anomaly Detection use case
+@pytest.mark.integration
 @pytest.mark.pytorch
 class TestImageAnomalyDetectionDataset:
     """
@@ -466,7 +462,6 @@ class TestImageAnomalyDetectionDataset:
     These tests will be run once for each of the dataset defined in the anomaly_dataset_params list.
     """
 
-    @pytest.mark.pytorch
     def test_classes_defects_and_size(self, anomaly_detection_data):
         """
         Verify the class type, dataset class names, defect_names, and dataset length after initializaion
@@ -478,7 +473,6 @@ class TestImageAnomalyDetectionDataset:
         assert len(tlt_dataset.defect_names) == len(dataset_classes) - 1  # Subtract 1 for the "good" class
         assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
 
-    @pytest.mark.pytorch
     def test_preprocessing(self, anomaly_detection_data):
         """
         Checks that dataset can be preprocessed only once
@@ -493,7 +487,6 @@ class TestImageAnomalyDetectionDataset:
         assert 'Data has already been preprocessed: {}'.format(preprocessing_inputs) == str(e.value)
         print(tlt_dataset.info)
 
-    @pytest.mark.pytorch
     def test_shuffle_split_errors(self, anomaly_detection_data):
         """
         Checks that splitting into train, validation, and test subsets will error if inputs are wrong
@@ -507,7 +500,6 @@ class TestImageAnomalyDetectionDataset:
             tlt_dataset.shuffle_split(train_pct=1, val_pct=0)
         assert 'Percentage arguments must be floats.' == str(e.value)
 
-    @pytest.mark.pytorch
     def test_shuffle_split(self, anomaly_detection_data):
         """
         Checks that dataset can be split into train, validation, and test subsets
@@ -636,6 +628,7 @@ def text_classification_data(request):
     return (tc_dataset.tlt_dataset, dataset_dir, dataset_name, dataset_catalog, class_names)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 class TestTextClassificationDataset:
     """
@@ -643,7 +636,6 @@ class TestTextClassificationDataset:
     tests will be run once for each of the datasets defined in the dataset_params list.
     """
 
-    @pytest.mark.pytorch
     def test_tlt_dataset(self, text_classification_data):
         """
         Tests whether a matching Intel Transfer Learning Tool dataset object is returned
@@ -654,7 +646,6 @@ class TestTextClassificationDataset:
         else:
             assert type(tlt_dataset) == HFTextClassificationDataset
 
-    @pytest.mark.pytorch
     def test_class_names_and_size(self, text_classification_data):
         """
         Verify the class type, dataset class names, and dataset length after initializaion
@@ -667,7 +658,6 @@ class TestTextClassificationDataset:
             assert tlt_dataset.class_names == class_names
             assert len(tlt_dataset.dataset) == hf_metadata[dataset_name]['size']
 
-    @pytest.mark.pytorch
     @pytest.mark.parametrize('batch_size',
                              ['foo',  # A string
                               -17,  # A negative int
@@ -681,7 +671,6 @@ class TestTextClassificationDataset:
         with pytest.raises(ValueError):
             tlt_dataset.preprocess('', batch_size)
 
-    @pytest.mark.pytorch
     def test_shuffle_split_errors(self, text_classification_data):
         """
         Checks that splitting into train, validation, and test subsets will error if inputs are wrong

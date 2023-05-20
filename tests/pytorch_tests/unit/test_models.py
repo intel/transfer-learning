@@ -208,6 +208,7 @@ def test_torchvision_efficientnet_b0_train():
             mock_model.eval.assert_not_called()
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 def test_bert_train():
     model = model_factory.get_model('distilbert-base-uncased', 'pytorch')

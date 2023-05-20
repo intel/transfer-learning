@@ -125,6 +125,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 def test_tf_image_classification_custom_model():
     """

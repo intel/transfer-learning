@@ -109,6 +109,7 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 def test_pyt_image_classification_custom_model():
     """
@@ -330,6 +331,7 @@ def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epoc
     assert history['Acc'][-1] == final_acc
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 def test_pyt_freeze():
     """

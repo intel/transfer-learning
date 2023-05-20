@@ -47,6 +47,7 @@ except ModuleNotFoundError:
     print("WARNING: Unable to import TFCustomImageClassificationDataset. TensorFlow may not be installed")
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 def test_tf_flowers_10pct():
     """
@@ -58,6 +59,7 @@ def test_tf_flowers_10pct():
     assert len(flowers.dataset) < 3670
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,train_split,val_split,test_split,train_len,val_len,test_len',
                          [['beans', 'image_classification', 'train', 'validation', None, 1034, 133, 0],
@@ -102,6 +104,7 @@ def test_defined_split(dataset_name, use_case, train_split, val_split, test_spli
     assert data._validation_type == 'shuffle_split'
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,train_split,train_len,val_len',
                          [['tf_flowers', 'image_classification', 'train[:30%]', 825, 275],
@@ -119,6 +122,7 @@ def test_shuffle_split(dataset_name, use_case, train_split, train_len, val_len):
     assert flowers._validation_type == 'shuffle_split'
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,image_size',
                          [['tf_flowers', 'image_classification', 224],
@@ -189,6 +193,7 @@ def test_shuffle_split_deterministic_custom():
             ic_dataset2.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_dir,use_case,dataset_name,dataset_catalog,class_names,batch_size',
                          [['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None, 32],
@@ -215,6 +220,7 @@ def test_batching(dataset_dir, use_case, dataset_name, dataset_catalog, class_na
         ic_dataset.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_dir,use_case,dataset_name,dataset_catalog,class_names',
                          [['/tmp/data', 'image_classification', 'tf_flowers', 'tf_datasets', None],
@@ -245,6 +251,7 @@ def test_batching_error(dataset_dir, use_case, dataset_name, dataset_catalog, cl
         ic_dataset.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,expected_class_names',
                          [['glue/cola', 'text_classification', ['unacceptable', 'acceptable']],
@@ -509,6 +516,7 @@ class TestImageClassificationDataset:
             assert len(tlt_dataset.class_names) == len(tfds_metadata[dataset_name]['class_names'])
             assert len(tlt_dataset.dataset) == tfds_metadata[dataset_name]['size']
 
+    @pytest.mark.integration
     @pytest.mark.tensorflow
     @pytest.mark.parametrize('batch_size',
                              ['foo',
@@ -525,6 +533,7 @@ class TestImageClassificationDataset:
             else:
                 tlt_dataset.preprocess(batch_size=batch_size)
 
+    @pytest.mark.integration
     @pytest.mark.tensorflow
     @pytest.mark.parametrize('image_size',
                              ['foo',
@@ -541,6 +550,7 @@ class TestImageClassificationDataset:
             with pytest.raises(ValueError):
                 tlt_dataset.preprocess(image_size, batch_size=8)
 
+    @pytest.mark.integration
     @pytest.mark.tensorflow
     def test_preprocessing(self, test_data):
         """
@@ -566,6 +576,7 @@ class TestImageClassificationDataset:
         assert 'Data has already been preprocessed: {}'.format(preprocessing_inputs) == str(e.value)
         print(tlt_dataset.info)
 
+    @pytest.mark.integration
     @pytest.mark.tensorflow
     def test_shuffle_split_errors(self, test_data):
         """
@@ -580,6 +591,7 @@ class TestImageClassificationDataset:
             tlt_dataset.shuffle_split(train_pct=1, val_pct=0)
         assert 'Percentage arguments must be floats.' == str(e.value)
 
+    @pytest.mark.integration
     @pytest.mark.tensorflow
     def test_shuffle_split(self, test_data):
         """
