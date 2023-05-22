@@ -189,7 +189,7 @@ def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name,
             shutil.rmtree(output_dir)
 
 
-@pytest.mark.integration
+@pytest.mark.integration  # The dataset file (/tmp/data/sms_spam_collection/SMSSpamCollection) does not exist
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name',
                          ['google/bert_uncased_L-2_H-128_A-2'])

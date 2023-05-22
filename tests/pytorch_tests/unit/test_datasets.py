@@ -108,6 +108,7 @@ def test_shuffle_split():
     assert data._validation_type == 'shuffle_split'
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 def test_shuffle_split_deterministic_tv():
     """
@@ -163,6 +164,7 @@ def test_shuffle_split_deterministic_custom():
             ic_dataset2.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('dataset_dir,dataset_name,dataset_catalog,class_names,batch_size',
                          [['/tmp/data', 'DTD', 'torchvision', None, 32],
@@ -184,6 +186,7 @@ def test_batching(dataset_dir, dataset_name, dataset_catalog, class_names, batch
         ic_dataset.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('dataset_dir,dataset_name,dataset_catalog,class_names',
                          [['/tmp/data', 'DTD', 'torchvision', None],
@@ -301,7 +304,6 @@ def image_classification_data(request):
     return (ic_dataset.tlt_dataset, dataset_name, dataset_classes, splits)
 
 
-@pytest.mark.integration
 @pytest.mark.pytorch
 class TestImageClassificationDataset:
     """
@@ -454,7 +456,6 @@ def anomaly_detection_data(request):
 
 
 # Tests for Image Anomaly Detection use case
-@pytest.mark.integration
 @pytest.mark.pytorch
 class TestImageAnomalyDetectionDataset:
     """

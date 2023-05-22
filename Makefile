@@ -26,7 +26,7 @@ ACTIVATE_DOCS_VENV = $(ACTIVATE_TEST_VENV)
 # Customize sample test run commands
 # PY_TEST_EXTRA_ARGS="'-vvv -k test_platform_util_with_no_args'" make test
 # PY_TEST_EXTRA_ARGS="'--collect-only'" make test
-PY_TEST_EXTRA_ARGS ?= ""
+PY_TEST_EXTRA_ARGS ?= "--durations=0"
 
 tlt_test_venv: $(CURDIR)/tests/requirements-test.txt
 	@echo "Creating a virtualenv tlt_test_venv..."
@@ -50,11 +50,11 @@ test: unittest integration
 
 unittest: tlt_test_venv
 	@echo "Testing unit test API..."
-	@. $(ACTIVATE_TEST_VENV) && PYTHONPATH=$(CURDIR)/tests py.test $(PY_TEST_EXTRA_ARGS) -s -m "not integration"
+	@. $(ACTIVATE_TEST_VENV) && PYTHONPATH=$(CURDIR)/tests py.test -vvv -s $(PY_TEST_EXTRA_ARGS) "-k not integration and not skip"
 
 integration: tlt_test_venv
 	@echo "Testing integration test API..."
-	@. $(ACTIVATE_TEST_VENV) && PYTHONPATH=$(CURDIR)/tests py.test $(PY_TEST_EXTRA_ARGS) -s -m "integration"
+	@. $(ACTIVATE_TEST_VENV) && PYTHONPATH=$(CURDIR)/tests py.test -vvv -s $(PY_TEST_EXTRA_ARGS) "-k integration and not skip"
 
 lint: tlt_test_venv
 	@echo "Style checks..."

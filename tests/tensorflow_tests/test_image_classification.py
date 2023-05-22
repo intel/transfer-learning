@@ -217,6 +217,8 @@ def test_tf_image_classification_custom_model():
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
+@pytest.mark.tensorflow
 class TestImageClassificationCustomDataset:
     """
     Tests for TensorFlow image classification using a custom dataset using the flowers dataset
@@ -242,8 +244,6 @@ class TestImageClassificationCustomDataset:
                 print("Deleting test directory:", dir)
                 shutil.rmtree(dir)
 
-    @pytest.mark.integration
-    @pytest.mark.tensorflow
     @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy',
                              [['efficientnet_b0', 0.9333333, 1.0],
                               ['resnet_v1_50', 1.0, 1.0]])

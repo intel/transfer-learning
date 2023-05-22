@@ -51,7 +51,6 @@ dataset = dataset_factory.load_dataset(dataset_dir=custom_dataset_path,
                                        framework='pytorch')
 
 
-@pytest.mark.integration
 @pytest.mark.pytorch
 def test_torchvision_image_classification_optimize_graph_not_implemented():
     """

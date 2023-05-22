@@ -34,7 +34,6 @@ from tlt.utils.file_utils import download_and_extract_tar_file
 
 
 @pytest.mark.skip(reason='TODO: Solve test fails with urllib.error.HTTPError: HTTP Error 403: rate limit exceeded')
-@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
                          [['efficientnet_b0', 'CIFAR10', None, 2],
@@ -198,6 +197,7 @@ def test_pyt_image_classification_custom_model():
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32)
 
 
+@pytest.mark.pytorch
 class TestImageClassificationCustomDataset:
     """
     Tests for PyTorch image classification using a custom dataset using the flowers dataset
@@ -226,7 +226,6 @@ class TestImageClassificationCustomDataset:
                 shutil.rmtree(dir)
 
     @pytest.mark.skip(reason='TODO: Solve test fails with urllib.error.HTTPError: HTTP Error 403: rate limit exceeded')
-    @pytest.mark.pytorch
     @pytest.mark.parametrize('model_name,add_aug,ipex_optimize',
                              [['efficientnet_b0', ['hflip'], True],
                               ['resnet18', ['rotate'], True],
