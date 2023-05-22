@@ -88,9 +88,9 @@ class TFModel(BaseModel):
                 None
 
             Raises:
-                TypeError if model_dir is not a string
-                NotADirectoryError if model_dir is not a directory
-                IOError for an invalid model file
+                TypeError: if model_dir is not a string
+                NotADirectoryError: if model_dir is not a directory
+                IOError: for an invalid model file
         """
         # Verify that the model directory exists
         verify_directory(model_dir, require_directory_exists=True)
@@ -150,9 +150,9 @@ class TFModel(BaseModel):
                The path to the numbered saved model directory
 
            Raises:
-               TypeError if the output_dir is not a string
-               FileExistsError the specified output directory already exists as a file
-               ValueError if the mode has not been loaded or trained yet
+               TypeError: if the output_dir is not a string
+               FileExistsError: the specified output directory already exists as a file
+               ValueError: if the mode has not been loaded or trained yet
         """
         if self._model:
             # Save the model in a format that can be served

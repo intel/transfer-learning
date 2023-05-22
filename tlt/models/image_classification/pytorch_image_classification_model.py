@@ -318,7 +318,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 hostfile (str): Name of the hostfile for distributed training. Defaults to None.
                 nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
                 nproc_per_node (int): Number of processes to spawn per node to use for distributed training. Defaults
-                to 1.
+                    to 1.
 
             Returns:
                 Trained PyTorch model object
@@ -425,7 +425,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             List of classes, probability vectors, or raw score vectors
 
         Raises:
-            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
+            ValueError: if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
         return_types = ['class', 'probabilities', 'scores']
         if not isinstance(return_type, str) or return_type not in return_types:
@@ -493,9 +493,9 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         Returns:
             None
         Raises:
-            FileExistsError if the config file already exists and overwrite is set to False.
-            ValueError if the parameters are not within the expected values
-            NotImplementedError if the dataset type is not TFCustomImageClassificationDataset.
+            FileExistsError: if the config file already exists and overwrite is set to False.
+            ValueError: if the parameters are not within the expected values
+            NotImplementedError: if the dataset type is not TFCustomImageClassificationDataset.
         """
         if os.path.isfile(config_file_path) and not overwrite:
             raise FileExistsError('A file already exists at: {}. Provide a new file path or set overwrite=True',
@@ -643,9 +643,9 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             None
 
         Raises:
-            FileNotFoundError if a model.pt is not found in the model or if the inc_config_path file
+            FileNotFoundError: if a model.pt is not found in the model or if the inc_config_path file
             is not found.
-            FileExistsError if the output_dir already has a model.pt file
+            FileExistsError: if the output_dir already has a model.pt file
         """
         # Verify that the config file exists
         if not os.path.isfile(inc_config_path):
@@ -686,10 +686,10 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         Returns:
             None
         Raises:
-            NotADirectoryError if the saved_model_dir is not a directory
-            FileNotFoundError if a model.pt is not found in the saved_model_dir or if the inc_config_path file
+            NotADirectoryError: if the saved_model_dir is not a directory
+            FileNotFoundError: if a model.pt is not found in the saved_model_dir or if the inc_config_path file
             is not found.
-            ValueError if an unexpected mode is provided
+            ValueError: if an unexpected mode is provided
         """
         # The saved model directory should exist and contain a model.pt file
         if not os.path.isdir(saved_model_dir):

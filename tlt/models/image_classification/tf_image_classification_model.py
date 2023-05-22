@@ -235,12 +235,12 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             History object from the model.fit() call
 
         Raises:
-           FileExistsError if the output directory is a file
-           TypeError if the dataset specified is not an ImageClassificationDataset
-           TypeError if the output_dir parameter is not a string
-           TypeError if the epochs parameter is not a integer
-           TypeError if the initial_checkpoints parameter is not a string
-           RuntimeError if the number of model classes is different from the number of dataset classes
+           FileExistsError: if the output directory is a file
+           TypeError: if the dataset specified is not an ImageClassificationDataset
+           TypeError: if the output_dir parameter is not a string
+           TypeError: if the epochs parameter is not a integer
+           TypeError: if the initial_checkpoints parameter is not a string
+           RuntimeError: if the number of model classes is different from the number of dataset classes
         """
         self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
 
@@ -323,7 +323,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             List of classes, probability vectors, or raw score vectors
 
         Raises:
-            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
+            ValueError: if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
         return_types = ['class', 'probabilities', 'scores']
         if not isinstance(return_type, str) or return_type not in return_types:
@@ -372,9 +372,9 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             None
 
         Raises:
-            FileExistsError if the config file already exists and overwrite is set to False.
-            ValueError if the parameters are not within the expected values
-            NotImplementedError if the dataset type is not TFCustomImageClassificationDataset.
+            FileExistsError: if the config file already exists and overwrite is set to False.
+            ValueError: if the parameters are not within the expected values
+            NotImplementedError: if the dataset type is not TFCustomImageClassificationDataset.
         """
         if os.path.isfile(config_file_path) and not overwrite:
             raise FileExistsError('A file already exists at: {}. Provide a new file path or set overwrite=True',
@@ -524,8 +524,8 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             None
 
         Raises:
-            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir
-            FileExistsError if the output_dir already has a saved_model.pb file
+            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir
+            FileExistsError: if the output_dir already has a saved_model.pb file
         """
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -557,9 +557,9 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             None
 
         Raises:
-            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
+            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found.
-            FileExistsError if the output_dir already has a saved_model.pb file
+            FileExistsError: if the output_dir already has a saved_model.pb file
         """
         # Verify that the config file exists
         if not os.path.isfile(inc_config_path):
@@ -595,10 +595,10 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             None
 
         Raises:
-            NotADirectoryError if the saved_model_dir is not a directory
-            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
+            NotADirectoryError: if the saved_model_dir is not a directory
+            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found.
-            ValueError if an unexpected mode is provided
+            ValueError: if an unexpected mode is provided
         """
         # The saved model directory should exist and contain a saved_model.pb file
         if not os.path.isdir(saved_model_dir):

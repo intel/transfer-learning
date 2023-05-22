@@ -106,8 +106,8 @@ class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
                 batch_size (int): desired batch size
 
             Raises:
-                TypeError if the batch_size is not a positive integer
-                ValueError if the dataset is not defined or has already been processed
+                TypeError: if the batch_size is not a positive integer
+                ValueError: if the dataset is not defined or has already been processed
         """
         if not isinstance(batch_size, int) or batch_size < 1:
             raise ValueError("batch_size should be a positive integer")

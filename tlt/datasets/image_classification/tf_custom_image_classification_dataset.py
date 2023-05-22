@@ -67,7 +67,7 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         seed (int): optional; Random seed for shuffling
 
     Raises:
-        FileNotFoundError if dataset directory does not exist
+        FileNotFoundError: if dataset directory does not exist
 
     """
 
@@ -182,7 +182,7 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
                                              resizing
 
             Raises:
-                ValueError if the dataset is not defined or has already been processed
+                ValueError: if the dataset is not defined or has already been processed
         """
         if self._preprocessed:
             raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))

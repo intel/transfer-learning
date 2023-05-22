@@ -76,13 +76,13 @@ class HFCustomTextClassificationDataset(TextClassificationDataset, HFDataset):
             num_workers (int): Number of workers to pass into a DataLoader.
 
         Raises:
-            FileNotFoundError if the csv file is not found in the dataset directory
-            TypeError if label_map_func is not callable
-            ValueError if class_names list is empty
-            ValueError if column_names list does not contain the value 'label'
-            ValueError if index of 'label' in column_names and label_col mismatch
-            ValueError if the values of column_names are not strings.
-            ValueError if column_names contains more than one value as 'label'
+            FileNotFoundError: if the csv file is not found in the dataset directory
+            TypeError: if label_map_func is not callable
+            ValueError: if class_names list is empty
+            ValueError: if column_names list does not contain the value 'label'
+            ValueError: if index of 'label' in column_names and label_col mismatch
+            ValueError: if the values of column_names are not strings.
+            ValueError: if column_names contains more than one value as 'label'
 
         """
         # Sanity checks

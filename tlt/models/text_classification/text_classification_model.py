@@ -64,10 +64,16 @@ class TextClassificationModel(BaseModel):
     @property
     @abc.abstractmethod
     def num_classes(self):
+        """
+        The number of output neurons in the model; equal to the number of classes in the dataset
+        """
         pass
 
     @property
     def dropout_layer_rate(self):
+        """
+        The probability of any one node being dropped when a dropout layer is used
+        """
         return self._dropout_layer_rate
 
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):

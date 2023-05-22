@@ -67,9 +67,9 @@ class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
         seed (int): optional; Random seed for shuffling
 
     Raises:
-        FileNotFoundError if the csv file is not found in the dataset directory
-        TypeError if the class_names parameter is not a list or the label_map_func is not callable
-        ValueError if the class_names list is empty
+        FileNotFoundError: if the csv file is not found in the dataset directory
+        TypeError: if the class_names parameter is not a list or the label_map_func is not callable
+        ValueError: if the class_names list is empty
 
     """
 

@@ -140,7 +140,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 hostfile (str): Name of the hostfile for distributed training. Defaults to None.
                 nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
                 nproc_per_node (int): Number of processes to spawn per node to use for distributed training. Defaults
-                to 1.
+                    to 1.
 
             Returns:
                 Trained PyTorch model object
@@ -274,7 +274,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             List of classes, probability vectors, or raw score vectors
 
         Raises:
-            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
+            ValueError: if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
         return_types = ['class', 'probabilities', 'scores']
         if not isinstance(return_type, str) or return_type not in return_types:

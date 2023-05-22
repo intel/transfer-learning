@@ -136,9 +136,9 @@ class BaseModel(abc.ABC):
             None
 
         Raises:
-            FileExistsError if the config file already exists and overwrite is set to False
-            ValueError if the parameters are not within the expected values
-            NotImplementedError if the model or dataset does not support INC yet
+            FileExistsError: if the config file already exists and overwrite is set to False
+            ValueError: if the parameters are not within the expected values
+            NotImplementedError: if the model or dataset does not support INC yet
         """
         pass
 
@@ -156,10 +156,10 @@ class BaseModel(abc.ABC):
             None
 
         Raises:
-            NotImplementedError if the model does not support INC yet
-            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
+            NotImplementedError: if the model does not support INC yet
+            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found.
-            FileExistsError if the output_dir already has a saved_model.pb file
+            FileExistsError: if the output_dir already has a saved_model.pb file
         """
         pass
 
@@ -180,10 +180,10 @@ class BaseModel(abc.ABC):
             None
 
         Raises:
-            NotImplementedError if the model does not support INC yet
-            NotADirectoryError if the saved_model_dir is not a directory
-            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir
-            FileExistsError if the output_dir already has a saved_model.pb file
+            NotImplementedError: if the model does not support INC yet
+            NotADirectoryError: if the saved_model_dir is not a directory
+            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir
+            FileExistsError: if the output_dir already has a saved_model.pb file
         """
         pass
 
@@ -201,10 +201,10 @@ class BaseModel(abc.ABC):
             None
 
         Raises:
-            NotImplementedError if the model does not support INC yet
-            NotADirectoryError if the saved_model_dir is not a directory
-            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
+            NotImplementedError: if the model does not support INC yet
+            NotADirectoryError: if the saved_model_dir is not a directory
+            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found.
-            ValueError if an unexpected mode is provided
+            ValueError: if an unexpected mode is provided
         """
         raise NotImplementedError("INC benchmarking is not supported for this model")

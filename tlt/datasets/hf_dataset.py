@@ -50,7 +50,7 @@ class HFDataset(BaseDataset):
                 (examples, labels)
 
             Raises:
-                ValueError if the dataset is not defined yet or the given subset is not valid
+                ValueError: if the dataset is not defined yet or the given subset is not valid
         """
 
         if subset == 'all' and self._dataset is not None:
@@ -85,7 +85,7 @@ class HFDataset(BaseDataset):
                 longest sentence. (default: True)
                 max_length (int): Maximum sequence length
             Raises:
-                ValueError if data has already been preprocessed (or) non integer batch size given (or)
+                ValueError: if data has already been preprocessed (or) non integer batch size given (or)
                 given dataset hasn't been implemented into the API yet.
         """
 
@@ -148,7 +148,7 @@ class HFDataset(BaseDataset):
                 seed (None or int): default None, can be set for pseudo-randomization
 
             Raises:
-                ValueError if percentage input args are not floats or sum to greater than 1
+                ValueError: if percentage input args are not floats or sum to greater than 1
                 """
         # Sanity checks
         if not (isinstance(train_pct, float) and isinstance(val_pct, float) and isinstance(test_pct, float)):

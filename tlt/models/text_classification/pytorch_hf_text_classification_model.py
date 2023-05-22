@@ -384,8 +384,8 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             Dictionary containing the model training history
 
         Raises:
-            TypeError if the dataset specified is not a TextClassificationDataset/datasets.arrow_dataset.Dataset
-            ValueError if the given dataset has not been preprocessed yet
+            TypeError: if the dataset specified is not a TextClassificationDataset/datasets.arrow_dataset.Dataset
+            ValueError: if the given dataset has not been preprocessed yet
 
         """
         self._check_train_inputs(output_dir, dataset, TextClassificationDataset,
@@ -495,7 +495,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                Tuple with loss and accuracy metrics
 
            Raises:
-               TypeError if the dataset specified is not a datasets.arrow_dataset.Dataset (or) a
+               TypeError: if the dataset specified is not a datasets.arrow_dataset.Dataset (or) a
                     TextClassificationDataset (or) a DataLoader
         """
         if self._trainer:
@@ -568,7 +568,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                Torch Tensor of scores or HF SequenceClassifierOutput if return_raw is set to True.
 
            Raises:
-               NotImplementedError if the given input_samples is of type DataLoader
+               NotImplementedError: if the given input_samples is of type DataLoader
         """
         encoded_input = None
 
@@ -677,9 +677,9 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         Returns:
             None
         Raises:
-            FileExistsError if the config file already exists and overwrite is set to False.
-            ValueError if the parameters are not within the expected values
-            NotImplementedError if the dataset type is not HFCustomImageClassificationDataset.
+            FileExistsError: if the config file already exists and overwrite is set to False.
+            ValueError: if the parameters are not within the expected values
+            NotImplementedError: if the dataset type is not HFCustomImageClassificationDataset.
         """
         if os.path.isfile(config_file_path) and not overwrite:
             raise FileExistsError('A file already exists at: {}. Provide a new file path or set overwrite=True',
@@ -812,9 +812,9 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             None
 
         Raises:
-            FileNotFoundError if a model.pt is not found in the model or if the inc_config_path file
+            FileNotFoundError: if a model.pt is not found in the model or if the inc_config_path file
             is not found.
-            FileExistsError if the output_dir already has a model.pt file
+            FileExistsError: if the output_dir already has a model.pt file
         """
         # Verify that the config file exists
         if not os.path.isfile(inc_config_path):

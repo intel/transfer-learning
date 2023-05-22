@@ -117,7 +117,7 @@ class PyTorchModel(BaseModel):
         Returns:
             None
         Raises:
-            NotImplementedError because this hasn't been implemented yet for PyTorch
+            NotImplementedError: because this hasn't been implemented yet for PyTorch
         """
         raise NotImplementedError("Only TensorFlow graph optimization is currently supported by the \
                                                                       Intel Neural Compressor (INC)")

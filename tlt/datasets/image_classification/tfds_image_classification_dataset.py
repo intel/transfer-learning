@@ -97,7 +97,7 @@ class TFDSImageClassificationDataset(ImageClassificationDataset, TFDataset):
                                              resizing
 
             Raises:
-                ValueError if the dataset is not defined or has already been processed
+                ValueError: if the dataset is not defined or has already been processed
         """
         if self._preprocessed:
             raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))

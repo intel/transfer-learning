@@ -250,12 +250,12 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
                History object from the model.fit() call
 
            Raises:
-               FileExistsError if the output directory is a file
-               TypeError if the dataset specified is not a TextClassificationDataset
-               TypeError if the output_dir parameter is not a string
-               TypeError if the epochs parameter is not a integer
-               TypeError if the initial_checkpoints parameter is not a string
-               NotImplementedError if the specified dataset has more than 2 classes
+               FileExistsError: if the output directory is a file
+               TypeError: if the dataset specified is not a TextClassificationDataset
+               TypeError: if the output_dir parameter is not a string
+               TypeError: if the epochs parameter is not a integer
+               TypeError: if the initial_checkpoints parameter is not a string
+               NotImplementedError: if the specified dataset has more than 2 classes
         """
         self._check_train_inputs(output_dir, dataset, TextClassificationDataset, epochs, initial_checkpoints)
 
@@ -304,9 +304,9 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
                Dictionary with loss and accuracy metrics
 
            Raises:
-               TypeError if the dataset specified is not a TextClassificationDataset
-               ValueError if the use_test_set=True and no test subset has been defined in the dataset.
-               ValueError if the model has not been trained or loaded yet.
+               TypeError: if the dataset specified is not a TextClassificationDataset
+               ValueError: if the use_test_set=True and no test subset has been defined in the dataset.
+               ValueError: if the model has not been trained or loaded yet.
         """
         if not isinstance(dataset, TextClassificationDataset):
             raise TypeError("The dataset must be a TextClassificationDataset but found a {}".format(type(dataset)))
@@ -338,8 +338,8 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
                Numpy array of scores
 
            Raises:
-               ValueError if the model has not been trained or loaded yet.
-               ValueError if there is a mismatch between the input_samples and the model's expected input.
+               ValueError: if the model has not been trained or loaded yet.
+               ValueError: if there is a mismatch between the input_samples and the model's expected input.
         """
         if self._model is None:
             raise ValueError("The model must be trained or loaded before predicting.")
@@ -380,9 +380,9 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         Returns:
             None
         Raises:
-            FileExistsError if the config file already exists and overwrite is set to False.
-            ValueError if the parameters are not within the expected values
-            NotImplementedError if the dataset type is not TFCustomImageClassificationDataset.
+            FileExistsError: if the config file already exists and overwrite is set to False.
+            ValueError: if the parameters are not within the expected values
+            NotImplementedError: if the dataset type is not TFCustomImageClassificationDataset.
         """
         if os.path.isfile(config_file_path) and not overwrite:
             raise FileExistsError('A file already exists at: {}. Provide a new file path or set overwrite=True',
@@ -515,9 +515,9 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
             None
 
         Raises:
-            FileNotFoundError if a saved_model.pb is not found in the model or if the inc_config_path file
+            FileNotFoundError: if a saved_model.pb is not found in the model or if the inc_config_path file
             is not found.
-            FileExistsError if the output_dir already has a saved_model.pb file
+            FileExistsError: if the output_dir already has a saved_model.pb file
         """
         # Verify that the config file exists
         if not os.path.isfile(inc_config_path):

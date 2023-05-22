@@ -135,7 +135,7 @@ def get_model(model_name: str, framework: FrameworkType = None, use_case: UseCas
             model object
 
         Raises:
-            NotImplementedError if the model requested is not supported yet
+            NotImplementedError: if the model requested is not supported yet
 
         Example:
             >>> from tlt.models.model_factory import get_model
@@ -202,7 +202,7 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
         dictionary
 
     Raises:
-        NameError if a model config file is found with an unknown or missing use case
+        NameError: if a model config file is found with an unknown or missing use case
 
     """
     # Directory of json files for the supported models

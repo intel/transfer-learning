@@ -135,12 +135,12 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                 History object from the model.fit() call
 
             Raises:
-               FileExistsError if the output directory is a file
-               TypeError if the dataset specified is not an ImageClassificationDataset
-               TypeError if the output_dir parameter is not a string
-               TypeError if the epochs parameter is not a integer
-               TypeError if the initial_checkpoints parameter is not a string
-               TypeError if the extra_layers parameter is not a list of integers
+               FileExistsError: if the output directory is a file
+               TypeError: if the dataset specified is not an ImageClassificationDataset
+               TypeError: if the output_dir parameter is not a string
+               TypeError: if the epochs parameter is not a integer
+               TypeError: if the initial_checkpoints parameter is not a string
+               TypeError: if the extra_layers parameter is not a list of integers
         """
 
         self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
@@ -242,7 +242,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
             List of classes, probability vectors, or raw score vectors
 
         Raises:
-            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
+            ValueError: if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
         return_types = ['class', 'probabilities', 'scores']
         if not isinstance(return_type, str) or return_type not in return_types:
