@@ -242,7 +242,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
     def _fit_distributed(self, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
-        distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, "run_train_pyt.py")
+        distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, "pytorch", "run_train_pyt.py")
 
         default_port = '29500'
         default_master_addr = '127.0.0.1'

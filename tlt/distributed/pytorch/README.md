@@ -2,23 +2,51 @@
 
 ## Multinode setup
 
+### Create and activate a Python3 virtual environment
+
+We encourage you to use a python virtual environment (virtualenv or conda) for consistent package management. Make sure to follow only the chosen method on all the nodes. Mixing those configurations is not supported. 
+
+There are two ways to do this:
+
+a. Using `virtualenv`:
+
 1. Login to one of the participating nodes.
 
-2. Create a new conda environment called `multi-node`
-```
-conda create -n multi-node python=3.8 --yes
+2. Create and activate a new python3 virtualenv
 
-conda activate multi-node
 ```
-
-3. Install dependencies from the shell script
-```
-sh run_install.sh
+virtualenv -p python3 pyt_multinode
+source pyt_multinode/bin/activate
 ```
 
-4. Install Intel® Transfer Learning Tool excluding framework dependencies (see main [README](/README.md))
+3. Install Intel® Transfer Learning Tool (see main [README](/README.md))
 ```
-EXCLUDE_FRAMEWORK=True pip install --editable .
+pip install --editable .
+```
+
+4. Install multinode dependencies from the requirements text file. You can also compile `torch_ccl` manually from [here](https://github.com/intel/torch-ccl)
+```
+pip install -r tlt/distributed/pytorch/requirements.txt
+```
+
+b. Or `conda`:
+
+1. Login to one of the participating nodes.
+
+2. Create and activate a new conda environment
+```
+conda create -n pyt_multinode python=3.8 --yes
+conda activate pyt_multinode
+```
+
+3. Install Intel® Transfer Learning Tool (see main [README](/README.md))
+```
+pip install --editable .
+```
+
+4. Install dependencies from the shell script
+```
+bash tlt/distributed/pytorch/run_install.sh
 ```
 
 ## Verify multinode setup
@@ -27,11 +55,15 @@ Create a `hostfile` with a list of IP addresses of the participating nodes and t
 ```
 mpiexec.hydra -ppn 1 -f hostfile hostname
 ```
+**Note:** If the above command errors out as `'mpiexec.hydra' command not found`, activate the oneAPI environment:
+```
+source /opt/intel/oneapi/setvars.sh
+```
 
 ## Launch a distributed training job with TLT CLI
 
 **Step 1:** Create a `hostfile` with a list of IP addresses of the participating nodes. Make sure 
-the first IP address to be of the current node. For testing, you can use the nodes present in this [hostfile](hostfile)
+the first IP address to be of the current node.
 
 **Step 2:** Launch a distributed training job with TLT CLI using the appropriate flags.
 ```
