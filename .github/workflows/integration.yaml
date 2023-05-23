@@ -1,4 +1,4 @@
-name: Test Notebooks
+name: Test (Integration)
 on:
   pull_request_review:
     types: [submitted]
@@ -16,7 +16,7 @@ on:
     paths:
       - '**'
 jobs:
-  notebook-test:
+  integration-test:
     if: github.event.review.state == 'approved' ||
         github.event.pull_request.merged == true ||
         github.event_name == 'push'
@@ -27,8 +27,6 @@ jobs:
         http_proxy: ${{ secrets.HTTP_PROXY }}
         https_proxy: ${{ secrets.HTTPS_PROXY }}
         no_proxy: ${{ secrets.NO_PROXY }}
-        DATASET_DIR: /tmp/data
-        OUTPUT_DIR: /tmp/output
       # credentials:
       #   username: ${{ secrets.REGISTRY_USER }}
       #   password: ${{ secrets.REGISTRY_TOKEN }}
@@ -36,5 +34,7 @@ jobs:
         - /tf_dataset/dataset/transfer_learning:/tmp/data
     steps:
       - uses: actions/checkout@v3
-      - name: Run Notebook Tests
-        run: make test_notebook
+      - name: Run Integration Tests
+        shell: bash
+        continue-on-error: false
+        run: make integration

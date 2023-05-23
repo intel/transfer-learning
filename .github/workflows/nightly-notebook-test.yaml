@@ -1,25 +1,13 @@
-name: Test Notebooks
+name: Nightly Notebooks Test
 on:
-  pull_request_review:
-    types: [submitted]
-  # run the workflow if changes pushed to main or release branches
+  workflow_dispatch: # Can be manually executed
   push:
     branches:
       - develop
-      - main
-      - r0.1
-      - r0.2
-      - r0.3
-      - r0.4
-    tags:
-      - '**'
-    paths:
-      - '**'
+  schedule: # nightly at 11:00PM
+    - cron: "* 23 * * 0"
 jobs:
   notebook-test:
-    if: github.event.review.state == 'approved' ||
-        github.event.pull_request.merged == true ||
-        github.event_name == 'push'
     runs-on: [ aia-devops ]
     container:
       image: ${{ vars.GHA_IMAGE }}
@@ -32,8 +20,6 @@ jobs:
       # credentials:
       #   username: ${{ secrets.REGISTRY_USER }}
       #   password: ${{ secrets.REGISTRY_TOKEN }}
-      volumes:
-        - /tf_dataset/dataset/transfer_learning:/tmp/data
     steps:
       - uses: actions/checkout@v3
       - name: Run Notebook Tests

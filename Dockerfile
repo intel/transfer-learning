@@ -37,8 +37,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 RUN ln -sf $(which ${PYTHON}) /usr/bin/python
 
-# TLT target for development
-FROM tlt-base as tlt-devel
+# TLT target for GitHub actions
+FROM tlt-base as tlt-ci
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -55,6 +55,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     apt-get clean autoclean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
+
+RUN ${PYTHON} -m pip install virtualenv
+
+# TLT target for development
+FROM tlt-ci as tlt-devel
 
 COPY . /tmp/intel-transfer-learning
 
