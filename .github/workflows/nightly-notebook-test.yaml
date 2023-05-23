@@ -1,9 +1,6 @@
 name: Nightly Notebooks Test
 on:
   workflow_dispatch: # Can be manually executed
-  push:
-    branches:
-      - develop
   schedule: # nightly at 11:00PM
     - cron: "* 23 * * 0"
 jobs:
@@ -22,5 +19,7 @@ jobs:
       #   password: ${{ secrets.REGISTRY_TOKEN }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: develop
       - name: Run Notebook Tests
         run: make test_notebook

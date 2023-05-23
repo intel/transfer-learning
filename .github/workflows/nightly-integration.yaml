@@ -1,9 +1,6 @@
 name: Nightly Integration Test
 on:
   workflow_dispatch: # Can be manually executed
-  push:
-    branches:
-      - develop
   schedule: # nightly at 10:00PM
     - cron: "* 22 * * 0"
 jobs:
@@ -20,6 +17,8 @@ jobs:
       #   password: ${{ secrets.REGISTRY_TOKEN }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: develop
       - name: Run Integration Test
         shell: bash
         continue-on-error: false
