@@ -1,4 +1,4 @@
-name: Test (Integration)
+name: Integration Test
 on:
   pull_request_review:
     types: [submitted]
