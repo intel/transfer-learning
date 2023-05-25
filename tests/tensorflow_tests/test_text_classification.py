@@ -23,7 +23,7 @@ import pytest
 import shutil
 import tempfile
 
-from tlt.utils.file_utils import validate_model_name
+from tlt.utils.file_utils import validate_model_name, download_and_extract_zip_file
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 
@@ -189,7 +189,7 @@ def test_tf_binary_text_classification_with_lr_options(model_name, dataset_name,
             shutil.rmtree(output_dir)
 
 
-@pytest.mark.integration  # The dataset file (/tmp/data/sms_spam_collection/SMSSpamCollection) does not exist
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name',
                          ['google/bert_uncased_L-2_H-128_A-2'])
@@ -198,13 +198,23 @@ def test_custom_dataset_workflow(model_name):
     Tests the full workflow for TF text classification using a custom dataset
     """
     output_dir = tempfile.mkdtemp()
+    dataset_dir = '/tmp/data'
 
     def label_map_func(x):
         return int(x == "spam")
 
     try:
         # Get the dataset
-        dataset = dataset_factory.load_dataset('/tmp/data/sms_spam_collection', use_case="text_classification",
+        zip_file_url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00228/smsspamcollection.zip"
+        sms_data_directory = os.path.join(dataset_dir, "sms_spam_collection")
+        csv_file_name = "SMSSpamCollection"
+
+        # If the SMS Spam collection csv file is not found, download and extract the file:
+        if not os.path.exists(os.path.join(sms_data_directory, csv_file_name)):
+            # Download the zip file with the SMS Spam collection dataset
+            download_and_extract_zip_file(zip_file_url, sms_data_directory)
+
+        dataset = dataset_factory.load_dataset(sms_data_directory, use_case="text_classification",
                                                framework="tensorflow", csv_file_name="SMSSpamCollection",
                                                class_names=["ham", "spam"], shuffle_files=False,
                                                delimiter='\t', header=False, label_map_func=label_map_func)
