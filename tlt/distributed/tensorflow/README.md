@@ -20,8 +20,8 @@ You can choose to install multinode dependencies in your existing TLT virtualenv
 Step 1: Create a virtualenv and activate it (or) activate your existing TLT virtualenv
 
 ```
-virtualenv -p python3 tlt_tf_multinode
-source tlt_tf_multinode/bin/activate
+virtualenv -p python3 tlt_dev_venv
+source tlt_dev_venv/bin/activate
 ```
 
 Step 2: Install TLT from the `setup.py` script (You can skip this step if you already have TLT installed)
@@ -44,7 +44,7 @@ Run any of the following commands on a head node by providing required env varia
 
 ### Using `mpirun`
 ```
-source tlt_tf_multinode/bin/activate && \
+source tlt_dev_venv/bin/activate && \
 mpirun --allow-run-as-root -bind-to none -map-by slot -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH -x PATH -x NCCL_SOCKET_IFNAME=^lo,docker0 -mca pml ob1 -mca btl ^openib -mca btl_tcp_if_exclude lo,docker0 \
     -np 4 \
     -H node_01:2,node_02:2 \
@@ -53,7 +53,7 @@ mpirun --allow-run-as-root -bind-to none -map-by slot -x NCCL_DEBUG=INFO -x LD_L
 
 ### Using `horovodrun`
 ```
-source tlt_tf_multinode/bin/activate && \
+source tlt_dev_venv/bin/activate && \
 horovodrun \
     -np 4 \
     -H node_01:2,node_02:2 \

@@ -15,8 +15,8 @@ a. Using `virtualenv`:
 2. Create and activate a new python3 virtualenv
 
 ```
-virtualenv -p python3 pyt_multinode
-source pyt_multinode/bin/activate
+virtualenv -p python3 tlt_dev_venv
+source tlt_dev_venv/bin/activate
 ```
 
 3. Install Intel® Transfer Learning Tool (see main [README](/README.md))
@@ -35,8 +35,8 @@ b. Or `conda`:
 
 2. Create and activate a new conda environment
 ```
-conda create -n pyt_multinode python=3.8 --yes
-conda activate pyt_multinode
+conda create -n tlt_dev_venv python=3.8 --yes
+conda activate tlt_dev_venv
 ```
 
 3. Install Intel® Transfer Learning Tool (see main [README](/README.md))

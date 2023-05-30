@@ -18,7 +18,7 @@ make unittest
 make integration
 
 # Create a virtual env or conda env for the test environment
-conda create --name tlt_test_venv python=3.9
+conda create --name tlt_dev_venv python=3.9
 
 # Install tlt for TensorFlow and/or PyTorch
 pip3 install --editable .
