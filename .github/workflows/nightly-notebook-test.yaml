@@ -2,7 +2,7 @@ name: Nightly Notebooks Test
 on:
   workflow_dispatch: # Can be manually executed
   schedule: # nightly at 11:00PM
-    - cron: "* 23 * * 0"
+    - cron: "0 23 * * *"
 jobs:
   notebook-test:
     runs-on: [ aia-devops ]

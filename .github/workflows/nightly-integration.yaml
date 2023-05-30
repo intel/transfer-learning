@@ -2,7 +2,7 @@ name: Nightly Integration Test
 on:
   workflow_dispatch: # Can be manually executed
   schedule: # nightly at 10:00PM
-    - cron: "* 22 * * 0"
+    - cron: "0 22 * * *"
 jobs:
   nightly-test:
     runs-on: [ aia-devops ]
