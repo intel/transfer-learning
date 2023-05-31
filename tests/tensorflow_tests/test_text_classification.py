@@ -251,10 +251,10 @@ def test_custom_dataset_workflow(model_name):
         model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, overwrite=True,
                                     accuracy_criterion_relative=0.1, exit_policy_max_trials=10,
                                     exit_policy_timeout=0, tuning_workspace=nc_workspace)
-        quantization_output = os.path.join(output_dir, "quantized", "mocked")
-        os.makedirs(quantization_output, exist_ok=True)
-        model.quantize(quantization_output, inc_config_file_path)
-        assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
+        inc_output_dir = os.path.join(output_dir, "quantized", "mocked")
+        os.makedirs(inc_output_dir, exist_ok=True)
+        model.quantize(inc_output_dir, inc_config_file_path)
+        assert os.path.exists(os.path.join(inc_output_dir, "saved_model.pb"))
 
     finally:
         # Delete the temp output directory

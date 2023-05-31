@@ -35,13 +35,14 @@ from tlt.datasets.image_classification.image_classification_dataset import Image
 
 @pytest.mark.integration
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy,extra_layers,correct_num_layers',
-                         [['efficientnet_b0', 'tf_flowers', 0.3125, 0.53125, None, 2],
-                          ['resnet_v1_50', 'tf_flowers', 0.40625, 0.59375, None, 2],
-                          ['efficientnet_b0', 'tf_flowers', 0.8125, 0.96875, [1024, 512], 4],
-                          ['ResNet50', 'tf_flowers', 0.34375, 0.625, None, 4]])
+@pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy,extra_layers,correct_num_layers,'
+                         'test_optimization',
+                         [['efficientnet_b0', 'tf_flowers', 0.3125, 0.53125, None, 2, False],
+                          ['resnet_v1_50', 'tf_flowers', 0.40625, 0.59375, None, 2, True],
+                          ['efficientnet_b0', 'tf_flowers', 0.8125, 0.96875, [1024, 512], 4, False],
+                          ['ResNet50', 'tf_flowers', 0.34375, 0.625, None, 4, True]])
 def test_tf_image_classification(model_name, dataset_name, train_accuracy, retrain_accuracy, extra_layers,
-                                 correct_num_layers):
+                                 correct_num_layers, test_optimization):
     """
     Tests basic transfer learning functionality for TensorFlow image classification models using TF Datasets
     """
@@ -103,16 +104,11 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     np.testing.assert_almost_equal(reload_metrics, trained_metrics)
 
     # Optimize the graph
-    if model_name in ['resnet_v1_50', 'ResNet50']:
-        optimized_model_dir = os.path.join(output_dir, "optimized")
-        os.makedirs(optimized_model_dir, exist_ok=True)
-        model.optimize_graph(optimized_model_dir)
-        assert os.path.isfile(os.path.join(optimized_model_dir, "saved_model.pb"))
-
-    # Test generating an Intel Neural Compressor config file (not implemented yet for TFDS)
-    inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))
-    with pytest.raises(NotImplementedError):
-        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, tuning_workspace=output_dir)
+    if test_optimization:
+        inc_output_dir = os.path.join(output_dir, "optimized")
+        os.makedirs(inc_output_dir, exist_ok=True)
+        model.optimize_graph(inc_output_dir)
+        assert os.path.isfile(os.path.join(inc_output_dir, "saved_model.pb"))
 
     # Retrain from checkpoints and verify that we have better accuracy than the original training
     retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
@@ -244,10 +240,11 @@ class TestImageClassificationCustomDataset:
                 print("Deleting test directory:", dir)
                 shutil.rmtree(dir)
 
-    @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy',
-                             [['efficientnet_b0', 0.9333333, 1.0],
-                              ['resnet_v1_50', 1.0, 1.0]])
-    def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy):
+    @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy,test_inc',
+                             [['efficientnet_b0', 0.9333333, 1.0, False],
+                              ['resnet_v1_50', 1.0, 1.0, True],
+                              ['resnet_v2_50', 1.0, 1.0, False]])
+    def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy, test_inc):
         """
         Tests the full workflow for TF image classification using a custom dataset
         """
@@ -305,18 +302,13 @@ class TestImageClassificationCustomDataset:
                                               do_eval=False)
         np.testing.assert_almost_equal(retrain_history['acc'], [retrain_accuracy])
 
-        # Test benchmarking, quantization, and graph optimization with ResNet50
-        if model_name == "resnet_v1_50":
-            inc_config_file_path = os.path.join(self._output_dir, "tf_{}.yaml".format(model_name))
-            nc_workspace = os.path.join(self._output_dir, "nc_workspace")
-            model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, accuracy_criterion_relative=0.1,
-                                        exit_policy_max_trials=10, exit_policy_timeout=0, tuning_workspace=nc_workspace)
-
-            quantization_output = os.path.join(self._output_dir, "quantized", model_name)
-            os.makedirs(quantization_output)
-            model.quantize(quantization_output, inc_config_file_path)
-            assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
-            model.benchmark(quantization_output, inc_config_file_path)
+        # Test benchmarking, quantization
+        if test_inc:
+            inc_output_dir = os.path.join(self._output_dir, "quantized", model_name)
+            os.makedirs(inc_output_dir)
+            model.quantize(inc_output_dir, dataset=dataset)
+            assert os.path.exists(os.path.join(inc_output_dir, "saved_model.pb"))
+            model.benchmark(saved_model_dir=inc_output_dir, dataset=dataset)
 
 
 @pytest.mark.integration

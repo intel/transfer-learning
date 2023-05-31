@@ -8,31 +8,31 @@ Image Classification Methods
    
    tfhub_image_classification_model.TFHubImageClassificationModel.train
    tfhub_image_classification_model.TFHubImageClassificationModel.quantize
-   tfhub_image_classification_model.TFHubImageClassificationModel.write_inc_config_file
+   tfhub_image_classification_model.TFHubImageClassificationModel.get_inc_config
 
    tf_image_classification_model.TFImageClassificationModel.train
    tf_image_classification_model.TFImageClassificationModel.quantize
-   tf_image_classification_model.TFImageClassificationModel.write_inc_config_file
+   tf_image_classification_model.TFImageClassificationModel.get_inc_config
 
    keras_image_classification_model.KerasImageClassificationModel.train
    keras_image_classification_model.KerasImageClassificationModel.quantize
-   keras_image_classification_model.KerasImageClassificationModel.write_inc_config_file
+   keras_image_classification_model.KerasImageClassificationModel.get_inc_config
 
    torchvision_image_classification_model.TorchvisionImageClassificationModel.train
    torchvision_image_classification_model.TorchvisionImageClassificationModel.quantize
-   torchvision_image_classification_model.TorchvisionImageClassificationModel.write_inc_config_file
+   torchvision_image_classification_model.TorchvisionImageClassificationModel.get_inc_config
 
    pytorch_image_classification_model.PyTorchImageClassificationModel.train
    pytorch_image_classification_model.PyTorchImageClassificationModel.quantize
-   pytorch_image_classification_model.PyTorchImageClassificationModel.write_inc_config_file
+   pytorch_image_classification_model.PyTorchImageClassificationModel.get_inc_config
 
    pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.train
    pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.quantize
-   pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.write_inc_config_file
+   pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.get_inc_config
 
    image_classification_model.ImageClassificationModel.train
    image_classification_model.ImageClassificationModel.quantize
-   image_classification_model.ImageClassificationModel.write_inc_config_file
+   image_classification_model.ImageClassificationModel.get_inc_config
 
 Text Classification Methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

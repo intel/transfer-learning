@@ -233,3 +233,14 @@ class PyTorchDataset(BaseDataset):
         self._dataset.transform = get_transform(image_size, add_aug)
         self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
         self._make_data_loaders(batch_size=batch_size)
+
+    def get_inc_dataloaders(self):
+        calib_dataloader = self.train_loader
+        if self.validation_loader is not None:
+            eval_dataloader = self.validation_loader
+        elif self.test_loader is not None:
+            eval_dataloader = self.test_loader
+        else:
+            eval_dataloader = self.train_loader
+
+        return calib_dataloader, eval_dataloader

@@ -28,6 +28,9 @@ import tempfile
 import numpy as np
 import tensorflow as tf
 
+from neural_compressor import quantization
+from neural_compressor.config import BenchmarkConfig
+
 from tlt.models.model import BaseModel
 from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.platform_util import PlatformUtil
@@ -296,3 +299,124 @@ class TFModel(BaseModel):
                 hostfile_info['slots'].append(line.split(':')[1])
 
         return hostfile_info
+
+    def optimize_graph(self, output_dir):
+        """
+        Performs FP32 graph optimization using the Intel Neural Compressor on the model
+        and writes the inference-optimized model to the output_dir. Graph optimization includes converting
+        variables to constants, removing training-only operations like checkpoint saving, stripping out parts
+        of the graph that are never reached, removing debug operations like CheckNumerics, folding batch
+        normalization ops into the pre-calculated weights, and fusing common operations into unified versions.
+
+        Args:
+            output_dir (str): Writable output directory to save the optimized model
+
+        Returns:
+            None
+
+        Raises:
+            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir
+            FileExistsError: if the output_dir already has a saved_model.pb file
+        """
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        else:
+            # Verify that the output directory doesn't already have a saved_model.pb file
+            if os.path.exists(os.path.join(output_dir, "saved_model.pb")):
+                raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "saved_model.pb"))
+
+        from neural_compressor.experimental import Graph_Optimization
+
+        graph_optimizer = Graph_Optimization()
+        graph_optimizer.model = self._model
+        optimized_graph = graph_optimizer()
+
+        # If optimization was successful, save the model
+        if optimized_graph:
+            optimized_graph.save(output_dir)
+
+    def quantize(self, output_dir, dataset, config=None):
+        """
+        Performs post training quantization using the Intel Neural Compressor on the model using the dataset.
+        The dataset's training subset will be used as the calibration data and its validation or test subset will
+        be used for evaluation. The quantized model is written to the output directory.
+
+        Args:
+            output_dir (str): Writable output directory to save the quantized model
+            dataset (ImageClassificationDataset): dataset to quantize with
+            config (PostTrainingQuantConfig): Optional, for customizing the quantization parameters
+
+        Returns:
+            None
+
+        Raises:
+            FileExistsError: if the output_dir already has a saved_model.pb file
+            ValueError: if the dataset is not compatible for quantizing the model
+        """
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        else:
+            # Verify that the output directory doesn't already have a saved_model.pb file
+            if os.path.exists(os.path.join(output_dir, "saved_model.pb")):
+                raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "saved_model.pb"))
+
+        # Verify dataset is of the right type
+        if not isinstance(dataset, self._inc_compatible_dataset):
+            raise ValueError('Quantization is compatible with datasets of type {}, and type '
+                             '{} was found'.format(self._inc_compatible_dataset, type(dataset)))
+
+        config = config if config is not None else self.get_inc_config()
+        calib_dataloader, eval_dataloader = dataset.get_inc_dataloaders()
+        quantized_model = quantization.fit(model=self._model, conf=config, calib_dataloader=calib_dataloader,
+                                           eval_dataloader=eval_dataloader)
+
+        # If quantization was successful, save the model
+        if quantized_model:
+            quantized_model.save(output_dir)
+
+    def benchmark(self, dataset, saved_model_dir=None, warmup=10, iteration=100, cores_per_instance=None,
+                  num_of_instance=None, inter_num_of_threads=None, intra_num_of_threads=None):
+        """
+        Use Intel Neural Compressor to benchmark the model with the dataset argument. The dataset's validation or test
+        subset will be used for benchmarking, if present. Otherwise, the full training dataset is used. The model to be
+        benchmarked can also be explicitly set to a saved_model_dir containing for example a quantized saved model.
+
+        Args:
+            dataset (ImageClassificationDataset): Dataset to use for benchmarking
+            saved_model_dir (str): Optional, path to the directory where the saved model is located
+            warmup (int): The number of iterations to perform before running performance tests, default is 10
+            iteration (int): The number of iterations to run performance tests, default is 100
+            cores_per_instance (int or None): The number of CPU cores to use per instance, default is None
+            num_of_instance (int or None): The number of instances to use for performance testing, default is None
+            inter_num_of_threads (int or None): The number of threads to use for inter-thread operations, default is
+                                                None
+            intra_num_of_threads (int or None): The number of threads to use for intra-thread operations, default is
+                                                None
+
+        Returns:
+            Benchmarking results from Intel Neural Compressor
+
+        Raises:
+            NotADirectoryError: if the saved_model_dir is not a directory
+            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
+            is not found
+        """
+        # If provided, the saved model directory should exist and contain a saved_model.pb file
+        if saved_model_dir is not None:
+            if not os.path.isdir(saved_model_dir):
+                raise NotADirectoryError("The saved model directory ({}) does not exist.".format(saved_model_dir))
+            if not os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb")):
+                raise FileNotFoundError("The saved model directory ({}) should have a saved_model.pb file".format(
+                    saved_model_dir))
+            model = saved_model_dir
+        else:
+            model = self._model
+
+        _, eval_dataloader = dataset.get_inc_dataloaders()
+        config = BenchmarkConfig(warmup=warmup, iteration=iteration, cores_per_instance=cores_per_instance,
+                                 num_of_instance=num_of_instance, inter_num_of_threads=inter_num_of_threads,
+                                 intra_num_of_threads=intra_num_of_threads)
+
+        from neural_compressor.benchmark import fit
+
+        return fit(model, config=config, b_dataloader=eval_dataloader)

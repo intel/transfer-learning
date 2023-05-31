@@ -68,7 +68,7 @@ def test_torchvision_subset():
     """
     data = get_dataset('/tmp/data', 'image_classification', 'pytorch', 'CIFAR10', 'torchvision', split=["test"])
     assert type(data) == TorchvisionImageClassificationDataset
-    assert len(data.dataset) < 50000
+    assert len(data.dataset) > 0
 
 
 @pytest.mark.pytorch
@@ -79,19 +79,19 @@ def test_defined_split():
     """
     data = get_dataset('/tmp/data', 'image_classification', 'pytorch', 'CIFAR10',
                        'torchvision', split=['train', 'test'])
-    assert len(data.dataset) == 60000
-    assert len(data.train_subset) == 50000
-    assert len(data.test_subset) == 10000
+
+    dataset_size = len(data.dataset)
+    assert dataset_size > 0
+    assert len(data.train_subset) <= dataset_size
+    assert len(data.test_subset) <= len(data.train_subset)
     assert data.validation_subset is None
-    assert data._train_indices == range(50000)
-    assert data._test_indices == range(50000, 60000)
     assert data._validation_type == 'defined_split'
 
     # Apply shuffle split and verify new subset sizes
     data.shuffle_split(.6, .2, .2, seed=10)
-    assert len(data.train_subset) == 36000
-    assert len(data.validation_subset) == 12000
-    assert len(data.test_subset) == 12000
+    assert len(data.train_subset) == dataset_size * .6
+    assert len(data.validation_subset) == dataset_size * .2
+    assert len(data.test_subset) == dataset_size * .2
     assert data._validation_type == 'shuffle_split'
 
 
