@@ -1,0 +1,28 @@
+metadata:
+  name: tlt-distributed
+  namespace: kubeflow
+
+imageName: intel/ai-tools
+imageTag: 0.5.0-dist-devel
+
+batchDenom: 1
+batchSize: 128
+datasetName: cifar10
+epochs: 1
+modelName: https://tfhub.dev/google/efficientnet/b1/feature-vector/1
+scaling: strong
+slotsPerWorker: 1
+useCase: image_classification
+workers: 4
+
+pvcName: tlt
+pvcScn: nil
+pvcResources: 
+  data: 2Gi
+  output: 1Gi
+resources:
+  cpu: 2
+  memory: 4Gi
+workerResources:
+  cpu: 4
+  memory: 8Gi

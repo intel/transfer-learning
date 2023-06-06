@@ -1,0 +1,54 @@
+version: "3"
+services:
+  base-devel:
+    build:
+      args:
+        http_proxy: ${http_proxy}
+        https_proxy: ${https_proxy}
+        no_proxy: ""
+        IMAGE_NAME: ubuntu
+        IMAGE_TAG: 22.04
+        PYTHON: python3.10
+      context: ../
+      dockerfile: ./docker/Dockerfile
+      target: base-devel
+    image: intel/ai-tools:tlt-base-devel-latest
+    pull_policy: always
+  base-prod:
+    extends:
+      service: base-devel
+    build:
+      args:
+        DATASET_DIR: /tmp/data
+        OUTPUT_DIR: /tmp/output
+      target: base-prod
+    image: intel/ai-tools:tlt-base-prod-latest
+    volumes:
+      - /${DATASET_DIR:-$PWD/../data}:/tmp/data
+      - /${OUTPUT_DIR:-$PWD/../output}:/tmp/output
+  dist-devel:
+    extends:
+      service: base-prod
+    build:
+      args:
+        HOROVOD_VERSION: 0.28.0
+        ONECCL_VERSION: 2.0.0
+        ONECCL_URL: https://developer.intel.com/ipex-whl-stable-cpu
+      target: dist-devel
+    image: intel/ai-tools:tlt-dist-devel-latest
+  dist-prod:
+    extends:
+      service: dist-devel
+    build:
+      target: dist-prod
+    command: |
+      tlt train -f tensorflow
+      --dataset-name cifar10
+      --model-name resnet_v1_50
+      --dataset-dir /tmp/data
+      --output-dir /tmp/output
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+    image: intel/ai-tools:tlt-dist-prod-latest
