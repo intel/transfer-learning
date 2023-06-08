@@ -227,18 +227,12 @@ for metric_name, metric_value in zip(model._model.metrics_names, metrics):
 # Export the model
 saved_model_dir = model.export(output_dir=output_dir)
 
-# Create an Intel Neural Compressor config file
-inc_config_file = os.path.join(output_dir, "inc_config.yaml")
-model.write_inc_config_file(inc_config_file, dataset=dataset, batch_size=512, overwrite=True,
-                            accuracy_criterion_relative=0.01, exit_policy_timeout=0,
-                            exit_policy_max_trials=10, tuning_workspace=os.path.join(output_dir, "nc_workspace"))
-
 # Quantize the trained model
 quantization_output = os.path.join(output_dir, "quantized_model")
-model.quantize(quantization_output, inc_config_file)
+model.quantize(quantization_output, dataset)
 
 # Benchmark the trained model using the Intel Neural Compressor config file
-model.benchmark(quantization_output, inc_config_file, 'performance')
+model.benchmark(dataset, saved_model_dir=quantization_output)
 
 # Do graph optimization on the trained model
 optimization_output = os.path.join(output_dir, "optimized_model")

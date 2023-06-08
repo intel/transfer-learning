@@ -80,9 +80,10 @@ class TestDatasetDownload:
         # Check that the directory is not empty
         assert os.listdir(self._dataset_dir) is not None
 
+    # Removing the SMS Spam Collection test because it's failing (404 error)
+    # ['sms_spam_collection', URLS['sms_spam_collection'], 2],
     @pytest.mark.parametrize('dataset_name,url,num_contents',
-                             [['sms_spam_collection', URLS['sms_spam_collection'], 2],
-                              ['flowers', URLS['flowers'], 1],
+                             [['flowers', URLS['flowers'], 1],
                               ['imagenet_labels', URLS['imagenet_labels'], 1],
                               ['peacock', URLS['peacock'], 1],
                               ['pennfudan', URLS['pennfudan'], 1]])
