@@ -194,7 +194,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         script_cmd = 'python ' + distributed_vision_script
         script_cmd += ' --use_case {}'.format('image_classification')
         script_cmd += ' --epochs {}'.format(epochs)
-        script_cmd += ' --saved_objects_dir {}'.format(saved_objects_dir)
+        script_cmd += ' --tlt_saved_objects_dir {}'.format(saved_objects_dir)
         if shuffle:
             script_cmd += ' --shuffle'
 
@@ -271,7 +271,11 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         if distributed:
             try:
-                saved_objects_dir = self.export_for_distributed("saved_objects", train_data, val_data)
+                saved_objects_dir = self.export_for_distributed(
+                    export_dir=os.path.join(output_dir, "tlt_saved_objects"),
+                    train_data=train_data,
+                    val_data=val_data
+                )
                 self._fit_distributed(saved_objects_dir, epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
                                       kwargs.get('use_horovod'))
             except Exception as err:

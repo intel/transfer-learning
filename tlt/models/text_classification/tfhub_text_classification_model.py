@@ -184,7 +184,11 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                                                                     early_stopping, lr_decay, dataset_num_classes)
 
         if distributed:
-            saved_objects_dir = self.export_for_distributed("saved_objects", train_data, val_data)
+            saved_objects_dir = self.export_for_distributed(
+                export_dir=os.path.join(output_dir, "tlt_saved_objects"),
+                train_data=train_data,
+                val_data=val_data
+            )
             self._fit_distributed(saved_objects_dir, epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
                                   kwargs.get('use_horovod'))
             self.cleanup_saved_objects_for_distributed()

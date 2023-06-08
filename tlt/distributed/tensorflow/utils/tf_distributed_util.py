@@ -23,38 +23,151 @@ import dill
 import time
 
 import tensorflow as tf
+import tensorflow_hub as hub
+
 import numpy as np
 
-# import horovod
-import horovod.tensorflow.keras as hvd
+from transformers import TFBertModel, BertConfig
 
 from pydoc import locate
 from tlt.utils.dataset_utils import prepare_huggingface_input_data
+from tlt.models.model_factory import get_model_info
+
+
+# This needs to be imported last to avoid "free(): invalid pointer" error
+import horovod.tensorflow.keras as hvd
 
 
 class DistributedTrainingArguments:
-    def __init__(self, **kwargs) -> None:
-        self.__dict__ = dict(kwargs)
+
+    def __init__(self, use_case, train_data, model, optimizer, loss, test_data=None, val_data=None,
+                 epochs=1, global_batch_size=128, shuffle=True, scaling='weak', **kwargs) -> None:
+
+        self.use_case = use_case
+
+        # Model related arguments
+        self.model = model
+        self.optimizer = optimizer
+        self.loss = loss
+
+        # Data related arguments
+        self.train_data = train_data
+        self.test_data = test_data
+        self.val_data = val_data
+        self.num_classes = kwargs.get('num_classes', None)
+
+        # Training related arguments
+        self.epochs = epochs
+        self.scaling = scaling
+        self.global_batch_size = global_batch_size
+        self.batch_denom = kwargs.get('batch_denom', 1)
+        self.shuffle = shuffle
+
+        # Use case related arguments
+        # For image classification
+        self.image_size = kwargs.get('image_size', None)
+        self.image_shape = kwargs.get('image_shape', None)
+        # For text classification
+        self.max_seq_length = kwargs.get('max_seq_length', None)
+        self.padding = kwargs.get('padding', None)
+        self.truncation = kwargs.get('truncation', None)
+        self.hf_bert_tokenizer = kwargs.get('hf_bert_tokenizer', None)
 
 
 class DistributedTF:
 
     def __init__(self) -> None:
-        pass
-
-    def launch_distributed_job(self, training_args: DistributedTrainingArguments):
         hvd.init()
 
+    def prepare_dataset(self, dataset, use_case, global_batch_size, scaling, **kwargs):
+        if scaling.lower() == 'weak':
+            batch_size = global_batch_size
+        elif scaling.lower() == 'strong':
+            batch_size = global_batch_size // hvd.size()
+
+        if use_case == 'image_classification':
+            dataset = dataset.shard(num_shards=hvd.size(), index=hvd.rank())
+            dataset = dataset.cache()
+            if 'map_func' in kwargs:
+                dataset = dataset.map(map_func=kwargs.get('map_func'), num_parallel_calls=tf.data.AUTOTUNE)
+            dataset = dataset.batch(batch_size)
+            dataset = dataset.prefetch(tf.data.AUTOTUNE)
+        elif use_case == 'text_classification':
+            max_seq_length = kwargs.get('max_seq_length')
+            bert_tokenizer = kwargs.get('hf_bert_tokenizer')
+
+            input_ids_shape = (len(dataset), max_seq_length)
+            attention_mask_shape = (len(dataset), max_seq_length)
+
+            input_ids = tf.zeros(input_ids_shape, dtype=tf.int32)
+            attention_mask = tf.zeros(attention_mask_shape, dtype=tf.int32)
+            labels = tf.ones(len(dataset), dtype=tf.int32)
+
+            # Preprocessing text could be done only on one worker and the tensors are synced later among workers
+            if hvd.rank() == 0:
+                dataset = [(sentence.numpy().decode(), label.numpy()) for sentence, label in dataset]
+
+                sentences = [x[0] for x in dataset]
+                labels = [x[1] for x in dataset]
+
+                print('Tokenizing the dataset...')
+                tokenized_dataset = bert_tokenizer(sentences, padding='max_length', max_length=max_seq_length,
+                                                   truncation=True, return_tensors='tf')
+
+                input_ids = tokenized_dataset['input_ids']
+                attention_mask = tokenized_dataset['attention_mask']
+                labels = tf.convert_to_tensor(labels, dtype=tf.int32)
+
+            input_ids = hvd.allreduce(input_ids, average=False, name='barrier1')
+            attention_mask = hvd.allreduce(attention_mask, average=False, name='barrier2')
+            labels = hvd.allreduce(labels, average=False, name='labels')
+
+            dataset = ({
+                'input_ids': input_ids,
+                'attention_mask': attention_mask
+            }, labels)
+
+            dataset = tf.data.Dataset.from_tensor_slices(dataset)
+            dataset = dataset.shard(hvd.size(), hvd.rank())
+            dataset = dataset.cache()
+            dataset = dataset.batch(batch_size)
+            dataset = dataset.prefetch(tf.data.AUTOTUNE)
+
+        return dataset
+
+    def prepare_model(self, model_name, use_case, input_shape, num_classes, **kwargs):
+        # Try to get model url from TLT supported models
+        model_info = get_model_info(model_name, 'tensorflow', use_case)
+        if model_info != {}:
+            fw_enum = list(model_info.keys())[0]
+            model_name = model_info[fw_enum]['tensorflow']['feature_vector']
+        if use_case == 'image_classification':
+            model = tf.keras.models.Sequential([
+                hub.KerasLayer(model_name, input_shape=input_shape),
+                tf.keras.layers.Dense(num_classes, activation='softmax')
+            ])
+        elif use_case == 'text_classification':
+            bert_config = BertConfig.from_pretrained(model_name, output_hidden_states=True)
+            bert_model = TFBertModel.from_pretrained(model_name, config=bert_config, from_pt=True)
+
+            dense_layer_dims = 1 if num_classes == 2 else num_classes
+
+            input_ids = tf.keras.layers.Input(input_shape, dtype=tf.int32, name='input_ids')
+            attention_mask = tf.keras.layers.Input(input_shape, dtype=tf.int32, name='attention_mask')
+            bert_output = bert_model.bert(input_ids, attention_mask=attention_mask)[1]
+            classifier = tf.keras.layers.Dense(dense_layer_dims, activation=None, name='classifier')(bert_output)
+
+            model = tf.keras.Model(inputs=[input_ids, attention_mask], outputs=classifier)
+
+        return model
+
+    def launch_distributed_job(self, training_args: DistributedTrainingArguments):
         model = training_args.model
-        optimizer_config = training_args.optimizer.get_config()
+        optimizer = training_args.optimizer
         loss = training_args.loss
 
-        legacy_optimizer_class = locate('tensorflow.keras.optimizers.legacy.{}'.format(optimizer_config['name']))
-        legacy_optimizer_config = legacy_optimizer_class().get_config()
-        legacy_optimizer = legacy_optimizer_class.from_config(
-            {k: v for k, v in optimizer_config.items() if k in legacy_optimizer_config})
-
-        optimizer = legacy_optimizer
+        # This is required if using intel-tensorflow==2.12.0
+        optimizer = self._get_legacy_optimizer(optimizer)
 
         # Horovod: pin GPU to be used to process local rank (one GPU per process)
         gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -64,12 +177,12 @@ class DistributedTF:
             tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
 
         if training_args.scaling.lower() == 'weak':
-            multiplier = np.sqrt(training_args.batch_size // training_args.batch_denom)
+            multiplier = np.sqrt(training_args.global_batch_size // training_args.batch_denom)
             optimizer.lr = optimizer.lr * multiplier
-            batch_size = training_args.batch_size
+            batch_size = training_args.global_batch_size
         elif training_args.scaling.lower() == 'strong':
             optimizer.lr = optimizer.lr * hvd.size()
-            batch_size = training_args.batch_size // hvd.size()
+            batch_size = training_args.global_batch_size // hvd.size()
 
         if training_args.use_case == 'image_classification':
             hvd_optimizer = hvd.DistributedOptimizer(
@@ -148,6 +261,23 @@ class DistributedTF:
             print("Total epochs = ", len(self.history.history['loss']))
             print("Time per epoch in seconds = ", ((end - start) / len(self.history.history['loss'])))
             print("Maximum validation accuracy = ", np.max(self.history.history['val_acc']))
+
+    def _get_legacy_optimizer(self, optimizer):
+        optimizer_config = optimizer.get_config()
+        optimizer_name = optimizer_config['name']
+
+        legacy_optimizer_class = locate('tensorflow.keras.optimizers.legacy.{}'.format(optimizer_name))
+
+        if legacy_optimizer_class is None:
+            # No matching legacy optimizer is found.
+            return optimizer
+
+        legacy_optimizer_config = legacy_optimizer_class().get_config()
+        legacy_optimizer = legacy_optimizer_class.from_config(
+            {k: v for k, v in optimizer_config.items() if k in legacy_optimizer_config}
+        )
+
+        return legacy_optimizer
 
     def load_saved_objects(self, saved_objects_dir):
         # Load the saved_model.pb
