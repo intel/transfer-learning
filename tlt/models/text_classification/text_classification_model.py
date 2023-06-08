@@ -79,10 +79,10 @@ class TextClassificationModel(BaseModel):
     def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):
         raise NotImplementedError("Writing INC config files has not be implemented yet for text classification")
 
-    def quantize(self, output_dir, inc_config_path):
+    def quantize(self, output_dir, inc_config_path, overwrite_model=False):
         raise NotImplementedError("Post training quantization has not been implemented yet for text classification")
 
-    def optimize_graph(self, output_dir):
+    def optimize_graph(self, output_dir, overwrite_model=False):
         raise NotImplementedError("Optimize graph has not been implemented yet for text classification")
 
     def benchmark(self, saved_model_dir, inc_config_path, mode='performance'):

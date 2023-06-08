@@ -119,7 +119,7 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def quantize(self, output_dir, dataset, config=None):
+    def quantize(self, output_dir, dataset, config=None, overwrite_model=False):
         """
         Performs post training quantization using the Intel Neural Compressor on the model using the dataset.
         The dataset's training subset will be used as the calibration data and its validation or test subset will
@@ -129,6 +129,8 @@ class BaseModel(abc.ABC):
             output_dir (str): Writable output directory to save the quantized model
             dataset (ImageClassificationDataset): dataset to quantize with
             config (PostTrainingQuantConfig): Optional, for customizing the quantization parameters
+            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
+                              (default: False)
 
         Returns:
             None
@@ -140,7 +142,7 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def optimize_graph(self, output_dir):
+    def optimize_graph(self, output_dir, overwrite_model=False):
         """
         Performs FP32 graph optimization using the Intel Neural Compressor on the model
         and writes the inference-optimized model to the output_dir. Graph optimization includes converting
@@ -151,6 +153,8 @@ class BaseModel(abc.ABC):
         Args:
             saved_model_dir (str): Source directory for the model to optimize
             output_dir (str): Writable output directory to save the optimized model
+            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
+                              (default: False)
 
         Returns:
             None

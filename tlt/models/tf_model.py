@@ -300,7 +300,7 @@ class TFModel(BaseModel):
 
         return hostfile_info
 
-    def optimize_graph(self, output_dir):
+    def optimize_graph(self, output_dir, overwrite_model=False):
         """
         Performs FP32 graph optimization using the Intel Neural Compressor on the model
         and writes the inference-optimized model to the output_dir. Graph optimization includes converting
@@ -310,6 +310,8 @@ class TFModel(BaseModel):
 
         Args:
             output_dir (str): Writable output directory to save the optimized model
+            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
+                              (default: False)
 
         Returns:
             None
@@ -322,7 +324,7 @@ class TFModel(BaseModel):
             os.makedirs(output_dir)
         else:
             # Verify that the output directory doesn't already have a saved_model.pb file
-            if os.path.exists(os.path.join(output_dir, "saved_model.pb")):
+            if os.path.exists(os.path.join(output_dir, "saved_model.pb")) and not overwrite_model:
                 raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "saved_model.pb"))
 
         from neural_compressor.experimental import Graph_Optimization
@@ -335,7 +337,7 @@ class TFModel(BaseModel):
         if optimized_graph:
             optimized_graph.save(output_dir)
 
-    def quantize(self, output_dir, dataset, config=None):
+    def quantize(self, output_dir, dataset, config=None, overwrite_model=False):
         """
         Performs post training quantization using the Intel Neural Compressor on the model using the dataset.
         The dataset's training subset will be used as the calibration data and its validation or test subset will
@@ -345,6 +347,8 @@ class TFModel(BaseModel):
             output_dir (str): Writable output directory to save the quantized model
             dataset (ImageClassificationDataset): dataset to quantize with
             config (PostTrainingQuantConfig): Optional, for customizing the quantization parameters
+            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
+                              (default: False)
 
         Returns:
             None
@@ -357,7 +361,7 @@ class TFModel(BaseModel):
             os.makedirs(output_dir)
         else:
             # Verify that the output directory doesn't already have a saved_model.pb file
-            if os.path.exists(os.path.join(output_dir, "saved_model.pb")):
+            if os.path.exists(os.path.join(output_dir, "saved_model.pb")) and not overwrite_model:
                 raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "saved_model.pb"))
 
         # Verify dataset is of the right type

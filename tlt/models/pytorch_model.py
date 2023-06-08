@@ -107,7 +107,7 @@ class PyTorchModel(BaseModel):
         self._model = dill.loads(model_copy)
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
-    def optimize_graph(self, output_dir):
+    def optimize_graph(self, output_dir, overwrite_model=False):
         """
         Performs FP32 graph optimization using the Intel Neural Compressor on the model
         and writes the inference-optimized model to the output_dir. Graph optimization includes converting
@@ -117,6 +117,8 @@ class PyTorchModel(BaseModel):
         Args:
             saved_model_dir (str): Source directory for the model to optimize.
             output_dir (str): Writable output directory to save the optimized model
+            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
+                              (default: False)
         Returns:
             None
         Raises:
@@ -194,7 +196,7 @@ class PyTorchModel(BaseModel):
 
         return
 
-    def quantize(self, output_dir, dataset, config=None):
+    def quantize(self, output_dir, dataset, config=None, overwrite_model=False):
         """
         Performs post training quantization using the Intel Neural Compressor on the model using the dataset.
         The dataset's training subset will be used as the calibration data and its validation or test subset will
@@ -204,6 +206,8 @@ class PyTorchModel(BaseModel):
             output_dir (str): Writable output directory to save the quantized model
             dataset (ImageClassificationDataset): dataset to quantize with
             config (PostTrainingQuantConfig): Optional, for customizing the quantization parameters
+            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
+                              (default: False)
 
         Returns:
             None
@@ -218,7 +222,8 @@ class PyTorchModel(BaseModel):
             # Verify that the output directory doesn't already have a model.pt or best_model.pt file
             if os.path.exists(os.path.join(output_dir, "model.pt")) or \
                     os.path.exists(os.path.join(output_dir, "best_model.pt")):
-                raise FileExistsError("A saved model already exists in: {}".format(output_dir))
+                if not overwrite_model:
+                    raise FileExistsError("A saved model already exists in: {}".format(output_dir))
 
         # Verify dataset is of the right type
         if not isinstance(dataset, self._inc_compatible_dataset):

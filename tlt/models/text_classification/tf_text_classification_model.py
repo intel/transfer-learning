@@ -506,7 +506,7 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         with open(config_file_path, "w") as config_file:
             yaml.dump(config_template, config_file, sort_keys=False)
 
-    def quantize(self, output_dir, inc_config_path):
+    def quantize(self, output_dir, inc_config_path, overwrite_model=False):
         """
         Performs post training quantization using the Intel Neural Compressor on the model
         using the specified config file. The quantized model is written to the output directory.
@@ -514,6 +514,8 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
         Args:
             output_dir (str): Writable output directory to save the quantized model
             inc_config_path (str): Path to an Intel Neural Compressor config file (.yaml)
+            overwrite (bool): Specify whether or not to overwrite the output_dir, if it already exists
+                              (default: False)
 
         Returns:
             None
@@ -531,7 +533,7 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
             os.makedirs(output_dir)
         else:
             # Verify that the output directory doesn't already have a saved_model.pb file
-            if os.path.exists(os.path.join(output_dir, "saved_model.pb")):
+            if os.path.exists(os.path.join(output_dir, "saved_model.pb")) and not overwrite_model:
                 raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "saved_model.pb"))
 
         from neural_compressor.experimental import Quantization
