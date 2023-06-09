@@ -30,6 +30,8 @@ from requests.adapters import ProxyError
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 import yaml
+import tempfile
+import shutil
 
 # Hugging Face imports
 from transformers import (
@@ -101,29 +103,39 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         self._trainer = None
         self._history = None
 
-    def export_for_distributed(self, output_dir, dataset):
+    def export_for_distributed(self, export_dir, train_data=None, val_data=None):
         """
-        Helper function to export dataset and model objects to disk for distributed job
+        Exports the model, optimizer, loss, train data and validation data to the export_dir for distributed
+        script to access. Note that the export_dir must be accessible to all the nodes. For example: NFS shared
+        systems. Note that the export_dir is created using mkdtemp which reults in a unique dir name. For
+        example: "<export_dir_Am83Iw". If the export_dir is None, the default name is "saved_objects"
 
         Args:
-            output_dir (str): Path to a directory where the dataset and model objects are saved.
-                Default file name for saving the objects is "hf_saved_objects.obj"
-            dataset (HFTextClassificationDataset): Dataset object to save. It must be an object of
-                HFTextClassificationDataset so that the dataset info, train, test, and validation
-                subsets can be accessed.
+            export_dir (str): Directory name to export the model, optimizer, loss, train data and validation
+                data. export_dir must be accessible to all the nodes. For example: NFS shared systems. export_dir
+                is created using mkdtemp which reults in a unique dir name. For example: "<export_dir_Am83Iw".
+                If the export_dir is None, the default name is "saved_objects"
+            train_data (PyTorchDataset): Train dataset
+            val_data (PyTorchDataset): Validation dataset
         """
+        temp_dir_prefix = os.path.join(os.environ['HOME'], "saved_objects_") if export_dir is None else export_dir + "_"
+        self._temp_dir = tempfile.mkdtemp(prefix=temp_dir_prefix)
 
         objects_to_save = {
-            "dataset": dataset.dataset,
-            "info": dataset.info,
-            "train_subset": dataset.train_subset,
-            "test_subset": dataset.test_subset,
-            "validation_subset": dataset.validation_subset,
+            "train_data": train_data,
             "model": self._model,
             "optimizer": self._optimizer,
             "loss": self._loss
         }
-        torch.save(objects_to_save, os.path.join(output_dir, "hf_saved_objects.obj"))
+        torch.save(objects_to_save, os.path.join(self._temp_dir, "torch_saved_objects.obj"))
+        return self._temp_dir
+
+    def cleanup_saved_objects_for_distributed(self):
+        try:
+            print('Cleaning saved objects...')
+            shutil.rmtree(self._temp_dir)
+        except OSError as ose:
+            print('Error while cleaning the saved objects: {}'.format(ose))
 
     @property
     def num_classes(self):
@@ -272,7 +284,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                     'loss': train_epoch_loss,
                 }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
-    def _fit_distributed(self, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
+    def _fit_distributed(self, saved_objects_dir, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
         distributed_text_script = os.path.join(TLT_DISTRIBUTED_DIR, "pytorch", "run_train_pyt.py")
 
         default_port = '29500'
@@ -314,6 +326,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         bash_command += ' --master_addr {}'.format(default_master_addr)
         bash_command += ' --master_port {}'.format(default_port)
         bash_command += ' --backend {}'.format('ccl')
+        bash_command += ' --tlt_saved_objects_dir {}'.format(saved_objects_dir)
         bash_command += ' --use_case {}'.format('text_classification')
         bash_command += ' --epochs {}'.format(epochs)
         bash_command += ' --batch_size {}'.format(batch_size)
@@ -467,11 +480,18 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 self._history = self._trainer.evaluate()
                 print("Val Acc: {:.5f}".format(self._history.get("eval_accuracy")))
         elif distributed:
-            self.export_for_distributed(
-                output_dir=TLT_DISTRIBUTED_DIR, dataset=dataset
-            )
-            self._fit_distributed(hostfile, nnodes, nproc_per_node, epochs, dataset._preprocessed["batch_size"],
-                                  ipex_optimize)
+            try:
+                saved_objects_dir = self.export_for_distributed(
+                    export_dir=os.path.join(output_dir, 'tlt_saved_objects'),
+                    train_data=dataset.train_subset,
+                    val_data=dataset.validation_subset
+                )
+                self._fit_distributed(saved_objects_dir, hostfile, nnodes, nproc_per_node, epochs,
+                                      dataset._preprocessed["batch_size"], ipex_optimize)
+            except Exception as err:
+                print("Error: \'{}\' occured while distributed training".format(err))
+            finally:
+                self.cleanup_saved_objects_for_distributed()
         else:
             self._trainer = None
             self._model.train()

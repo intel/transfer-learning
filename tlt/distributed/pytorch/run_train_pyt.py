@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import os
 import argparse
 
 from tlt.distributed.pytorch.utils.pyt_distributed_utils import (
@@ -28,7 +29,12 @@ from tlt.distributed.pytorch.utils.pyt_distributed_utils import (
 
 if __name__ == "__main__":
 
-    # Program arguments
+    def directory_path(path):
+        if os.path.isdir(path):
+            return path
+        else:
+            raise argparse.ArgumentTypeError("'{}' is not a valid directory path.".format(path))
+
     print("******Distributed Training*****")
 
     description = 'Distributed training with PyTorch.'
@@ -46,23 +52,25 @@ if __name__ == "__main__":
                         help='Global batch size to distribute data (default: 128)')
     parser.add_argument('--disable_ipex', action='store_true', required=False, help="Disables IPEX optimization to "
                         "the model")
+    parser.add_argument('--tlt_saved_objects_dir', type=directory_path, required=False, help='Path to TLT saved '
+                        'distributed objects. The path must be accessible to all the nodes. For example: mounted '
+                        'NFS drive. This arg is helpful when using TLT API/CLI. '
+                        'See DistributedTorch.load_saved_objects() for more information.')
 
     args = parser.parse_args()
 
-    # Load the saved dataset and model objects
-    loaded_objects = DistributedTorch.load_saved_objects(use_case=args.use_case)
+    if args.tlt_saved_objects_dir is not None:
+        # Load the saved dataset and model objects
+        loaded_objects = DistributedTorch.load_saved_objects(args.tlt_saved_objects_dir)
 
-    dataset = loaded_objects['dataset']
-    train_subset = loaded_objects.get('train_subset', dataset)
-    test_subset = loaded_objects.get('test_subset', dataset)
-    validation_subset = loaded_objects.get('validation_subset', dataset)
-    model = loaded_objects['model']
-    loss = loaded_objects['loss']
-    optimizer = loaded_objects['optimizer']
+        train_data = loaded_objects.get('train_data')
+        model = loaded_objects['model']
+        loss = loaded_objects['loss']
+        optimizer = loaded_objects['optimizer']
 
     # Launch distributed job
     training_args = DistributedTrainingArguments(
-        dataset=train_subset,
+        dataset=train_data,
         model=model,
         criterion=loss,
         optimizer=optimizer,
