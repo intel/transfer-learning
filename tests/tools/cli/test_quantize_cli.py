@@ -40,7 +40,7 @@ from tlt.utils.types import FrameworkType
 @patch("tlt.datasets.dataset_factory.load_dataset")
 def test_quantize(mock_load_dataset, mock_get_model, model_name, framework, batch_size):
     """
-    Tests the quantize comamnd with an without an Intel Neural Compressor config file and verifies that the
+    Tests the quantize command and verifies that the
     expected calls are made on the tlt model object. The call parameters also verify that the quantize command
     is able to properly identify the model's name based on the directory and the framework type based on the
     type of saved model.
@@ -67,7 +67,7 @@ def test_quantize(mock_load_dataset, mock_get_model, model_name, framework, batc
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
 
-        # Call the quantize command without an Intel Neural Compressor config file
+        # Call the quantize command
         result = runner.invoke(quantize,
                                ["--model-dir", model_dir, "--dataset_dir", dataset_dir,
                                 "--batch-size", batch_size, "--output-dir", output_dir])
@@ -75,37 +75,11 @@ def test_quantize(mock_load_dataset, mock_get_model, model_name, framework, batc
         # Verify that the expected calls were made, including to create an Intel Neural Compressor config file
         mock_get_model.assert_called_once_with(model_name, framework)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
-        assert model_mock.write_inc_config_file.called
         assert model_mock.quantize.called
 
         # Verify a successful exit code
         assert result.exit_code == 0
 
-        # Reset mocks to do another experiment with an Intel Neural Compressor config file
-        model_mock.reset_mock()
-        data_mock.reset_mock()
-        mock_get_model.reset_mock()
-        mock_load_dataset.reset_mock()
-
-        # Create a temp inc config yaml file
-        inc_config = os.path.join(tmp_dir, 'inc_config.yaml')
-        Path(inc_config).touch()
-
-        # Call quantize with a config file
-        result = runner.invoke(quantize,
-                               ["--model-dir", model_dir, "--dataset_dir", dataset_dir, "--inc-config", inc_config,
-                                "--output-dir", output_dir])
-        expected_quantization_dir = os.path.join(output_dir, "quantized", model_name, "1")
-
-        mock_get_model.assert_called_once_with(model_name, framework)
-        mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
-        model_mock.quantize.called_once_with(model_dir, expected_quantization_dir)
-
-        # Function to create an Intel Neural Compressor config file shouldn't have been called, since yaml was provided
-        model_mock.write_inc_config_file.assert_not_called()
-
-        # Verify a successful exit code
-        assert result.exit_code == 0
     finally:
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
@@ -266,20 +240,16 @@ def test_quantize_output_dir(mock_get_model, mock_load_dataset):
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
 
-        # Create a temp inc config yaml file
-        inc_config = os.path.join(tmp_dir, 'inc_config.yaml')
-        Path(inc_config).touch()
-
         for i in range(1, 5):
             # Call the quantize command
             result = runner.invoke(quantize,
                                    ["--model-dir", model_dir, "--dataset_dir", dataset_dir,
-                                    "--output-dir", output_dir, "--inc-config", inc_config])
+                                    "--output-dir", output_dir])
             assert result.exit_code == 0
 
             # Check for an expected quantization output dir with the folder number incrementing
             expected_quantize_dir = os.path.join(output_dir, "quantize", model_name, str(i))
-            model_mock.quantize.called_once_with(model_dir, expected_quantize_dir, inc_config)
+            model_mock.quantize.called_once_with(model_dir, expected_quantize_dir)
 
             model_mock.reset_mock()
 

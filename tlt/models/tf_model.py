@@ -32,9 +32,11 @@ from neural_compressor import quantization
 from neural_compressor.config import BenchmarkConfig
 
 from tlt.models.model import BaseModel
+from tlt.models.text_classification.text_classification_model import TextClassificationModel
 from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.platform_util import PlatformUtil
 from tlt.utils.types import FrameworkType, UseCaseType
+from tlt.utils.inc_utils import get_inc_config
 
 
 class TFModel(BaseModel):
@@ -311,13 +313,12 @@ class TFModel(BaseModel):
         Args:
             output_dir (str): Writable output directory to save the optimized model
             overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
-                              (default: False)
+                                    (default: False)
 
         Returns:
             None
 
         Raises:
-            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir
             FileExistsError: if the output_dir already has a saved_model.pb file
         """
         if not os.path.exists(output_dir):
@@ -348,7 +349,7 @@ class TFModel(BaseModel):
             dataset (ImageClassificationDataset): dataset to quantize with
             config (PostTrainingQuantConfig): Optional, for customizing the quantization parameters
             overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
-                              (default: False)
+                                    (default: False)
 
         Returns:
             None
@@ -369,8 +370,12 @@ class TFModel(BaseModel):
             raise ValueError('Quantization is compatible with datasets of type {}, and type '
                              '{} was found'.format(self._inc_compatible_dataset, type(dataset)))
 
-        config = config if config is not None else self.get_inc_config()
-        calib_dataloader, eval_dataloader = dataset.get_inc_dataloaders()
+        config = config if config is not None else get_inc_config(approach=self._quantization_approach)
+        kwargs = {}
+        if isinstance(self, TextClassificationModel):
+            kwargs['hub_name'] = self._hub_name
+            kwargs['max_seq_length'] = self._max_seq_length
+        calib_dataloader, eval_dataloader = dataset.get_inc_dataloaders(**kwargs)
         quantized_model = quantization.fit(model=self._model, conf=config, calib_dataloader=calib_dataloader,
                                            eval_dataloader=eval_dataloader)
 
@@ -416,7 +421,11 @@ class TFModel(BaseModel):
         else:
             model = self._model
 
-        _, eval_dataloader = dataset.get_inc_dataloaders()
+        kwargs = {}
+        if isinstance(self, TextClassificationModel):
+            kwargs['hub_name'] = self._hub_name
+            kwargs['max_seq_length'] = self._max_seq_length
+        _, eval_dataloader = dataset.get_inc_dataloaders(**kwargs)
         config = BenchmarkConfig(warmup=warmup, iteration=iteration, cores_per_instance=cores_per_instance,
                                  num_of_instance=num_of_instance, inter_num_of_threads=inter_num_of_threads,
                                  intra_num_of_threads=intra_num_of_threads)

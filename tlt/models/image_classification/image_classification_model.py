@@ -20,8 +20,6 @@
 
 import abc
 
-from neural_compressor.config import PostTrainingQuantConfig, TuningCriterion, AccuracyCriterion
-
 from tlt.models.model import BaseModel
 from tlt.utils.types import FrameworkType, UseCaseType
 
@@ -39,6 +37,7 @@ class ImageClassificationModel(BaseModel):
         self._image_size = image_size
         self._do_fine_tuning = do_fine_tuning
         self._dropout_layer_rate = dropout_layer_rate
+        self._quantization_approach = 'static'
 
         BaseModel.__init__(self, model_name, framework, use_case)
 
@@ -71,37 +70,3 @@ class ImageClassificationModel(BaseModel):
         The probability of any one node being dropped when a dropout layer is used
         """
         return self._dropout_layer_rate
-
-    def get_inc_config(self, accuracy_criterion_relative=0.01, exit_policy_timeout=0, exit_policy_max_trials=50):
-        """
-        Creates an INC post-training quantization config from the specified parameters.
-
-        Args:
-            accuracy_criterion_relative (float): Relative accuracy loss (default: 0.01, which is 1%)
-            exit_policy_timeout (int): Tuning timeout in seconds (default: 0). Tuning processing finishes when the
-                                       timeout or max_trials is reached. A tuning timeout of 0 means that the tuning
-                                       phase stops when the accuracy criterion is met.
-            exit_policy_max_trials (int): Maximum number of tuning trials (default: 50). Tuning processing finishes when
-                                          the timeout or or max_trials is reached.
-
-        Raises:
-            ValueError: if the parameters are not within the expected values
-        """
-        if accuracy_criterion_relative and not isinstance(accuracy_criterion_relative, float) or \
-                not (0.0 <= accuracy_criterion_relative <= 1.0):
-            raise ValueError('Invalid value for the accuracy criterion ({}). Expected a float value between 0.0 '
-                             'and 1.0'.format(accuracy_criterion_relative))
-        if exit_policy_timeout and not isinstance(exit_policy_timeout, int) or exit_policy_timeout < 0:
-            raise ValueError('Invalid value for the exit policy timeout ({}). Expected a positive integer or 0.'.
-                             format(exit_policy_timeout))
-        if exit_policy_max_trials and not isinstance(exit_policy_max_trials, int) or exit_policy_max_trials < 1:
-            raise ValueError('Invalid value for max trials ({}). Expected an integer greater than 0.'.
-                             format(exit_policy_timeout))
-
-        accuracy_criterion = AccuracyCriterion(tolerable_loss=accuracy_criterion_relative)
-        tuning_criterion = TuningCriterion(timeout=exit_policy_timeout, max_trials=exit_policy_max_trials)
-        config = PostTrainingQuantConfig(approach="static", device="cpu",
-                                         accuracy_criterion=accuracy_criterion,
-                                         tuning_criterion=tuning_criterion)
-
-        return config

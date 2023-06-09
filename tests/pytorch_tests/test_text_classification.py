@@ -31,10 +31,10 @@ from tlt.datasets.text_classification.hf_custom_text_classification_dataset impo
 
 @pytest.mark.integration
 @pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
-                         [['bert-base-cased', 'imdb', None, 1],
-                          ['distilbert-base-uncased', 'imdb', [384, 192], 5]])
-def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct_num_layers):
+@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers,test_inc',
+                         [['bert-base-cased', 'imdb', None, 1, False],
+                          ['distilbert-base-uncased', 'imdb', [384, 192], 5, True]])
+def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct_num_layers, test_inc):
     """
     Tests basic transfer learning functionality for PyTorch text classification models using a hugging face dataset
     """
@@ -90,6 +90,13 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
     with pytest.raises(NotImplementedError):
         model.optimize_graph(os.path.join(saved_model_dir, 'optimized'))
 
+    # Quantization
+    if test_inc:
+        inc_output_dir = os.path.join(output_dir, "quantized", model_name)
+        os.makedirs(inc_output_dir, exist_ok=True)
+        model.quantize(inc_output_dir, dataset)
+        assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
+
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
@@ -137,17 +144,6 @@ def test_custom_dataset_workflow(model_name):
     # Evaluate
     metrics = reload_model.evaluate(mock_dataset)
     assert len(metrics) > 0
-
-    # Quantization
-    inc_config_file_path = 'tlt/models/configs/inc/text_classification_template.yaml'
-    nc_workspace = os.path.join(output_dir, "nc_workspace")
-    model.write_inc_config_file(inc_config_file_path, mock_dataset, batch_size=32, overwrite=True,
-                                accuracy_criterion_relative=0.1, exit_policy_max_trials=10,
-                                exit_policy_timeout=0, tuning_workspace=nc_workspace)
-    inc_output_dir = os.path.join(output_dir, "quantized", model_name)
-    os.makedirs(inc_output_dir, exist_ok=True)
-    model.quantize(inc_output_dir, inc_config_file_path)
-    assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):

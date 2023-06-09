@@ -40,7 +40,7 @@ from tlt.utils.types import FrameworkType
 @patch("tlt.datasets.dataset_factory.load_dataset")
 def test_benchmark(mock_load_dataset, mock_get_model, model_name, framework, batch_size, mode):
     """
-    Tests the benchmark comamnd with an without an Intel Neural Compressor config file and verifies that the
+    Tests the benchmark command and verifies that the
     expected calls are made on the tlt model object. The call parameters also verify that the benchmark command
     is able to properly identify the model's name based on the directory and the framework type based on the
     type of saved model.
@@ -67,43 +67,19 @@ def test_benchmark(mock_load_dataset, mock_get_model, model_name, framework, bat
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
 
-        # Call the benchmark command without an Intel Neural Compressor config file
+        # Call the benchmark command
         result = runner.invoke(benchmark,
-                               ["--model-dir", model_dir, "--dataset_dir", dataset_dir, "--mode", mode,
+                               ["--model-dir", model_dir, "--dataset_dir", dataset_dir,
                                 "--batch-size", batch_size, "--output-dir", output_dir])
 
-        # Verify that the expected calls were made, including to create an Intel Neural Compressor config file
+        # Verify that the expected calls were made
         mock_get_model.assert_called_once_with(model_name, framework)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
-        assert model_mock.write_inc_config_file.called
         assert model_mock.benchmark.called
 
         # Verify a successful exit code
         assert result.exit_code == 0
 
-        # Reset mocks to do another experiment with an Intel Neural Compressor confijg file
-        model_mock.reset_mock()
-        data_mock.reset_mock()
-        mock_get_model.reset_mock()
-        mock_load_dataset.reset_mock()
-
-        # Create a temp inc config yaml file
-        inc_config = os.path.join(tmp_dir, 'inc_config.yaml')
-        Path(inc_config).touch()
-
-        # Call benchmark with a config file
-        result = runner.invoke(benchmark,
-                               ["--model-dir", model_dir, "--dataset_dir", dataset_dir, "--inc-config", inc_config])
-
-        mock_get_model.assert_called_once_with(model_name, framework)
-        mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
-        model_mock.benchmark.called_once_with(model_dir, inc_config, mode)
-
-        # Function to create an Intel Neural Compressor config file shouldn't have been called, since yaml was provided
-        model_mock.write_inc_config_file.assert_not_called()
-
-        # Verify a successful exit code
-        assert result.exit_code == 0
     finally:
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
@@ -283,25 +259,3 @@ class TestBenchmarkArgs:
 
         assert result.exit_code == 2
         assert "Invalid value for '--batch-size'" in result.output
-
-    @pytest.mark.common
-    @pytest.mark.parametrize('mode',
-                             ['foo', 'benchmark', '0'])
-    def test_benchmark_invalid_mode(self, mode):
-        """
-        Verifies that benchmark command fails if the mode value is invalid (the choices are: accuracy, performance)
-        """
-
-        # Create the model file
-        Path(os.path.join(self._model_dir, 'saved_model.pt')).touch()
-
-        # Call the benchmark command with the model directory
-        result = self._runner.invoke(benchmark,
-                                     ["--model-dir", self._model_dir,
-                                      "--dataset_dir", self._dataset_dir,
-                                      "--output-dir", self._output_dir,
-                                      "--mode", mode])
-
-        assert result.exit_code == 2
-        assert "Invalid value for '--mode'" in result.output
-        assert "'{}' is not one of 'performance', 'accuracy'".format(mode) in result.output

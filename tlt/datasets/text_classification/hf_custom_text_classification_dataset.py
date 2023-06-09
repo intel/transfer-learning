@@ -114,8 +114,8 @@ class HFCustomTextClassificationDataset(TextClassificationDataset, HFDataset):
 
         TextClassificationDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog=None)
 
-        print("WARNING: Using column {} as label column. To change this behavior, \
-               specify the label_col argument".format(label_col))
+        print("WARNING: Using column {} as label column. To change this behavior, "
+              "specify the label_col argument".format(label_col))
         if header:
             dataset_df = pd.read_csv(dataset_file, delimiter=delimiter, encoding='utf-8', dtype=str, names=column_names,
                                      header=0)

@@ -117,12 +117,11 @@ tlt eval --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir ${DATASET_DIR}
 Benchmark the performance of the trained model using `tlt benchmark`.
 Make sure to specify your own file paths for `model-dir` and the `dataset-dir` should point to the extracted dataset folder.
 ```
-tlt benchmark --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir ${DATASET_DIR} --batch-size 512 --mode performance
+tlt benchmark --model-dir /tmp/output/resnet_v1_50/1 --dataset-dir ${DATASET_DIR} --batch-size 512
 ```
 ```
 Model directory: /tmp/output/resnet_v1_50/1
 Dataset directory: /tmp/dataset/flower_photos
-Benchmarking mode: performance
 Batch size: 512
 Model name: resnet_v1_50
 Framework: tensorflow
@@ -185,7 +184,7 @@ to the quantized model directory.
 Make sure to specify your own file paths for `model-dir` and `dataset-dir`. You can then compare
 the performance of the full precision model to the quantized model.
 ```
-tlt benchmark --model-dir /tmp/output/quantized/resnet_v1_50/1 --dataset-dir ${DATASET_DIR} --batch-size 512 --mode performance
+tlt benchmark --model-dir /tmp/output/quantized/resnet_v1_50/1 --dataset-dir ${DATASET_DIR} --batch-size 512
 ```
 ```
 Model directory: /tmp/output/quantized/resnet_v1_50/1

@@ -68,6 +68,7 @@ def optimize(model_dir, output_dir):
         from tlt.models.model_factory import get_model
 
         model = get_model(model_name, framework)
+        model.load_from_directory(model_dir)
     except Exception as e:
         sys.exit("An error occurred while getting the model: {}\nNote that the model directory is expected to contain "
                  "a previously exported model where the directory structure is <model name>/n/saved_model.pb "

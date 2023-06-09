@@ -317,3 +317,26 @@ class HFDataset(BaseDataset):
             return self._validation_loader
         else:
             raise ValueError("validation split not specified")
+
+    def get_inc_dataloaders(self):
+        calib_dataset = self.train_subset
+        if self.validation_loader is not None:
+            eval_dataset = self.validation_subset
+        elif self.test_loader is not None:
+            eval_dataset = self.test_subset
+        else:
+            eval_dataset = self.train_subset
+
+        # Drop the label column because Intel Neural Compressor does not like it embedded with the features
+        # If we need to compute metrics from the labels, we can improve this with a subclass of
+        # torch.utils.data.Dataset or neural_compressor.data.datasets.bert_dataset.PytorchBertDataset that
+        # also returns the labels from __getitem__
+        for label_col_name in ['labels', 'label']:
+            if label_col_name in self._dataset.features.keys():
+                calib_dataset = calib_dataset.remove_columns(label_col_name)
+                eval_dataset = eval_dataset.remove_columns(label_col_name)
+
+        calib_dataloader = loader(calib_dataset, batch_size=self._preprocessed['batch_size'])
+        eval_dataloader = loader(eval_dataset, batch_size=self._preprocessed['batch_size'])
+
+        return calib_dataloader, eval_dataloader

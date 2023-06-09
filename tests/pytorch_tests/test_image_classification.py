@@ -98,10 +98,6 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
     with pytest.raises(NotImplementedError):
         model.optimize_graph(os.path.join(saved_model_dir, 'optimized'))
 
-    # Delete the temp output directory
-    if os.path.exists(output_dir) and os.path.isdir(output_dir):
-        shutil.rmtree(output_dir)
-
     # Test quantization and benchmarking
     if test_inc:
         inc_output_dir = os.path.join(output_dir, "quantized", 'resnet18')
@@ -109,6 +105,10 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
         model.quantize(inc_output_dir, dataset)
         assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
         model.benchmark(dataset=dataset, saved_model_dir=inc_output_dir)
+
+    # Delete the temp output directory
+    if os.path.exists(output_dir) and os.path.isdir(output_dir):
+        shutil.rmtree(output_dir)
 
 
 @pytest.mark.integration

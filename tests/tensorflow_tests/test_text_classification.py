@@ -118,12 +118,6 @@ def test_tf_binary_text_classification(model_name, dataset_name, extra_layers, c
         # assert retrain_metrics[accuracy_index] > trained_metrics[accuracy_index]
         assert isinstance(retrain_metrics[accuracy_index], float)
 
-        # Test generating an Intel Neural Compressor config file (not implemented yet)
-        inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))
-        with pytest.raises(NotImplementedError):
-            model.write_inc_config_file(inc_config_file_path, dataset, batch_size=batch_size,
-                                        tuning_workspace=output_dir)
-
     finally:
         # Delete the temp output directory
         if os.path.exists(output_dir) and os.path.isdir(output_dir):
@@ -246,14 +240,9 @@ def test_custom_dataset_workflow(model_name):
         assert len(metrics) > 0
 
         # Quantization
-        inc_config_file_path = 'tlt/models/configs/inc/text_classification_template.yaml'
-        nc_workspace = os.path.join(output_dir, "nc_workspace")
-        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, overwrite=True,
-                                    accuracy_criterion_relative=0.1, exit_policy_max_trials=10,
-                                    exit_policy_timeout=0, tuning_workspace=nc_workspace)
         inc_output_dir = os.path.join(output_dir, "quantized", "mocked")
         os.makedirs(inc_output_dir, exist_ok=True)
-        model.quantize(inc_output_dir, inc_config_file_path)
+        model.quantize(inc_output_dir, dataset)
         assert os.path.exists(os.path.join(inc_output_dir, "saved_model.pb"))
 
     finally:
