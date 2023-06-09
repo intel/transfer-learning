@@ -13,7 +13,7 @@ The `--dataset-dir` argument is the path to the directory where your dataset is 
 argument to specify a list of the classes and the `--delimiter` to specify the character that
 separates the two columns. If no `--delimiter` is specified, the CLI will default to use a comma (`,`).
 
-This example is downloading the [SMS Spam Collection](https://archive-beta.ics.uci.edu/dataset/228/sms+spam+collection)
+This example is downloading the [SMS Spam Collection](https://archive.ics.uci.edu/dataset/228/sms+spam+collection)
 dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text
 messages that are either being classified as `ham` or `spam`. The first column in the data file has
 the label (`ham` or `spam`) and the second column is the text of the SMS mesage. The string class
@@ -26,8 +26,8 @@ mkdir -p ${DATASET_DIR}
 mkdir -p ${OUTPUT_DIR}
 
 # Download and extract the dataset
-wget -P ${DATASET_DIR} https://archive.ics.uci.edu/ml/machine-learning-databases/00228/smsspamcollection.zip
-unzip ${DATASET_DIR}/smsspamcollection.zip
+wget -P ${DATASET_DIR} https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip
+unzip ${DATASET_DIR}/sms+spam+collection.zip
 
 # Make a copy of the .csv file with 'numerical' in the file name
 DATASET_FILE=SMSSpamCollection_numerical.csv

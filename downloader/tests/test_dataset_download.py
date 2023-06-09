@@ -28,7 +28,7 @@ class TestDatasetDownload:
     Tests the dataset downloader with a temp download directory that is initialized and cleaned up
     """
     URLS = {'sms_spam_collection':
-            'https://archive.ics.uci.edu/ml/machine-learning-databases/00228/smsspamcollection.zip',
+            'https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip',
             'flowers':
             'https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz',
             'imagenet_labels':
@@ -80,10 +80,9 @@ class TestDatasetDownload:
         # Check that the directory is not empty
         assert os.listdir(self._dataset_dir) is not None
 
-    # Removing the SMS Spam Collection test because it's failing (404 error)
-    # ['sms_spam_collection', URLS['sms_spam_collection'], 2],
     @pytest.mark.parametrize('dataset_name,url,num_contents',
-                             [['flowers', URLS['flowers'], 1],
+                             [['sms_spam_collection', URLS['sms_spam_collection'], 2],
+                              ['flowers', URLS['flowers'], 1],
                               ['imagenet_labels', URLS['imagenet_labels'], 1],
                               ['peacock', URLS['peacock'], 1],
                               ['pennfudan', URLS['pennfudan'], 1]])

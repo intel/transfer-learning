@@ -205,7 +205,7 @@ def test_custom_dataset_workflow(model_name):
 
     try:
         # Get the dataset
-        zip_file_url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00228/smsspamcollection.zip"
+        zip_file_url = "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip"
         sms_data_directory = os.path.join(dataset_dir, "sms_spam_collection")
         csv_file_name = "SMSSpamCollection"
 
