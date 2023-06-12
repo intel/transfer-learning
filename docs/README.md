@@ -1,8 +1,8 @@
-# Documentation
+# Building Documentation
 
 ## Sphinx Documentation
 
-Install `tlt` and it's dependencies for developers as described [here](/README.md##build-and-install)
+Install `tlt` and its dependencies for developers as described the [Get Started](/GetStarted) guide.
 ```bash
 # Run these commands from root of the project
 python3 -m virtualenv tlt_dev_venv

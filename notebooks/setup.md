@@ -7,12 +7,11 @@ System Requirements:
 2. Python3 (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
 3. git
 
+## Set Up Notebook Environment
 
-## Notebook Environment
-
-1. Install Intel® Transfer Learning Tool [for Developers](/README.md#developer-installation).
-   This is required for the TLT tutorial notebooks, E2E notebooks, and performance comparison. Follow the
-   instructions in the main [README](/README.md#create-and-activate-a-python3-virtual-environment). You can
+1. Install Intel® Transfer Learning Tool using the Developer Installation option in the [Get Started](/GetStarted.md) Guide.
+   This is required for the Intel Transfer Learning Tool tutorial notebooks, E2E notebooks, and performance comparison. Follow the
+   instructions in the [Get Started Guide](/GetStarted.md). You can
    skip this step if you are only running the native framework notebooks.
 
 2. Activate the virtualenv or conda environment used to install Intel Transfer Learning Tool,
@@ -41,3 +40,6 @@ System Requirements:
    jupyter notebook --port 8888
    ```
 5. Copy and paste the URL from the terminal to your browser to view and run the notebooks.
+
+Once you have the environment and dependencies set up, see the list of available
+notebook examples.

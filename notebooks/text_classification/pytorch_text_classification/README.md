@@ -7,7 +7,7 @@ from the Hugging Face Datasets catalog, and the [SMS Spam Collection dataset](ht
 is used as an example of a custom dataset being loaded from a csv file.
 
 The notebook uses
-[Intel® Extension for PyTorch*](https://github.com/intel/intel-extension-for-pytorch) which extends PyTorch
+[Intel® Extension for PyTorch\*](https://intel.github.io/intel-extension-for-pytorch) which extends PyTorch
 with optimizations for extra performance boost on Intel hardware.
 
 The notebook performs the following steps:

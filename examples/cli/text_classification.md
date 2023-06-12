@@ -1,6 +1,6 @@
-# Text Classification Intel Transfer Learning Tool CLI Examples
+# Text Classification Intel® Transfer Learning Tool CLI Example
 
-## Fine tuning using your own dataset
+## Fine Tuning Using Your Own Dataset
 
 The example below shows how to fine tune a TensorFlow text classification model using your own
 dataset in the .csv format. The .csv file is expected to have 2 columns: a numerical class label
@@ -16,7 +16,7 @@ separates the two columns. If no `--delimiter` is specified, the CLI will defaul
 This example is downloading the [SMS Spam Collection](https://archive.ics.uci.edu/dataset/228/sms+spam+collection)
 dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text
 messages that are either being classified as `ham` or `spam`. The first column in the data file has
-the label (`ham` or `spam`) and the second column is the text of the SMS mesage. The string class
+the label (`ham` or `spam`) and the second column is the text of the SMS message. The string class
 labels are replaced with numerical values before training.
 ```bash
 # Create dataset and output directories
@@ -38,7 +38,7 @@ cp ${DATASET_DIR}/SMSSpamCollection ${DATASET_DIR}/${DATASET_FILE}
 sed -i 's/ham/0/g' ${DATASET_DIR}/${DATASET_FILE}
 sed -i 's/spam/1/g' ${DATASET_DIR}/${DATASET_FILE}
 
-# Train google/bert_uncased_L-10_H-256_A-4 using our dataset file which has tab delimiters
+# Train google/bert_uncased_L-10_H-256_A-4 using our dataset file, which has tab delimiters
 tlt train \
     -f tensorflow \
     --model-name google/bert_uncased_L-10_H-256_A-4 \
@@ -60,7 +60,7 @@ tlt eval \
     --delimiter $'\t'
 ```
 
-## Fine tuning using a dataset from the TFDS catalog
+## Fine Tuning Using a Dataset from the TFDS Catalog
 
 This example demonstrates using the Intel Transfer Learning Tool CLI to fine tune a text classification model using a
 dataset from the [TensorFlow Datasets (TFDS) catalog](https://www.tensorflow.org/datasets/catalog/overview).
@@ -97,7 +97,7 @@ tlt eval \
     --dataset-name ${DATASET_NAME}
 ```
 
-## Distributed transfer learning using a dataset from Hugging Face
+## Distributed Transfer Learning Using a Dataset from Hugging Face
 This example runs a distributed PyTorch training job using the TLT CLI. It fine tunes a text classification model
 for document-level sentiment analysis using a dataset from the [Hugging Face catalog](https://huggingface.co/datasets).
 Intel Transfer Learning Tool supports the following text classification datasets from Hugging Face:
@@ -107,7 +107,7 @@ Intel Transfer Learning Tool supports the following text classification datasets
 * [ag_news](https://huggingface.co/datasets/ag_news)
 * [sst2](https://huggingface.co/datasets/sst2)
 
-Follow [these instructions](/tlt/distributed) to set up your machines for distributed training with PyTorch. This will
+Follow [these instructions](/tlt/distributed/README.md) to set up your machines for distributed training with PyTorch. This will
 ensure your environment has the right prerequisites, package dependencies, and hostfile configuration. When
 you have successfully run the sanity check, the following commands will fine-tune `bert-large-uncased` with sst2 for
 one epoch using 2 nodes and 2 processes per node.

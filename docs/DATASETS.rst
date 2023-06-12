@@ -1,4 +1,4 @@
 :orphan:
 
-.. include:: ../tlt/distributed/README.md
+.. include:: ../DATASETS.md
    :parser: myst_parser.sphinx_

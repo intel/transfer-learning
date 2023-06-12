@@ -1,9 +1,11 @@
-# Distributed Training with Intel® Transfer Learning Tool
+# Distributed Training
+
+Here are instructions for using distributed/multinode Training with Intel® Transfer Learning Tool.
 
 ## Prerequisites
 
 - Participating nodes should have Intel® oneAPI Base Toolkit installed. Verify the files under `/opt/intel/oneapi`
-- Participating nodes should have passwordless SSH setup. Instructions to setup are given below.
+- Participating nodes should have passwordless SSH setup. Instructions to set up are given below.
 
 ### Passwordless SSH setup
 

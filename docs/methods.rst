@@ -1,3 +1,5 @@
+:orphan:
+
 Image Classification Methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. currentmodule:: tlt.models.image_classification

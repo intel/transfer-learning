@@ -1,2 +1,2 @@
-.. include:: ../DATASETS.md
+.. include:: ../Legal.md
    :parser: myst_parser.sphinx_

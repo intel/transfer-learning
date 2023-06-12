@@ -176,4 +176,3 @@
 | resnet34 | PyTorch | Torchvision |
 | resnet50 | PyTorch | Torchvision |
 
-*Other names and brands may be claimed as the property of others. [Trademarks](http://www.intel.com/content/www/us/en/legal/trademarks.html)
