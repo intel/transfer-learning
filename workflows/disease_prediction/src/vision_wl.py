@@ -150,6 +150,31 @@ def reverse_map(class_names):
         i = i + 1
     return class_dict
 
+def load_model(model_name, saved_model_dir):
+    vision_model = model_factory.load_model(model_name, saved_model_dir,
+                                            "tensorflow",
+                                            "image_classification")
+    return vision_model
+
+def run_inference_per_patient(model, patient_dict,class_names):
+    results = {}
+    class_dict = reverse_map(class_names)
+    for key, value in patient_dict.items():
+        print(key, '->', value)
+        results[key] = {}
+        for image in value:
+            pred_prob = infer_vision_wl(model,image).numpy().tolist()
+            infer_result_patient = [
+                {
+                    "label": image.split('/')[-2],
+                    "pred": class_dict[np.argmax(pred_prob).tolist()],
+                    "pred_prob": pred_prob
+                }
+            ]
+            results[key][image.split('/')[-1]] = infer_result_patient
+    print(results)
+    return results
+    
 
 def run_inference(test_data_dir, saved_model_dir, class_labels,
                   model_name="resnet_v1_50", vision_int8_inference=False,
