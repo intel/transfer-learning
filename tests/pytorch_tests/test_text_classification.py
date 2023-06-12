@@ -26,7 +26,10 @@ from unittest.mock import MagicMock
 
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
-from tlt.datasets.text_classification.hf_custom_text_classification_dataset import HFCustomTextClassificationDataset
+try:
+    from tlt.datasets.text_classification.hf_custom_text_classification_dataset import HFCustomTextClassificationDataset
+except ModuleNotFoundError:
+    print("WARNING: Unable to import HFCustomTextClassificationDataset.")
 
 
 @pytest.mark.integration

@@ -26,8 +26,15 @@ from sklearn import decomposition
 
 from tlt.models import model_factory
 from tlt.utils.types import FrameworkType, UseCaseType
-from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features, pca, get_feature_extraction_model  # noqa: E501
 
+try:
+    from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features, pca, get_feature_extraction_model  # noqa: E501
+except ModuleNotFoundError:
+    print("WARNING: Unable to import PytorchImageAnomolyDetectionModel. Pytorch may not be installed")
+
+# This is necessary to protect from import errors when testing in a pytorch only environment
+# True when imports are successful, False when imports are unsuccessful
+torch_env = True
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
@@ -35,7 +42,7 @@ try:
     import torch.nn as nn
 except ModuleNotFoundError:
     print("WARNING: Unable to import torch. Torch may not be installed")
-
+    torch_env = False
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
@@ -251,76 +258,80 @@ def test_resnet50_anomaly_extract_pca():
         assert components.n_components == 0.97
 
 
-@pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,use_case,dataset_type,optimizer,loss',
-                         [['efficientnet_b0', 'image_classification', PyTorchCustomImageClassificationDataset,
-                           torch.optim.Adam, torch.nn.L1Loss],
-                          ['resnet18', 'image_classification', PyTorchCustomImageClassificationDataset,
-                           torch.optim.AdamW, torch.nn.MSELoss],
-                          ['custom', 'image_classification', PyTorchCustomImageClassificationDataset,
-                           torch.optim.SGD, torch.nn.L1Loss],
-                          ['distilbert-base-uncased', 'text_classification', HFTextClassificationDataset,
-                           torch.optim.Adam, torch.nn.MSELoss]])
-def test_pytorch_optimizer_loss(model_name, use_case, dataset_type, optimizer, loss):
-    """
-    Tests initializing and training a model with configurable optimizers and loss functions
-    """
+# This is necessary to protect from import errors when testing in a pytorch only environment
+if torch_env:
+    @pytest.mark.pytorch
+    @pytest.mark.parametrize('model_name,use_case,dataset_type,optimizer,loss',
+                             [['efficientnet_b0', 'image_classification', PyTorchCustomImageClassificationDataset,
+                               torch.optim.Adam, torch.nn.L1Loss],
+                              ['resnet18', 'image_classification', PyTorchCustomImageClassificationDataset,
+                               torch.optim.AdamW, torch.nn.MSELoss],
+                              ['custom', 'image_classification', PyTorchCustomImageClassificationDataset,
+                               torch.optim.SGD, torch.nn.L1Loss],
+                              ['distilbert-base-uncased', 'text_classification', HFTextClassificationDataset,
+                               torch.optim.Adam, torch.nn.MSELoss]])
+    def test_pytorch_optimizer_loss(model_name, use_case, dataset_type, optimizer, loss):
+        """
+        Tests initializing and training a model with configurable optimizers and loss functions
+        """
 
-    # Define a model
-    class Net(nn.Module):
-        def __init__(self):
-            super().__init__()
-            self.conv1 = nn.Conv2d(3, 6, 5)
-            self.pool = nn.MaxPool2d(2, 2)
-            self.conv2 = nn.Conv2d(6, 16, 5)
-            self.fc1 = nn.Linear(16 * 5 * 5, 120)
-            self.fc2 = nn.Linear(120, 84)
-            self.fc3 = nn.Linear(84, 3)
+        # Define a model
+        class Net(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.conv1 = nn.Conv2d(3, 6, 5)
+                self.pool = nn.MaxPool2d(2, 2)
+                self.conv2 = nn.Conv2d(6, 16, 5)
+                self.fc1 = nn.Linear(16 * 5 * 5, 120)
+                self.fc2 = nn.Linear(120, 84)
+                self.fc3 = nn.Linear(84, 3)
 
-        def forward(self, x):
-            x = self.pool(nn.functional.relu(self.conv1(x)))
-            x = self.pool(nn.functional.relu(self.conv2(x)))
-            x = torch.flatten(x, 1)
-            x = nn.functional.relu(self.fc1(x))
-            x = nn.functional.relu(self.fc2(x))
-            x = self.fc3(x)
-            return x
+            def forward(self, x):
+                x = self.pool(nn.functional.relu(self.conv1(x)))
+                x = self.pool(nn.functional.relu(self.conv2(x)))
+                x = torch.flatten(x, 1)
+                x = nn.functional.relu(self.fc1(x))
+                x = nn.functional.relu(self.fc2(x))
+                x = self.fc3(x)
+                return x
 
-    net = Net()
+        net = Net()
 
-    if model_name == 'custom':
-        model = model_factory.load_model(model_name, net, 'pytorch', use_case, optimizer=optimizer, loss=loss)
-    else:
-        model = model_factory.get_model(model_name, 'pytorch', optimizer=optimizer, loss=loss)
+        if model_name == 'custom':
+            model = model_factory.load_model(model_name, net, 'pytorch', use_case, optimizer=optimizer, loss=loss)
+        else:
+            model = model_factory.get_model(model_name, 'pytorch', optimizer=optimizer, loss=loss)
 
-    model._generate_checkpoints = False
-    model._fit = MagicMock()
-    assert model._optimizer_class == optimizer
-    assert model._loss_class == loss
-    assert type(model._loss) == loss
+        model._generate_checkpoints = False
+        model._fit = MagicMock()
+        assert model._optimizer_class == optimizer
+        assert model._loss_class == loss
+        assert type(model._loss) == loss
 
-    mock_dataset = MagicMock()
-    mock_dataset.__class__ = dataset_type
-    mock_dataset.class_names = ['a', 'b', 'c']
-    mock_dataset.train_subset = [1, 2, 3]
-    mock_dataset.validation_subset = [4, 5, 6]
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = dataset_type
+        mock_dataset.class_names = ['a', 'b', 'c']
+        mock_dataset.train_subset = [1, 2, 3]
+        mock_dataset.validation_subset = [4, 5, 6]
 
-    # Train is called and optimizer and loss objects should match the input types
-    model.train(mock_dataset, output_dir="/tmp/output/pytorch")
-    assert model._optimizer_class == optimizer
-    assert type(model._optimizer) == optimizer
-    assert model._loss_class == loss
-    assert type(model._loss) == loss
+        # Train is called and optimizer and loss objects should match the input types
+        model.train(mock_dataset, output_dir="/tmp/output/pytorch")
+        assert model._optimizer_class == optimizer
+        assert type(model._optimizer) == optimizer
+        assert model._loss_class == loss
+        assert type(model._loss) == loss
 
 
-@pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,optimizer',
-                         [['efficientnet_b0', 1],
-                          ['resnet18', 'foo'],
-                          ['distilbert-base-uncased', torch.nn.MSELoss]])
-def test_pytorch_optimizer_wrong_type(model_name, optimizer):
-    """
-    Tests that an exception is thrown when the input optimizer is the wrong type
-    """
-    with pytest.raises(TypeError):
-        model_factory.get_model(model_name, 'pytorch', optimizer=optimizer)
+# This is necessary to protect from import errors when testing in a pytorch only environment
+if torch_env:
+    @pytest.mark.pytorch
+    @pytest.mark.parametrize('model_name,optimizer',
+                             [['efficientnet_b0', 1],
+                              ['resnet18', 'foo'],
+                              ['distilbert-base-uncased', torch.nn.MSELoss]])
+    def test_pytorch_optimizer_wrong_type(model_name, optimizer):
+        """
+        Tests that an exception is thrown when the input optimizer is the wrong type
+        """
+        with pytest.raises(TypeError):
+            model_factory.get_model(model_name, 'pytorch', optimizer=optimizer)

@@ -24,9 +24,13 @@ import pytest
 import shutil
 import tempfile
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as functional
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as functional
+except ModuleNotFoundError:
+    print("WARNING: Unable to import torch. Torch may not be installed")
+
 
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory

@@ -28,14 +28,14 @@ from pathlib import Path
 from unittest.mock import patch
 
 from tlt.models import model_factory
+from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset  # noqa: E501
+
 
 try:
     # Do PyTorch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
     from tlt.models.image_classification.torchvision_image_classification_model import TorchvisionImageClassificationModel  # noqa: F401, E501
 except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageClassificationModel. PyTorch or torchvision may not be installed")
-
-from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset  # noqa: E501
 
 
 @pytest.mark.pytorch

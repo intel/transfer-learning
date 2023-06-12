@@ -17,10 +17,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as functional
+except ModuleNotFoundError:
+    print("WARNING: Unable to import torch. Torch may not be installed")
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as functional
 
 import os
 import pytest
@@ -30,7 +33,11 @@ import tempfile
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
-from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features
+
+try:
+    from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features
+except ModuleNotFoundError:
+    print("WARNING: Unable to import torch. Torch may not be installed")
 
 
 @pytest.mark.integration

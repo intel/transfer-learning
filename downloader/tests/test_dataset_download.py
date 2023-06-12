@@ -3,9 +3,20 @@ import pytest
 import shutil
 import tempfile
 
-from datasets.arrow_dataset import Dataset as HF_Dataset
-from torch.utils.data import Dataset as TV_Dataset
-from tensorflow.data import Dataset as TF_Dataset
+try:
+    from datasets.arrow_dataset import Dataset as HF_Dataset
+except ModuleNotFoundError:
+    print("WARNING: datasets may not be installed")
+
+try:
+    from torch.utils.data import Dataset as TV_Dataset
+except ModuleNotFoundError:
+    print("WARNING: torch may not be installed")
+
+try:
+    from tensorflow.data import Dataset as TF_Dataset
+except ModuleNotFoundError:
+    print("WARNING: tensorflow may not be installed")
 
 from downloader import datasets
 from downloader.types import DatasetType
