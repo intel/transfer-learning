@@ -201,10 +201,13 @@ instructions](/notebooks/setup.md) for more details for preparing the Jupyter
 notebook environment.
 
 ```python
+import os
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.types import FrameworkType, UseCaseType
-import os
 
 # Specify the directory where the TensorFlow flowers dataset has been downloaded and extracted
 # (https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz)
@@ -238,14 +241,14 @@ saved_model_dir = model.export(output_dir=output_dir)
 
 # Quantize the trained model
 quantization_output = os.path.join(output_dir, "quantized_model")
-model.quantize(quantization_output, dataset)
+model.quantize(quantization_output, dataset, overwrite_model=True)
 
 # Benchmark the trained model using the Intel Neural Compressor config file
 model.benchmark(dataset, saved_model_dir=quantization_output)
 
 # Do graph optimization on the trained model
 optimization_output = os.path.join(output_dir, "optimized_model")
-model.optimize_graph(optimization_output)
+model.optimize_graph(optimization_output, overwrite_model=True)
 ```
 
 For more information on the API, see the [API Documentation](/api.md).
