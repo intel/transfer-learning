@@ -33,9 +33,9 @@ docker pull intel/ai-tools:tlt-dist-devel-0.5.0
 Utilize the TLT CLI without installation by using the provided docker image and docker compose.
 
 ```bash
-docker compose run base-prod
+docker compose run tlt-prod
 # OR
-docker compose run base-prod tlt --help
+docker compose run tlt-prod tlt --help
 ```
 
 ## Kubernetes

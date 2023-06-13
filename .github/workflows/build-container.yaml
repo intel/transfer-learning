@@ -27,7 +27,7 @@ jobs:
     needs: [build]
     strategy:
       matrix:
-        container: ["base-devel", "base-prod", "dist-devel", "dist-prod"] # name of Compose container
+        container: ["tlt-devel", "tlt-prod", "tlt-dist-devel", "tlt-dist-prod"] # name of Compose container
     container:
       image: ${{ vars.GHA_CONTAINER_IMAGE }}
       env: # Add ENVS to control compose building
@@ -46,5 +46,5 @@ jobs:
         password: ${{ secrets.REGISTRY_TOKEN }}
     - name: Push Container # tlt-<num>-<container>
       run: |
-        docker tag intel/ai-tools:tlt-${{ matrix.container }}-latest ${{ vars.GHA_REGISTRY_REPO }}:tlt-ww$(date +"%U")-${{ matrix.container }}
-        docker push ${{ vars.GHA_REGISTRY_REPO }}:tlt-ww$(date +"%U")-${{ matrix.container }}
+        docker tag intel/ai-tools:${{ matrix.container }}-latest ${{ vars.GHA_REGISTRY_REPO }}:ww$(date +"%U")-${{ matrix.container }}
+        docker push ${{ vars.GHA_REGISTRY_REPO }}:ww$(date +"%U")-${{ matrix.container }}

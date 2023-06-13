@@ -22,7 +22,7 @@ FROM ${IMAGE_NAME}:${IMAGE_TAG} as base
 # TLT base target
 FROM base as tlt-base
 
-ARG PYTHON
+ARG PYTHON=python3
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -30,16 +30,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     libgl1 \
     libglib2.0-0 \
     ${PYTHON} \
-    python3-pip
+    ${PYTHON}-pip && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN ln -sf $(which ${PYTHON}) /usr/bin/python
 
-# TLT target for development
-FROM tlt-base as base-devel
+# TLT target for GitHub actions
+FROM tlt-base as tlt-ci
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 ENV LANG C.UTF-8
+ARG PYTHON=python3
 
-RUN apt-get install -y --no-install-recommends --fix-missing \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     ${PYTHON}-dev \
     ${PYTHON}-distutils \
     build-essential \
@@ -50,23 +56,29 @@ RUN apt-get install -y --no-install-recommends --fix-missing \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
+RUN ${PYTHON} -m pip install virtualenv
+
+# TLT target for development
+FROM tlt-ci as tlt-devel
+
 COPY . /tmp/intel-transfer-learning
 
 WORKDIR /tmp/intel-transfer-learning
 
 RUN ${PYTHON} setup.py bdist_wheel && \
-    pip install --no-cache-dir -f https://developer.intel.com/ipex-whl-stable-cpu -f https://download.pytorch.org/whl/cpu/torch_stable.html dist/*.whl
+    pip install --no-cache-dir -f https://download.pytorch.org/whl/cpu/torch_stable.html dist/*.whl
 
 # TLT target for deployment
-FROM tlt-base as base-prod
+FROM tlt-base as tlt-prod
 
-COPY --from=base-devel /usr/local/lib/${PYTHON}/dist-packages /usr/local/lib/${PYTHON}/dist-packages
-COPY --from=base-devel /usr/local/bin /usr/local/bin
+COPY --from=tlt-devel /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
+COPY --from=tlt-devel /usr/local/bin /usr/local/bin
 
 ENV DATASET_DIR=/tmp/data
 ENV OUTPUT_DIR=/tmp/output
 
-FROM base-prod as mpi
+# TLT target for running with MPI
+FROM tlt-prod as tlt-mpi
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     libopenmpi-dev \
@@ -74,7 +86,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     openmpi-common \
     openssh-client \
     openssh-server && \
-    apt-get clean && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
 # Create a wrapper for OpenMPI to allow running as root by default
@@ -94,12 +107,15 @@ RUN cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_confi
     echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config.new && \
     mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config
 
-FROM mpi as dist-devel
+# TLT target for with MPI, Horovod and all development tools
+FROM tlt-mpi as tlt-dist-devel
 
 ARG HOROVOD_WITH_PYTORCH=1
 ARG HOROVOD_WITHOUT_MXNET=1
 ARG HOROVOD_WITH_TENSORFLOW=1
 ARG HOROVOD_VERSION
+
+ARG PYTHON=python3
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
@@ -122,7 +138,7 @@ COPY . /tmp/intel-transfer-learning
 
 WORKDIR /tmp/intel-transfer-learning
 
-FROM mpi as dist-prod
+FROM tlt-mpi as tlt-dist-prod
 
-COPY --from=dist-devel /usr/local/lib/${PYTHON}/dist-packages /usr/local/lib/${PYTHON}/dist-packages
-COPY --from=dist-devel /usr/local/bin /usr/local/bin
+COPY --from=tlt-dist-devel /usr/local/lib/${PYTHON}/dist-packages /usr/local/lib/python3.10/dist-packages
+COPY --from=tlt-dist-devel /usr/local/bin /usr/local/bin

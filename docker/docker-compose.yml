@@ -1,6 +1,6 @@
 version: "3"
 services:
-  base-devel:
+  tlt-devel:
     build:
       args:
         http_proxy: ${http_proxy}
@@ -11,36 +11,36 @@ services:
         PYTHON: python3.10
       context: ../
       dockerfile: ./docker/Dockerfile
-      target: base-devel
-    image: intel/ai-tools:tlt-base-devel-latest
+      target: tlt-devel
+    image: intel/ai-tools:tlt-devel-latest
     pull_policy: always
-  base-prod:
+  tlt-prod:
     extends:
-      service: base-devel
+      service: tlt-devel
     build:
       args:
         DATASET_DIR: /tmp/data
         OUTPUT_DIR: /tmp/output
-      target: base-prod
-    image: intel/ai-tools:tlt-base-prod-latest
+      target: tlt-prod
+    image: intel/ai-tools:tlt-prod-latest
     volumes:
       - /${DATASET_DIR:-$PWD/../data}:/tmp/data
       - /${OUTPUT_DIR:-$PWD/../output}:/tmp/output
-  dist-devel:
+  tlt-dist-devel:
     extends:
-      service: base-prod
+      service: tlt-prod
     build:
       args:
         HOROVOD_VERSION: 0.28.0
         ONECCL_VERSION: 2.0.0
         ONECCL_URL: https://developer.intel.com/ipex-whl-stable-cpu
-      target: dist-devel
+      target: tlt-dist-devel
     image: intel/ai-tools:tlt-dist-devel-latest
-  dist-prod:
+  tlt-dist-prod:
     extends:
-      service: dist-devel
+      service: tlt-dist-devel
     build:
-      target: dist-prod
+      target: tlt-dist-prod
     command: |
       tlt train -f tensorflow
       --dataset-name cifar10
