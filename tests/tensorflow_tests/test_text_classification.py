@@ -31,6 +31,111 @@ from tlt.models import model_factory
 @pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers,model_hub',
+                         [['google/bert_uncased_L-2_H-128_A-2', 'ag_news_subset', None, 5, 'huggingface']])
+def test_tf_multi_text_classification(model_name, dataset_name, extra_layers, correct_num_layers, model_hub):
+    """
+    Tests basic transfer learning functionality for TensorFlow multi text classification using TF Datasets
+    """
+    framework = 'tensorflow'
+    output_dir = tempfile.mkdtemp()
+    os.environ["TENSORFLOW_HOME"] = output_dir
+
+    try:
+        # Get the dataset
+        dataset = dataset_factory.get_dataset(output_dir, 'text_classification', framework, dataset_name,
+                                              'tf_datasets', split=["train[:8%]"], shuffle_files=False)
+
+        # Get the model
+        model = model_factory.get_model(model_name, framework)
+
+        # Preprocess the dataset
+        batch_size = 32
+        dataset.preprocess(batch_size)
+        dataset.shuffle_split(seed=10)
+
+        # This model does not support evaluate/predict before training
+        with pytest.raises(ValueError) as e:
+            model.evaluate(dataset)
+        assert "model must be trained" in str(e)
+        with pytest.raises(ValueError) as e:
+            model.predict(dataset)
+        assert "model must be trained" in str(e)
+
+        # Train
+        history = model.train(dataset, output_dir=output_dir, epochs=1,
+                              shuffle_files=False, do_eval=False,
+                              extra_layers=extra_layers)
+        assert history is not None
+        assert len(model._model.layers) == correct_num_layers
+
+        # Verify that checkpoints were generated
+        cleaned_name = validate_model_name(model_name)
+        checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(cleaned_name))
+        assert os.path.isdir(checkpoint_dir)
+        assert len(os.listdir(checkpoint_dir))
+
+        # Evaluate
+        trained_metrics = model.evaluate(dataset)
+        assert len(trained_metrics) == 2  # expect to get loss and accuracy metrics
+
+        # Predict with a batch
+        input, labels = dataset.get_batch()
+        predictions = model.predict(input)
+        assert len(predictions) == batch_size
+
+        text1 = ('Oil and Economy Cloud Stocks Outlook (Reuters) Reuters - '
+                 'Soaring crude prices plus worries about the economy and the'
+                 'outlook for earnings are expected to hang over the stock market'
+                 'next week during the depth of the summer doldrums')
+        text2 = ('Wall St. Bears Claw Back Into the Black (Reuters) Reuters -'
+                 'Short-sellers, Wall Streets dwindlingband of ultra-cynics,'
+                 'are seeing green again.')
+        text3 = ('Expansion slows in Japan Economic growth in Japan slows down'
+                 'as the country experiences a drop in domestic and corporate spending.'
+                 'outlook for earnings are expected to hang over the stock market'
+                 'next week during the depth of the summer doldrums')
+        # Predict with raw text input
+        raw_text_input = [text1, text2, text3]
+        predictions = model.predict(raw_text_input)
+        assert len(predictions) == len(raw_text_input)
+
+        # export the saved model
+        saved_model_dir = model.export(output_dir)
+        assert os.path.isdir(saved_model_dir)
+        assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
+
+        # Reload the saved model
+        reload_model = model_factory.load_model(model_name, saved_model_dir, framework, 'text_classification',
+                                                model_hub)
+
+        # Evaluate
+        reload_metrics = reload_model.evaluate(dataset)
+        assert reload_metrics == trained_metrics
+
+        # Predict with the raw text input
+        reload_predictions = reload_model.predict(raw_text_input)
+        assert (reload_predictions == predictions).all()
+
+        # Retrain from checkpoints and verify that accuracy metric is the expected type
+        retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, 'text_classification',
+                                                 model_hub)
+        retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
+                            shuffle_files=False, do_eval=False)
+
+        retrain_metrics = retrain_model.evaluate(dataset)
+        accuracy_index = next(id for id, k in enumerate(model._model.metrics_names) if 'acc' in k)
+        # BERT model results are not deterministic, so the commented assertion doesn't reliably pass
+        assert isinstance(retrain_metrics[accuracy_index], float)
+
+    finally:
+        # Delete the temp output directory
+        if os.path.exists(output_dir) and os.path.isdir(output_dir):
+            shutil.rmtree(output_dir)
+
+
+@pytest.mark.integration
+@pytest.mark.tensorflow
+@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers,model_hub',
                          [['google/bert_uncased_L-2_H-128_A-2', 'imdb_reviews', None, 5, 'huggingface'],
                           ['google/bert_uncased_L-2_H-256_A-4', 'glue/sst2', None, 5, 'huggingface'],
                           ['google/bert_uncased_L-2_H-128_A-2', 'imdb_reviews', [512, 128], 7, 'huggingface']])
