@@ -666,7 +666,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
 
         verify_directory(model_dir, require_directory_exists=True)
         model_copy = torch.load(os.path.join(model_dir, 'model.pt'))
-        self._model = dill.loads(model_copy)
+        self._model = dill.load(model_copy)
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
     def list_layers(self, verbose=False):
