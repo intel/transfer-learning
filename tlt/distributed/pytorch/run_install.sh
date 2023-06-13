@@ -21,6 +21,6 @@ conda install -y \
 pip install \
   'datasets~=2.12.0' \
   'intel_extension_for_pytorch==1.13.100' \
-  'transformers~=4.28.1'
+  'transformers~=4.30.0'
 
 bash deploy/install_torch_ccl.sh

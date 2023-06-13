@@ -25,5 +25,5 @@ tensorflow-datasets~=4.9.2
 tensorflow-hub~=0.13.0
 torch==1.13.1
 torchvision==0.14.1
-transformers~=4.28.1
+transformers~=4.30.0
 urllib3~=2.0.2
