@@ -10,4 +10,10 @@ $(document).ready(function(){
      return html.replace(/\./g, '.\u200B');
    });
 
+   /* copy image alt tags as title so hover text tool tip by browser
+    * (Looks like the myst-parser isn't passing the title tag through to Sphinx,
+    * but is passing the alt tag) */
+   $("img[alt]").each(function(){
+       $(this).attr('title', $(this).attr('alt'));
+   });
 });

@@ -5,7 +5,9 @@ walk you through the steps to check system requirements, install, and then run
 the tool with a couple of examples showing no-code CLI and low-code API
 approaches.
 
-<img alt="Intel Transfer Learning Tool Get Started Flow" src="images/TLT-GSG_flow.svg" width="800">
+<p align="center"><b>Intel Transfer Learning Tool Get Started Flow</b></p>
+
+<img alt="Intel Transfer Learning Tool Get Started Flow" title="Intel Transfer Learning Tool Get Started Flow" src="images/TLT-GSG_flow.svg" width="800">
 
 ## &#9312; Check System Requirements
 

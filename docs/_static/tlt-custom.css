@@ -32,3 +32,12 @@
 .rst-content code.literal, .rst-content tt.literal {
     color: #404040;
 }
+
+/* change background color of search area/site title to increase contrast */
+.wy-side-nav-search {
+    background-color: #2f71b2;
+}
+/* change href link color to increase contrast */
+a {
+    color: #2f71b2;
+}

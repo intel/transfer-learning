@@ -54,7 +54,9 @@ your saved model optimized for inference on Intel CPUs.
 An overview of the Intel Transfer Learning Tool flow is shown in this
 figure:
 
-<img alt="Intel Transfer Learning Tool Flow" src="images/TLT-tool_flow.svg" width="600">
+<p align="center"><b>Intel Transfer Learning Tool Flow</b></p>
+
+<img alt="Intel Transfer Learning Tool Flow" title="Intel Transfer Learing Tool Flow" src="images/TLT-tool_flow.svg" width="600">
 
 ## Get Started
 
