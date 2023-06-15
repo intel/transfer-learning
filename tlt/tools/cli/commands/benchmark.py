@@ -44,7 +44,7 @@ from tlt.utils.types import FrameworkType
               type=click.Path(exists=True, dir_okay=False),
               help="Path to a config file (yaml) that will be used to benchmark the model using the Intel Neural "
                    "Compressor. The INC benchmarking documentation can be found at: "
-                   "https://github.com/intel/neural-compressor/blob/master/docs/benchmark.md "
+                   "https://github.com/intel/neural-compressor/blob/master/docs/source/benchmark.md "
                    "If no INC config file is provided, a default config file will be generated.")
 @click.option("--mode",
               required=False,
