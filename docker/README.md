@@ -65,9 +65,9 @@ helm install --namespace ${NAMESPACE} --set ... tlt-distributed ./docker/chart
 ### 4. View 
 To view your workflow progress
 ```bash
-kubectl get -o yaml mpijob tlt-distributed -n ${NAMESPACE}
+kubectl get -o yaml mpijob tf-tlt-distributed -n ${NAMESPACE}
 ```
 OR
 ```bash
-kubectl logs tlt-distributed-launcher -n ${NAMESPACE}
+kubectl logs tf-tlt-distributed-launcher -n ${NAMESPACE}
 ```

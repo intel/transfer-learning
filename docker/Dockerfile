@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     libgl1 \
     libglib2.0-0 \
     ${PYTHON} \
-    ${PYTHON}-pip && \
+    python3-pip && \
     apt-get clean autoclean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*

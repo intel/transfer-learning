@@ -27,21 +27,21 @@ spec:
             - python
             - /tmp/intel-transfer-learning/tlt/distributed/tensorflow/run_train_tf.py
             - --batch_denom
-            - {{ .Values.batchDenom }}
+            - "{{ .Values.batchDenom }}"
             - --batch_size
-            - {{ .Values.batchSize }}
+            - "{{ .Values.batchSize }}"
             - --dataset-dir
             - /tmp/data
             - --dataset-name
             - {{ .Values.datasetName }}
             - --epochs
-            - {{ .Values.epochs }}
+            - "{{ .Values.epochs }}"
             - --model-name
             - {{ .Values.modelName }}
             - --output-dir
             - /tmp/output
             - --scaling
-            - {{ .Values.scaling }}
+            - "{{ .Values.scaling }}"
             - --shuffle
             - --use-case
             - {{ .Values.useCase }}

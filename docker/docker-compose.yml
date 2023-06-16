@@ -8,7 +8,7 @@ services:
         no_proxy: ""
         IMAGE_NAME: ubuntu
         IMAGE_TAG: 22.04
-        PYTHON: python3.10
+        PYTHON: python3.10 # Version must be specified for prod
       context: ../
       dockerfile: ./docker/Dockerfile
       target: tlt-devel
