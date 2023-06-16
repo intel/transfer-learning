@@ -228,8 +228,9 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             loss_acc_output = f'Loss: {train_epoch_loss:.4f} - Acc: {train_epoch_acc:.4f}'
 
             if do_eval and validation_data_loader is not None:
-                eval_epoch_loss, eval_epoch_acc = self.evaluate(validation_data_loader)
-
+                eval_metrics = self.evaluate(validation_data_loader)
+                eval_epoch_loss = eval_metrics['eval_loss']
+                eval_epoch_acc = eval_metrics['eval_accuracy']
                 self._update_history('Val Loss', eval_epoch_loss)
                 self._update_history('Val Acc', eval_epoch_acc)
 
@@ -261,6 +262,9 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
 
         time_elapsed = time.time() - since
         print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
+
+        self._update_history('train_runtime', round(time_elapsed, 4))
+        self._update_history('train_samples_per_second', round(train_data_length * (epoch + 1) / time_elapsed, 3))
 
         if self._generate_checkpoints:
             valid_model_name = validate_model_name(self.model_name)
@@ -373,7 +377,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 latest checkpoint will be used.
             learning_rate (float): Learning rate for the model to train. Defaults to 1e-5
             do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
-                at the end of each epoch.
+                at the end of each epoch. If the dataset does not have a validation split, the test subset will be used.
             early_stopping (bool): Enable early stopping if convergence is reached while training
                 at the end of each epoch.
             lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
@@ -396,7 +400,8 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 to 1.
 
         Returns:
-            Dictionary containing the model training history
+            If use_trainer=True, a Hugging Face TrainOutput object is returned.
+            If use_trainer=False, a dictionary containing the model training history is returned.
 
         Raises:
             TypeError: if the dataset specified is not a TextClassificationDataset/datasets.arrow_dataset.Dataset
@@ -449,6 +454,19 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         if use_trainer:
             if distributed:
                 raise ValueError("Distributed training with Trainer is not implemented yet")
+
+            # Get the eval_dataset. We always have to do this, because it seems like even it do_eval=False, the
+            # Trainer will still require an eval_dataset.
+            eval_dataset = None
+            try:
+                eval_dataset = dataset.validation_subset
+            except ValueError:
+                try:
+                    eval_dataset = dataset.test_subset
+                except ValueError:
+                    if do_eval:
+                        print("Warning: The dataset provided does not have a validation or test subset.")
+
             training_args = TrainingArguments(
                 output_dir=output_dir,
                 do_eval=do_eval,
@@ -456,8 +474,13 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 no_cuda=True,
                 overwrite_output_dir=True,
                 per_device_train_batch_size=dataset.info['preprocessing_info']['batch_size'],
+                per_device_eval_batch_size=dataset.info['preprocessing_info']['batch_size'],
                 evaluation_strategy="epoch",
                 num_train_epochs=epochs,
+                learning_rate=learning_rate,
+                seed=seed,
+                data_seed=seed,
+                use_ipex=ipex_optimize
             )
 
             def compute_metrics(p: EvalPrediction):
@@ -471,15 +494,12 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 model=self._model,
                 args=training_args,
                 train_dataset=dataset.train_subset,
-                eval_dataset=dataset.validation_subset,
+                eval_dataset=eval_dataset,
                 compute_metrics=compute_metrics,
                 tokenizer=self._tokenizer
             )
 
-            self._trainer.train()
-            if do_eval:
-                self._history = self._trainer.evaluate()
-                print("Val Acc: {:.5f}".format(self._history.get("eval_accuracy")))
+            self._history = self._trainer.train()
         elif distributed:
             try:
                 saved_objects_dir = self.export_for_distributed(
@@ -513,7 +533,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                     dataset/dataloader to use for evaluation.
 
            Returns:
-               Tuple with loss and accuracy metrics
+               Dictionary with loss, accuracy, runtime, and samples per second metrics
 
            Raises:
                TypeError: if the dataset specified is not a datasets.arrow_dataset.Dataset (or) a
@@ -521,9 +541,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         """
         if self._trainer:
             results = self._trainer.evaluate()
-            validation_loss = None
-            validation_accuracy = results.get("eval_accuracy")
-            print("Val Acc: {:.5f}".format(validation_accuracy))
+            print("Val Acc: {:.5f}".format(results.get("eval_accuracy")))
         else:
             if isinstance(dataset_or_dataloader, Dataset):
                 dataloader = DataLoader(dataset_or_dataloader, batch_size=16)
@@ -553,6 +571,8 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             running_loss = 0.0
             running_corrects = 0
 
+            start = time.time()
+
             for data_batch in tqdm(dataloader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
                 inputs = {k: v.to(device) for k, v in data_batch.items()
                           if k in ['input_ids', 'token_type_ids', 'attention_mask']}
@@ -566,13 +586,23 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 running_loss += loss.item()
                 running_corrects += torch.sum(predictions == labels).item()
 
+            time_elapsed = time.time() - start
+            samples_per_second = validation_data_length / time_elapsed
+
             if validation_data_length == 0:
                 validation_loss, validation_accuracy = 0.0, 0.0
             else:
                 validation_loss = running_loss / validation_data_length
                 validation_accuracy = running_corrects / validation_data_length
 
-        return (validation_loss, validation_accuracy)
+            results = {
+                'eval_loss': validation_loss,
+                'eval_accuracy': validation_accuracy,
+                'eval_runtime': round(time_elapsed, 4),
+                'eval_samples_per_second': round(samples_per_second, 3)
+            }
+
+        return results
 
     def predict(self, input_samples, return_raw=False):
         """

@@ -21,7 +21,8 @@
 import pytest
 import numpy
 
-from unittest.mock import MagicMock, patch
+from unittest import mock
+from unittest.mock import ANY, MagicMock, patch
 from sklearn import decomposition
 
 from tlt.models import model_factory
@@ -228,12 +229,22 @@ def test_bert_train():
 
         # Scenario 1: Call train without validation
         return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=False, lr_decay=False)
-        assert return_val == expected_return_value_history_no_val
+        assert return_val['Acc'] == expected_return_value_history_no_val['Acc']
+        assert return_val['Loss'] == expected_return_value_history_no_val['Loss']
+        assert 'train_runtime' in return_val
+        assert 'train_samples_per_second' in return_val
+        assert 'Val Acc' not in return_val
+        assert 'Val Loss' not in return_val
 
         # Scenario 2: Call train with validation
         mock_dataset.validation_loader.__class__ = HFTextClassificationDataset
         return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, lr_decay=False)
-        assert return_val == expected_return_value_history_val
+        assert return_val['Acc'] == expected_return_value_history_val['Acc']
+        assert return_val['Loss'] == expected_return_value_history_val['Loss']
+        assert return_val['Val Acc'] == expected_return_value_history_val['Val Acc']
+        assert return_val['Val Loss'] == expected_return_value_history_val['Val Loss']
+        assert 'train_runtime' in return_val
+        assert 'train_samples_per_second' in return_val
 
 
 @pytest.mark.pytorch
@@ -335,3 +346,58 @@ if torch_env:
         """
         with pytest.raises(TypeError):
             model_factory.get_model(model_name, 'pytorch', optimizer=optimizer)
+
+
+@pytest.mark.pytorch
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.optim.AdamW')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.Trainer')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ModelDownloader')
+def test_pytorch_hf_text_classification_trainer_return_values(mock_downloader, mock_trainer, mock_optimizer):
+    """
+    Tests the PyTorch Text Classification model with the Hugging Face Trainer to verify that the value returned
+    by Trainer.train() is returned by the model.train() method
+    """
+
+    model = model_factory.get_model(model_name='bert-base-cased', framework='pytorch')
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = HFTextClassificationDataset
+    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_dataset.train_subset = [1, 2, 3]
+    mock_dataset.validation_subset = [4, 5, 6]
+
+    expected_value = "a"
+
+    mock_trainer().train.return_value = expected_value
+
+    return_val = model.train(mock_dataset, output_dir="/tmp", use_trainer=True, seed=10)
+    assert mock_trainer().train.call_count == 1
+
+    assert return_val == expected_value
+
+
+@pytest.mark.pytorch
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.optim.AdamW')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.Trainer')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ModelDownloader')
+def test_pytorch_hf_text_classification_trainer_without_val_subset(mock_downloader, mock_trainer, mock_optimizer):
+    """
+    Tests the PyTorch Text Classification model with the Hugging Face Trainer is able to run evaluation with a test
+    subset when a validation subset does not exist.
+    """
+
+    model = model_factory.get_model(model_name='bert-base-cased', framework='pytorch')
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = HFTextClassificationDataset
+    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_dataset.train_subset = [1, 2, 3]
+    mock_dataset.test_subset = [4, 5, 6]
+    type(mock_dataset).validation_subset = mock.PropertyMock(side_effect=ValueError)
+
+    with pytest.raises(ValueError):
+        mock_dataset.validation_subset
+
+    model.train(mock_dataset, output_dir="/tmp", use_trainer=True, seed=10)
+    mock_trainer.assert_called_with(model=model._model, args=ANY, train_dataset=[1, 2, 3], eval_dataset=[4, 5, 6],
+                                    compute_metrics=ANY, tokenizer=ANY)

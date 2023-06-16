@@ -61,7 +61,12 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
     assert len(pretrained_metrics) > 0
 
     # Train
-    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers)
+    train_history = model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers)
+    assert train_history is not None and isinstance(train_history, dict)
+    assert 'Loss' in train_history
+    assert 'Acc' in train_history
+    assert 'train_runtime' in train_history
+    assert 'train_samples_per_second' in train_history
     classifier_layer = getattr(model._model, "classifier")
     try:
         # If extra_layers given, the classifier is a Sequential layer with given input
@@ -73,8 +78,8 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
 
     # Evaluate
     trained_metrics = model.evaluate(dataset)
-    assert trained_metrics[0] <= pretrained_metrics[0]  # loss
-    assert trained_metrics[1] >= pretrained_metrics[1]  # accuracy
+    assert trained_metrics['eval_loss'] <= pretrained_metrics['eval_loss']
+    assert trained_metrics['eval_accuracy'] >= pretrained_metrics['eval_accuracy']
 
     # Export the saved model
     saved_model_dir = model.export(output_dir)
@@ -87,7 +92,7 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
 
     # Evaluate
     reload_metrics = reload_model.evaluate(dataset)
-    assert reload_metrics == trained_metrics
+    assert reload_metrics['eval_accuracy'] == trained_metrics['eval_accuracy']
 
     # Ensure we get 'NotImplementedError' for graph_optimization
     with pytest.raises(NotImplementedError):
@@ -188,8 +193,8 @@ def test_initial_checkpoints(model_name, dataset_name):
 
     improved_metrics = model.evaluate(dataset)
 
-    assert improved_metrics[0] < trained_metrics[0]  # loss
-    assert improved_metrics[1] > trained_metrics[1]  # accuracy
+    assert improved_metrics['eval_loss'] < trained_metrics['eval_loss']
+    assert improved_metrics['eval_accuracy'] > trained_metrics['eval_accuracy']
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
