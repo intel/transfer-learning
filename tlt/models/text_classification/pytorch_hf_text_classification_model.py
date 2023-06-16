@@ -655,13 +655,12 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         else:
             raise ValueError("Unable to export the model, because it hasn't been trained yet")
 
-    def load_from_directory(self, model_dir: str, num_classes: int):
+    def load_from_directory(self, model_dir: str):
         """
         Loads a saved pytorch model from the given model_dir directory
 
         Args:
             model_dir(str): Path to the saved model directory
-            num_classes(int): Number of class labels
         """
 
         verify_directory(model_dir, require_directory_exists=True)

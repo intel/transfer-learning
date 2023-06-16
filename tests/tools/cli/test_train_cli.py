@@ -279,10 +279,24 @@ def test_train_features(mock_inspect, mock_load_dataset, mock_get_model, model_n
         model_mock.export.return_value = output_dir
 
         # Call the train command
-        result = runner.invoke(train,
-                               ["--framework", str(framework), "--model-name", model_name, "--dataset_dir", dataset_dir,
-                                "--output-dir", output_dir, "--epochs", epochs, "--early_stopping", early_stopping,
-                                "--lr_decay", lr_decay])
+        if early_stopping and lr_decay:
+            result = runner.invoke(train,
+                                   ["--framework", str(framework), "--model-name", model_name, "--dataset_dir",
+                                    dataset_dir, "--output-dir", output_dir, "--epochs", epochs, "--early_stopping",
+                                    "--lr_decay"])
+        elif early_stopping:
+            result = runner.invoke(train,
+                                   ["--framework", str(framework), "--model-name", model_name, "--dataset_dir",
+                                    dataset_dir, "--output-dir", output_dir, "--epochs", epochs, "--early_stopping"])
+        elif lr_decay:
+            result = runner.invoke(train,
+                                   ["--framework", str(framework), "--model-name", model_name, "--dataset_dir",
+                                    dataset_dir, "--output-dir", output_dir, "--epochs", epochs, "--lr_decay"])
+
+        else:
+            result = runner.invoke(train,
+                                   ["--framework", str(framework), "--model-name", model_name, "--dataset_dir",
+                                    dataset_dir, "--output-dir", output_dir, "--epochs", epochs])
 
         # Verify that the expected calls were made
         mock_get_model.assert_called_once_with(model_name, str(framework))
