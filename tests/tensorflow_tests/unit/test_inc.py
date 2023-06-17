@@ -24,8 +24,7 @@ import shutil
 import tempfile
 import uuid
 
-from unittest.mock import patch
-
+from unittest.mock import patch, MagicMock
 from tlt.models import model_factory
 
 try:
@@ -60,22 +59,97 @@ def test_tf_image_classification_quantization():
 
 
 @pytest.mark.tensorflow
-def test_tf_image_classification_optimize_graph():
+@patch('tlt.models.tf_model.quantization.fit')
+def test_tf_image_classification_quantize_overwrite_saved_model(mock_quantization_fit):
     """
-    Given a valid directory for the output dir, test the graph optimization function with the actual Intel Neural
-    Compressor call mocked out.
+    Given a valid directory for the output dir, test the quantize function with the actual Intel Neural
+    Compressor call mocked out. Tests that the model will be overwritten or not using the overwrite_model flag.
     """
+
+    from tlt.models import model_factory
+
     try:
+        # Specify a directory for output
         output_dir = tempfile.mkdtemp()
 
-        model = model_factory.get_model('efficientnet_b0', 'tensorflow')
-        with patch('tlt.models.image_classification.tf_image_classification_model.TFCustomImageClassificationDataset') \
-                as mock_dataset:
-            with patch('neural_compressor.experimental.Graph_Optimization') as mock_o:
-                mock_dataset.dataset_dir = "/tmp/data/my_photos"
-                mock_dataset.__class__ = TFCustomImageClassificationDataset
-                model.optimize_graph(output_dir)
-                mock_o.assert_called()
+        model = model_factory.get_model(model_name='resnet_v1_50', framework='tensorflow')
+
+        # Mock the dataset
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = TFCustomImageClassificationDataset
+        mock_dataset.get_inc_dataloaders.return_value = 1, 2
+
+        # Method to create a dummy model.pt file in the specified directory
+        def create_dummy_file(output_dir):
+            with open(os.path.join(output_dir, 'saved_model.pb'), 'w') as fp:
+                fp.close()
+
+        # Mock an INC quantized model that will create a dummy file when saved
+        mock_quantized_model = MagicMock()
+        mock_quantized_model.save.side_effect = create_dummy_file
+
+        # Mock the INC quantization.fit method
+        def mock_fit(**args):
+            return mock_quantized_model
+        mock_quantization_fit.side_effect = mock_fit
+
+        # Call quantize when a model does not exist
+        model.quantize(output_dir=output_dir, dataset=mock_dataset, overwrite_model=False)
+
+        # Call quantize when the model exists, but overwrite_model=True
+        model.quantize(output_dir=output_dir, dataset=mock_dataset, overwrite_model=True)
+        model.quantize(output_dir=output_dir, dataset=mock_dataset, overwrite_model=True)
+
+        with pytest.raises(FileExistsError):  # Model exists, so this should be true
+            model.quantize(output_dir=output_dir, dataset=mock_dataset, overwrite_model=False)
+
+    finally:
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+
+
+@patch('tlt.models.tf_model.Graph_Optimization')
+@pytest.mark.tensorflow
+def test_tf_image_classification_optimize_graph_overwrite_saved_model(mock_graph_optimization):
+    """
+    Given a valid directory for the output dir, test the quantize function with the actual Intel Neural
+    Compressor call mocked out. Tests that the model will be overwritten or not using the overwrite_model flag.
+    """
+
+    # tlt imports
+    from tlt.models.image_classification.tf_image_classification_model import TFCustomImageClassificationDataset
+    from tlt.models import model_factory
+
+    try:
+        # Specify a directory for output
+        output_dir = tempfile.mkdtemp()
+
+        model = model_factory.get_model(model_name='resnet_v1_50', framework='tensorflow')
+
+        # Mock the dataset
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = TFCustomImageClassificationDataset
+        mock_dataset.get_inc_dataloaders.return_value = 1, 2
+
+        # Method to create a dummy model.pt file in the specified directory
+        def create_dummy_file():
+            with open(os.path.join(output_dir, 'saved_model.pb'), 'w') as fp:
+                fp.close()
+            return MagicMock()
+
+        # Mock an INC quantized model that will create a dummy file when saved
+        mock_graph_optimization.side_effect = create_dummy_file
+
+        # Call optimize_graph when a model does not exist
+        model.optimize_graph(output_dir=output_dir)
+
+        # Call optimize_graph when the model exists, but overwrite_model=True
+        model.optimize_graph(output_dir=output_dir, overwrite_model=True)
+        model.optimize_graph(output_dir=output_dir, overwrite_model=True)
+
+        with pytest.raises(FileExistsError):  # Model exists, so this should be true
+            model.optimize_graph(output_dir=output_dir, overwrite_model=False)
+
     finally:
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)

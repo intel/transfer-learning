@@ -28,6 +28,7 @@ import tempfile
 import numpy as np
 import tensorflow as tf
 
+from neural_compressor.experimental import Graph_Optimization
 from neural_compressor import quantization
 from neural_compressor.config import BenchmarkConfig
 
@@ -327,8 +328,6 @@ class TFModel(BaseModel):
             # Verify that the output directory doesn't already have a saved_model.pb file
             if os.path.exists(os.path.join(output_dir, "saved_model.pb")) and not overwrite_model:
                 raise FileExistsError("A saved model already exists at:", os.path.join(output_dir, "saved_model.pb"))
-
-        from neural_compressor.experimental import Graph_Optimization
 
         graph_optimizer = Graph_Optimization()
         graph_optimizer.model = self._model

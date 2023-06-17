@@ -25,7 +25,7 @@ import tempfile
 import uuid
 
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from tlt.models import model_factory
 from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset  # noqa: E501
@@ -70,6 +70,60 @@ def test_torchvision_image_classification_optimize_graph_not_implemented():
             shutil.rmtree(output_dir)
         if os.path.exists(saved_model_dir):
             shutil.rmtree(saved_model_dir)
+
+
+@pytest.mark.pytorch
+@patch('tlt.models.image_classification.torchvision_image_classification_model.ModelDownloader')
+@patch('tlt.models.pytorch_model.quantization.fit')
+def test_pyt_image_classification_quantize_overwrite_saved_model(mock_quantization_fit, mock_model_downloader):
+    """
+    Given a valid directory for the output dir, test the quantize function with the actual Intel Neural
+    Compressor call mocked out. Tests that the model will be overwritten or not using the overwrite_model flag.
+    """
+
+    # tlt imports
+    from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset \
+        import PyTorchCustomImageClassificationDataset
+    from tlt.models import model_factory
+
+    try:
+        # Specify a directory for output
+        output_dir = tempfile.mkdtemp()
+
+        model = model_factory.get_model(model_name='efficientnet_b0', framework='pytorch')
+
+        # Mock the dataset
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = PyTorchCustomImageClassificationDataset
+        mock_dataset.get_inc_dataloaders.return_value = 1, 2
+
+        # Method to create a dummy model.pt file in the specified directory
+        def create_dummy_file(output_dir):
+            with open(os.path.join(output_dir, 'model.pt'), 'w') as _:
+                pass
+
+        # Mock an INC quantized model that will create a dummy file when saved
+        mock_quantized_model = MagicMock()
+        mock_quantized_model.save.side_effect = create_dummy_file
+
+        # Mock the INC quantization.fit method
+        def mock_fit(**args):
+            return mock_quantized_model
+        mock_quantization_fit.side_effect = mock_fit
+
+        # Call quantize when a model does not exist
+        model.quantize(output_dir=output_dir, dataset=mock_dataset, overwrite_model=False)
+
+        # Call quantize when the model exists, but overwrite_model=True
+        model.quantize(output_dir=output_dir, dataset=mock_dataset, overwrite_model=True)
+        model.quantize(output_dir=output_dir, dataset=mock_dataset, overwrite_model=True)
+
+        with pytest.raises(FileExistsError):  # Model exists, so this should be true
+            model.quantize(output_dir=output_dir, dataset=mock_dataset, overwrite_model=False)
+
+    finally:
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
 
 
 @pytest.mark.pytorch
