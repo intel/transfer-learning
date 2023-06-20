@@ -78,15 +78,21 @@ tlt_notebook_venv: tlt_test_venv
 	@echo "Installing notebook dependencies..."
 	@. $(ACTIVATE_TEST_VENV) && pip install -r $(CURDIR)/notebooks/requirements.txt
 
-test_notebook: tlt_notebook_venv
-	@echo "Testing Jupyter notebooks..."
+test_notebook_custom: tlt_notebook_venv
+	@echo "Testing Jupyter notebooks with custom datasets..."
 	@. $(ACTIVATE_TEST_VENV) && \
 	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_tf_dataset && \
 	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_tv_dataset && \
 	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_custom_dataset && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_tf_dataset
+	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_pyt_text_classification/TLT_PYT_Text_Classification.ipynb remove_for_custom_dataset
+
+test_notebook_catalog: tlt_notebook_venv
+	@echo "Testing Jupyter notebooks with public catalog datasets..."
+	@. $(ACTIVATE_TEST_VENV) && \
+	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_tf_dataset && \
+	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_tv_dataset && \
+	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_tf_dataset && \
+	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_pyt_text_classification/TLT_PYT_Text_Classification.ipynb remove_for_hf_dataset
 
 test_tf_notebook: tlt_notebook_venv
 	@. $(ACTIVATE_TEST_VENV) && bash run_notebooks.sh tensorflow

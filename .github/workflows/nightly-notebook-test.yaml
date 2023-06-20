@@ -22,4 +22,4 @@ jobs:
         with:
           ref: develop
       - name: Run Notebook Tests
-        run: make test_notebook
+        run: make test_notebook_catalog

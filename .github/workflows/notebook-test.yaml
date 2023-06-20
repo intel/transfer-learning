@@ -37,4 +37,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run Notebook Tests
-        run: make test_notebook
+        run: make test_notebook_custom

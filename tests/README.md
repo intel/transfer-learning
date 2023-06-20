@@ -82,9 +82,14 @@ export DATASET_DIR=<directory to download the datasets>
 export OUTPUT_DIR=<output directory for the saved models>
 ```
 
-To run the <b>Intel Transfer Learning Tool tutorial notebooks</b> using a test environment that supports both PyTorch and TensorFlow:
+To run the <b>Intel Transfer Learning Tool tutorial notebooks</b> using custom datasets:
 ```
-make test_notebook
+make test_notebook_custom
+```
+
+To run the <b>Intel Transfer Learning Tool tutorial notebooks</b> using datasets from public catalogs:
+```
+make test_notebook_catalog
 ```
 
 To run all the <b>native PyTorch notebooks</b> using a test environment for PyTorch without Intel Transfer Learning Tool:
