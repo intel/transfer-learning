@@ -81,7 +81,7 @@ class TFDSImageClassificationDataset(ImageClassificationDataset, TFDataset):
         """
         return self._dataset
 
-    def preprocess(self, image_size, batch_size, add_aug=None):
+    def preprocess(self, image_size, batch_size, add_aug=None, preprocessor=None):
         """
         Preprocess the dataset to convert to float32, resize, and batch the images
 
@@ -91,9 +91,13 @@ class TFDSImageClassificationDataset(ImageClassificationDataset, TFDataset):
                 add_aug (None or list[str]): Choice of augmentations (RandomHorizontalandVerticalFlip,
                                              RandomHorizontalFlip, RandomVerticalFlip, RandomZoom, RandomRotation) to
                                              be applied during training
+                preprocessor (None or preprocess_input function from keras.applications): Should be provided when using
+                                             Keras Applications models, which have model-specific preprocessors;
+                                             otherwise, use None (the default) to apply generic type conversion and
+                                             resizing
 
             Raises:
-                ValueError if the dataset is not defined or has already been processed
+                ValueError: if the dataset is not defined or has already been processed
         """
         if self._preprocessed:
             raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))
@@ -125,7 +129,8 @@ class TFDSImageClassificationDataset(ImageClassificationDataset, TFDataset):
                 data_augmentation.add(aug_dict[option])
 
         def preprocess_image(image, label):
-            image = tf.image.convert_image_dtype(image, tf.float32)
+            if preprocessor is None:
+                image = tf.image.convert_image_dtype(image, tf.float32)
             image = tf.image.resize_with_pad(image, image_size, image_size)
             return (image, label)
 
@@ -134,6 +139,8 @@ class TFDSImageClassificationDataset(ImageClassificationDataset, TFDataset):
         subsets = [s for s in split_list if getattr(self, s, None)]
         for subset in subsets:
             setattr(self, subset, getattr(self, subset).map(preprocess_image))
+            if preprocessor:
+                setattr(self, subset, getattr(self, subset).map(lambda x, y: (preprocessor(x), y)))
             setattr(self, subset, getattr(self, subset).cache())
             setattr(self, subset, getattr(self, subset).batch(batch_size))
             setattr(self, subset, getattr(self, subset).prefetch(tf.data.AUTOTUNE))

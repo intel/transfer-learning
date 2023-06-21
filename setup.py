@@ -48,7 +48,7 @@ EXTRA_PACKAGES = {
 
 setup(name="intel-transfer-learning-tool",
       description="Intel® Transfer Learning Tool",
-      version="0.4.0",
+      version="0.5.0",
       url='https://github.com/IntelAI/transfer-learning',
       license='Apache 2.0',
       author='IntelAI',

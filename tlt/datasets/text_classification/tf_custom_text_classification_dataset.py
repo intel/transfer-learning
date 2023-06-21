@@ -23,6 +23,8 @@ import tensorflow as tf
 
 from tlt.datasets.tf_dataset import TFDataset
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
+from tlt.utils.dataset_utils import prepare_huggingface_input_data
+from tlt.utils.inc_utils import INCTFDataLoader
 
 
 class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
@@ -67,9 +69,9 @@ class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
         seed (int): optional; Random seed for shuffling
 
     Raises:
-        FileNotFoundError if the csv file is not found in the dataset directory
-        TypeError if the class_names parameter is not a list or the label_map_func is not callable
-        ValueError if the class_names list is empty
+        FileNotFoundError: if the csv file is not found in the dataset directory
+        TypeError: if the class_names parameter is not a list or the label_map_func is not callable
+        ValueError: if the class_names list is empty
 
     """
 
@@ -192,3 +194,18 @@ class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
             setattr(self, subset, getattr(self, subset).batch(batch_size))
             setattr(self, subset, getattr(self, subset).prefetch(tf.data.AUTOTUNE))
         self._preprocessed = {'batch_size': batch_size}
+
+    def get_inc_dataloaders(self, hub_name, max_seq_length):
+        calib_data, calib_labels = prepare_huggingface_input_data(self.train_subset, hub_name, max_seq_length)
+        calib_data['label'] = tf.convert_to_tensor(calib_labels)
+
+        eval_data, eval_labels = prepare_huggingface_input_data(self.validation_subset, hub_name, max_seq_length)
+        eval_data['label'] = tf.convert_to_tensor(eval_labels)
+
+        calib_data.pop('token_type_ids')
+        eval_data.pop('token_type_ids')
+
+        calib_dataloader = INCTFDataLoader(calib_data, batch_size=self._preprocessed['batch_size'])
+        eval_dataloader = INCTFDataLoader(eval_data, batch_size=self._preprocessed['batch_size'])
+
+        return calib_dataloader, eval_dataloader

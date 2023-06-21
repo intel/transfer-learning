@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+from neural_compressor.data import DataLoader
 import tensorflow as tf
 
 from tlt.datasets.dataset import BaseDataset
@@ -69,7 +70,7 @@ class TFDataset(BaseDataset):
                 (examples, labels)
 
             Raises:
-                ValueError if the dataset is not defined yet or the given subset is not valid
+                ValueError: if the dataset is not defined yet or the given subset is not valid
         """
         if subset == 'all' and self._dataset is not None:
             return next(iter(self._dataset))
@@ -94,7 +95,7 @@ class TFDataset(BaseDataset):
                 seed (None or int): default None, can be set for pseudo-randomization
 
             Raises:
-                ValueError if percentage input args are not floats or sum to greater than 1
+                ValueError: if percentage input args are not floats or sum to greater than 1
         """
         if not (isinstance(train_pct, float) and isinstance(val_pct, float) and isinstance(test_pct, float)):
             raise ValueError("Percentage arguments must be floats.")
@@ -125,3 +126,28 @@ class TFDataset(BaseDataset):
         else:
             self._test_subset = None
         self._validation_type = 'shuffle_split'
+
+    def get_inc_dataloaders(self):
+        # The added dimension of a batched TF dataset throws Intel Neural Compressor off, so use unbatched dataset
+        batched = self._preprocessed and 'batch_size' in self._preprocessed
+        if batched:
+            calib_dataloader = DataLoader('tensorflow_itex', self.train_subset.unbatch(),
+                                          batch_size=self._preprocessed['batch_size'])
+        else:
+            calib_dataloader = DataLoader('tensorflow_itex', self.train_subset)
+        if self.validation_subset is not None:
+            if batched:
+                eval_dataloader = DataLoader('tensorflow_itex', self.validation_subset.unbatch(),
+                                             batch_size=self._preprocessed['batch_size'])
+            else:
+                eval_dataloader = DataLoader('tensorflow_itex', self.validation_subset)
+        elif self.test_subset is not None:
+            if batched:
+                eval_dataloader = DataLoader('tensorflow_itex', self.test_subset.unbatch(),
+                                             batch_size=self._preprocessed['batch_size'])
+            else:
+                eval_dataloader = DataLoader('tensorflow_itex', self.test_subset)
+        else:
+            eval_dataloader = calib_dataloader
+
+        return calib_dataloader, eval_dataloader

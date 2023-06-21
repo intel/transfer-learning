@@ -50,7 +50,7 @@ class HFDataset(BaseDataset):
                 (examples, labels)
 
             Raises:
-                ValueError if the dataset is not defined yet or the given subset is not valid
+                ValueError: if the dataset is not defined yet or the given subset is not valid
         """
 
         if subset == 'all' and self._dataset is not None:
@@ -85,7 +85,7 @@ class HFDataset(BaseDataset):
                 longest sentence. (default: True)
                 max_length (int): Maximum sequence length
             Raises:
-                ValueError if data has already been preprocessed (or) non integer batch size given (or)
+                ValueError: if data has already been preprocessed (or) non integer batch size given (or)
                 given dataset hasn't been implemented into the API yet.
         """
 
@@ -148,7 +148,7 @@ class HFDataset(BaseDataset):
                 seed (None or int): default None, can be set for pseudo-randomization
 
             Raises:
-                ValueError if percentage input args are not floats or sum to greater than 1
+                ValueError: if percentage input args are not floats or sum to greater than 1
                 """
         # Sanity checks
         if not (isinstance(train_pct, float) and isinstance(val_pct, float) and isinstance(test_pct, float)):
@@ -317,3 +317,26 @@ class HFDataset(BaseDataset):
             return self._validation_loader
         else:
             raise ValueError("validation split not specified")
+
+    def get_inc_dataloaders(self):
+        calib_dataset = self.train_subset
+        if self.validation_loader is not None:
+            eval_dataset = self.validation_subset
+        elif self.test_loader is not None:
+            eval_dataset = self.test_subset
+        else:
+            eval_dataset = self.train_subset
+
+        # Drop the label column because Intel Neural Compressor does not like it embedded with the features
+        # If we need to compute metrics from the labels, we can improve this with a subclass of
+        # torch.utils.data.Dataset or neural_compressor.data.datasets.bert_dataset.PytorchBertDataset that
+        # also returns the labels from __getitem__
+        for label_col_name in ['labels', 'label']:
+            if label_col_name in self._dataset.features.keys():
+                calib_dataset = calib_dataset.remove_columns(label_col_name)
+                eval_dataset = eval_dataset.remove_columns(label_col_name)
+
+        calib_dataloader = loader(calib_dataset, batch_size=self._preprocessed['batch_size'])
+        eval_dataloader = loader(eval_dataset, batch_size=self._preprocessed['batch_size'])
+
+        return calib_dataloader, eval_dataloader

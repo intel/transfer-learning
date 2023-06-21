@@ -27,7 +27,6 @@ from tqdm import tqdm
 from random import Random
 from torch.utils.data import DataLoader
 from torch.nn.parallel import DistributedDataParallel as DDP
-from tlt.distributed import TLT_DISTRIBUTED_DIR
 
 import oneccl_bindings_for_pytorch  # noqa # pylint: disable=unused-import
 import intel_extension_for_pytorch as ipex
@@ -245,7 +244,7 @@ class DistributedTorch:
             dist.destroy_process_group()
 
     @classmethod
-    def load_saved_objects(cls, use_case: str):
+    def load_saved_objects(cls, saved_objects_dir):
         """
         Helper function to load saved dataset and model objects
 
@@ -255,11 +254,6 @@ class DistributedTorch:
         Returns:
             dict with loaded dataset and model objects
         """
-        if use_case == 'text_classification':
-            saved_objects_file = 'hf_saved_objects.obj'
-        elif use_case == 'image_classification':
-            saved_objects_file = 'torch_saved_objects.obj'
-        else:
-            raise ValueError("Distributed PyTorch for {} is not implemented yet".format(use_case))
+        saved_objects_file = 'torch_saved_objects.obj'
 
-        return torch.load(os.path.join(TLT_DISTRIBUTED_DIR, saved_objects_file))
+        return torch.load(os.path.join(saved_objects_dir, saved_objects_file))

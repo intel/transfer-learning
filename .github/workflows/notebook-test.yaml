@@ -1,10 +1,11 @@
-name: Test Notebooks
+name: Notebooks Test
 on:
   pull_request_review:
     types: [submitted]
   # run the workflow if changes pushed to main or release branches
   push:
     branches:
+      - develop
       - main
       - r0.1
       - r0.2
@@ -35,7 +36,5 @@ jobs:
         - /tf_dataset/dataset/transfer_learning:/tmp/data
     steps:
       - uses: actions/checkout@v3
-      - name: Install virtualenv
-        run: pip install virtualenv
       - name: Run Notebook Tests
-        run: make test_notebook
+        run: make test_notebook_custom

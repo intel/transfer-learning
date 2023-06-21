@@ -24,9 +24,13 @@ import pytest
 import shutil
 import tempfile
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as functional
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as functional
+except ModuleNotFoundError:
+    print("WARNING: Unable to import torch. Torch may not be installed")
+
 
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
@@ -34,14 +38,13 @@ from tlt.utils.file_utils import download_and_extract_tar_file
 
 
 @pytest.mark.skip(reason='TODO: Solve test fails with urllib.error.HTTPError: HTTP Error 403: rate limit exceeded')
-@pytest.mark.integration
 @pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
-                         [['efficientnet_b0', 'CIFAR10', None, 2],
-                          ['resnet18_ssl', 'CIFAR10', None, 1],
-                          ['efficientnet_b0', 'CIFAR10', [1024, 512], 6],
-                          ['resnet18', 'CIFAR10', [1024, 512], 5]])
-def test_pyt_image_classification(model_name, dataset_name, extra_layers, correct_num_layers):
+@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers,test_inc',
+                         [['efficientnet_b0', 'CIFAR10', None, 2, False],
+                          ['resnet18_ssl', 'CIFAR10', None, 1, False],
+                          ['efficientnet_b0', 'CIFAR10', [1024, 512], 6, False],
+                          ['resnet18', 'CIFAR10', [1024, 512], 5, True]])
+def test_pyt_image_classification(model_name, dataset_name, extra_layers, correct_num_layers, test_inc):
     """
     Tests basic transfer learning functionality for PyTorch image classification models using a torchvision dataset
     """
@@ -97,18 +100,22 @@ def test_pyt_image_classification(model_name, dataset_name, extra_layers, correc
 
     # Ensure we get not implemented errors for graph_optimization
     with pytest.raises(NotImplementedError):
-        model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
+        model.optimize_graph(os.path.join(saved_model_dir, 'optimized'))
+
+    # Test quantization and benchmarking
+    if test_inc:
+        inc_output_dir = os.path.join(output_dir, "quantized", 'resnet18')
+        os.makedirs(inc_output_dir, exist_ok=True)
+        model.quantize(inc_output_dir, dataset)
+        assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
+        model.benchmark(dataset=dataset, saved_model_dir=inc_output_dir)
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
 
-    # Ensure we get not implemented errors for quantization
-    inc_config_file_path = os.path.join(output_dir, "pytorch_{}.yaml".format(model_name))
-    with pytest.raises(NotImplementedError):
-        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32)
 
-
+@pytest.mark.integration
 @pytest.mark.pytorch
 def test_pyt_image_classification_custom_model():
     """
@@ -185,18 +192,21 @@ def test_pyt_image_classification_custom_model():
 
     # Ensure we get not implemented errors for graph_optimization
     with pytest.raises(NotImplementedError):
-        model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
+        model.optimize_graph(os.path.join(saved_model_dir, 'optimized'))
+
+    # Test quantization and benchmarking
+    inc_output_dir = os.path.join(output_dir, "quantized", 'Net')
+    os.makedirs(inc_output_dir, exist_ok=True)
+    model.quantize(inc_output_dir, dataset)
+    assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
+    model.benchmark(dataset=dataset, saved_model_dir=inc_output_dir)
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
 
-    # Ensure we get not implemented errors for quantization
-    inc_config_file_path = os.path.join(output_dir, "pytorch_{}.yaml".format('custom_model'))
-    with pytest.raises(NotImplementedError):
-        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32)
 
-
+@pytest.mark.pytorch
 class TestImageClassificationCustomDataset:
     """
     Tests for PyTorch image classification using a custom dataset using the flowers dataset
@@ -225,13 +235,13 @@ class TestImageClassificationCustomDataset:
                 shutil.rmtree(dir)
 
     @pytest.mark.skip(reason='TODO: Solve test fails with urllib.error.HTTPError: HTTP Error 403: rate limit exceeded')
-    @pytest.mark.pytorch
-    @pytest.mark.parametrize('model_name,add_aug,ipex_optimize',
-                             [['efficientnet_b0', ['hflip'], True],
-                              ['resnet18', ['rotate'], True],
-                              ['resnet18_ssl', ['rotate'], True],
-                              ['vit_b_16', None, False]])
-    def test_custom_dataset_workflow(self, model_name, add_aug, ipex_optimize):
+    @pytest.mark.parametrize('model_name,add_aug,ipex_optimize,test_inc',
+                             [['efficientnet_b0', ['hflip'], True, False],
+                              ['resnet18', ['rotate'], False, True],
+                              ['resnet18', None, True, True],
+                              ['resnet18_ssl', ['rotate'], True, False],
+                              ['vit_b_16', None, False, False]])
+    def test_custom_dataset_workflow(self, model_name, add_aug, ipex_optimize, test_inc):
         """
         Tests the full workflow for PYT image classification using a custom dataset
         """
@@ -274,19 +284,13 @@ class TestImageClassificationCustomDataset:
         metrics = reload_model.evaluate(dataset)
         assert len(metrics) > 0
 
-        # Test benchmarking and quantization with non-IPEX ResNet18
-        if model_name == "resnet18" and not ipex_optimize:
-            inc_config_file_path = os.path.join(self._output_dir, "pyt_{}.yaml".format(model_name))
-            nc_workspace = os.path.join(self._output_dir, "nc_workspace")
-            model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, overwrite=True,
-                                        accuracy_criterion_relative=0.1, exit_policy_max_trials=10,
-                                        exit_policy_timeout=0, tuning_workspace=nc_workspace)
-            model.benchmark(saved_model_dir, inc_config_file_path, model_type='fp32')
-            quantization_output = os.path.join(self._output_dir, "quantized", model_name)
-            os.makedirs(quantization_output, exist_ok=True)
-            model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
-            assert os.path.exists(os.path.join(quantization_output, "model.pt"))
-            model.benchmark(quantization_output, inc_config_file_path, model_type='int8')
+        # Test benchmarking and quantization
+        if test_inc:
+            inc_output_dir = os.path.join(self._output_dir, "quantized", model_name)
+            os.makedirs(inc_output_dir, exist_ok=True)
+            model.quantize(inc_output_dir, dataset)
+            assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
+            model.benchmark(saved_model_dir=inc_output_dir, dataset=dataset)
 
 
 @pytest.mark.integration
@@ -330,6 +334,7 @@ def test_pyt_image_classification_with_lr_options(model_name, dataset_name, epoc
     assert history['Acc'][-1] == final_acc
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 def test_pyt_freeze():
     """

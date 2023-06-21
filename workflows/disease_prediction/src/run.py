@@ -26,7 +26,7 @@ root_folder = path.dirname(path.abspath(__file__))
 sys.path.insert(0, path.join(root_folder, "../../../"))
 print(sys.path)
 
-from vision_wl import train_vision_wl, run_inference, collect_class_labels
+from vision_wl import train_vision_wl, run_inference, collect_class_labels, load_model, run_inference_per_patient
 
 
 def main():
@@ -49,6 +49,7 @@ def main():
 
     # do_predict = config['training_args']['do_predict']
     do_predict = config['args']['inference']
+    do_predict_per_patient = config['args']['inference_per_patient']
     # do_train = config['training_args']['do_train']
     do_train = config['args']['finetune']
 
@@ -62,20 +63,24 @@ def main():
 
     # this is one is used for place holder 
     vision_int8_inference = 'vision_int_8.yaml' # config['inference_args']['int8_inference']
-
+    class_labels = collect_class_labels(train_dataset_dir)
     if (do_train):
         model, history, dict_metrics = train_vision_wl(train_dataset_dir,
                                                        output_dir, model_name,
                                                        batch_size, epochs, bf16)
-        class_labels = collect_class_labels(train_dataset_dir)
         run_inference(train_dataset_dir, saved_model_dir, class_labels,
                       model_name, vision_int8_inference, output_file_train)
 
     if (do_predict):
-        class_labels = collect_class_labels(train_dataset_dir)
         run_inference(test_dataset_dir, saved_model_dir, class_labels,
                       model_name, vision_int8_inference, output_file_test)
-
+    if (do_predict_per_patient):     
+        model = load_model(model_name,saved_model_dir)
+        # Sample dict
+        patient_dict = {'106L':[os.path.join(train_dataset_dir,"Malignant/P106_L_CM_MLO1.jpg")],\
+                        '106R':[os.path.join(train_dataset_dir,"Benign/P106_R_CM_CC1.jpg"),\
+                                os.path.join(train_dataset_dir,"Benign/P106_R_CM_CC2.jpg")]}
+        results = run_inference_per_patient(model, patient_dict,class_labels)
 
 if __name__ == "__main__":
     main()

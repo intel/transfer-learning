@@ -1,0 +1,25 @@
+name: Nightly Notebooks Test
+on:
+  workflow_dispatch: # Can be manually executed
+  schedule: # nightly at 11:00PM
+    - cron: "0 23 * * *"
+jobs:
+  notebook-test:
+    runs-on: [ aia-devops ]
+    container:
+      image: ${{ vars.GHA_IMAGE }}
+      env:
+        http_proxy: ${{ secrets.HTTP_PROXY }}
+        https_proxy: ${{ secrets.HTTPS_PROXY }}
+        no_proxy: ${{ secrets.NO_PROXY }}
+        DATASET_DIR: /tmp/data
+        OUTPUT_DIR: /tmp/output
+      # credentials:
+      #   username: ${{ secrets.REGISTRY_USER }}
+      #   password: ${{ secrets.REGISTRY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: develop
+      - name: Run Notebook Tests
+        run: make test_notebook_catalog

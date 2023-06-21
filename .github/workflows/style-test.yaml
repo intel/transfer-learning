@@ -25,8 +25,6 @@ jobs:
       #   password: ${{ secrets.REGISTRY_TOKEN }}
     steps:
     - uses: actions/checkout@v3
-    - name: Install virtualenv
-      run: pip install virtualenv
     - name: Run linter
       run: |
         make lint

@@ -67,7 +67,7 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
         shuffle_files (bool): optional; Whether to shuffle the data. Defaults to True.
 
     Raises:
-        FileNotFoundError if dataset directory does not exist
+        FileNotFoundError: if dataset directory does not exist
 
     """
 

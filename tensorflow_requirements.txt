@@ -1,6 +1,7 @@
-intel-tensorflow==2.11.0
-numpy>=1.22,<1.24  # TODO: https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/pip_package/setup.py#L96-L97
-neural-compressor==2.0
-setuptools<66
-tensorflow-datasets~=4.8.2
-tensorflow-hub~=0.12.0
+intel-tensorflow==2.12.0
+neural-compressor==2.1.1
+numpy~=1.23.5
+tensorflow-datasets~=4.9.2
+tensorflow-hub~=0.13.0
+tensorflow==2.12.0
+transformers~=4.30.0

@@ -1,0 +1,30 @@
+name: Unit Test
+on:
+  pull_request:
+    types: [submitted]
+  # run the workflow if changes pushed to main or release branches
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+    paths:
+      - '**'
+jobs:
+  unit-test:
+    runs-on: [ aia-devops ]
+    container:
+      image: ${{ vars.GHA_IMAGE }}
+      env:
+        http_proxy: ${{ secrets.HTTP_PROXY }}
+        https_proxy: ${{ secrets.HTTPS_PROXY }}
+        no_proxy: ${{ secrets.NO_PROXY }}
+      # credentials:
+      #   username: ${{ secrets.REGISTRY_USER }}
+      #   password: ${{ secrets.REGISTRY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Unit Test
+        shell: bash
+        continue-on-error: false
+        run: make unittest

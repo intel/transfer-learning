@@ -98,7 +98,7 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, enable_auto_mixed_precision=None,
               shuffle_files=True, seed=None, extra_layers=None, distributed=False, hostfile=None,
-              nnodes=1, nproc_per_node=1, **kwargs):
+              nnodes=1, nproc_per_node=1, callbacks=None, **kwargs):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the feature extractor layer from TF Hub and add on a dense layer based on the number of classes
@@ -129,17 +129,18 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                     layer. This can help increase accuracy when fine-tuning a TFHub model. The input should be a list of
                     integers representing the number and size of the layers, for example [1024, 512] will insert two
                     dense layers, the first with 1024 neurons and the second with 512 neurons.
+                callbacks (list): List of keras.callbacks.Callback instances to apply during training.
 
             Returns:
                 History object from the model.fit() call
 
             Raises:
-               FileExistsError if the output directory is a file
-               TypeError if the dataset specified is not an ImageClassificationDataset
-               TypeError if the output_dir parameter is not a string
-               TypeError if the epochs parameter is not a integer
-               TypeError if the initial_checkpoints parameter is not a string
-               TypeError if the extra_layers parameter is not a list of integers
+               FileExistsError: if the output directory is a file
+               TypeError: if the dataset specified is not an ImageClassificationDataset
+               TypeError: if the output_dir parameter is not a string
+               TypeError: if the epochs parameter is not a integer
+               TypeError: if the initial_checkpoints parameter is not a string
+               TypeError: if the extra_layers parameter is not a list of integers
         """
 
         self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints)
@@ -159,6 +160,12 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         if dataset_num_classes != self.num_classes:
             self._model = None
 
+        if callbacks and not isinstance(callbacks, list):
+            callbacks = list(callbacks) if isinstance(callbacks, tuple) else [callbacks]
+
+        if callbacks and not all(isinstance(callback, tf.keras.callbacks.Callback) for callback in callbacks):
+            raise TypeError('Callbacks must be tf.keras.callbacks.Callback instances')
+
         self._set_seed(seed)
 
         # Set auto mixed precision
@@ -166,20 +173,28 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
 
         self._model = self._get_hub_model(dataset_num_classes, extra_layers)
 
-        callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints, do_eval,
-                                                                    early_stopping, lr_decay)
+        train_callbacks, train_data, val_data = self._get_train_callbacks(dataset, output_dir, initial_checkpoints,
+                                                                          do_eval, early_stopping, lr_decay)
+
+        if callbacks:
+            train_callbacks += callbacks
 
         if distributed:
-            self.export_for_distributed(train_data, val_data)
-            self._fit_distributed(epochs, shuffle_files, hostfile, nnodes, nproc_per_node, kwargs.get('use_horovod'))
+            saved_objects_dir = self.export_for_distributed(
+                export_dir=os.path.join(output_dir, "tlt_saved_objects"),
+                train_data=train_data,
+                val_data=val_data
+            )
+            self._fit_distributed(saved_objects_dir, epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
+                                  kwargs.get('use_horovod'))
             self.cleanup_saved_objects_for_distributed()
         else:
-            history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=callbacks,
+            history = self._model.fit(train_data, epochs=epochs, shuffle=shuffle_files, callbacks=train_callbacks,
                                       validation_data=val_data)
             self._history = history.history
             return self._history
 
-    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
+    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False, callbacks=None):
         """
         Evaluate the accuracy of the model on a dataset.
 
@@ -197,6 +212,12 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
         else:
             eval_dataset = dataset.dataset
 
+        if callbacks and not isinstance(callbacks, list):
+            callbacks = list(callbacks) if isinstance(callbacks, tuple) else [callbacks]
+
+        if callbacks and not all(isinstance(callback, tf.keras.callbacks.Callback) for callback in callbacks):
+            raise TypeError('Callbacks must be tf.keras.callbacks.Callback instances')
+
         if self._model is None:
             # The model hasn't been trained yet, use the original ImageNet trained model
             print("The model has not been trained yet, so evaluation is being done using the original model ",
@@ -206,11 +227,11 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
                 optimizer=self._optimizer_class(),
                 loss=self._loss,
                 metrics=['acc'])
-            return original_model.evaluate(eval_dataset)
+            return original_model.evaluate(eval_dataset, callbacks=callbacks)
         else:
-            return self._model.evaluate(eval_dataset)
+            return self._model.evaluate(eval_dataset, callbacks=callbacks)
 
-    def predict(self, input_samples, return_type='class'):
+    def predict(self, input_samples, return_type='class', callbacks=None):
         """
         Perform feed-forward inference and predict the classes of the input_samples.
 
@@ -219,23 +240,30 @@ class TFHubImageClassificationModel(TFImageClassificationModel):
             return_type (str): Using 'class' will return the highest scoring class (default), using 'scores' will
                                return the raw output/logits of the last layer of the network, using 'probabilities' will
                                return the output vector after applying a softmax function (so results sum to 1)
+            callbacks (list): List of keras.callbacks.Callback instances to apply during predict
 
         Returns:
             List of classes, probability vectors, or raw score vectors
 
         Raises:
-            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
+            ValueError: if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
         return_types = ['class', 'probabilities', 'scores']
         if not isinstance(return_type, str) or return_type not in return_types:
             raise ValueError('Invalid return_type ({}). Expected one of {}.'.format(return_type, return_types))
 
+        if callbacks and not isinstance(callbacks, list):
+            callbacks = list(callbacks) if isinstance(callbacks, tuple) else [callbacks]
+
+        if callbacks and not all(isinstance(callback, tf.keras.callbacks.Callback) for callback in callbacks):
+            raise TypeError('Callbacks must be tf.keras.callbacks.Callback instances')
+
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
             original_model = self._model_downloader(self._model_name, include_top=True)
-            predictions = original_model.predict(input_samples)
+            predictions = original_model.predict(input_samples, callbacks=callbacks)
         else:
-            predictions = self._model.predict(input_samples)
+            predictions = self._model.predict(input_samples, callbacks=callbacks)
         if return_type == 'class':
             return np.argmax(predictions, axis=-1)
         elif return_type == 'probabilities':

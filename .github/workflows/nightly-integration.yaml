@@ -1,0 +1,25 @@
+name: Nightly Integration Test
+on:
+  workflow_dispatch: # Can be manually executed
+  schedule: # nightly at 10:00PM
+    - cron: "0 22 * * *"
+jobs:
+  nightly-test:
+    runs-on: [ aia-devops ]
+    container:
+      image: ${{ vars.GHA_IMAGE }}
+      env:
+        http_proxy: ${{ secrets.HTTP_PROXY }}
+        https_proxy: ${{ secrets.HTTPS_PROXY }}
+        no_proxy: ${{ secrets.NO_PROXY }}
+      # credentials:
+      #   username: ${{ secrets.REGISTRY_USER }}
+      #   password: ${{ secrets.REGISTRY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: develop
+      - name: Run Integration Test
+        shell: bash
+        continue-on-error: false
+        run: make integration

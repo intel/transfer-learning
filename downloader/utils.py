@@ -19,9 +19,9 @@
 #
 
 import os
-import shutil
 import tarfile
-import urllib.request
+import requests
+import shutil
 import zipfile
 
 
@@ -36,8 +36,9 @@ def download_file(download_url, destination_directory):
     destination_file_path = os.path.join(destination_directory, os.path.basename(download_url))
 
     print("Downloading {} to {}".format(download_url, destination_directory))
-    with urllib.request.urlopen(download_url) as response, open(destination_file_path, 'wb') as out_file:
-        shutil.copyfileobj(response, out_file)
+    response = requests.get(download_url, stream=True, timeout=30)
+    with open(destination_file_path, 'wb') as out_file:
+        shutil.copyfileobj(response.raw, out_file)
 
     return destination_file_path
 

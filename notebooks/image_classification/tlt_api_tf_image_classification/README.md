@@ -26,7 +26,7 @@ image classification using TensorFlow and then quantize or optimize the graph fo
 
 ## Running the notebooks
 
-To run the notebooks, follow the instructions to setup the [TensorFlow notebook environment](/notebooks#tensorflow-environment).
+To run the notebooks, follow the instructions to setup the [TensorFlow notebook environment](/notebooks/setup.md).
 
 ## References
 

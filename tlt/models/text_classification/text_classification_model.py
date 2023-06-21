@@ -19,12 +19,9 @@
 #
 
 import abc
-import os
-import yaml
 
 from tlt.models.model import BaseModel
 from tlt.utils.types import FrameworkType, UseCaseType
-from tlt import TLT_BASE_DIR
 
 
 class TextClassificationModel(BaseModel):
@@ -38,46 +35,19 @@ class TextClassificationModel(BaseModel):
 
         # Default learning rate for text models
         self._learning_rate = 3e-5
-
-    def get_inc_config_template_dict(self):
-        """
-        Returns a dictionary for a config template compatible with the Intel Neural Compressor.
-
-        It loads the yaml file tlt/models/configs/inc/text_classification_template.yaml and then fills in parameters
-        that the model knows about (like framework and model name). There are still more parameters that need to be
-        filled in before using the config with INC (like the dataset information, size, etc).
-        """
-        template_file_path = os.path.join(TLT_BASE_DIR, "models/configs/inc/text_classification_template.yaml")
-
-        if not os.path.exists(template_file_path):
-            raise FileNotFoundError("Unable to find the config template at:", template_file_path)
-
-        with open(template_file_path, 'r') as template_yaml:
-            config_template = yaml.safe_load(template_yaml)
-
-        # Update parameters that we know in the template
-        config_template["model"]["framework"] = str(self.framework)
-        config_template["model"]["name"] = self.model_name
-
-        return config_template
+        self._quantization_approach = 'dynamic'
 
     @property
     @abc.abstractmethod
     def num_classes(self):
+        """
+        The number of output neurons in the model; equal to the number of classes in the dataset
+        """
         pass
 
     @property
     def dropout_layer_rate(self):
+        """
+        The probability of any one node being dropped when a dropout layer is used
+        """
         return self._dropout_layer_rate
-
-    def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):
-        raise NotImplementedError("Writing INC config files has not be implemented yet for text classification")
-
-    def quantize(self, saved_model_dir, output_dir, inc_config_path):
-        raise NotImplementedError("Post training quantization has not been implemented yet for text classification")
-
-    def optimize_graph(self, saved_model_dir, output_dir):
-        raise NotImplementedError("Optimize graph has not been implemented yet for text classification")
-
-    def benchmark(self, saved_model_dir, inc_config_path, mode='performance'):
-        raise NotImplementedError("Benchmarking has not been implemented yet for text classification")

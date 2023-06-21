@@ -26,7 +26,6 @@ import intel_extension_for_pytorch as ipex
 
 from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
-from tlt.distributed import TLT_DISTRIBUTED_DIR
 from tlt.models.image_classification.pytorch_image_classification_model import PyTorchImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 from tlt.utils.file_utils import read_json_file
@@ -140,7 +139,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 hostfile (str): Name of the hostfile for distributed training. Defaults to None.
                 nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
                 nproc_per_node (int): Number of processes to spawn per node to use for distributed training. Defaults
-                to 1.
+                    to 1.
 
             Returns:
                 Trained PyTorch model object
@@ -186,9 +185,19 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
 
         if distributed:
-            self.export_for_distributed(TLT_DISTRIBUTED_DIR, dataset)
-            batch_size = dataset._preprocessed['batch_size']
-            self._fit_distributed(hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize)
+            try:
+                saved_objects_dir = self.export_for_distributed(
+                    export_dir=os.path.join(output_dir, 'tlt_saved_objects'),
+                    train_data=dataset.train_subset,
+                    val_data=dataset.validation_subset
+                )
+                batch_size = dataset._preprocessed['batch_size']
+                self._fit_distributed(saved_objects_dir, hostfile, nnodes, nproc_per_node, epochs, batch_size,
+                                      ipex_optimize)
+            except Exception as err:
+                print("Error: \'{}\' occured while distributed training".format(err))
+            finally:
+                self.cleanup_saved_objects_for_distributed()
         else:
             self._model.train()
             self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
@@ -274,7 +283,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             List of classes, probability vectors, or raw score vectors
 
         Raises:
-            ValueError if the return_type is not one of 'class', 'probabilities', or 'scores'
+            ValueError: if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
         return_types = ['class', 'probabilities', 'scores']
         if not isinstance(return_type, str) or return_type not in return_types:

@@ -1,0 +1,92 @@
+apiVersion: kubeflow.org/v1
+kind: MPIJob
+metadata:
+  name: tf-{{ .Values.metadata.name }}
+  namespace: {{ .Values.metadata.namespace }}
+spec:
+  slotsPerWorker: {{ .Values.slotsPerWorker }}
+  runPolicy:
+    cleanPodPolicy: None
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          hostIPC: true
+          containers:
+          - image: "{{ .Values.imageName }}:{{ .Values.imageTag }}"
+            name: mpi
+            command:
+            - horovodrun
+            args:
+            - --verbose
+            - -np
+            - {{ .Values.workers }}
+            - --hostfile
+            - /etc/mpi/hostfile
+            - python
+            - /tmp/intel-transfer-learning/tlt/distributed/tensorflow/run_train_tf.py
+            - --batch_denom
+            - "{{ .Values.batchDenom }}"
+            - --batch_size
+            - "{{ .Values.batchSize }}"
+            - --dataset-dir
+            - /tmp/data
+            - --dataset-name
+            - {{ .Values.datasetName }}
+            - --epochs
+            - "{{ .Values.epochs }}"
+            - --model-name
+            - {{ .Values.modelName }}
+            - --output-dir
+            - /tmp/output
+            - --scaling
+            - "{{ .Values.scaling }}"
+            - --shuffle
+            - --use-case
+            - {{ .Values.useCase }}
+            resources:
+              limits:
+                cpu: {{ .Values.resources.cpu }}
+                memory: {{ .Values.resources.memory }}
+            volumeMounts:
+            - name: dataset-dir
+              mountPath: /tmp/data
+            - name: output-dir
+              mountPath: /tmp/output
+          volumes:
+          - name: dshm
+            emptyDir:
+              medium: Memory
+          - name: dataset-dir
+            persistentVolumeClaim:
+              claimName: "{{ .Values.pvcName }}-data"
+          - name: output-dir
+            persistentVolumeClaim:
+              claimName: "{{ .Values.pvcName }}-output"
+    Worker:
+      replicas: {{ .Values.workers }}
+      template:
+        spec:
+          containers:
+          - image: "{{ .Values.imageName }}:{{ .Values.imageTag }}" 
+            name: mpi
+            resources:
+              limits:
+                cpu: {{ .Values.workerResources.cpu }}
+                memory: {{ .Values.workerResources.memory }}
+            volumeMounts:
+            - name: dataset-dir
+              mountPath: /tmp/data
+            - name: output-dir
+              mountPath: /tmp/output
+          volumes:
+          - name: dshm
+            emptyDir:
+              medium: Memory
+          - name: dataset-dir
+            persistentVolumeClaim:
+              claimName: "{{ .Values.pvcName }}-data"
+          - name: output-dir
+            persistentVolumeClaim:
+              claimName: "{{ .Values.pvcName }}-output"

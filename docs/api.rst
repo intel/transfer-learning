@@ -110,9 +110,9 @@ Text Classification
   :toctree: _autosummary
   :nosignatures:
 
-   tfhub_text_classification_model.TFHubTextClassificationModel
    tf_text_classification_model.TFTextClassificationModel
-   hf_text_classification_model.HFTextClassificationModel
+   pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel
+   tf_hf_text_classification_model.TFHFTextClassificationModel
    text_classification_model.TextClassificationModel
 
 Base Classes

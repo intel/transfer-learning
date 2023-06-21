@@ -8,7 +8,7 @@ This is a comprehensive list of public datasets used by this repository.
 | [AG News (TFDS)](https://www.tensorflow.org/datasets/catalog/ag_news_subset) | TensorFlow | Text Classification |
 | [Food101 (Torchvision)](https://pytorch.org/vision/stable/generated/torchvision.datasets.Food101.html#torchvision.datasets.Food101) | PyTorch | Image Classification |
 | [Food101 (TFDS)](https://www.tensorflow.org/datasets/catalog/food101) | TensorFlow | Image Classification |
-| [SMS Spam Collection](https://archive-beta.ics.uci.edu/dataset/228/sms+spam+collection) | PyTorch & TensorFlow | Text Classification |
+| [SMS Spam Collection](https://archive.ics.uci.edu/dataset/228/sms+spam+collection) | PyTorch & TensorFlow | Text Classification |
 | [TF Flowers (TFDS)](https://www.tensorflow.org/datasets/catalog/tf_flowers) |  PyTorch & TensorFlow | Image Classification |
 | [Cats vs. Dogs (TFDS)](https://www.tensorflow.org/datasets/catalog/cats_vs_dogs) |  TensorFlow | Image Classification |
 | [Country211 (Torchvision)](https://pytorch.org/vision/stable/generated/torchvision.datasets.Country211.html#torchvision.datasets.Country211) | PyTorch | Image Classification |

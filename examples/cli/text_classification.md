@@ -1,6 +1,6 @@
-# Text Classification Intel Transfer Learning Tool CLI Examples
+# Text Classification Intel® Transfer Learning Tool CLI Example
 
-## Fine tuning using your own dataset
+## Fine Tuning Using Your Own Dataset
 
 The example below shows how to fine tune a TensorFlow text classification model using your own
 dataset in the .csv format. The .csv file is expected to have 2 columns: a numerical class label
@@ -13,10 +13,10 @@ The `--dataset-dir` argument is the path to the directory where your dataset is 
 argument to specify a list of the classes and the `--delimiter` to specify the character that
 separates the two columns. If no `--delimiter` is specified, the CLI will default to use a comma (`,`).
 
-This example is downloading the [SMS Spam Collection](https://archive-beta.ics.uci.edu/dataset/228/sms+spam+collection)
+This example is downloading the [SMS Spam Collection](https://archive.ics.uci.edu/dataset/228/sms+spam+collection)
 dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text
 messages that are either being classified as `ham` or `spam`. The first column in the data file has
-the label (`ham` or `spam`) and the second column is the text of the SMS mesage. The string class
+the label (`ham` or `spam`) and the second column is the text of the SMS message. The string class
 labels are replaced with numerical values before training.
 ```bash
 # Create dataset and output directories
@@ -26,8 +26,8 @@ mkdir -p ${DATASET_DIR}
 mkdir -p ${OUTPUT_DIR}
 
 # Download and extract the dataset
-wget -P ${DATASET_DIR} https://archive.ics.uci.edu/ml/machine-learning-databases/00228/smsspamcollection.zip
-unzip ${DATASET_DIR}/smsspamcollection.zip
+wget -P ${DATASET_DIR} https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip
+unzip ${DATASET_DIR}/sms+spam+collection.zip
 
 # Make a copy of the .csv file with 'numerical' in the file name
 DATASET_FILE=SMSSpamCollection_numerical.csv
@@ -38,10 +38,10 @@ cp ${DATASET_DIR}/SMSSpamCollection ${DATASET_DIR}/${DATASET_FILE}
 sed -i 's/ham/0/g' ${DATASET_DIR}/${DATASET_FILE}
 sed -i 's/spam/1/g' ${DATASET_DIR}/${DATASET_FILE}
 
-# Train small_bert/bert_en_uncased_L-2_H-128_A-2 using our dataset file which has tab delimiters
+# Train google/bert_uncased_L-10_H-256_A-4 using our dataset file, which has tab delimiters
 tlt train \
     -f tensorflow \
-    --model-name small_bert/bert_en_uncased_L-2_H-128_A-2 \
+    --model-name google/bert_uncased_L-10_H-256_A-4 \
     --output-dir ${OUTPUT_DIR} \
     --dataset-dir ${DATASET_DIR} \
     --dataset-file ${DATASET_FILE} \
@@ -52,15 +52,15 @@ tlt train \
 # Evaluate the model exported after training
 # Note that your --model-dir path may vary, since each training run creates a new directory
 tlt eval \
-    --model-dir ${OUTPUT_DIR}/small_bert/bert_en_uncased_L-2_H-128_A-2/1 \
-    --model-name small_bert/bert_en_uncased_L-2_H-128_A-2 \
+    --model-dir ${OUTPUT_DIR}/google_bert_uncased_L-10_H-256_A-4/1 \
+    --model-name google/bert_uncased_L-10_H-256_A-4 \
     --dataset-dir ${DATASET_DIR} \
     --dataset-file ${DATASET_FILE} \
     --class-names 0,1 \
     --delimiter $'\t'
 ```
 
-## Fine tuning using a dataset from the TFDS catalog
+## Fine Tuning Using a Dataset from the TFDS Catalog
 
 This example demonstrates using the Intel Transfer Learning Tool CLI to fine tune a text classification model using a
 dataset from the [TensorFlow Datasets (TFDS) catalog](https://www.tensorflow.org/datasets/catalog/overview).
@@ -79,10 +79,10 @@ mkdir -p ${OUTPUT_DIR}
 # Name of the dataset to use
 DATASET_NAME=imdb_reviews
 
-# Train small_bert/bert_en_uncased_L-2_H-128_A-2 using the TFDS dataset
+# Train google/bert_uncased_L-10_H-256_A-4 using the TFDS dataset
 tlt train \
     -f tensorflow \
-    --model-name small_bert/bert_en_uncased_L-2_H-128_A-2 \
+    --model-name google/bert_uncased_L-10_H-256_A-4 \
     --output-dir ${OUTPUT_DIR} \
     --dataset-dir ${DATASET_DIR} \
     --dataset-name ${DATASET_NAME} \
@@ -91,13 +91,13 @@ tlt train \
 # Evaluate the model exported after training
 # Note that your --model-dir path may vary, since each training run creates a new directory
 tlt eval \
-    --model-dir ${OUTPUT_DIR}/small_bert/bert_en_uncased_L-2_H-128_A-2/1 \
-    --model-name small_bert/bert_en_uncased_L-2_H-128_A-2 \
+    --model-dir ${OUTPUT_DIR}/google_bert_uncased_L-10_H-256_A-4/2 \
+    --model-name google/bert_uncased_L-10_H-256_A-4 \
     --dataset-dir ${DATASET_DIR} \
     --dataset-name ${DATASET_NAME}
 ```
 
-## Distributed transfer learning using a dataset from Hugging Face
+## Distributed Transfer Learning Using a Dataset from Hugging Face
 This example runs a distributed PyTorch training job using the TLT CLI. It fine tunes a text classification model
 for document-level sentiment analysis using a dataset from the [Hugging Face catalog](https://huggingface.co/datasets).
 Intel Transfer Learning Tool supports the following text classification datasets from Hugging Face:
@@ -107,7 +107,7 @@ Intel Transfer Learning Tool supports the following text classification datasets
 * [ag_news](https://huggingface.co/datasets/ag_news)
 * [sst2](https://huggingface.co/datasets/sst2)
 
-Follow [these instructions](/tlt/distributed) to set up your machines for distributed training with PyTorch. This will
+Follow [these instructions](/tlt/distributed/README.md) to set up your machines for distributed training with PyTorch. This will
 ensure your environment has the right prerequisites, package dependencies, and hostfile configuration. When
 you have successfully run the sanity check, the following commands will fine-tune `bert-large-uncased` with sst2 for
 one epoch using 2 nodes and 2 processes per node.

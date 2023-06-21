@@ -39,7 +39,7 @@ downloader.download()
 |----------|-----------|
 | TensorFlow Hub | [https://www.tensorflow.org/hub](https://www.tensorflow.org/hub) |
 | Torchvision | [https://pytorch.org/vision/stable/models.html](https://pytorch.org/vision/stable/models.html) |
-| Hugging Face | [https://huggingface.co/models](https://huggingface.co/models) (AutoModelForSequenceClassification type) |
+| Hugging Face | [https://huggingface.co/models](https://huggingface.co/models) (AutoModelForSequenceClassification or TFBertModel types) |
 
 ### Usage
 
