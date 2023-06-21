@@ -83,7 +83,7 @@ approaches.
 
       ```
       python setup.py bdist_wheel
-      pip install dist/intel_transfer_learning_tool-0.4.0-py3-none-any.whl
+      pip install dist/intel_transfer_learning_tool-0.5.0-py3-none-any.whl
       ```
 
 

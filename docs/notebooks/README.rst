@@ -75,3 +75,22 @@ Intel Transfer Learning Tool API End-to-End Pipelines
    :doc:`Medical Imaging Classification (Colorectal histology) using TensorFlow <Medical_Imaging_Classification>`, |imageClassMedical|_ , Image Classification, TensorFlow & Intel Transfer Learning Tool
    :doc:`Remote Sensing Image Scene Classification (Resisc) using TensorFlow <Remote_Sensing_Image_Scene_Classification>`, |imageClassRemote|_ , Image Classification, TensorFlow & Intel Transfer Learning Tool
 
+Intel Transfer Learning Tool Performance Comparison
+*****************************************************
+
+.. |imageClassTFPerf| image:: /images/Jupyter_logo.svg
+             :alt: Jupyter notebook .ipynb file
+             :height: 35
+.. _imageClassTFPerf: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/performance/tf_image_classification_performance.ipynb
+
+.. |textClassHFPerf| image:: /images/Jupyter_logo.svg
+             :alt: Jupyter notebook .ipynb file
+             :height: 35
+.. _textClassHFPerf: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/performance/hf_text_classification_performance.ipynb
+
+.. csv-table::
+   :header: "Notebook Title", ".ipynb Link", "Use Case", "Framework"
+   :widths: 30, 10, 20, 20
+
+   :doc:`Performance Comparison: Image Classification with TensorFlow <TLT_TF_Image_Classification_Performance>`, |imageClassTFPerf|_ , Image Classification, TensorFlow & Intel Transfer Learning Tool
+   :doc:`Performance Comparison: Text Classification with Hugging Face <TLT_HF_Text_Classification_Performance>`, |textClassHFPerf|_ , Text Classification, "Hugging Face, PyTorch & Intel Transfer Learning Tool"
