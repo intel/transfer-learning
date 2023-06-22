@@ -5,13 +5,14 @@ text classification using various [BERT](https://arxiv.org/abs/1810.04805) model
 from [Hugging Face](https://huggingface.co).
 
 The notebook performs the following steps:
-1. Install dependencies and setup parameters
+1. Import dependencies and setup parameters
 1. Get the model
 1. Get the dataset
 1. Prepare the dataset
 1. Fine tuning
 1. Predict
 1. Export the saved model
+1. Quantization
 
 ## Running the notebook
 

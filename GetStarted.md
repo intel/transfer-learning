@@ -16,6 +16,12 @@ approaches.
 | Intel® 4th Gen Xeon® Scalable Performance processors | BF16 |
 | Intel® 1st, 2nd, 3rd, and 4th Gen Xeon® Scalable Performance processors | FP32 |
 
+| Resource         | Minimum  |
+| ---------------------------- | ---------- |
+| CPU Cores | 8  (16+ recommended) |
+| RAM | 16 GB (24-32+ GB recommended) |
+| Disk space | 10 GB minimum (can vary based on datasets downloaded) |
+
 | Required Software         |
 | ------------------------- |
 | Linux\* system (validated on Ubuntu\* 20.04/22.04 LTS) |
