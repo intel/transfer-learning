@@ -478,10 +478,12 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 evaluation_strategy="epoch",
                 num_train_epochs=epochs,
                 learning_rate=learning_rate,
-                seed=seed,
                 data_seed=seed,
                 use_ipex=ipex_optimize
             )
+
+            if seed is not None:
+                training_args.seed = seed
 
             def compute_metrics(p: EvalPrediction):
                 preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
