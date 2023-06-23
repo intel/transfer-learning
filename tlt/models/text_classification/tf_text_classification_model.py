@@ -160,7 +160,7 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
 
     def _fit_distributed(self, saved_objects_dir, epochs, shuffle, hostfile, nnodes, nproc_per_node, use_horovod,
                          hf_bert_tokenizer=None, max_seq_length=None):
-        import subprocess
+        import subprocess  # nosec: B404
         distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, 'tensorflow', 'run_train_tf.py')
 
         if use_horovod:

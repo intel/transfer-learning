@@ -21,10 +21,9 @@
 import inspect
 import os
 import time
-import subprocess
 import tempfile
 import shutil
-import dill
+import dill  # nosec: B403
 import torch
 import numpy as np
 import intel_extension_for_pytorch as ipex
@@ -291,6 +290,8 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
     def _fit_distributed(self, saved_objects_dir, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
+        import subprocess  # nosec: B404
+
         distributed_text_script = os.path.join(TLT_DISTRIBUTED_DIR, "pytorch", "run_train_pyt.py")
 
         default_port = '29500'
@@ -679,7 +680,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             verify_directory(saved_model_dir)
             # If we have a distributed model, save only the encapsulated model
             # (it was wrapped in PyTorch DistributedDataParallel or DataParallel)
-            model_copy = dill.dumps(self._model.module if hasattr(self._model, 'module') else self._model)
+            model_copy = dill.dumps(self._model.module if hasattr(self._model, 'module') else self._model)  # noqa: E501, nosec: B301
             torch.save(model_copy, os.path.join(saved_model_dir, 'model.pt'))
             print("Saved model directory:", saved_model_dir)
 
@@ -697,7 +698,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
 
         verify_directory(model_dir, require_directory_exists=True)
         model_copy = torch.load(os.path.join(model_dir, 'model.pt'))
-        self._model = dill.loads(model_copy)
+        self._model = dill.loads(model_copy)  # nosec: B301
         self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
     def list_layers(self, verbose=False):

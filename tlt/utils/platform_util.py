@@ -25,7 +25,7 @@ from __future__ import print_function
 import os  # noqa: F401
 import re
 import platform as system_platform
-import subprocess
+import subprocess  # nosec: B404
 import sys
 
 NUMA_NODES_STR_ = "NUMA node(s)"

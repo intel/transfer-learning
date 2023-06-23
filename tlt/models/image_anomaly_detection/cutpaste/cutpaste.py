@@ -93,7 +93,7 @@ class CutPasteNormal(CutPaste):
         w = img.size[1]
 
         # ratio between area_ratio[0] and area_ratio[1]
-        ratio_area = random.uniform(self.area_ratio[0], self.area_ratio[1]) * w * h
+        ratio_area = random.uniform(self.area_ratio[0], self.area_ratio[1]) * w * h  # nosec: B311
 
         # sample in log space
         log_ratio = torch.log(torch.tensor((self.aspect_ratio, 1 / self.aspect_ratio)))
@@ -103,8 +103,8 @@ class CutPasteNormal(CutPaste):
         cut_h = int(round(math.sqrt(ratio_area / aspect)))
 
         # one might also want to sample from other images. currently we only sample from the image itself
-        from_location_h = int(random.uniform(0, h - cut_h))
-        from_location_w = int(random.uniform(0, w - cut_w))
+        from_location_h = int(random.uniform(0, h - cut_h))  # nosec: B311
+        from_location_w = int(random.uniform(0, w - cut_w))  # nosec: B311
 
         box = [from_location_w, from_location_h, from_location_w + cut_w, from_location_h + cut_h]
         patch = img.crop(box)
@@ -112,8 +112,8 @@ class CutPasteNormal(CutPaste):
         if self.colorJitter:
             patch = self.colorJitter(patch)
 
-        to_location_h = int(random.uniform(0, h - cut_h))
-        to_location_w = int(random.uniform(0, w - cut_w))
+        to_location_h = int(random.uniform(0, h - cut_h))  # nosec: B311
+        to_location_w = int(random.uniform(0, w - cut_w))  # nosec: B311
 
         insert_box = [to_location_w, to_location_h, to_location_w + cut_w, to_location_h + cut_h]
         augmented = img.copy()
@@ -146,11 +146,11 @@ class CutPasteScar(CutPaste):
         w = img.size[1]
 
         # cut region
-        cut_w = random.uniform(*self.width)
-        cut_h = random.uniform(*self.height)
+        cut_w = random.uniform(*self.width)  # nosec: B311
+        cut_h = random.uniform(*self.height)  # nosec: B311
 
-        from_location_h = int(random.uniform(0, h - cut_h))
-        from_location_w = int(random.uniform(0, w - cut_w))
+        from_location_h = int(random.uniform(0, h - cut_h))  # nosec: B311
+        from_location_w = int(random.uniform(0, w - cut_w))  # nosec: B311
 
         box = [from_location_w, from_location_h, from_location_w + cut_w, from_location_h + cut_h]
         patch = img.crop(box)
@@ -159,12 +159,12 @@ class CutPasteScar(CutPaste):
             patch = self.colorJitter(patch)
 
         # rotate
-        rot_deg = random.uniform(*self.rotation)
+        rot_deg = random.uniform(*self.rotation)  # nosec: B311
         patch = patch.convert("RGBA").rotate(rot_deg, expand=True)
 
         # paste
-        to_location_h = int(random.uniform(0, h - patch.size[0]))
-        to_location_w = int(random.uniform(0, w - patch.size[1]))
+        to_location_h = int(random.uniform(0, h - patch.size[0]))  # nosec: B311
+        to_location_w = int(random.uniform(0, w - patch.size[1]))  # nosec: B311
 
         mask = patch.split()[-1]
         patch = patch.convert("RGB")
@@ -187,7 +187,7 @@ class CutPasteUnion(object):
         self.scar = CutPasteScar(**kwargs)
 
     def __call__(self, img):
-        r = random.uniform(0, 1)
+        r = random.uniform(0, 1)  # nosec: B311
         if r < 0.5:
             return self.normal(img)
         else:

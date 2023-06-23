@@ -161,7 +161,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         return callbacks, train_dataset, validation_data
 
     def _fit_distributed(self, saved_objects_dir, epochs, shuffle, hostfile, nnodes, nproc_per_node, use_horovod):
-        import subprocess
+        import subprocess  # nosec: B404
         distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, 'tensorflow', 'run_train_tf.py')
 
         if use_horovod:

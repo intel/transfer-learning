@@ -20,7 +20,7 @@
 
 import inspect
 import os
-import dill
+import dill  # nosec: B403
 import re
 import shutil
 import random
