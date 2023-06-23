@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN ln -sf $(which ${PYTHON}) /usr/bin/python
+RUN ln -sf "$(which ${PYTHON})" /usr/bin/python
 
 # TLT target for GitHub actions
 FROM tlt-base as tlt-ci
@@ -99,11 +99,10 @@ RUN mv /usr/bin/mpirun /usr/bin/mpirun.real && \
 # Configure OpenMPI to run good defaults:
 RUN echo "btl_tcp_if_exclude = lo,docker0" >> /etc/openmpi/openmpi-mca-params.conf
 
-# Install OpenSSH for MPI to communicate between containers
-RUN mkdir -p /var/run/sshd
-
-# Allow OpenSSH to talk to containers without asking for confirmation
-RUN cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_config.new && \
+# Install OpenSSH for MPI to communicate between containers and allow OpenSSH to
+# talk to containers without asking for confirmation
+RUN mkdir -p /var/run/sshd && \
+    cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_config.new && \
     echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config.new && \
     mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config
 
