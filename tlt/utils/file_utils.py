@@ -55,6 +55,7 @@ def download_file(download_url, destination_directory):
     print("Downloading {} to {}".format(download_url, destination_directory))
     response = requests.get(download_url, stream=True, timeout=30)  # Adds a 30 sec timeout for Bandit
     with open(destination_file_path, 'wb') as out_file:
+        response.raw.decode_content = True
         shutil.copyfileobj(response.raw, out_file)
 
     return destination_file_path
