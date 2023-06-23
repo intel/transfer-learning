@@ -19,7 +19,6 @@ import yaml
 import argparse
 from tqdm import tqdm
 import torch
-import dill as pickle
 
 sys.path.append(os.path.join(sys.path[0],'../../..'))
 sys.path.append('frameworks.ai.transfer-learning/')

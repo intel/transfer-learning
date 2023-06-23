@@ -21,8 +21,7 @@
 import inspect
 import os
 import time
-import dill
-import subprocess
+import dill  # nosec: B403
 import tempfile
 import shutil
 
@@ -247,6 +246,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
     def _fit_distributed(self, saved_objects_dir, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
+        import subprocess  # nosec: B404
         distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, "pytorch", "run_train_pyt.py")
 
         default_port = '29500'

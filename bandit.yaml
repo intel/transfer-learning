@@ -1,0 +1,11 @@
+# FILE: bandit.yaml
+exclude_dirs: [ '.venv', '.tox', 'tlt_test_venv', 'tlt_notebook_venv', 'tests' ]
+skips: [ 'B301', 'B311', 'B403', 'B404' ]
+# B301 - dill usage scoope is different from what's described in CWE-502
+#        dill is mostly used used for dumping/saving models to disk(serialization)
+#        When loading previously saved models from disk(descerialization),
+#        either Keras model loader or PyTorch loader used first to verify the model,
+#        and then create a copy to be passed to dill for loading.
+# B311 - random usage scope is different from what's described in CWE-330
+# B403 - this one is reported everytime 'dill' is imported, so it's actually covered by B301 justification
+# B404 - this one is reported everytime 'subprocess' is imported but this modules is not used as described in CWE-78

@@ -19,7 +19,7 @@
 #
 
 import os
-import dill
+import dill  # nosec: B403
 import time
 
 import tensorflow as tf
@@ -289,7 +289,7 @@ class DistributedTF:
 
         # Load the saved loss class name and instatiate the loss
         with open(os.path.join(saved_objects_dir, 'saved_loss'), 'rb') as f:
-            loss_class, loss_args = dill.load(f)
+            loss_class, loss_args = dill.load(f)  # nosec: B301
 
         # load the dataset(s)
         train_data = tf.data.Dataset.load(os.path.join(saved_objects_dir, 'train_data'))
