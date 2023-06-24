@@ -18,13 +18,10 @@ make unittest
 make integration
 
 # Create a virtual env or conda env for the test environment
-conda create --name tlt_test_venv python=3.9
+conda create --name tlt_dev_venv python=3.9
 
 # Install tlt for TensorFlow and/or PyTorch
 pip3 install --editable .
-
-# Required for TensorFlow text classification
-pip3 install tensorflow-text==2.11.0
 
 # Install the test requirements
 pip3 install -r tests/requirements-test.txt
@@ -85,9 +82,14 @@ export DATASET_DIR=<directory to download the datasets>
 export OUTPUT_DIR=<output directory for the saved models>
 ```
 
-To run the <b>Intel Transfer Learning Tool tutorial notebooks</b> using a test environment that supports both PyTorch and TensorFlow:
+To run the <b>Intel Transfer Learning Tool tutorial notebooks</b> using custom datasets:
 ```
-make test_notebook
+make test_notebook_custom
+```
+
+To run the <b>Intel Transfer Learning Tool tutorial notebooks</b> using datasets from public catalogs:
+```
+make test_notebook_catalog
 ```
 
 To run all the <b>native PyTorch notebooks</b> using a test environment for PyTorch without Intel Transfer Learning Tool:

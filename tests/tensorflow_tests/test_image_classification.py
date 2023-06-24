@@ -23,7 +23,7 @@ import pytest
 import shutil
 import tempfile
 import numpy as np
-from tensorflow import keras
+
 
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
@@ -32,16 +32,26 @@ from unittest.mock import MagicMock, patch
 
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
+# This is necessary to protect from import errors when testing in a tensorflow only environment
+keras_env = True
+
+try:
+    from tensorflow import keras
+except ModuleNotFoundError:
+    print("WARNING: Unable to import Keras. Tensorflow may not be installed")
+    keras_env = False
+
 
 @pytest.mark.integration
 @pytest.mark.tensorflow
-@pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy,extra_layers,correct_num_layers',
-                         [['efficientnet_b0', 'tf_flowers', 0.3125, 0.53125, None, 2],
-                          ['resnet_v1_50', 'tf_flowers', 0.40625, 0.59375, None, 2],
-                          ['efficientnet_b0', 'tf_flowers', 0.8125, 0.96875, [1024, 512], 4],
-                          ['ResNet50', 'tf_flowers', 0.40625, 0.15625, None, 4]])
+@pytest.mark.parametrize('model_name,dataset_name,train_accuracy,retrain_accuracy,extra_layers,correct_num_layers,'
+                         'test_optimization',
+                         [['efficientnet_b0', 'tf_flowers', 0.3125, 0.53125, None, 2, False],
+                          ['resnet_v1_50', 'tf_flowers', 0.40625, 0.59375, None, 2, True],
+                          ['efficientnet_b0', 'tf_flowers', 0.8125, 0.96875, [1024, 512], 4, False],
+                          ['ResNet50', 'tf_flowers', 0.34375, 0.625, None, 4, True]])
 def test_tf_image_classification(model_name, dataset_name, train_accuracy, retrain_accuracy, extra_layers,
-                                 correct_num_layers):
+                                 correct_num_layers, test_optimization):
     """
     Tests basic transfer learning functionality for TensorFlow image classification models using TF Datasets
     """
@@ -57,7 +67,7 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     model = model_factory.get_model(model_name, framework)
 
     # Preprocess the dataset
-    dataset.preprocess(model.image_size, 32)
+    dataset.preprocess(model.image_size, 32, preprocessor=model.preprocessor)
     dataset.shuffle_split(shuffle_files=False)
 
     # Evaluate before training
@@ -103,16 +113,11 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
     np.testing.assert_almost_equal(reload_metrics, trained_metrics)
 
     # Optimize the graph
-    if model_name in ['resnet_v1_50', 'ResNet50']:
-        optimized_model_dir = os.path.join(output_dir, "optimized")
-        os.makedirs(optimized_model_dir, exist_ok=True)
-        model.optimize_graph(saved_model_dir, optimized_model_dir)
-        assert os.path.isfile(os.path.join(optimized_model_dir, "saved_model.pb"))
-
-    # Test generating an Intel Neural Compressor config file (not implemented yet for TFDS)
-    inc_config_file_path = os.path.join(output_dir, "tf_{}.yaml".format(model_name))
-    with pytest.raises(NotImplementedError):
-        model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, tuning_workspace=output_dir)
+    if test_optimization:
+        inc_output_dir = os.path.join(output_dir, "optimized")
+        os.makedirs(inc_output_dir, exist_ok=True)
+        model.optimize_graph(inc_output_dir)
+        assert os.path.isfile(os.path.join(inc_output_dir, "saved_model.pb"))
 
     # Retrain from checkpoints and verify that we have better accuracy than the original training
     retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
@@ -125,97 +130,102 @@ def test_tf_image_classification(model_name, dataset_name, train_accuracy, retra
         shutil.rmtree(output_dir)
 
 
+# This is necessary to protect from import errors when testing in a tensorflow only environment
+if keras_env:
+    @pytest.mark.integration
+    @pytest.mark.tensorflow
+    def test_tf_image_classification_custom_model():
+        """
+        Tests basic transfer learning functionality for a custom TensorFlow image classification model using TF Datasets
+        """
+        framework = 'tensorflow'
+        use_case = 'image_classification'
+        output_dir = tempfile.mkdtemp()
+        model_name = 'custom_model'
+        image_size = 227
+
+        # Get the dataset
+        dataset = dataset_factory.get_dataset('/tmp/data', use_case, framework, 'tf_flowers',
+                                              'tf_datasets', split=["train[:5%]"], shuffle_files=False)
+
+        # Define a custom model
+        alexnet = keras.models.Sequential([
+            keras.layers.Conv2D(filters=96, kernel_size=(11, 11), strides=(4, 4), activation='relu',
+                                input_shape=(image_size, image_size, 3)),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+            keras.layers.Conv2D(filters=256, kernel_size=(5, 5), strides=(1, 1), activation='relu', padding="same"),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+            keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=256, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
+            keras.layers.Flatten(),
+            keras.layers.Dense(4096, activation='relu'),
+            keras.layers.Dropout(0.5),
+            keras.layers.Dense(4096, activation='relu'),
+            keras.layers.Dropout(0.5),
+            keras.layers.Dense(5, activation='softmax')
+        ])
+
+        model = model_factory.load_model(model_name=model_name, model=alexnet, framework=framework, use_case=use_case)
+        assert model.num_classes == 5
+        assert model._image_size == 227
+
+        # Preprocess the dataset
+        dataset.preprocess(image_size, 32)
+        dataset.shuffle_split(seed=10)
+
+        # Train
+        history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, seed=10)
+        assert history is not None
+
+        # Verify that checkpoints were generated
+        checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(model_name))
+        assert os.path.isdir(checkpoint_dir)
+        assert len(os.listdir(checkpoint_dir))
+
+        # Evaluate
+        trained_metrics = model.evaluate(dataset)
+        assert trained_metrics is not None
+
+        # Predict with a batch
+        images, labels = dataset.get_batch()
+        predictions = model.predict(images)
+        assert len(predictions) == 32
+        probabilities = model.predict(images, return_type='probabilities')
+        assert probabilities.shape == (32, 5)  # tf_flowers has 5 classes
+        np.testing.assert_almost_equal(np.sum(probabilities), np.float32(32), decimal=4)
+
+        # Export the saved model
+        saved_model_dir = model.export(output_dir)
+        assert os.path.isdir(saved_model_dir)
+        assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
+
+        # Reload the saved model
+        reload_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
+
+        # Evaluate
+        reload_metrics = reload_model.evaluate(dataset)
+        np.testing.assert_almost_equal(reload_metrics, trained_metrics)
+
+        # Retrain from checkpoints and verify that we have better accuracy than the original training
+        retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
+        retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1,
+                                              initial_checkpoints=checkpoint_dir, shuffle_files=False, seed=10)
+        assert retrain_history is not None
+
+        # Delete the temp output directory
+        if os.path.exists(output_dir) and os.path.isdir(output_dir):
+            shutil.rmtree(output_dir)
+
+
+@pytest.mark.integration
 @pytest.mark.tensorflow
-def test_tf_image_classification_custom_model():
-    """
-    Tests basic transfer learning functionality for a custom TensorFlow image classification model using TF Datasets
-    """
-    framework = 'tensorflow'
-    use_case = 'image_classification'
-    output_dir = tempfile.mkdtemp()
-    model_name = 'custom_model'
-    image_size = 227
-
-    # Get the dataset
-    dataset = dataset_factory.get_dataset('/tmp/data', use_case, framework, 'tf_flowers',
-                                          'tf_datasets', split=["train[:5%]"], shuffle_files=False)
-
-    # Define a custom model
-    alexnet = keras.models.Sequential([
-        keras.layers.Conv2D(filters=96, kernel_size=(11, 11), strides=(4, 4), activation='relu',
-                            input_shape=(image_size, image_size, 3)),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
-        keras.layers.Conv2D(filters=256, kernel_size=(5, 5), strides=(1, 1), activation='relu', padding="same"),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
-        keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=384, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=256, kernel_size=(3, 3), strides=(1, 1), activation='relu', padding="same"),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(3, 3), strides=(2, 2)),
-        keras.layers.Flatten(),
-        keras.layers.Dense(4096, activation='relu'),
-        keras.layers.Dropout(0.5),
-        keras.layers.Dense(4096, activation='relu'),
-        keras.layers.Dropout(0.5),
-        keras.layers.Dense(5, activation='softmax')
-    ])
-
-    model = model_factory.load_model(model_name=model_name, model=alexnet, framework=framework, use_case=use_case)
-    assert model.num_classes == 5
-    assert model._image_size == 227
-
-    # Preprocess the dataset
-    dataset.preprocess(image_size, 32)
-    dataset.shuffle_split(seed=10)
-
-    # Train
-    history = model.train(dataset, output_dir=output_dir, epochs=1, shuffle_files=False, seed=10)
-    assert history is not None
-
-    # Verify that checkpoints were generated
-    checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(model_name))
-    assert os.path.isdir(checkpoint_dir)
-    assert len(os.listdir(checkpoint_dir))
-
-    # Evaluate
-    trained_metrics = model.evaluate(dataset)
-    assert trained_metrics is not None
-
-    # Predict with a batch
-    images, labels = dataset.get_batch()
-    predictions = model.predict(images)
-    assert len(predictions) == 32
-    probabilities = model.predict(images, return_type='probabilities')
-    assert probabilities.shape == (32, 5)  # tf_flowers has 5 classes
-    np.testing.assert_almost_equal(np.sum(probabilities), np.float32(32), decimal=4)
-
-    # Export the saved model
-    saved_model_dir = model.export(output_dir)
-    assert os.path.isdir(saved_model_dir)
-    assert os.path.isfile(os.path.join(saved_model_dir, "saved_model.pb"))
-
-    # Reload the saved model
-    reload_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
-
-    # Evaluate
-    reload_metrics = reload_model.evaluate(dataset)
-    np.testing.assert_almost_equal(reload_metrics, trained_metrics)
-
-    # Retrain from checkpoints and verify that we have better accuracy than the original training
-    retrain_model = model_factory.load_model(model_name, saved_model_dir, framework, use_case)
-    retrain_history = retrain_model.train(dataset, output_dir=output_dir, epochs=1, initial_checkpoints=checkpoint_dir,
-                                          shuffle_files=False, seed=10)
-    assert retrain_history is not None
-
-    # Delete the temp output directory
-    if os.path.exists(output_dir) and os.path.isdir(output_dir):
-        shutil.rmtree(output_dir)
-
-
 class TestImageClassificationCustomDataset:
     """
     Tests for TensorFlow image classification using a custom dataset using the flowers dataset
@@ -241,12 +251,11 @@ class TestImageClassificationCustomDataset:
                 print("Deleting test directory:", dir)
                 shutil.rmtree(dir)
 
-    @pytest.mark.integration
-    @pytest.mark.tensorflow
-    @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy',
-                             [['efficientnet_b0', 0.9333333, 1.0],
-                              ['resnet_v1_50', 1.0, 1.0]])
-    def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy):
+    @pytest.mark.parametrize('model_name,train_accuracy,retrain_accuracy,test_inc',
+                             [['efficientnet_b0', 0.9333333, 1.0, False],
+                              ['resnet_v1_50', 1.0, 1.0, True],
+                              ['resnet_v2_50', 1.0, 1.0, False]])
+    def test_custom_dataset_workflow(self, model_name, train_accuracy, retrain_accuracy, test_inc):
         """
         Tests the full workflow for TF image classification using a custom dataset
         """
@@ -263,7 +272,7 @@ class TestImageClassificationCustomDataset:
 
         # Preprocess the dataset and split to get small subsets for training and validation
         dataset.shuffle_split(train_pct=0.1, val_pct=0.1, shuffle_files=False)
-        dataset.preprocess(model.image_size, 32)
+        dataset.preprocess(model.image_size, 32, preprocessor=model.preprocessor)
 
         # Train for 1 epoch
         history = model.train(dataset, output_dir=self._output_dir, epochs=1, shuffle_files=False, seed=10,
@@ -304,18 +313,13 @@ class TestImageClassificationCustomDataset:
                                               do_eval=False)
         np.testing.assert_almost_equal(retrain_history['acc'], [retrain_accuracy])
 
-        # Test benchmarking, quantization, and graph optimization with ResNet50
-        if model_name == "resnet_v1_50":
-            inc_config_file_path = os.path.join(self._output_dir, "tf_{}.yaml".format(model_name))
-            nc_workspace = os.path.join(self._output_dir, "nc_workspace")
-            model.write_inc_config_file(inc_config_file_path, dataset, batch_size=32, accuracy_criterion_relative=0.1,
-                                        exit_policy_max_trials=10, exit_policy_timeout=0, tuning_workspace=nc_workspace)
-
-            quantization_output = os.path.join(self._output_dir, "quantized", model_name)
-            os.makedirs(quantization_output)
-            model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
-            assert os.path.exists(os.path.join(quantization_output, "saved_model.pb"))
-            model.benchmark(quantization_output, inc_config_file_path)
+        # Test benchmarking, quantization
+        if test_inc:
+            inc_output_dir = os.path.join(self._output_dir, "quantized", model_name)
+            os.makedirs(inc_output_dir)
+            model.quantize(inc_output_dir, dataset=dataset)
+            assert os.path.exists(os.path.join(inc_output_dir, "saved_model.pb"))
+            model.benchmark(saved_model_dir=inc_output_dir, dataset=dataset)
 
 
 @pytest.mark.integration
@@ -412,3 +416,114 @@ def test_train_add_aug_mock(add_aug):
         # Test train without eval
         return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=False)
         assert return_val == expected_return_value
+
+
+@pytest.mark.tensorflow
+def test_custom_callback():
+    """
+    Tests passing custom callbacks to the TensorFlow image classification train, evaluate, and predict functions.
+    """
+    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+
+    with patch('tlt.models.image_classification.tfhub_image_classification_model.'
+               'TFHubImageClassificationModel._get_hub_model') as mock_get_hub_model:
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = ImageClassificationDataset
+        mock_dataset.validation_subset = [1, 2, 3]
+
+        mock_dataset.class_names = ['a', 'b', 'c']
+        mock_model = MagicMock()
+        expected_return_value = {"result": True}
+        mock_history = MagicMock()
+        mock_history.history = expected_return_value
+
+        class TestCallbackMethod(keras.callbacks.Callback):
+            pass
+
+        test_callback = TestCallbackMethod()
+
+        def mock_fit(dataset, epochs, shuffle, callbacks, validation_data=None):
+            # We should have more than one callback since TLT them and we added a custom one
+            assert isinstance(callbacks, list)
+            assert len(callbacks) > 1
+
+            # We should have one callback that's our test callback
+            assert (len([x for x in callbacks if x.__class__.__name__ == 'TestCallbackMethod']) == 1)
+
+            return mock_history
+
+        def mock_evaluate(dataset, callbacks=None):
+            assert isinstance(callbacks, list)
+            assert len(callbacks) == 1
+            assert (len([x for x in callbacks if x.__class__.__name__ == 'TestCallbackMethod']) == 1)
+            return [.98, 0.13]
+
+        def mock_predict(input_samples, callbacks=None):
+            assert isinstance(callbacks, list)
+            assert len(callbacks) == 1
+            assert (len([x for x in callbacks if x.__class__.__name__ == 'TestCallbackMethod']) == 1)
+            return [1.0, 0.5]
+
+        mock_model.fit.side_effect = mock_fit
+        mock_model.evaluate.side_effect = mock_evaluate
+        mock_model.predict.side_effect = mock_predict
+        mock_get_hub_model.return_value = mock_model
+
+        # Test custom callback as a single item, list, or tuple
+        custom_callbacks = [test_callback, [test_callback], (test_callback)]
+
+        for custom_callback in custom_callbacks:
+            # Test train with custom callback
+            return_val = model.train(mock_dataset, output_dir="/tmp/output", do_eval=False, callbacks=custom_callback)
+            assert return_val == expected_return_value
+            mock_model.fit.assert_called_once()
+            mock_model.fit.reset_mock()
+
+            # Test evaluate with custom callback
+            model.evaluate(mock_dataset, callbacks=custom_callback)
+            mock_model.evaluate.assert_called_once()
+            mock_model.evaluate.reset_mock()
+
+            # Test predict with custom callback
+            model.predict([], callbacks=custom_callback)
+            mock_model.predict.assert_called_once()
+            mock_model.predict.reset_mock()
+
+
+@pytest.mark.tensorflow
+@patch('tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel._get_hub_model')
+def test_invalid_callback_types(mock_get_hub_model):
+    """
+    Tests passing custom callbacks of the wrong type to train, predict, and evaluate
+    """
+    model = model_factory.get_model('efficientnet_b0', 'tensorflow')
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = ImageClassificationDataset
+    mock_dataset.validation_subset = [1, 2, 3]
+
+    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_model = MagicMock()
+    expected_return_value = {"result": True}
+    mock_history = MagicMock()
+    mock_history.history = expected_return_value
+
+    class TestCallbackMethod(keras.callbacks.Callback):
+        pass
+
+    good_callback = TestCallbackMethod()
+    bad_callback = 1
+
+    mock_model.fit = MagicMock()
+    mock_model.evaluate = MagicMock()
+    mock_model.predict = MagicMock()
+    mock_get_hub_model.return_value = mock_model
+
+    with pytest.raises(TypeError, match="Callbacks must be tf.keras.callbacks.Callback instances"):
+        model.train(mock_dataset, output_dir="/tmp/output", do_eval=False, callbacks=[good_callback, bad_callback])
+
+    with pytest.raises(TypeError, match="Callbacks must be tf.keras.callbacks.Callback instances"):
+        model.evaluate(mock_dataset, callbacks=[good_callback, bad_callback])
+
+    with pytest.raises(TypeError, match="Callbacks must be tf.keras.callbacks.Callback instances"):
+        model.predict([], callbacks=[good_callback, bad_callback])

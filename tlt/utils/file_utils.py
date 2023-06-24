@@ -18,7 +18,7 @@
 
 import json
 import os
-import urllib.request
+import requests
 import re
 import shutil
 import tarfile
@@ -53,8 +53,10 @@ def download_file(download_url, destination_directory):
     destination_file_path = os.path.join(destination_directory, os.path.basename(download_url))
 
     print("Downloading {} to {}".format(download_url, destination_directory))
-    with urllib.request.urlopen(download_url) as response, open(destination_file_path, 'wb') as out_file:
-        shutil.copyfileobj(response, out_file)
+    response = requests.get(download_url, stream=True, timeout=30)  # Adds a 30 sec timeout for Bandit
+    with open(destination_file_path, 'wb') as out_file:
+        response.raw.decode_content = True
+        shutil.copyfileobj(response.raw, out_file)
 
     return destination_file_path
 

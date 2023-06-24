@@ -24,7 +24,9 @@ import tensorflow as tf
 from tlt import TLT_BASE_DIR
 from tlt.datasets.tf_dataset import TFDataset
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
+from tlt.utils.dataset_utils import prepare_huggingface_input_data
 from tlt.utils.file_utils import read_json_file
+from tlt.utils.inc_utils import INCTFDataLoader
 from downloader.datasets import DataDownloader
 
 DATASET_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "datasets/configs")
@@ -106,8 +108,8 @@ class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
                 batch_size (int): desired batch size
 
             Raises:
-                TypeError if the batch_size is not a positive integer
-                ValueError if the dataset is not defined or has already been processed
+                TypeError: if the batch_size is not a positive integer
+                ValueError: if the dataset is not defined or has already been processed
         """
         if not isinstance(batch_size, int) or batch_size < 1:
             raise ValueError("batch_size should be a positive integer")
@@ -123,3 +125,18 @@ class TFDSTextClassificationDataset(TFDataset, TextClassificationDataset):
             setattr(self, subset, getattr(self, subset).batch(batch_size))
             setattr(self, subset, getattr(self, subset).prefetch(tf.data.AUTOTUNE))
         self._preprocessed = {'batch_size': batch_size}
+
+    def get_inc_dataloaders(self, hub_name, max_seq_length):
+        calib_data, calib_labels = prepare_huggingface_input_data(self.train_subset, hub_name, max_seq_length)
+        calib_data['label'] = tf.convert_to_tensor(calib_labels)
+
+        eval_data, eval_labels = prepare_huggingface_input_data(self.validation_subset, hub_name, max_seq_length)
+        eval_data['label'] = tf.convert_to_tensor(eval_labels)
+
+        calib_data.pop('token_type_ids')
+        eval_data.pop('token_type_ids')
+
+        calib_dataloader = INCTFDataLoader(calib_data, batch_size=self._preprocessed['batch_size'])
+        eval_dataloader = INCTFDataLoader(eval_data, batch_size=self._preprocessed['batch_size'])
+
+        return calib_dataloader, eval_dataloader

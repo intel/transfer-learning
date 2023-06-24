@@ -5,6 +5,7 @@ args:
   finetune: true
   finetune_output: ./output/finetune_predictions_report.yaml
   inference: false
+  inference_per_patient: true
   inference_output: inference_predictions_report.yaml
   model: resnet_v1_50
   pipeline: finetune

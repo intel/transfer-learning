@@ -119,6 +119,7 @@ def test_shuffle_split(dataset_name, use_case, train_split, train_len, val_len):
     assert flowers._validation_type == 'shuffle_split'
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,image_size',
                          [['tf_flowers', 'image_classification', 224],
@@ -245,6 +246,7 @@ def test_batching_error(dataset_dir, use_case, dataset_name, dataset_catalog, cl
         ic_dataset.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,expected_class_names',
                          [['glue/cola', 'text_classification', ['unacceptable', 'acceptable']],
@@ -326,6 +328,7 @@ def test_custom_text_classification_csv(dataset_name, delimiter):
             shutil.rmtree(dataset_dir)
 
 
+@pytest.mark.tensorflow
 def test_custom_text_classification_extra_columns():
     """
     Tests load_dataset with a text classification csv file that has 3 columns and uses select_cols and exclude_cols to
@@ -486,7 +489,6 @@ class TestImageClassificationDataset:
     tests will be run once for each of the dataset defined in the dataset_params list.
     """
 
-    @pytest.mark.tensorflow
     def test_class_names_and_size(self, test_data):
         """
         Verify the class type, dataset class names, and dataset length after initialization
@@ -509,7 +511,6 @@ class TestImageClassificationDataset:
             assert len(tlt_dataset.class_names) == len(tfds_metadata[dataset_name]['class_names'])
             assert len(tlt_dataset.dataset) == tfds_metadata[dataset_name]['size']
 
-    @pytest.mark.tensorflow
     @pytest.mark.parametrize('batch_size',
                              ['foo',
                               -17,
@@ -525,7 +526,6 @@ class TestImageClassificationDataset:
             else:
                 tlt_dataset.preprocess(batch_size=batch_size)
 
-    @pytest.mark.tensorflow
     @pytest.mark.parametrize('image_size',
                              ['foo',
                               -17,
@@ -541,7 +541,6 @@ class TestImageClassificationDataset:
             with pytest.raises(ValueError):
                 tlt_dataset.preprocess(image_size, batch_size=8)
 
-    @pytest.mark.tensorflow
     def test_preprocessing(self, test_data):
         """
         Checks that dataset can be preprocessed only once
@@ -566,7 +565,6 @@ class TestImageClassificationDataset:
         assert 'Data has already been preprocessed: {}'.format(preprocessing_inputs) == str(e.value)
         print(tlt_dataset.info)
 
-    @pytest.mark.tensorflow
     def test_shuffle_split_errors(self, test_data):
         """
         Checks that splitting into train, validation, and test subsets will error if inputs are wrong
@@ -580,7 +578,6 @@ class TestImageClassificationDataset:
             tlt_dataset.shuffle_split(train_pct=1, val_pct=0)
         assert 'Percentage arguments must be floats.' == str(e.value)
 
-    @pytest.mark.tensorflow
     def test_shuffle_split(self, test_data):
         """
         Checks that dataset can be split into train, validation, and test subsets

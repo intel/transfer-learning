@@ -40,8 +40,11 @@ model_map = {
         },
         UseCaseType.TEXT_CLASSIFICATION:
         {
+            "huggingface": {"module": "tlt.models.text_classification.tf_hf_text_classification_model",
+                            "class": "TFHFTextClassificationModel"},
             "TFHub": {"module": "tlt.models.text_classification.tfhub_text_classification_model",
                       "class": "TFHubTextClassificationModel"},
+
             "Custom": {"module": "tlt.models.text_classification.tf_text_classification_model",
                        "class": "TFTextClassificationModel"}
         }
@@ -58,8 +61,8 @@ model_map = {
                        "class": "PyTorchImageClassificationModel"}
         },
         UseCaseType.TEXT_CLASSIFICATION: {
-            "huggingface": {"module": "tlt.models.text_classification.hf_text_classification_model",
-                            "class": "HFTextClassificationModel"},
+            "huggingface": {"module": "tlt.models.text_classification.pytorch_hf_text_classification_model",
+                            "class": "PyTorchHFTextClassificationModel"},
         },
         UseCaseType.IMAGE_ANOMALY_DETECTION:
         {
@@ -72,7 +75,8 @@ model_map = {
 }
 
 
-def load_model(model_name: str, model, framework: FrameworkType = None, use_case: UseCaseType = None, **kwargs):
+def load_model(model_name: str, model, framework: FrameworkType = None, use_case: UseCaseType = None,
+               model_hub: str = None, **kwargs):
     """A factory method for loading an existing model.
 
         Args:
@@ -80,6 +84,7 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
             model (model or str): model object or directory with a saved_model.pb or model.pt file to load
             framework (str or FrameworkType): framework
             use_case (str or UseCaseType): use case
+            model_hub (str): The model hub where the model originated
             kwargs: optional; additional keyword arguments for optimizer and loss function configuration.
                 The `optimizer` and `loss` arguments can be set to Optimizer and Loss classes, depending on the model's
                 framework (examples: `optimizer=tf.keras.optimizers.Adam` for TensorFlow,
@@ -105,8 +110,10 @@ def load_model(model_name: str, model, framework: FrameworkType = None, use_case
     if use_case is not None and not isinstance(use_case, UseCaseType):
         use_case = UseCaseType.from_str(use_case)
 
-    model_class = locate('{}.{}'.format(model_map[framework][use_case]['Custom']['module'],
-                                        model_map[framework][use_case]['Custom']['class']))
+    model_hub = model_hub if model_hub else 'Custom'
+
+    model_class = locate('{}.{}'.format(model_map[framework][use_case][model_hub]['module'],
+                                        model_map[framework][use_case][model_hub]['class']))
     return model_class(model_name, model, **kwargs)
 
 
@@ -128,7 +135,7 @@ def get_model(model_name: str, framework: FrameworkType = None, use_case: UseCas
             model object
 
         Raises:
-            NotImplementedError if the model requested is not supported yet
+            NotImplementedError: if the model requested is not supported yet
 
         Example:
             >>> from tlt.models.model_factory import get_model
@@ -195,7 +202,7 @@ def get_supported_models(framework: FrameworkType = None, use_case: UseCaseType 
         dictionary
 
     Raises:
-        NameError if a model config file is found with an unknown or missing use case
+        NameError: if a model config file is found with an unknown or missing use case
 
     """
     # Directory of json files for the supported models
@@ -268,6 +275,19 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
     """
     models = get_supported_models(framework, use_case)
 
+    # Proper names
+    model_hub_map = {
+        "torchvision": "Torchvision",
+        "tfhub": "TensorFlow Hub",
+        "pytorch_hub": "PyTorch Hub",
+        "huggingface": "Hugging Face",
+        "keras": "Keras Applications"
+    }
+    framework_name_map = {
+        "tensorflow": "TensorFlow",
+        "pytorch": "PyTorch"
+    }
+
     for model_use_case in models.keys():
         if markdown:
             print("## {}\n".format(model_use_case.replace("_", " ").title()))
@@ -294,31 +314,17 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
 
         for model_name in model_name_list:
             for model_framework in models[model_use_case][model_name].keys():
+                model_hub = models[model_use_case][model_name][model_framework]["model_hub"] if \
+                    "model_hub" in models[model_use_case][model_name][model_framework].keys() else ""
+                model_hub_display = model_hub_map[model_hub.lower()] if model_hub.lower() in model_hub_map.keys() \
+                    else model_hub
+                model_framework_display = framework_name_map[model_framework.lower()] if \
+                    model_framework.lower() in framework_name_map.keys() else model_framework
 
                 if markdown:
-                    model_hub = models[model_use_case][model_name][model_framework]["model_hub"] if \
-                        "model_hub" in models[model_use_case][model_name][model_framework].keys() else ""
-
-                    # Use proper names
-                    model_hub_map = {
-                        "torchvision": "Torchvision",
-                        "tfhub": "TensorFlow Hub",
-                        "pytorch_hub": "PyTorch Hub",
-                        "huggingface": "Hugging Face"
-                    }
-                    framework_name_map = {
-                        "tensorflow": "TensorFlow",
-                        "pytorch": "PyTorch"
-                    }
-
-                    model_hub = model_hub_map[model_hub.lower()] if model_hub.lower() in model_hub_map.keys() \
-                        else model_hub
-                    model_framework = framework_name_map[model_framework.lower()] if \
-                        model_framework.lower() in framework_name_map.keys() else model_framework
-
-                    print("| {} | {} | {} |".format(model_name, model_framework, model_hub))
+                    print("| {} | {} | {} |".format(model_name, model_framework_display, model_hub_display))
                 else:
-                    print("{} ({})".format(model_name, model_framework))
+                    print("{} ({} model from {})".format(model_name, model_framework_display, model_hub_display))
 
                 if verbose and not markdown:
                     for model_attribute, attribute_value in models[model_use_case][model_name][model_framework].items():

@@ -21,13 +21,21 @@
 import pytest
 import numpy
 
-from unittest.mock import MagicMock, patch
+from unittest import mock
+from unittest.mock import ANY, MagicMock, patch
 from sklearn import decomposition
 
 from tlt.models import model_factory
 from tlt.utils.types import FrameworkType, UseCaseType
-from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features, pca, get_feature_extraction_model  # noqa: E501
 
+try:
+    from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features, pca, get_feature_extraction_model  # noqa: E501
+except ModuleNotFoundError:
+    print("WARNING: Unable to import PytorchImageAnomolyDetectionModel. Pytorch may not be installed")
+
+# This is necessary to protect from import errors when testing in a pytorch only environment
+# True when imports are successful, False when imports are unsuccessful
+torch_env = True
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
@@ -35,7 +43,7 @@ try:
     import torch.nn as nn
 except ModuleNotFoundError:
     print("WARNING: Unable to import torch. Torch may not be installed")
-
+    torch_env = False
 
 try:
     # Do torch specific imports in a try/except to prevent pytest test loading from failing when running in a TF env
@@ -43,7 +51,7 @@ try:
     from tlt.datasets.image_classification.torchvision_image_classification_dataset import TorchvisionImageClassificationDataset   # noqa: E501
     from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import \
         PyTorchCustomImageClassificationDataset  # noqa: E501
-    from tlt.models.text_classification.hf_text_classification_model import HFTextClassificationModel  # noqa: E501
+    from tlt.models.text_classification.pytorch_hf_text_classification_model import PyTorchHFTextClassificationModel  # noqa: E501
 except ModuleNotFoundError:
     print("WARNING: Unable to import TorchvisionImageClassificationModel and TorchvisionImageClassificationDataset. "
           "Torch may not be installed")
@@ -211,7 +219,7 @@ def test_torchvision_efficientnet_b0_train():
 @pytest.mark.pytorch
 def test_bert_train():
     model = model_factory.get_model('distilbert-base-uncased', 'pytorch')
-    assert type(model) == HFTextClassificationModel
+    assert type(model) == PyTorchHFTextClassificationModel
     with patch('tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset') as mock_dataset:  # noqa: E501
         mock_dataset.__class__ = HFTextClassificationDataset
         mock_dataset.train_subset = ['1', '2', '3']
@@ -221,12 +229,22 @@ def test_bert_train():
 
         # Scenario 1: Call train without validation
         return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=False, lr_decay=False)
-        assert return_val == expected_return_value_history_no_val
+        assert return_val['Acc'] == expected_return_value_history_no_val['Acc']
+        assert return_val['Loss'] == expected_return_value_history_no_val['Loss']
+        assert 'train_runtime' in return_val
+        assert 'train_samples_per_second' in return_val
+        assert 'Val Acc' not in return_val
+        assert 'Val Loss' not in return_val
 
         # Scenario 2: Call train with validation
         mock_dataset.validation_loader.__class__ = HFTextClassificationDataset
         return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch", do_eval=True, lr_decay=False)
-        assert return_val == expected_return_value_history_val
+        assert return_val['Acc'] == expected_return_value_history_val['Acc']
+        assert return_val['Loss'] == expected_return_value_history_val['Loss']
+        assert return_val['Val Acc'] == expected_return_value_history_val['Val Acc']
+        assert return_val['Val Loss'] == expected_return_value_history_val['Val Loss']
+        assert 'train_runtime' in return_val
+        assert 'train_samples_per_second' in return_val
 
 
 @pytest.mark.pytorch
@@ -251,76 +269,135 @@ def test_resnet50_anomaly_extract_pca():
         assert components.n_components == 0.97
 
 
+# This is necessary to protect from import errors when testing in a pytorch only environment
+if torch_env:
+    @pytest.mark.pytorch
+    @pytest.mark.parametrize('model_name,use_case,dataset_type,optimizer,loss',
+                             [['efficientnet_b0', 'image_classification', PyTorchCustomImageClassificationDataset,
+                               torch.optim.Adam, torch.nn.L1Loss],
+                              ['resnet18', 'image_classification', PyTorchCustomImageClassificationDataset,
+                               torch.optim.AdamW, torch.nn.MSELoss],
+                              ['custom', 'image_classification', PyTorchCustomImageClassificationDataset,
+                               torch.optim.SGD, torch.nn.L1Loss],
+                              ['distilbert-base-uncased', 'text_classification', HFTextClassificationDataset,
+                               torch.optim.Adam, torch.nn.MSELoss]])
+    def test_pytorch_optimizer_loss(model_name, use_case, dataset_type, optimizer, loss):
+        """
+        Tests initializing and training a model with configurable optimizers and loss functions
+        """
+
+        # Define a model
+        class Net(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.conv1 = nn.Conv2d(3, 6, 5)
+                self.pool = nn.MaxPool2d(2, 2)
+                self.conv2 = nn.Conv2d(6, 16, 5)
+                self.fc1 = nn.Linear(16 * 5 * 5, 120)
+                self.fc2 = nn.Linear(120, 84)
+                self.fc3 = nn.Linear(84, 3)
+
+            def forward(self, x):
+                x = self.pool(nn.functional.relu(self.conv1(x)))
+                x = self.pool(nn.functional.relu(self.conv2(x)))
+                x = torch.flatten(x, 1)
+                x = nn.functional.relu(self.fc1(x))
+                x = nn.functional.relu(self.fc2(x))
+                x = self.fc3(x)
+                return x
+
+        net = Net()
+
+        if model_name == 'custom':
+            model = model_factory.load_model(model_name, net, 'pytorch', use_case, optimizer=optimizer, loss=loss)
+        else:
+            model = model_factory.get_model(model_name, 'pytorch', optimizer=optimizer, loss=loss)
+
+        model._generate_checkpoints = False
+        model._fit = MagicMock()
+        assert model._optimizer_class == optimizer
+        assert model._loss_class == loss
+        assert type(model._loss) == loss
+
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = dataset_type
+        mock_dataset.class_names = ['a', 'b', 'c']
+        mock_dataset.train_subset = [1, 2, 3]
+        mock_dataset.validation_subset = [4, 5, 6]
+
+        # Train is called and optimizer and loss objects should match the input types
+        model.train(mock_dataset, output_dir="/tmp/output/pytorch")
+        assert model._optimizer_class == optimizer
+        assert type(model._optimizer) == optimizer
+        assert model._loss_class == loss
+        assert type(model._loss) == loss
+
+
+# This is necessary to protect from import errors when testing in a pytorch only environment
+if torch_env:
+    @pytest.mark.pytorch
+    @pytest.mark.parametrize('model_name,optimizer',
+                             [['efficientnet_b0', 1],
+                              ['resnet18', 'foo'],
+                              ['distilbert-base-uncased', torch.nn.MSELoss]])
+    def test_pytorch_optimizer_wrong_type(model_name, optimizer):
+        """
+        Tests that an exception is thrown when the input optimizer is the wrong type
+        """
+        with pytest.raises(TypeError):
+            model_factory.get_model(model_name, 'pytorch', optimizer=optimizer)
+
+
 @pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,use_case,dataset_type,optimizer,loss',
-                         [['efficientnet_b0', 'image_classification', PyTorchCustomImageClassificationDataset,
-                           torch.optim.Adam, torch.nn.L1Loss],
-                          ['resnet18', 'image_classification', PyTorchCustomImageClassificationDataset,
-                           torch.optim.AdamW, torch.nn.MSELoss],
-                          ['custom', 'image_classification', PyTorchCustomImageClassificationDataset,
-                           torch.optim.SGD, torch.nn.L1Loss],
-                          ['distilbert-base-uncased', 'text_classification', HFTextClassificationDataset,
-                           torch.optim.Adam, torch.nn.MSELoss]])
-def test_pytorch_optimizer_loss(model_name, use_case, dataset_type, optimizer, loss):
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.optim.AdamW')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.Trainer')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ModelDownloader')
+def test_pytorch_hf_text_classification_trainer_return_values(mock_downloader, mock_trainer, mock_optimizer):
     """
-    Tests initializing and training a model with configurable optimizers and loss functions
+    Tests the PyTorch Text Classification model with the Hugging Face Trainer to verify that the value returned
+    by Trainer.train() is returned by the model.train() method
     """
 
-    # Define a model
-    class Net(nn.Module):
-        def __init__(self):
-            super().__init__()
-            self.conv1 = nn.Conv2d(3, 6, 5)
-            self.pool = nn.MaxPool2d(2, 2)
-            self.conv2 = nn.Conv2d(6, 16, 5)
-            self.fc1 = nn.Linear(16 * 5 * 5, 120)
-            self.fc2 = nn.Linear(120, 84)
-            self.fc3 = nn.Linear(84, 3)
-
-        def forward(self, x):
-            x = self.pool(nn.functional.relu(self.conv1(x)))
-            x = self.pool(nn.functional.relu(self.conv2(x)))
-            x = torch.flatten(x, 1)
-            x = nn.functional.relu(self.fc1(x))
-            x = nn.functional.relu(self.fc2(x))
-            x = self.fc3(x)
-            return x
-
-    net = Net()
-
-    if model_name == 'custom':
-        model = model_factory.load_model(model_name, net, 'pytorch', use_case, optimizer=optimizer, loss=loss)
-    else:
-        model = model_factory.get_model(model_name, 'pytorch', optimizer=optimizer, loss=loss)
-
-    model._generate_checkpoints = False
-    model._fit = MagicMock()
-    assert model._optimizer_class == optimizer
-    assert model._loss_class == loss
-    assert type(model._loss) == loss
+    model = model_factory.get_model(model_name='bert-base-cased', framework='pytorch')
 
     mock_dataset = MagicMock()
-    mock_dataset.__class__ = dataset_type
+    mock_dataset.__class__ = HFTextClassificationDataset
     mock_dataset.class_names = ['a', 'b', 'c']
     mock_dataset.train_subset = [1, 2, 3]
     mock_dataset.validation_subset = [4, 5, 6]
 
-    # Train is called and optimizer and loss objects should match the input types
-    model.train(mock_dataset, output_dir="/tmp/output/pytorch")
-    assert model._optimizer_class == optimizer
-    assert type(model._optimizer) == optimizer
-    assert model._loss_class == loss
-    assert type(model._loss) == loss
+    expected_value = "a"
+
+    mock_trainer().train.return_value = expected_value
+
+    return_val = model.train(mock_dataset, output_dir="/tmp", use_trainer=True, seed=10)
+    assert mock_trainer().train.call_count == 1
+
+    assert return_val == expected_value
 
 
 @pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,optimizer',
-                         [['efficientnet_b0', 1],
-                          ['resnet18', 'foo'],
-                          ['distilbert-base-uncased', torch.nn.MSELoss]])
-def test_pytorch_optimizer_wrong_type(model_name, optimizer):
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.optim.AdamW')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.Trainer')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ModelDownloader')
+def test_pytorch_hf_text_classification_trainer_without_val_subset(mock_downloader, mock_trainer, mock_optimizer):
     """
-    Tests that an exception is thrown when the input optimizer is the wrong type
+    Tests the PyTorch Text Classification model with the Hugging Face Trainer is able to run evaluation with a test
+    subset when a validation subset does not exist.
     """
-    with pytest.raises(TypeError):
-        model_factory.get_model(model_name, 'pytorch', optimizer=optimizer)
+
+    model = model_factory.get_model(model_name='bert-base-cased', framework='pytorch')
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = HFTextClassificationDataset
+    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_dataset.train_subset = [1, 2, 3]
+    mock_dataset.test_subset = [4, 5, 6]
+    type(mock_dataset).validation_subset = mock.PropertyMock(side_effect=ValueError)
+
+    with pytest.raises(ValueError):
+        mock_dataset.validation_subset
+
+    model.train(mock_dataset, output_dir="/tmp", use_trainer=True, seed=10)
+    mock_trainer.assert_called_with(model=model._model, args=ANY, train_dataset=[1, 2, 3], eval_dataset=[4, 5, 6],
+                                    compute_metrics=ANY, tokenizer=ANY)

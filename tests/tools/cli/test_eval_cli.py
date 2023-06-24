@@ -91,7 +91,7 @@ def test_eval_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_g
 
 @pytest.mark.common
 @pytest.mark.parametrize('model_name,framework',
-                         [['small_bert/bert_en_uncased_L-10_H-128_A-2', FrameworkType.TENSORFLOW],
+                         [['google/bert_uncased_L-10_H-128_A-2', FrameworkType.TENSORFLOW],
                           ['bert_en_uncased_L-12_H-768_A-12', FrameworkType.PYTORCH]])
 @patch("tlt.models.model_factory.get_model")
 @patch("tlt.datasets.dataset_factory.load_dataset")

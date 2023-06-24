@@ -109,3 +109,11 @@ class ModelDownloader():
                                                                                   self._model_name))
 
             return pretrained_model_class(**self._args)
+
+        elif self._type == ModelType.TF_BERT_HUGGINGFACE:
+            if self._model_dir is not None:
+                os.environ['TRANSFORMERS_CACHE'] = self._model_dir
+            from transformers import BertConfig, TFBertModel
+
+            config = BertConfig.from_pretrained(self._model_name, output_hidden_states=True)
+            return TFBertModel.from_pretrained(self._model_name, config=config, from_pt=True, **self._args)

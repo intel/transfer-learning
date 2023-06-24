@@ -1,6 +1,6 @@
-# Image Classification Intel® Transfer Learning Tool CLI Examples
+# Image Classification Intel® Transfer Learning Tool CLI Example
 
-## Transfer learning using your own dataset
+## Transfer Learning Using your Own Dataset
 
 The example below shows how the Intel Transfer Learning Tool CLI can be used for image classification transfer learning
 using your own dataset. The dataset is expected to be organized with subfolders for each image
@@ -39,7 +39,7 @@ tlt eval \
     --dataset-dir ${DATASET_DIR}
 ```
 
-## Transfer learning using a dataset from the TFDS catalog
+## Transfer Learning Using a Dataset from the TFDS Catalog
 
 This example shows the Intel Transfer Learning Tool CLI being used for image classification transfer learning
 using the `tf_flowers` dataset from the

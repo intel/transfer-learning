@@ -17,10 +17,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as functional
+except ModuleNotFoundError:
+    print("WARNING: Unable to import torch. Torch may not be installed")
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as functional
 
 import os
 import pytest
@@ -30,15 +33,22 @@ import tempfile
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
-from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features
+
+try:
+    from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features
+except ModuleNotFoundError:
+    print("WARNING: Unable to import torch. Torch may not be installed")
 
 
+@pytest.mark.integration
+@pytest.mark.pytorch
 class TestImageAnomalyDetectionCustomDataset:
     """
     Tests for PyTorch image anomaly detection using a custom dataset using the flowers dataset
     """
     @classmethod
     def setup_class(cls):
+        os.makedirs('/tmp/data', exist_ok=True)
         temp_dir = tempfile.mkdtemp(dir='/tmp/data')
         custom_dataset_path = os.path.join(temp_dir, "flower_photos")
 
@@ -64,8 +74,6 @@ class TestImageAnomalyDetectionCustomDataset:
                 print("Deleting test directory:", dir)
                 shutil.rmtree(dir)
 
-    @pytest.mark.integration
-    @pytest.mark.pytorch
     @pytest.mark.parametrize('model_name',
                              ['resnet18'])
     def test_custom_dataset_workflow(self, model_name):
@@ -105,8 +113,6 @@ class TestImageAnomalyDetectionCustomDataset:
         predictions = model.predict(images, pca_components)
         assert len(predictions) == 32
 
-    @pytest.mark.integration
-    @pytest.mark.pytorch
     def test_custom_model_workflow(self):
         """
         Tests the workflow for PYT image anomaly detection using a custom model and custom dataset
@@ -165,8 +171,6 @@ class TestImageAnomalyDetectionCustomDataset:
         predictions = model.predict(images, pca_components)
         assert len(predictions) == 32
 
-    @pytest.mark.integration
-    @pytest.mark.pytorch
     @pytest.mark.parametrize('model_name',
                              ['resnet18'])
     def test_simsiam_workflow(self, model_name):
@@ -204,8 +208,6 @@ class TestImageAnomalyDetectionCustomDataset:
         predictions = model.predict(images, pca_components)
         assert len(predictions) == 32
 
-    @pytest.mark.integration
-    @pytest.mark.pytorch
     @pytest.mark.parametrize('model_name',
                              ['resnet18'])
     def test_cutpaste_workflow(self, model_name):

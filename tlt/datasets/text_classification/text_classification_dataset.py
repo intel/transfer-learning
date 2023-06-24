@@ -44,8 +44,8 @@ class TextClassificationDataset(BaseDataset):
                 numerical_value (int or float): Numerical label value
 
             Raises:
-                TypeError if the numerical value is not a float or an integer
-                ValueError if the numerical value does not map to a class label
+                TypeError: if the numerical value is not a float or an integer
+                ValueError: if the numerical value does not map to a class label
         """
         if isinstance(numerical_value, float):
             numerical_value = int(round(numerical_value))

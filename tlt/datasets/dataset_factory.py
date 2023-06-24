@@ -112,7 +112,7 @@ def load_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTy
         (dataset)
 
     Raises:
-        NotImplementedError if the type of dataset being loaded is not supported
+        NotImplementedError: if the type of dataset being loaded is not supported
 
     Example:
         >>> from tlt.datasets.dataset_factory import load_dataset
@@ -166,7 +166,7 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
         (dataset)
 
     Raises:
-        NotImplementedError if the dataset requested is not supported yet
+        NotImplementedError: if the dataset requested is not supported yet
 
     Example:
         >>> from tlt.datasets.dataset_factory import get_dataset

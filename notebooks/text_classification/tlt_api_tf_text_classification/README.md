@@ -2,20 +2,21 @@
 
 This notebook demonstrates how to use the Intel Transfer Learning Tool API to do fine tuning for
 text classification using various [BERT](https://arxiv.org/abs/1810.04805) models
-from [TF Hub](https://tfhub.dev).
+from [Hugging Face](https://huggingface.co).
 
 The notebook performs the following steps:
-1. Install dependencies and setup parameters
+1. Import dependencies and setup parameters
 1. Get the model
 1. Get the dataset
 1. Prepare the dataset
 1. Fine tuning
 1. Predict
 1. Export the saved model
+1. Quantization
 
 ## Running the notebook
 
-To run the notebook, follow the instructions to setup the [TensorFlow notebook environment](/notebooks/setup.md#tensorflow-environment).
+To run the notebook, follow the instructions to setup the [TensorFlow notebook environment](/notebooks/setup.md).
 
 ## References
 

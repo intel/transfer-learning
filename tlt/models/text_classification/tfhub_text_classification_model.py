@@ -147,12 +147,12 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                History object from the model.fit() call
 
            Raises:
-               FileExistsError if the output directory is a file
-               TypeError if the dataset specified is not a TextClassificationDataset
-               TypeError if the output_dir parameter is not a string
-               TypeError if the epochs parameter is not a integer
-               TypeError if the initial_checkpoints parameter is not a string
-               TypeError if the extra_layers parameter is not a list of integers
+               FileExistsError: if the output directory is a file
+               TypeError: if the dataset specified is not a TextClassificationDataset
+               TypeError: if the output_dir parameter is not a string
+               TypeError: if the epochs parameter is not a integer
+               TypeError: if the initial_checkpoints parameter is not a string
+               TypeError: if the extra_layers parameter is not a list of integers
         """
         self._check_train_inputs(output_dir, dataset, TextClassificationDataset, epochs, initial_checkpoints)
 
@@ -184,8 +184,13 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                                                                     early_stopping, lr_decay, dataset_num_classes)
 
         if distributed:
-            self.export_for_distributed(train_data, val_data)
-            self._fit_distributed(epochs, shuffle_files, hostfile, nnodes, nproc_per_node, kwargs.get('use_horovod'))
+            saved_objects_dir = self.export_for_distributed(
+                export_dir=os.path.join(output_dir, "tlt_saved_objects"),
+                train_data=train_data,
+                val_data=val_data
+            )
+            self._fit_distributed(saved_objects_dir, epochs, shuffle_files, hostfile, nnodes, nproc_per_node,
+                                  kwargs.get('use_horovod'))
             self.cleanup_saved_objects_for_distributed()
         else:
             history = self._model.fit(train_data, validation_data=val_data, epochs=epochs, shuffle=shuffle_files,
@@ -209,9 +214,9 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                Dictionary with loss and accuracy metrics
 
            Raises:
-               TypeError if the dataset specified is not a TextClassificationDataset
-               ValueError if the use_test_set=True and no test subset has been defined in the dataset.
-               ValueError if the model has not been trained or loaded yet.
+               TypeError: if the dataset specified is not a TextClassificationDataset
+               ValueError: if the use_test_set=True and no test subset has been defined in the dataset.
+               ValueError: if the model has not been trained or loaded yet.
         """
         if not isinstance(dataset, TextClassificationDataset):
             raise TypeError("The dataset must be a TextClassificationDataset but found a {}".format(type(dataset)))
@@ -243,8 +248,8 @@ class TFHubTextClassificationModel(TFTextClassificationModel):
                Numpy array of scores
 
            Raises:
-               ValueError if the model has not been trained or loaded yet.
-               ValueError if there is a mismatch between the input_samples and the model's expected input.
+               ValueError: if the model has not been trained or loaded yet.
+               ValueError: if there is a mismatch between the input_samples and the model's expected input.
         """
         if self._model is None:
             raise ValueError("The model must be trained or loaded before predicting.")

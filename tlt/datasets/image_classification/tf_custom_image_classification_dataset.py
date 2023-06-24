@@ -67,7 +67,7 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         seed (int): optional; Random seed for shuffling
 
     Raises:
-        FileNotFoundError if dataset directory does not exist
+        FileNotFoundError: if dataset directory does not exist
 
     """
 
@@ -163,19 +163,26 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         """
         return self._dataset
 
-    def preprocess(self, image_size, batch_size, add_aug=None):
+    def preprocess(self, image_size, batch_size, add_aug=None, preprocessor=None):
         """
-        Preprocess the dataset to convert to float32, resize, and batch the images
+        Preprocess the dataset to convert to float32, resize, normalize, and batch the images
 
             Args:
                 image_size (int): desired square image size
                 batch_size (int): desired batch size
+                normalize (bool): rescale the image between (1, 255), default True; should be disabled when using keras
+                                  applications because the model's initial layers apply the requisite model-specific
+                                  normalization
                 add_aug (None or list[str]): Choice of augmentations (RandomHorizontalandVerticalFlip,
                                              RandomHorizontalFlip, RandomVerticalFlip, RandomZoom, RandomRotation) to be
                                              applied during training
+                preprocessor (None or preprocess_input function from keras.applications): Should be provided when using
+                                             Keras Applications models, which have model-specific preprocessors;
+                                             otherwise, use None (the default) to apply generic normalization and
+                                             resizing
 
             Raises:
-                ValueError if the dataset is not defined or has already been processed
+                ValueError: if the dataset is not defined or has already been processed
         """
         if self._preprocessed:
             raise ValueError("Data has already been preprocessed: {}".format(self._preprocessed))
@@ -210,7 +217,8 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
 
         def preprocess_image(image, label):
             image = tf.image.resize_with_pad(image, image_size, image_size)
-            image = normalization_layer(image)
+            if preprocessor is None:
+                image = normalization_layer(image)
             return (image, label)
 
         # Get the non-None splits
@@ -218,6 +226,8 @@ class TFCustomImageClassificationDataset(ImageClassificationDataset, TFDataset):
         subsets = [s for s in split_list if getattr(self, s, None)]
         for subset in subsets:
             setattr(self, subset, getattr(self, subset).map(preprocess_image))
+            if preprocessor:
+                setattr(self, subset, getattr(self, subset).map(lambda x, y: (preprocessor(x), y)))
             setattr(self, subset, getattr(self, subset).cache())
             setattr(self, subset, getattr(self, subset).batch(batch_size))
             setattr(self, subset, getattr(self, subset).prefetch(tf.data.AUTOTUNE))

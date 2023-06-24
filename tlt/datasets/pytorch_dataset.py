@@ -99,7 +99,7 @@ class PyTorchDataset(BaseDataset):
                 (examples, labels)
 
             Raises:
-                ValueError if the dataset is not defined yet or the given subset is not valid
+                ValueError: if the dataset is not defined yet or the given subset is not valid
         """
         if subset == 'all' and self._dataset is not None:
             return next(iter(self._data_loader))
@@ -124,7 +124,7 @@ class PyTorchDataset(BaseDataset):
                 seed (None or int): default None, can be set for pseudo-randomization
 
             Raises:
-                ValueError if percentage input args are not floats or sum to greater than 1
+                ValueError: if percentage input args are not floats or sum to greater than 1
         """
         if not (isinstance(train_pct, float) and isinstance(val_pct, float) and isinstance(test_pct, float)):
             raise ValueError("Percentage arguments must be floats.")
@@ -233,3 +233,14 @@ class PyTorchDataset(BaseDataset):
         self._dataset.transform = get_transform(image_size, add_aug)
         self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
         self._make_data_loaders(batch_size=batch_size)
+
+    def get_inc_dataloaders(self):
+        calib_dataloader = self.train_loader
+        if self.validation_loader is not None:
+            eval_dataloader = self.validation_loader
+        elif self.test_loader is not None:
+            eval_dataloader = self.test_loader
+        else:
+            eval_dataloader = self.train_loader
+
+        return calib_dataloader, eval_dataloader

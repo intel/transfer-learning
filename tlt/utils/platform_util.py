@@ -25,7 +25,7 @@ from __future__ import print_function
 import os  # noqa: F401
 import re
 import platform as system_platform
-import subprocess
+import subprocess  # nosec: B404
 import sys
 
 NUMA_NODES_STR_ = "NUMA node(s)"
@@ -203,8 +203,8 @@ class PlatformUtil:
     detects platform information.
     '''
 
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
         self.num_cpu_sockets = 0
         self.num_cores_per_socket = 0
         self.num_threads_per_core = 0
@@ -274,7 +274,7 @@ class PlatformUtil:
             with open(cpuset_cpus_file, "r") as f:
                 cpuset = f.read()
 
-            if hasattr(self.args, "verbose") and self.args.verbose:
+            if 'verbose' in self.kwargs and self.kwargs.get('verbose'):
                 print("cpuset.cpus: {}".format(cpuset))
         return cpuset
 
@@ -335,8 +335,8 @@ class PlatformUtil:
 
         if cpuset:
             num_cores_arg = -1
-            if hasattr(self.args, "num_cores"):
-                num_cores_arg = self.args.num_cores
+            if 'num_cores' in self.kwargs:
+                num_cores_arg = self.kwargs.get('num_cores')
             # If the cpuset is the same as the online_cpus_list, then we are using the whole
             # machine, so let's avoid unnecessary complexity and don't bother with the cpuset_cpu list.
             # The cpuset_cpus list will also get populated if the num_cores arg is being specified,
@@ -353,8 +353,8 @@ class PlatformUtil:
             cores_per_node = int(num_physical_cores / self.num_numa_nodes)
         else:
             cores_per_node = self.num_cores_per_socket
-        if hasattr(self.args, "numa_cores_per_instance"):
-            if self.num_numa_nodes > 0 and self.args.numa_cores_per_instance is not None:
+        if "numa_cores_per_instance" in self.kwargs:
+            if self.num_numa_nodes > 0 and self.kwargs.get('numa_cores_per_instance') is not None:
                 try:
                     # Get the list of cores
                     cpu_array_command = \
@@ -375,7 +375,7 @@ class PlatformUtil:
                         for socket, core_list in enumerate(self.cpu_core_list):
                             self.cpu_core_list[socket] = [x for x in core_list if int(x) in self.cpuset_cpus]
 
-                    if hasattr(self.args, "verbose") and self.args.verbose:
+                    if 'verbose' in self.kwargs and self.kwargs.get('verbose'):
                         print("Core list: {}".format(self.cpu_core_list), flush=True)
 
                 except Exception as e:
@@ -488,3 +488,201 @@ class PlatformUtil:
         :rtype: int
         """
         return int(self.num_numa_nodes)  # type: ignore
+
+
+class OptimizedPlatformUtil(PlatformUtil):
+    def __init__(
+        self,
+        omp_num_threads: int = None,
+        omp_thread_limit: int = None,
+        kmp_blocktime: int = None,
+        kmp_affinity: str = None,
+        tf_num_intraop_threads: int = None,
+        tf_num_interop_threads: int = None,
+        tf_enable_mkl_native_format: int = None,
+        ld_preload: str = None,
+        force_reset_env_vars: bool = False,
+        **kwargs
+    ):
+        """
+            Initialize the class and set env variables for an optimized platform. The parameters
+            of the class are:
+
+            Args:
+                omp_num_threads (int): This variable sets the corresponding environment variable
+                    OMP_NUM_THREADS for the maximum number of threads to use for OpenMP parallel
+                    regions if no other value is specified in the application. With Hyperthreading
+                    enabled, there are more than one hardware threads for a physical CPU core, but
+                    we recommend to use only onehardware thread for a physical CPU core to avoid
+                    cache miss problems. (Recommended setting for CNN: num physical cores)
+                omp_thread_limit (int): This variable sets the corresponding environment variable
+                    OMP_THREAD_LIMIT which is used to set the maximum number of OpenMP threads to
+                    use in a contention group. Must a positive integer and the value should be
+                    less than or equal to maximum number of hardware threads available on the
+                    system.
+                kmp_blocktime (int): This variable sets the corresponding environment variable
+                    KMP_BLOCKTIME which sets the time, in milliseconds, that a thread should wait,
+                    after completing the execution of a parallel region, before sleeping.
+                    (Recommended setting: 0 for CNN, 1 for non-CNN)
+                kmp_affinity (str): Users can bind OpenMP threads to physical processing units.
+                    KMP_AFFINITY is used to take advantage of this functionality. It restricts
+                    execution of certain threads to a subset of the physical processing units
+                    in a multiprocessor computer. Usage of this variable should be as follows:
+                    kmp_affinity="[<modifier>,...]<type>[,<permute>][,<offset>]" where the values
+                    inside square brackets '[]' are optional. Do not include the square brackets.
+                    More about this can be found here: https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/2021-8/thread-affinity-interface.html  # noqa: E501
+                    (Recommended setting: "granularity=fine,compact,1,0")
+                tf_num_intraop_threads (int): This runtime setting controls parallelism inside an
+                    operation. For instance, if matrix multiplication or reduction is intended to
+                    be executed in several threads, this variable should be set. TensorFlow will
+                    schedule tasks in a thread pool that contains intra_op_parallelism_threads
+                    threads. Applies to TensorFlow only. (Recommended setting: num physical cores
+                    per socket)
+                tf_num_interop_threads (int): This runtime setting controls parallelism among
+                    independent operations. Since these operations are not relevant to each other,
+                    TensorFlow will try to run them concurrently in the thread pool that contains
+                    inter_op_parallelism_threads threads. Applies to TensorFlow only. (Recommended
+                    setting: num sockets)
+                tf_enable_mkl_native_format (int): Users could enable/disable usage of oneDNN blocked
+                    data format in Tensorflow by TF_ENABLE_MKL_NATIVE_FORMAT environment variable.
+                    Applies to TensorFlow only. (Accepted values: 0 or 1)
+                ld_preload (str): A string of colon separated paths to shared object files to preload
+                force_reset_env_vars (bool): If True, force resets the env variables to use the
+                    given parameter value(s)
+
+        """
+        super().__init__(**kwargs)
+
+        self.omp_num_threads = omp_num_threads
+        self.omp_thread_limit = omp_thread_limit
+        self.kmp_blocktime = kmp_blocktime
+        self.kmp_affinity = kmp_affinity
+        self.tf_num_intraop_threads = tf_num_intraop_threads
+        self.tf_num_interop_threads = tf_num_interop_threads
+        self.tf_enable_mkl_native_format = tf_enable_mkl_native_format
+        self.ld_preload = ld_preload
+        self.force_reset_env_vars = force_reset_env_vars
+
+        self.env_vars_dict = {
+            'OMP_NUM_THREADS': self.omp_num_threads,
+            'OMP_THREAD_LIMIT': self.omp_thread_limit,
+            'KMP_BLOCKTIME': self.kmp_blocktime,
+            'KMP_AFFINITY': self.kmp_affinity,
+            'TF_NUM_INTRAOP_THREADS': self.tf_num_intraop_threads,
+            'TF_NUM_INTEROP_THREADS': self.tf_num_interop_threads,
+            'TF_ENABLE_MKL_NATIVE_FORMAT': self.tf_enable_mkl_native_format,
+            'LD_PRELOAD': self.ld_preload
+        }
+
+        self._validate_args()
+        self._set_env_vars()
+
+    def _set_env_vars(self):
+        verbose_string = ""
+        warning_string = ""
+
+        for env_var_name, env_var_value in self.env_vars_dict.items():
+            if env_var_value is not None:
+                if env_var_name not in os.environ or self.force_reset_env_vars:
+                    os.environ[env_var_name] = str(env_var_value)
+                else:
+                    warning_string += "WARNING: The value for {} has already been set to {}. " \
+                        "Use 'force_reset_env_vars' to reset to your " \
+                        "value.\n".format(env_var_name, os.environ.get(env_var_name))
+                    try:
+                        self.env_vars_dict[env_var_name] = int(os.environ.get(env_var_name))
+                    except ValueError:
+                        self.env_vars_dict[env_var_name] = os.environ.get(env_var_name)
+                verbose_string += "{}: {}\n".format(env_var_name, os.environ.get(env_var_name))
+
+        print(warning_string)
+
+        if 'verbose' in self.kwargs and self.kwargs.get('verbose'):
+            print(verbose_string, flush=True)
+
+    def _validate_args(self):
+
+        if self.omp_num_threads is not None:
+            if not isinstance(self.omp_num_threads, int) or self.omp_num_threads < 0:
+                raise ValueError("omp_num_threads must be a positive integer, but given '{}'. "
+                                 "Recommended setting for CNN: num physical cores per "
+                                 "socket".format(self.omp_num_threads))
+
+            if self.omp_num_threads > self.logical_cores:
+                raise ValueError("Value '{}' out of bounds. omp_num_threads must be less than "
+                                 "or equal to '{}' logical cores. Recommended setting for CNN: "
+                                 "num physical cores per socket".format(self.omp_num_threads,
+                                                                        self.logical_cores))
+
+        if self.omp_thread_limit is not None:
+            if not isinstance(self.omp_thread_limit, int) or self.omp_thread_limit <= 0:
+                raise ValueError(
+                    "omp_thread_limit must be a positive integer, but given '{}'".format(self.omp_thread_limit))
+
+            if not (0 <= self.omp_thread_limit <= self.logical_cores):
+                raise ValueError("Value {} out of bounds. 0 <= omp_thread_limit <= {}".format(self.omp_thread_limit,
+                                                                                              self.logical_cores))
+
+        if self.kmp_blocktime is not None:
+            if not isinstance(self.kmp_blocktime, int) or self.kmp_blocktime < 0:
+                raise ValueError("kmp_blocktime must be a positive integer, but given '{}'."
+                                 "Recommended setting: 0 for CNN, 1 for non-CNN".format(self.kmp_blocktime))
+
+        if self.kmp_affinity:
+            if not isinstance(self.kmp_affinity, str):
+                raise ValueError("kmp_affinity must be a string type, but given '{}'".format(type(self.kmp_affinity)))
+
+            valid_modifiers = ["granularity=fine", "granularity=thread", "granularity=core", "granularity=tile",
+                               "granularity=die", "granularity=node", "granularity=group", "granularity=socket",
+                               "norespect", "noverbose", "nowarnings", "noreset", "respect", "verbose", "warnings",
+                               "reset"]
+            valid_types = ["balanced", "compact", "disabled", "explicit", "none", "scatter"]
+
+            err_message = "Invalid values given for kmp_affinity='{}'.\
+                \n\nSyntax is kmp_affinity='[<modifier>,...]<type>[,<permute>][,<offset>]'\
+                \n\n<modifier> (optional):\t{}\
+                \n<type>:\t{}\
+                \n<permute> (optional): Any positive integer (>=0)\
+                \n<offset> (optional): Any positive integer (>=0)".format(self.kmp_affinity, valid_modifiers,
+                                                                          valid_types)
+
+            values = self.kmp_affinity.split(',')
+            count = 0
+            for value in values:
+                if value not in valid_modifiers + valid_types:
+                    if value.isdigit():
+                        count += 1
+                    else:
+                        raise ValueError(err_message)
+
+                if count > 2:
+                    raise ValueError(err_message)
+
+        if self.tf_num_intraop_threads is not None:
+            if not isinstance(self.tf_num_intraop_threads, int) or self.tf_num_intraop_threads < 0:
+                raise ValueError("tf_num_intraop_threads must be a positive integer, but given '{}'. "
+                                 "Recommended setting: num physical cores per "
+                                 "socket".format(self.tf_num_intraop_threads))
+
+        if self.tf_num_interop_threads is not None:
+            if not isinstance(self.tf_num_interop_threads, int) or self.tf_num_interop_threads < 0:
+                raise ValueError("tf_num_interop_threads must be a positive integer, but given '{}'. "
+                                 "Recommended setting: num sockets".format(self.tf_num_interop_threads))
+
+        if self.tf_enable_mkl_native_format is not None:
+            if not isinstance(self.tf_enable_mkl_native_format, int) or self.tf_enable_mkl_native_format not in [0, 1]:
+                raise ValueError("tf_enable_mkl_native_format must be either 0 or 1, "
+                                 "but given '{}'".format(self.tf_enable_mkl_native_format))
+
+        if self.ld_preload:
+            if not isinstance(self.ld_preload, str):
+                raise ValueError("ld_preload must be of type {}, but given '{}'.".format(str, type(self.ld_preload)))
+
+            paths = self.ld_preload.split(':')
+            for path in paths:
+                if not path.endswith('.so'):
+                    raise ValueError("ld_preload must contain colon separated paths to .so files, "
+                                     "but given '{}'".format(self.ld_preload))
+
+                if not os.path.exists(path):
+                    raise FileNotFoundError("Given file '{}' doesn't exist.".format(path))

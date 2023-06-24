@@ -19,10 +19,7 @@
 #
 
 import abc
-import os
-import yaml
 
-from tlt import TLT_BASE_DIR
 from tlt.models.model import BaseModel
 from tlt.utils.types import FrameworkType, UseCaseType
 
@@ -40,6 +37,7 @@ class ImageClassificationModel(BaseModel):
         self._image_size = image_size
         self._do_fine_tuning = do_fine_tuning
         self._dropout_layer_rate = dropout_layer_rate
+        self._quantization_approach = 'static'
 
         BaseModel.__init__(self, model_name, framework, use_case)
 
@@ -72,25 +70,3 @@ class ImageClassificationModel(BaseModel):
         The probability of any one node being dropped when a dropout layer is used
         """
         return self._dropout_layer_rate
-
-    def get_inc_config_template_dict(self):
-        """
-        Returns a dictionary for a config template compatible with the Intel Neural Compressor.
-
-        It loads the yaml file tlt/models/configs/inc/image_classification_template.yaml and then fills in parameters
-        that the model knows about (like framework and model name). There are still more parameters that need to be
-        filled in before using the config with INC (like the dataset information, image size, etc).
-        """
-        template_file_path = os.path.join(TLT_BASE_DIR, "models/configs/inc/image_classification_template.yaml")
-
-        if not os.path.exists(template_file_path):
-            raise FileNotFoundError("Unable to find the image recognition config template at:", template_file_path)
-
-        with open(template_file_path, 'r') as template_yaml:
-            config_template = yaml.safe_load(template_yaml)
-
-        # Update parameters that we know in the template
-        config_template["model"]["framework"] = str(self.framework)
-        config_template["model"]["name"] = self.model_name
-
-        return config_template

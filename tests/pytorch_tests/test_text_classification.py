@@ -26,15 +26,18 @@ from unittest.mock import MagicMock
 
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
-from tlt.datasets.text_classification.hf_custom_text_classification_dataset import HFCustomTextClassificationDataset
+try:
+    from tlt.datasets.text_classification.hf_custom_text_classification_dataset import HFCustomTextClassificationDataset
+except ModuleNotFoundError:
+    print("WARNING: Unable to import HFCustomTextClassificationDataset.")
 
 
 @pytest.mark.integration
 @pytest.mark.pytorch
-@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers',
-                         [['bert-base-cased', 'imdb', None, 1],
-                          ['distilbert-base-uncased', 'imdb', [384, 192], 5]])
-def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct_num_layers):
+@pytest.mark.parametrize('model_name,dataset_name,extra_layers,correct_num_layers,test_inc',
+                         [['bert-base-cased', 'imdb', None, 1, False],
+                          ['distilbert-base-uncased', 'imdb', [384, 192], 5, True]])
+def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct_num_layers, test_inc):
     """
     Tests basic transfer learning functionality for PyTorch text classification models using a hugging face dataset
     """
@@ -50,7 +53,7 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
 
     # Preprocess the dataset
     dataset.preprocess(model_name, batch_size=32)
-    dataset.shuffle_split(train_pct=0.01, val_pct=0.01, seed=10)
+    dataset.shuffle_split(train_pct=0.02, val_pct=0.01, seed=6)
     assert dataset._validation_type == 'shuffle_split'
 
     # Evaluate before training
@@ -58,7 +61,12 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
     assert len(pretrained_metrics) > 0
 
     # Train
-    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers)
+    train_history = model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, extra_layers=extra_layers)
+    assert train_history is not None and isinstance(train_history, dict)
+    assert 'Loss' in train_history
+    assert 'Acc' in train_history
+    assert 'train_runtime' in train_history
+    assert 'train_samples_per_second' in train_history
     classifier_layer = getattr(model._model, "classifier")
     try:
         # If extra_layers given, the classifier is a Sequential layer with given input
@@ -70,8 +78,8 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
 
     # Evaluate
     trained_metrics = model.evaluate(dataset)
-    assert trained_metrics[0] <= pretrained_metrics[0]  # loss
-    assert trained_metrics[1] >= pretrained_metrics[1]  # accuracy
+    assert trained_metrics['eval_loss'] <= pretrained_metrics['eval_loss']
+    assert trained_metrics['eval_accuracy'] >= pretrained_metrics['eval_accuracy']
 
     # Export the saved model
     saved_model_dir = model.export(output_dir)
@@ -80,15 +88,22 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
 
     # Reload the saved model
     reload_model = model_factory.get_model(model_name, framework)
-    reload_model.load_from_directory(saved_model_dir, num_classes=len(dataset.class_names))
+    reload_model.load_from_directory(saved_model_dir)
 
     # Evaluate
     reload_metrics = reload_model.evaluate(dataset)
-    assert reload_metrics == trained_metrics
+    assert reload_metrics['eval_accuracy'] == trained_metrics['eval_accuracy']
 
     # Ensure we get 'NotImplementedError' for graph_optimization
     with pytest.raises(NotImplementedError):
-        model.optimize_graph(saved_model_dir, os.path.join(saved_model_dir, 'optimized'))
+        model.optimize_graph(os.path.join(saved_model_dir, 'optimized'))
+
+    # Quantization
+    if test_inc:
+        inc_output_dir = os.path.join(output_dir, "quantized", model_name)
+        os.makedirs(inc_output_dir, exist_ok=True)
+        model.quantize(inc_output_dir, dataset)
+        assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
@@ -132,28 +147,18 @@ def test_custom_dataset_workflow(model_name):
 
     # Reload the saved model
     reload_model = model_factory.get_model(model_name, 'pytorch')
-    reload_model.load_from_directory(saved_model_dir, 2)
+    reload_model.load_from_directory(saved_model_dir)
 
     # Evaluate
     metrics = reload_model.evaluate(mock_dataset)
     assert len(metrics) > 0
-
-    # Quantization
-    inc_config_file_path = 'tlt/models/configs/inc/text_classification_template.yaml'
-    nc_workspace = os.path.join(output_dir, "nc_workspace")
-    model.write_inc_config_file(inc_config_file_path, mock_dataset, batch_size=32, overwrite=True,
-                                accuracy_criterion_relative=0.1, exit_policy_max_trials=10,
-                                exit_policy_timeout=0, tuning_workspace=nc_workspace)
-    quantization_output = os.path.join(output_dir, "quantized", model_name)
-    os.makedirs(quantization_output, exist_ok=True)
-    model.quantize(saved_model_dir, quantization_output, inc_config_file_path)
-    assert os.path.exists(os.path.join(quantization_output, "model.pt"))
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['distilbert-base-uncased', 'imdb']])
@@ -188,14 +193,15 @@ def test_initial_checkpoints(model_name, dataset_name):
 
     improved_metrics = model.evaluate(dataset)
 
-    assert improved_metrics[0] < trained_metrics[0]  # loss
-    assert improved_metrics[1] > trained_metrics[1]  # accuracy
+    assert improved_metrics['eval_loss'] < trained_metrics['eval_loss']
+    assert improved_metrics['eval_accuracy'] > trained_metrics['eval_accuracy']
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['distilbert-base-uncased', 'imdb']])
@@ -231,6 +237,7 @@ def test_freeze_bert(model_name, dataset_name):
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['distilbert-base-uncased', 'imdb']])
@@ -264,6 +271,7 @@ def test_unfreeze_bert(model_name, dataset_name):
         shutil.rmtree(output_dir)
 
 
+@pytest.mark.integration
 @pytest.mark.pytorch
 @pytest.mark.parametrize('model_name,dataset_name',
                          [['distilbert-base-uncased', 'imdb']])

@@ -1,2 +1,4 @@
-.git/**
+.git*
+**__pycache__**
+docker
 Dockerfile*

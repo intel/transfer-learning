@@ -3,11 +3,11 @@
 This notebook demonstrates fine tuning [pretrained models from Hugging Face](https://huggingface.co/models)
 using text classification datasets from the [Hugging Face Datasets catalog](https://huggingface.co/datasets) or
 a custom dataset. The [IMDb Larget Movie Review dataset](https://ai.stanford.edu/~amaas/data/sentiment/) is used
-from the Hugging Face Datasets catalog, and the [SMS Spam Collection dataset](https://archive-beta.ics.uci.edu/ml/datasets/sms+spam+collection)
+from the Hugging Face Datasets catalog, and the [SMS Spam Collection dataset](https://archive.ics.uci.edu/ml/datasets/sms+spam+collection)
 is used as an example of a custom dataset being loaded from a csv file.
 
 The notebook uses
-[Intel® Extension for PyTorch*](https://github.com/intel/intel-extension-for-pytorch) which extends PyTorch
+[Intel® Extension for PyTorch\*](https://intel.github.io/intel-extension-for-pytorch) which extends PyTorch
 with optimizations for extra performance boost on Intel hardware.
 
 The notebook performs the following steps:
@@ -19,7 +19,7 @@ The notebook performs the following steps:
 
 ## Running the notebook
 
-To run the notebook, follow the instructions to setup the [PyTorch notebook environment](/notebooks#pytorch-environment).
+To run the notebook, follow the instructions to setup the [PyTorch notebook environment](/notebooks/setup.md).
 
 ## References
 

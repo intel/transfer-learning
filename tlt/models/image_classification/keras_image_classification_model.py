@@ -19,6 +19,7 @@
 #
 
 import os
+from pydoc import locate
 import tensorflow as tf
 
 from downloader.models import ModelDownloader
@@ -33,7 +34,7 @@ class KerasImageClassificationModel(TFHubImageClassificationModel):
     Class to represent a Keras.applications pretrained model for image classification
     """
 
-    def __init__(self, model_name: str, **kwargs):
+    def __init__(self, model_name: str, model=None, optimizer=None, loss=None, **kwargs):
         """
         Class constructor
         """
@@ -43,12 +44,17 @@ class KerasImageClassificationModel(TFHubImageClassificationModel):
             raise ValueError("The specified Keras image classification model ({}) "
                              "is not supported.".format(model_name))
 
-        TFImageClassificationModel.__init__(self, model_name=model_name, **kwargs)
+        TFImageClassificationModel.__init__(self, model_name=model_name, model=model, optimizer=optimizer,
+                                            loss=loss, **kwargs)
 
-        # placeholder for model definition
-        self._model = None
-        self._num_classes = None
-        self._image_size = keras_model_map[model_name]["image_size"]
+        if self._model is None:
+            self._num_classes = None
+            self._image_size = keras_model_map[model_name]["image_size"]
+
+        # Get the model-specific preprocessor from keras applications
+        preprocessor_name = keras_model_map[model_name]["preprocessor"]
+        if preprocessor_name is not None:
+            self._preprocessor = locate('keras.applications.{}.preprocess_input'.format(preprocessor_name))
 
     def _model_downloader(self, model_name, include_top=False):
         downloader = ModelDownloader(model_name, hub='keras', model_dir=None, weights='imagenet',
@@ -61,8 +67,8 @@ class KerasImageClassificationModel(TFHubImageClassificationModel):
         if not self._model:
             base_model = self._model_downloader(self._model_name)
             base_model.trainable = False
-
             inputs = tf.keras.Input(shape=(self._image_size, self._image_size, 3))
+
             x = base_model(inputs, training=False)
             x = tf.keras.layers.GlobalAveragePooling2D()(x)
 

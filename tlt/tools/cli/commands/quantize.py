@@ -19,11 +19,12 @@
 #
 
 import click
-import datetime
+import inspect
 import os
 import sys
 
 from tlt.utils.types import FrameworkType
+from tlt.utils.inc_utils import get_inc_config
 
 
 @click.command()
@@ -37,13 +38,16 @@ from tlt.utils.types import FrameworkType
               type=click.Path(exists=True, file_okay=False),
               help="Dataset directory for a custom dataset. Quantization is not supported with dataset catalogs at "
                    "this time.")
-@click.option("--inc-config", "--inc_config",
+@click.option("--dataset-file", "--dataset_file",
               required=False,
-              type=click.Path(exists=True, dir_okay=False),
-              help="Path to a config file (yaml) that will be used to quantize the model using the Intel Neural "
-                   "Compressor. The config examples for quantization can be found at the Intel Neural Compressor GitHub"
-                   " repo (https://github.com/intel/neural-compressor/tree/master/examples). "
-                   "If no INC config file is provided, a default config file will be generated.")
+              type=str,
+              help="Name of a file in the dataset directory to load. Used for loading a .csv file for text "
+                   "classification fine tuning.")
+@click.option("--delimiter",
+              required=False,
+              type=str,
+              default=",",
+              help="Delimiter used when loading a dataset from a csv file. [default: ,]")
 @click.option("--batch-size", "--batch_size",
               required=False,
               type=click.IntRange(min=1),
@@ -51,6 +55,13 @@ from tlt.utils.types import FrameworkType
               show_default=True,
               help="Batch size used during quantization, if an INC config file is not provided. If an INC config file "
                    "is provided, the batch size from the config file will be used.")
+@click.option("--approach",
+              required=False,
+              type=click.Choice(['static', 'dynamic'], case_sensitive=False),
+              default='static',
+              show_default=True,
+              help="Specify to use static or dynamic quantization. Generally, static is recommended for image models "
+                   "and dynamic is recommended for text models.")
 @click.option("--accuracy-criterion", "--accuracy_criterion",
               required=False,
               type=click.FloatRange(min=0, max=1.0),
@@ -81,20 +92,19 @@ from tlt.utils.types import FrameworkType
               type=click.Path(file_okay=False),
               help="A writeable output directory. The output directory will be used as a location to save the "
                    "quantized model, the tuning workspace, and the INC config file, if a config file is not provided.")
-def quantize(model_dir, dataset_dir, inc_config, batch_size, accuracy_criterion, timeout, max_trials, output_dir):
+def quantize(model_dir, dataset_dir, dataset_file, delimiter, batch_size, approach, accuracy_criterion, timeout,
+             max_trials, output_dir):
     """
     Uses the Intel Neural Compressor to perform post-training quantization on a trained model
     """
     print("Model directory:", model_dir)
     print("Dataset directory:", dataset_dir)
 
-    if inc_config:
-        print("INC config file:", inc_config)
-    else:
-        print("Accuracy criterion:", accuracy_criterion)
-        print("Exit policy timeout:", timeout)
-        print("Exit policy max trials:", max_trials)
-        print("Batch size:", batch_size)
+    print("Quantization approach:", approach)
+    print("Accuracy criterion:", accuracy_criterion)
+    print("Exit policy timeout:", timeout)
+    print("Exit policy max trials:", max_trials)
+    print("Batch size:", batch_size)
 
     print("Output directory:", output_dir)
 
@@ -125,26 +135,42 @@ def quantize(model_dir, dataset_dir, inc_config, batch_size, accuracy_criterion,
         from tlt.models.model_factory import get_model
 
         model = get_model(model_name, framework)
+        model.load_from_directory(model_dir)
     except Exception as e:
         sys.exit("An error occurred while getting the model: {}\nNote that the model directory is expected to contain "
                  "a previously exported model where the directory structure is <model name>/n/saved_model.pb "
                  "(for TensorFlow) or <model name>/n/model.pt (for PyTorch).".format(str(e)))
 
     try:
-
         from tlt.datasets import dataset_factory
 
-        dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+        if str(model.use_case) == "image_classification":
+            dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+        elif str(model.use_case) == "text_classification":
+            if not dataset_file:
+                raise ValueError("Loading a text classification dataset requires --dataset-file to specify the "
+                                 "file name of the .csv file to load from the --dataset-dir.")
+            if not delimiter:
+                raise ValueError("Loading a text classification dataset requires --delimiter in order to read the "
+                                 ".csv file from the --dataset-dir. in the correct format")
 
-        # Generate a default inc config file, if one was not provided by the user
-        if not inc_config:
-            now = datetime.datetime.now()
-            dt_str = now.strftime("%y%m%d%H%M%S")
-            inc_config = os.path.join(output_dir, "{}_config_{}.yaml".format(model_name, dt_str))
-            model.write_inc_config_file(inc_config, dataset, batch_size=batch_size, overwrite=True,
-                                        exit_policy_timeout=timeout, exit_policy_max_trials=max_trials,
-                                        accuracy_criterion_relative=accuracy_criterion,
-                                        tuning_workspace=os.path.join(output_dir, "nc_workspace"))
+            dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework,
+                                                   csv_file_name=dataset_file, delimiter=delimiter)
+        else:
+            sys.exit("ERROR: Quantization is currently only implemented for Image Classification "
+                     "and Text Classification models")
+
+        # Preprocess, batch, and split
+        if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:  # For Image classification
+            dataset.preprocess(image_size=model.image_size, batch_size=batch_size)
+        elif 'model_name' in inspect.getfullargspec(dataset.preprocess).args:  # For HF Text classification
+            dataset.preprocess(model_name=model_name, batch_size=batch_size)
+        else:  # For TF Text classification
+            dataset.preprocess(batch_size=batch_size)
+        dataset.shuffle_split()
+
+        # Generate a default inc config
+        inc_config = get_inc_config(approach, accuracy_criterion, timeout, max_trials)
 
         # Setup a directory for the quantized model
         quantized_output_dir = os.path.join(output_dir, "quantized", model_name)
@@ -157,7 +183,7 @@ def quantize(model_dir, dataset_dir, inc_config, batch_size, accuracy_criterion,
 
         # Call the quantization API
         print("Starting post-training quantization", flush=True)
-        model.quantize(model_dir, quantized_output_dir, inc_config)
+        model.quantize(quantized_output_dir, dataset, config=inc_config)
 
     except Exception as e:
         sys.exit("An error occurred during quantization: {}".format(str(e)))

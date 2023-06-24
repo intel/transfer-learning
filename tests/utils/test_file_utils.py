@@ -50,18 +50,22 @@ def test_download():
     expected = os.path.join(output_dir, 'example.txt')
 
     # Set up mock return value
+    mock_file_contents = MagicMock()
+    mock_file_contents.read.return_value = b''
+
     mock_file = MagicMock(spec=io.BytesIO)
     mock_file.__enter__.return_value = mock_file
-    mock_file.read.return_value = b''
+    mock_file.raw = mock_file_contents
 
-    # Patch urlopen
-    with mock.patch('urllib.request.urlopen', return_value=mock_file) as mock_urlopen:
+    # Patch requests.get
+    with mock.patch('requests.get', return_value=mock_file) as mock_get:
         result = download_file('https://example-files.online-convert.com/document/txt/example.txt', output_dir)
         assert result == expected
 
         # Check that the mock was called as expected
-        mock_urlopen.assert_called_with('https://example-files.online-convert.com/document/txt/example.txt')
-        mock_file.read.assert_called_once()
+        mock_get.assert_called_with('https://example-files.online-convert.com/document/txt/example.txt',
+                                    stream=True, timeout=30)
+        mock_file_contents.read.assert_called_once()
 
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):

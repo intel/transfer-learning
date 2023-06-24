@@ -1,0 +1,133 @@
+{
+  "bert-base-uncased": {
+    "model_hub": "huggingface",
+    "hub_name": "bert-base-uncased",
+    "original_dataset": "Wikipedia and BooksCorpus (English)"
+  },
+  "bert-large-uncased": {
+    "model_hub": "huggingface",
+    "hub_name": "bert-large-uncased",
+    "original_dataset": "Wikipedia and BooksCorpus (English)"
+  },
+    "google/bert_uncased_L-2_H-128_A-2": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-2_H-128_A-2",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-2_H-256_A-4": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-2_H-256_A-4",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-2_H-512_A-8": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-2_H-512_A-8",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-2_H-768_A-12": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-2_H-768_A-12",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-4_H-128_A-2": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-4_H-128_A-2",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-4_H-256_A-4": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-4_H-256_A-4",
+        "encoder": "https://huggingface.dev/tensorflow/google/bert_uncased_L-4_H-256_A-4/2",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-4_H-512_A-8": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-4_H-512_A-8",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-4_H-768_A-12": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-4_H-768_A-12",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-6_H-128_A-2": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-6_H-128_A-2",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-6_H-256_A-4": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-6_H-256_A-4",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-6_H-512_A-8": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-6_H-512_A-8",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-6_H-768_A-12": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-6_H-768_A-12",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-8_H-128_A-2": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-8_H-128_A-2",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-8_H-256_A-4": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-8_H-256_A-4",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-8_H-512_A-8": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-8_H-512_A-8",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-8_H-768_A-12": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-8_H-768_A-12",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-10_H-128_A-2": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-10_H-128_A-2",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-10_H-256_A-4": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-10_H-256_A-4",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-10_H-512_A-8": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-10_H-512_A-8",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-10_H-768_A-12": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-10_H-768_A-12",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-12_H-128_A-2": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-12_H-128_A-2",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-12_H-256_A-4": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-12_H-256_A-4",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-12_H-512_A-8": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-12_H-512_A-8",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    },
+    "google/bert_uncased_L-12_H-768_A-12": {
+        "model_hub": "huggingface",
+        "hub_name": "google/bert_uncased_L-12_H-768_A-12",
+        "original_dataset": "Wikipedia and BooksCorpus (English)"
+    }
+}

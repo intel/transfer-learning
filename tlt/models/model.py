@@ -37,6 +37,7 @@ class BaseModel(abc.ABC):
         self._framework = framework
         self._use_case = use_case
         self._learning_rate = 0.001
+        self._preprocessor = None
 
     @property
     def model_name(self):
@@ -69,6 +70,13 @@ class BaseModel(abc.ABC):
     @learning_rate.setter
     def learning_rate(self, value):
         self._learning_rate = value
+
+    @property
+    def preprocessor(self):
+        """
+        Preprocessor for the model
+        """
+        return self._preprocessor
 
     @abc.abstractmethod
     def load_from_directory(self, model_dir: str):
@@ -111,94 +119,76 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def write_inc_config_file(self, config_file_path, dataset, batch_size, overwrite=False, **kwargs):
+    def quantize(self, output_dir, dataset, config=None, overwrite_model=False):
         """
-        Writes an Intel Neural Compressor compatible config file to the specified path usings args from the
-        specified dataset and parameters. This is currently only supported for TF custom image classification
-        datasets.
+        Performs post training quantization using the Intel Neural Compressor on the model using the dataset.
+        The dataset's training subset will be used as the calibration data and its validation or test subset will
+        be used for evaluation. The quantized model is written to the output directory.
 
         Args:
-            config_file_path (str): Destination path on where to write the .yaml config file.
-            dataset (BaseDataset): A tlt dataset object
-            batch_size (int): Batch size to use for quantization and evaluation
-            overwrite (bool): Specify whether or not to overwrite the config_file_path, if it already exists
-                              (default: False)
-
-        Returns:
-            None
-
-        Raises:
-            FileExistsError if the config file already exists and overwrite is set to False
-            ValueError if the parameters are not within the expected values
-            NotImplementedError if the model or dataset does not support INC yet
-        """
-        pass
-
-    @abc.abstractmethod
-    def quantize(self, saved_model_dir, output_dir, inc_config_path):
-        """
-        Performs post training quantization using the Intel Neural Compressor on the model from the saved_model_dir
-        using the specified config file. The quantized model is written to the output directory.
-
-        Args:
-            saved_model_dir (str): Source directory for the model to quantize.
             output_dir (str): Writable output directory to save the quantized model
-            inc_config_path (str): Path to an INC config file (.yaml)
+            dataset (ImageClassificationDataset): dataset to quantize with
+            config (PostTrainingQuantConfig): Optional, for customizing the quantization parameters
+            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
+                                    (default: False)
 
         Returns:
             None
 
         Raises:
-            NotImplementedError if the model does not support INC yet
-            NotADirectoryError if the saved_model_dir is not a directory
-            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
-            is not found.
-            FileExistsError if the output_dir already has a saved_model.pb file
+            FileExistsError: if the output_dir already has a model file
+            ValueError: if the dataset is not compatible for quantizing the model
         """
         pass
 
     @abc.abstractmethod
-    def optimize_graph(self, saved_model_dir, output_dir):
+    def optimize_graph(self, output_dir, overwrite_model=False):
         """
-        Performs FP32 graph optimization using the Intel Neural Compressor on the model in the saved_model_dir
+        Performs FP32 graph optimization using the Intel Neural Compressor on the model
         and writes the inference-optimized model to the output_dir. Graph optimization includes converting
         variables to constants, removing training-only operations like checkpoint saving, stripping out parts
         of the graph that are never reached, removing debug operations like CheckNumerics, folding batch
         normalization ops into the pre-calculated weights, and fusing common operations into unified versions.
 
         Args:
-            saved_model_dir (str): Source directory for the model to optimize
             output_dir (str): Writable output directory to save the optimized model
+            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists
+                                    (default: False)
 
         Returns:
             None
 
         Raises:
-            NotImplementedError if the model does not support INC yet
-            NotADirectoryError if the saved_model_dir is not a directory
-            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir
-            FileExistsError if the output_dir already has a saved_model.pb file
+            NotImplementedError: if the model does not support INC yet
+            FileExistsError: if the output_dir already has a saved_model.pb file
         """
         pass
 
     @abc.abstractmethod
-    def benchmark(self, saved_model_dir, inc_config_path, mode='performance'):
+    def benchmark(self, dataset, saved_model_dir=None, warmup=10, iteration=100, cores_per_instance=None,
+                  num_of_instance=None, inter_num_of_threads=None, intra_num_of_threads=None):
         """
-        Use INC to benchmark the specified model for performance or accuracy.
+        Use Intel Neural Compressor to benchmark the model with the dataset argument. The dataset's validation or test
+        subset will be used for benchmarking, if present. Otherwise, the full training dataset is used. The model to be
+        benchmarked can also be explicitly set to a saved_model_dir containing for example a quantized saved model.
 
         Args:
-            saved_model_dir (str): Path to the directory where the saved model is located
-            inc_config_path (str): Path to an INC config file (.yaml)
-            mode (str): performance or accuracy (defaults to performance)
+            dataset (ImageClassificationDataset): Dataset to use for benchmarking
+            saved_model_dir (str): Optional, path to the directory where the saved model is located
+            warmup (int): The number of iterations to perform before running performance tests, default is 10
+            iteration (int): The number of iterations to run performance tests, default is 100
+            cores_per_instance (int or None): The number of CPU cores to use per instance, default is None
+            num_of_instance (int or None): The number of instances to use for performance testing, default is None
+            inter_num_of_threads (int or None): The number of threads to use for inter-thread operations, default is
+                                                None
+            intra_num_of_threads (int or None): The number of threads to use for intra-thread operations, default is
+                                                None
 
         Returns:
-            None
+            Benchmarking results from Intel Neural Compressor
 
         Raises:
-            NotImplementedError if the model does not support INC yet
-            NotADirectoryError if the saved_model_dir is not a directory
-            FileNotFoundError if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
-            is not found.
-            ValueError if an unexpected mode is provided
+            NotADirectoryError: if the saved_model_dir is not None or a valid directory
+            FileNotFoundError: if a model is not found in the saved_model_dir
         """
         raise NotImplementedError("INC benchmarking is not supported for this model")

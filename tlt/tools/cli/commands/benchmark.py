@@ -19,11 +19,10 @@
 #
 
 import click
-import datetime
+import inspect
 import os
 import shutil
 import sys
-import tempfile
 
 from tlt.utils.types import FrameworkType
 
@@ -39,19 +38,16 @@ from tlt.utils.types import FrameworkType
               type=click.Path(exists=True, file_okay=False),
               help="Dataset directory for a custom dataset. Benchmarking is not supported with dataset catalogs at "
                    "this time.")
-@click.option("--inc-config", "--inc_config",
+@click.option("--dataset-file", "--dataset_file",
               required=False,
-              type=click.Path(exists=True, dir_okay=False),
-              help="Path to a config file (yaml) that will be used to benchmark the model using the Intel Neural "
-                   "Compressor. The INC benchmarking documentation can be found at: "
-                   "https://github.com/intel/neural-compressor/blob/master/docs/source/benchmark.md "
-                   "If no INC config file is provided, a default config file will be generated.")
-@click.option("--mode",
+              type=str,
+              help="Name of a file in the dataset directory to load. Used for loading a .csv file for text "
+                   "classification fine tuning.")
+@click.option("--delimiter",
               required=False,
-              type=click.Choice(['performance', 'accuracy'], case_sensitive=False),
-              default='performance',
-              show_default=True,
-              help="Specify to benchmark the model's performance or accuracy")
+              type=str,
+              default=",",
+              help="Delimiter used when loading a dataset from a csv file. [default: ,]")
 @click.option("--batch-size", "--batch_size",
               required=False,
               type=click.IntRange(min=1),
@@ -65,18 +61,13 @@ from tlt.utils.types import FrameworkType
               help="A writeable output directory. The output directory will be used as a location to write the INC "
                    "config file, if a config file is not provided. If no output directory is provided, a temporary "
                    "folder will be created and then deleted after benchmarking has completed.")
-def benchmark(model_dir, dataset_dir, inc_config, mode, batch_size, output_dir):
+def benchmark(model_dir, dataset_dir, batch_size, output_dir, dataset_file, delimiter):
     """
     Uses the Intel Neural Compressor to benchmark a trained model
     """
     print("Model directory:", model_dir)
     print("Dataset directory:", dataset_dir)
-    print("Benchmarking mode:", mode)
-
-    if inc_config:
-        print("INC config file:", inc_config)
-    else:
-        print("Batch size:", batch_size)
+    print("Batch size:", batch_size)
 
     if output_dir:
         print("Output directory:", output_dir)
@@ -107,22 +98,41 @@ def benchmark(model_dir, dataset_dir, inc_config, mode, batch_size, output_dir):
 
     try:
         from tlt.datasets import dataset_factory
-        dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+        if str(model.use_case) == "image_classification":
+            dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+        elif str(model.use_case) == 'text_classification':
+            if not dataset_file:
+                raise ValueError("Loading a text classification dataset requires --dataset-file to specify the "
+                                 "file name of the .csv file to load from the --dataset-dir.")
+            if not delimiter:
+                raise ValueError("Loading a text classification dataset requires --delimiter in order to read the "
+                                 ".csv file from the --dataset-dir. in the correct format")
 
-        # Generate a default inc config file, if one was not provided by the user
-        if not inc_config:
-            if not output_dir:
-                output_dir = tempfile.mkdtemp()
-                temp_dir = output_dir
-            now = datetime.datetime.now()
-            dt_str = now.strftime("%y%m%d%H%M%S")
-            inc_config = os.path.join(output_dir, "{}_config_{}.yaml".format(model_name, dt_str))
-            print("Writing INC config file to {}".format(inc_config))
-            model.write_inc_config_file(inc_config, dataset, batch_size, overwrite=True)
+            dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework,
+                                                   csv_file_name=dataset_file, delimiter=delimiter)
+        else:
+            sys.exit("ERROR: Benchmarking is currently only implemented for Image Classification "
+                     "and Text Classification models")
+
+        # Preprocess, batch, and split
+        if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:  # For Image classification
+            dataset.preprocess(image_size=model.image_size, batch_size=batch_size)
+        elif 'model_name' in inspect.getfullargspec(dataset.preprocess).args:  # For HF Text classification
+            dataset.preprocess(model_name=model_name, batch_size=batch_size)
+        else:  # For TF Text classification
+            dataset.preprocess(batch_size=batch_size)
+        dataset.shuffle_split()
 
         # Call the benchmarking API
         print("Starting benchmarking", flush=True)
-        model.benchmark(model_dir, inc_config, mode)
+        try:
+            model.benchmark(dataset, saved_model_dir=model_dir)
+        except TypeError:
+            model.load_from_directory(model_dir)
+            model.benchmark(dataset)
+        except AttributeError:
+            model._model = model._get_hub_model(model_name, len(dataset.class_names))
+            model.benchmark(dataset, saved_model_dir=model_dir)
 
     except Exception as e:
         sys.exit("An error occurred during benchmarking: {}".format(str(e)))

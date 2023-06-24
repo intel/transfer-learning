@@ -3,9 +3,20 @@ import pytest
 import shutil
 import tempfile
 
-from datasets.arrow_dataset import Dataset as HF_Dataset
-from torch.utils.data import Dataset as TV_Dataset
-from tensorflow.data import Dataset as TF_Dataset
+try:
+    from datasets.arrow_dataset import Dataset as HF_Dataset
+except ModuleNotFoundError:
+    print("WARNING: datasets may not be installed")
+
+try:
+    from torch.utils.data import Dataset as TV_Dataset
+except ModuleNotFoundError:
+    print("WARNING: torch may not be installed")
+
+try:
+    from tensorflow.data import Dataset as TF_Dataset
+except ModuleNotFoundError:
+    print("WARNING: tensorflow may not be installed")
 
 from downloader import datasets
 from downloader.types import DatasetType
@@ -28,7 +39,7 @@ class TestDatasetDownload:
     Tests the dataset downloader with a temp download directory that is initialized and cleaned up
     """
     URLS = {'sms_spam_collection':
-            'https://archive.ics.uci.edu/ml/machine-learning-databases/00228/smsspamcollection.zip',
+            'https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip',
             'flowers':
             'https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz',
             'imagenet_labels':
@@ -48,6 +59,7 @@ class TestDatasetDownload:
             print("Deleting test directory:", cls._dataset_dir)
             shutil.rmtree(cls._dataset_dir)
 
+    @pytest.mark.integration
     @pytest.mark.parametrize('dataset_name,catalog,split,kwargs,size',
                              [['tf_flowers', 'tfds', 'train', {}, 3670],
                               ['CIFAR10', 'torchvision', 'train', {}, 50000],

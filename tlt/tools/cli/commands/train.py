@@ -85,10 +85,12 @@ from tlt.distributed import TLT_DISTRIBUTED_DIR
               help="Choice of data augmentation to be applied during training.")
 @click.option("--ipex_optimize", "--ipex-optimize",
               required=False,
+              type=click.BOOL,
               is_flag=True,
               help="Boolean option to optimize model with Intel Extension for PyTorch.")
 @click.option("--distributed", "-d",
               required=False,
+              type=click.BOOL,
               is_flag=True,
               help="Boolean option to trigger a distributed training job.")
 @click.option("--nnodes",
@@ -109,14 +111,17 @@ from tlt.distributed import TLT_DISTRIBUTED_DIR
 @click.option("--early-stopping", "--early_stopping",
               type=click.BOOL,
               default=False,
+              is_flag=True,
               help="Enable early stopping if convergence is reached while training (bool)")
 @click.option("--lr-decay", "--lr_decay",
               type=click.BOOL,
               default=False,
+              is_flag=True,
               help="If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at "
               "the end of each epoch.")
 @click.option("--use-horovod", "--use_horovod",
               required=False,
+              type=click.BOOL,
               is_flag=True,
               help="Use horovod instead of default MPI")
 def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimiter, class_names, dataset_name,
@@ -193,7 +198,6 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     try:
         model = model_factory.get_model(model_name, framework)
     except Exception as e:
-
         sys.exit("Error while getting the model (model name: {}, framework: {}):\n{}".format(
             model_name, framework, str(e)))
     # Get the dataset
