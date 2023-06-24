@@ -38,6 +38,16 @@ from tlt.utils.inc_utils import get_inc_config
               type=click.Path(exists=True, file_okay=False),
               help="Dataset directory for a custom dataset. Quantization is not supported with dataset catalogs at "
                    "this time.")
+@click.option("--dataset-file", "--dataset_file",
+              required=False,
+              type=str,
+              help="Name of a file in the dataset directory to load. Used for loading a .csv file for text "
+                   "classification fine tuning.")
+@click.option("--delimiter",
+              required=False,
+              type=str,
+              default=",",
+              help="Delimiter used when loading a dataset from a csv file. [default: ,]")
 @click.option("--batch-size", "--batch_size",
               required=False,
               type=click.IntRange(min=1),
@@ -82,7 +92,8 @@ from tlt.utils.inc_utils import get_inc_config
               type=click.Path(file_okay=False),
               help="A writeable output directory. The output directory will be used as a location to save the "
                    "quantized model, the tuning workspace, and the INC config file, if a config file is not provided.")
-def quantize(model_dir, dataset_dir, batch_size, approach, accuracy_criterion, timeout, max_trials, output_dir):
+def quantize(model_dir, dataset_dir, dataset_file, delimiter, batch_size, approach, accuracy_criterion, timeout,
+             max_trials, output_dir):
     """
     Uses the Intel Neural Compressor to perform post-training quantization on a trained model
     """
@@ -131,10 +142,23 @@ def quantize(model_dir, dataset_dir, batch_size, approach, accuracy_criterion, t
                  "(for TensorFlow) or <model name>/n/model.pt (for PyTorch).".format(str(e)))
 
     try:
-
         from tlt.datasets import dataset_factory
 
-        dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+        if str(model.use_case) == "image_classification":
+            dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
+        elif str(model.use_case) == "text_classification":
+            if not dataset_file:
+                raise ValueError("Loading a text classification dataset requires --dataset-file to specify the "
+                                 "file name of the .csv file to load from the --dataset-dir.")
+            if not delimiter:
+                raise ValueError("Loading a text classification dataset requires --delimiter in order to read the "
+                                 ".csv file from the --dataset-dir. in the correct format")
+
+            dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework,
+                                                   csv_file_name=dataset_file, delimiter=delimiter)
+        else:
+            sys.exit("ERROR: Quantization is currently only implemented for Image Classification "
+                     "and Text Classification models")
 
         # Preprocess, batch, and split
         if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:  # For Image classification

@@ -28,6 +28,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 from tlt.tools.cli.commands.quantize import quantize
 from tlt.utils.types import FrameworkType
+from tlt.utils.file_utils import download_and_extract_zip_file
 
 
 @pytest.mark.common
@@ -35,7 +36,7 @@ from tlt.utils.types import FrameworkType
                          [['efficientnet_b0', FrameworkType.TENSORFLOW, 512],
                           ['inception_v3', FrameworkType.TENSORFLOW, 32],
                           ['resnet50', FrameworkType.PYTORCH, 128],
-                          ['efficientnet_b2', FrameworkType.PYTORCH, 256]])
+                          ['bert-base-cased', FrameworkType.PYTORCH, 256]])
 @patch("tlt.models.model_factory.get_model")
 @patch("tlt.datasets.dataset_factory.load_dataset")
 def test_quantize(mock_load_dataset, mock_get_model, model_name, framework, batch_size):
@@ -52,9 +53,21 @@ def test_quantize(mock_load_dataset, mock_get_model, model_name, framework, batc
     dataset_dir = os.path.join(tmp_dir, 'data')
     output_dir = os.path.join(tmp_dir, 'output')
 
+    if model_name == "bert-base-cased":
+        # Get the dataset
+        zip_file_url = "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip"
+        csv_dir = os.path.join(dataset_dir, "sms_spam_collection")
+        csv_file_name = "SMSSpamCollection"
+        delimiter = '\t'
+
+        # If the SMS Spam collection csv file is not found, download and extract the file:
+        if not os.path.exists(os.path.join(csv_dir, csv_file_name)):
+            # Download the zip file with the SMS Spam collection dataset
+            download_and_extract_zip_file(zip_file_url, csv_dir)
+
     try:
         for new_dir in [model_dir, dataset_dir]:
-            os.makedirs(new_dir)
+            os.makedirs(new_dir, exist_ok=True)
 
         if framework == FrameworkType.TENSORFLOW:
             Path(os.path.join(model_dir, 'saved_model.pb')).touch()
@@ -64,17 +77,34 @@ def test_quantize(mock_load_dataset, mock_get_model, model_name, framework, batc
         model_mock = MagicMock()
         data_mock = MagicMock()
 
+        if model_name == "bert-base-cased":
+            model_mock.use_case = "text_classification"
+        else:
+            model_mock.use_case = "image_classification"
+
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
 
         # Call the quantize command
-        result = runner.invoke(quantize,
-                               ["--model-dir", model_dir, "--dataset_dir", dataset_dir,
-                                "--batch-size", batch_size, "--output-dir", output_dir])
+        if model_mock.use_case == "image_classification":
+            result = runner.invoke(quantize,
+                                   ["--model-dir", model_dir, "--dataset_dir", dataset_dir,
+                                    "--batch-size", batch_size, "--output-dir", output_dir])
+        else:
+            result = runner.invoke(quantize,
+                                   ["--model-dir", model_dir, "--dataset_dir", dataset_dir,
+                                    "--batch-size", batch_size, "--output-dir", output_dir,
+                                    "--dataset-file", csv_file_name, "--delimiter", delimiter])
 
         # Verify that the expected calls were made, including to create an Intel Neural Compressor config file
         mock_get_model.assert_called_once_with(model_name, framework)
-        mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
+
+        if model_mock.use_case == "image_classification":
+            mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
+        else:
+            mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework,
+                                                      csv_file_name=csv_file_name, delimiter=delimiter)
+
         assert model_mock.quantize.called
 
         # Verify a successful exit code
@@ -236,6 +266,8 @@ def test_quantize_output_dir(mock_get_model, mock_load_dataset):
 
         model_mock = MagicMock()
         data_mock = MagicMock()
+        model_mock.use_case = "image_classification"
+        data_mock.use_case = "image_classification"
 
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
