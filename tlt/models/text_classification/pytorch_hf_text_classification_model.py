@@ -343,6 +343,18 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         print(bash_command)
         subprocess.run(bash_command.split(' '))
 
+    def _get_hub_model(self, model_name, num_classes, force_download=False):
+        downloader = ModelDownloader(model_name, model_dir=None, hub='hugging_face',
+                                     num_labels=num_classes, force_download=force_download)
+        try:
+            model = downloader.download()
+        except ProxyError:
+            print('Max retries reached. Sleeping for 10 sec...')
+            time.sleep(10)
+            model = downloader.download()
+
+        return model
+
     def train(
         self,
         dataset,
@@ -414,14 +426,8 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
 
         if not self._model:
             self._num_classes = len(dataset.class_names)
-            downloader = ModelDownloader(self.hub_name, model_dir=None, hub='hugging_face',
-                                         num_labels=self._num_classes, force_download=force_download)
-            try:
-                self._model = downloader.download()
-            except ProxyError:
-                print('Max retries reached. Sleeping for 10 sec...')
-                time.sleep(10)
-                self._model = downloader.download()
+            self._model = self._get_hub_model(model_name=self.hub_name, num_classes=self._num_classes,
+                                              force_download=force_download)
 
         if not self._optimizer:
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
@@ -562,9 +568,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             if not self._model:
                 # The model hasn't been trained yet, use the original transformers model
                 self._num_classes = len(dataset_or_dataloader.class_names)
-                downloader = ModelDownloader(self.hub_name, hub='hugging_face', model_dir=None,
-                                             num_labels=self._num_classes)
-                self._model = downloader.download()
+                self._model = self._get_hub_model(self.hub_name, self._num_classes)
 
             # Do the evaluation
             device = torch.device(self._device)
