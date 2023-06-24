@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Classification Methods &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/tlt-custom.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Image Classification Methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/methods.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-classification-methods">
+<h1>Image Classification Methods<a class="headerlink" href="#image-classification-methods" title="Permalink to this heading">¶</a></h1>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.train.html#tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.train" title="tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfhub_image_classification_model.TFHubImageClassificationModel.train</span></code></a></p></td>
+<td><p>Trains the model using the specified image classification dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.quantize.html#tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.quantize" title="tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfhub_image_classification_model.TFHubImageClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.optimize_graph.html#tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.optimize_graph" title="tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.optimize_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfhub_image_classification_model.TFHubImageClassificationModel.optimize_graph</span></code></a></p></td>
+<td><p>Performs FP32 graph optimization using the Intel Neural Compressor on the model and writes the inference-optimized model to the output_dir.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.benchmark.html#tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.benchmark" title="tlt.models.image_classification.tfhub_image_classification_model.TFHubImageClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfhub_image_classification_model.TFHubImageClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.train.html#tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.train" title="tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_image_classification_model.TFImageClassificationModel.train</span></code></a></p></td>
+<td><p>Trains the model using the specified image classification dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.quantize.html#tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.quantize" title="tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_image_classification_model.TFImageClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.optimize_graph.html#tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.optimize_graph" title="tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.optimize_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_image_classification_model.TFImageClassificationModel.optimize_graph</span></code></a></p></td>
+<td><p>Performs FP32 graph optimization using the Intel Neural Compressor on the model and writes the inference-optimized model to the output_dir.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.benchmark.html#tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.benchmark" title="tlt.models.image_classification.tf_image_classification_model.TFImageClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_image_classification_model.TFImageClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.train.html#tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.train" title="tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keras_image_classification_model.KerasImageClassificationModel.train</span></code></a></p></td>
+<td><p>Trains the model using the specified image classification dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.quantize.html#tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.quantize" title="tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keras_image_classification_model.KerasImageClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.optimize_graph.html#tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.optimize_graph" title="tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.optimize_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keras_image_classification_model.KerasImageClassificationModel.optimize_graph</span></code></a></p></td>
+<td><p>Performs FP32 graph optimization using the Intel Neural Compressor on the model and writes the inference-optimized model to the output_dir.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.benchmark.html#tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.benchmark" title="tlt.models.image_classification.keras_image_classification_model.KerasImageClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keras_image_classification_model.KerasImageClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train.html#tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train" title="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">torchvision_image_classification_model.TorchvisionImageClassificationModel.train</span></code></a></p></td>
+<td><p>Trains the model using the specified image classification dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.quantize.html#tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.quantize" title="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">torchvision_image_classification_model.TorchvisionImageClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.benchmark.html#tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.benchmark" title="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">torchvision_image_classification_model.TorchvisionImageClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.train.html#tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.train" title="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_image_classification_model.PyTorchImageClassificationModel.train</span></code></a></p></td>
+<td><p>Trains the model using the specified image classification dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.quantize.html#tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.quantize" title="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_image_classification_model.PyTorchImageClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.benchmark.html#tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.benchmark" title="tlt.models.image_classification.pytorch_image_classification_model.PyTorchImageClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_image_classification_model.PyTorchImageClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.train.html#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.train" title="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.train</span></code></a></p></td>
+<td><p>Trains the model using the specified image classification dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.quantize.html#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.quantize" title="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.benchmark.html#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.benchmark" title="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.image_classification_model.ImageClassificationModel.train.html#tlt.models.image_classification.image_classification_model.ImageClassificationModel.train" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_classification_model.ImageClassificationModel.train</span></code></a></p></td>
+<td><p>Train the model using the specified dataset</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.image_classification_model.ImageClassificationModel.quantize.html#tlt.models.image_classification.image_classification_model.ImageClassificationModel.quantize" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_classification_model.ImageClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.image_classification.image_classification_model.ImageClassificationModel.benchmark.html#tlt.models.image_classification.image_classification_model.ImageClassificationModel.benchmark" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_classification_model.ImageClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="text-classification-methods">
+<h1>Text Classification Methods<a class="headerlink" href="#text-classification-methods" title="Permalink to this heading">¶</a></h1>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.train.html#tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.train" title="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_text_classification_model.TFTextClassificationModel.train</span></code></a></p></td>
+<td><p>Trains the model using the specified binary text classification dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.quantize.html#tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.quantize" title="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_text_classification_model.TFTextClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.optimize_graph.html#tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.optimize_graph" title="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.optimize_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_text_classification_model.TFTextClassificationModel.optimize_graph</span></code></a></p></td>
+<td><p>Performs FP32 graph optimization using the Intel Neural Compressor on the model and writes the inference-optimized model to the output_dir.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.benchmark.html#tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.benchmark" title="tlt.models.text_classification.tf_text_classification_model.TFTextClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_text_classification_model.TFTextClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.train.html#tlt.models.text_classification.pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.train" title="tlt.models.text_classification.pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.train</span></code></a></p></td>
+<td><p>Trains the model using the specified text classification dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.quantize.html#tlt.models.text_classification.pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.quantize" title="tlt.models.text_classification.pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.benchmark.html#tlt.models.text_classification.pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.benchmark" title="tlt.models.text_classification.pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.train.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.train" title="tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_hf_text_classification_model.TFHFTextClassificationModel.train</span></code></a></p></td>
+<td><p>Trains the model using the specified binary text classification dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.quantize.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.quantize" title="tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_hf_text_classification_model.TFHFTextClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.optimize_graph.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.optimize_graph" title="tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.optimize_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_hf_text_classification_model.TFHFTextClassificationModel.optimize_graph</span></code></a></p></td>
+<td><p>Performs FP32 graph optimization using the Intel Neural Compressor on the model and writes the inference-optimized model to the output_dir.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.benchmark.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.benchmark" title="tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tf_hf_text_classification_model.TFHFTextClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.text_classification_model.TextClassificationModel.train.html#tlt.models.text_classification.text_classification_model.TextClassificationModel.train" title="tlt.models.text_classification.text_classification_model.TextClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_classification_model.TextClassificationModel.train</span></code></a></p></td>
+<td><p>Train the model using the specified dataset</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.text_classification_model.TextClassificationModel.quantize.html#tlt.models.text_classification.text_classification_model.TextClassificationModel.quantize" title="tlt.models.text_classification.text_classification_model.TextClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_classification_model.TextClassificationModel.quantize</span></code></a></p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tlt.models.text_classification.text_classification_model.TextClassificationModel.benchmark.html#tlt.models.text_classification.text_classification_model.TextClassificationModel.benchmark" title="tlt.models.text_classification.text_classification_model.TextClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_classification_model.TextClassificationModel.benchmark</span></code></a></p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on Jun 23, 2023.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+﻿tlt.datasets.dataset.BaseDataset
+================================
+
+.. currentmodule:: tlt.datasets.dataset
+
+.. autoclass:: BaseDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseDataset.__init__
+      ~BaseDataset.get_batch
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseDataset.dataset
+      ~BaseDataset.dataset_catalog
+      ~BaseDataset.dataset_dir
+      ~BaseDataset.dataset_name
+      ~BaseDataset.test_subset
+      ~BaseDataset.train_subset
+      ~BaseDataset.validation_subset
+   
+   

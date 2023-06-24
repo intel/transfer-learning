@@ -1,0 +1,6 @@
+﻿tlt.models.text\_classification.tf\_hf\_text\_classification\_model.TFHFTextClassificationModel.train
+=====================================================================================================
+
+.. currentmodule:: tlt.models.text_classification.tf_hf_text_classification_model
+
+.. automethod:: TFHFTextClassificationModel.train

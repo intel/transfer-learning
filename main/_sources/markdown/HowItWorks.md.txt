@@ -1,9 +1,0 @@
-## How it Works
-Run simple CLI commands at a bash prompt or make API calls in a Python* script to:
-
-1. Download public pretrained models, replace the classification layer, and train them using your own dataset
-2. Minimize training time with Intel-optimized frameworks and low-precision features from Intel Neural Compressor
-3. Export a saved model optimized for inference on Intel CPUs
-
-![alt text](https://raw.githubusercontent.com/IntelAI/transfer-learning/main/docs/images/features.png "TLT CLI and API")
-

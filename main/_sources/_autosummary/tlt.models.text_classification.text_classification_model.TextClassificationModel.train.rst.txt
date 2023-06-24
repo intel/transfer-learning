@@ -1,0 +1,6 @@
+﻿tlt.models.text\_classification.text\_classification\_model.TextClassificationModel.train
+=========================================================================================
+
+.. currentmodule:: tlt.models.text_classification.text_classification_model
+
+.. automethod:: TextClassificationModel.train

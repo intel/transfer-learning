@@ -1,0 +1,3 @@
+{
+    "path": "../../notebooks/e2e_workflows/Medical_Imaging_Classification.ipynb"
+}

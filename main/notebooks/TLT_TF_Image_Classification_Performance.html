@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance Comparison: Image Classification Transfer Learning with TensorFlow and the Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tlt-custom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Performance Comparison: Image Classification Transfer Learning with TensorFlow and the Intel® Transfer Learning Tool</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/TLT_TF_Image_Classification_Performance.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Performance-Comparison:-Image-Classification-Transfer-Learning-with-TensorFlow-and-the-Intel®-Transfer-Learning-Tool">
+<h1>Performance Comparison: Image Classification Transfer Learning with TensorFlow and the Intel® Transfer Learning Tool<a class="headerlink" href="#Performance-Comparison:-Image-Classification-Transfer-Learning-with-TensorFlow-and-the-Intel®-Transfer-Learning-Tool" title="Permalink to this heading">¶</a></h1>
+<p>This notebook uses the TensorFlow libraries to do transfer learning with an image classification model. The model is exported, evaluated, and used to generate predictions. The same sequence is also done using the Intel Transfer Learning Tool. The Intel Transfer Learning Tool is also used to optimize and quantized the trained model.</p>
+<p>Graphs are generated to visually compare: * Training metrics (time per epoch, accuracy by epoch, loss by epoch) * Evaluation metrics (time to evaluate the validation dataset, accuracy using the validation data) * Prediction time for a single batch * Latency and throughput for the trained models, quantized model, and the optimized model.</p>
+<p>The notebook has variables to allow controlling parameters such as the model name, dataset, the number of training epochs, and the batch size(s).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;TF_CPP_MIN_LOG_LEVEL&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2&#39;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.ticker</span> <span class="k">as</span> <span class="nn">mtick</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow_hub</span> <span class="k">as</span> <span class="nn">hub</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">download_and_extract_tar_file</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.platform_util</span> <span class="kn">import</span> <span class="n">CPUInfo</span><span class="p">,</span> <span class="n">OptimizedPlatformUtil</span><span class="p">,</span> <span class="n">PlatformUtil</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">inc_utils</span>
+
+<span class="c1"># Ignore all warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;ERROR&#39;</span><span class="p">)</span>
+
+<span class="c1"># Specify the the default dataset directory</span>
+<span class="n">dataset_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+
+<span class="c1"># Specify a directory for output (saved models and checkpoints)</span>
+<span class="n">output_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OUTPUT_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;OUTPUT_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output directory:&quot;</span><span class="p">,</span> <span class="n">output_directory</span><span class="p">)</span>
+
+<span class="c1"># TF Hub cache directory</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TFHUB_CACHE_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="s2">&quot;.cache&quot;</span><span class="p">,</span> <span class="s2">&quot;tfhub_modules&quot;</span><span class="p">)</span>
+
+<span class="c1"># Data Frame styles</span>
+<span class="n">table_styles</span> <span class="o">=</span><span class="p">[{</span>
+    <span class="s1">&#39;selector&#39;</span><span class="p">:</span> <span class="s1">&#39;caption&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;props&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;text-align&#39;</span><span class="p">,</span> <span class="s1">&#39;center&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;font-size&#39;</span><span class="p">,</span> <span class="s1">&#39;16px&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">}]</span>
+
+<span class="c1"># Colors used in charts</span>
+<span class="n">orange</span> <span class="o">=</span> <span class="s1">&#39;#ff6f00&#39;</span>
+<span class="n">blue</span> <span class="o">=</span> <span class="s1">&#39;#0071c5&#39;</span>
+<span class="n">dark_blue</span> <span class="o">=</span> <span class="s1">&#39;#003c71&#39;</span>
+<span class="n">yellow</span> <span class="o">=</span> <span class="s1">&#39;#f3d54e&#39;</span>
+
+<span class="c1"># Caption style for DataFrames</span>
+<span class="n">caption_style</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">selector</span><span class="o">=</span><span class="s2">&quot;caption&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;text-align&quot;</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;font-size&quot;</span><span class="p">,</span> <span class="s2">&quot;14pt&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">)])]</span>
+
+<span class="c1"># Line styles</span>
+<span class="n">line_styles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;solid&#39;</span><span class="p">,</span> <span class="s1">&#39;dotted&#39;</span><span class="p">,</span> <span class="s1">&#39;dashed&#39;</span><span class="p">,</span> <span class="s1">&#39;dashdot&#39;</span><span class="p">]</span>
+
+<span class="c1"># Marker styles</span>
+<span class="n">marker_styles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<section id="1.-Display-Platform-Information">
+<h2>1. Display Platform Information<a class="headerlink" href="#1.-Display-Platform-Information" title="Permalink to this heading">¶</a></h2>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">CPUInfo</span></code> and <code class="docutils literal notranslate"><span class="pre">PlatformUtil</span></code> classes in the get and display information about the platform and TensorFlow version.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get and display CPU/platform information</span>
+<span class="n">cpu_info</span> <span class="o">=</span> <span class="n">CPUInfo</span><span class="p">()</span>
+<span class="n">platform_util</span> <span class="o">=</span> <span class="n">PlatformUtil</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> CPU Information </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU family:&quot;</span><span class="p">,</span> <span class="n">platform_util</span><span class="o">.</span><span class="n">cpu_family</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU model:&quot;</span><span class="p">,</span> <span class="n">platform_util</span><span class="o">.</span><span class="n">cpu_model</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU type:&quot;</span><span class="p">,</span> <span class="n">platform_util</span><span class="o">.</span><span class="n">cpu_type</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Physical cores per socket:&quot;</span><span class="p">,</span> <span class="n">cpu_info</span><span class="o">.</span><span class="n">cores_per_socket</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total physical cores:&quot;</span><span class="p">,</span> <span class="n">cpu_info</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span>
+<span class="n">cpufreq</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_freq</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Max Frequency:&quot;</span><span class="p">,</span> <span class="n">cpufreq</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Min Frequency:&quot;</span><span class="p">,</span> <span class="n">cpufreq</span><span class="o">.</span><span class="n">min</span><span class="p">)</span>
+<span class="n">cpu_socket_count</span> <span class="o">=</span> <span class="n">cpu_info</span><span class="o">.</span><span class="n">sockets</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Socket Number:&quot;</span><span class="p">,</span> <span class="n">cpu_socket_count</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{0}</span><span class="s2"> Memory Information </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">))</span>
+<span class="n">svmem</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total: &quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">svmem</span><span class="o">.</span><span class="n">total</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)),</span> <span class="s2">&quot;GB&quot;</span><span class="p">)</span>
+
+<span class="c1"># Display TensorFlow version information</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{0}</span><span class="s2"> TensorFlow Information </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TensorFlow version:&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TensorFlow Hub version:&quot;</span><span class="p">,</span> <span class="n">hub</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="n">major_version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">minor_version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">if</span> <span class="n">major_version</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="n">onednn_enabled</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">minor_version</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">_pywrap_util_port</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">_pywrap_util_port</span>
+        <span class="n">onednn_enabled</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;TF_ENABLE_ONEDNN_OPTS&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">))</span>
+    <span class="n">on_onednn</span> <span class="o">=</span> <span class="n">_pywrap_util_port</span><span class="o">.</span><span class="n">IsMklEnabled</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span><span class="n">onednn_enabled</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">on_onednn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pywrap_tensorflow</span><span class="o">.</span><span class="n">IsMklEnabled</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;oneDNN enabled:&quot;</span><span class="p">,</span> <span class="n">on_onednn</span><span class="p">)</span>
+
+<span class="c1"># Don&#39;t use the NVidia GPU, if there is one</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation">
+<h2>2. Select a model and define parameters to use during training and evaluation<a class="headerlink" href="#2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation" title="Permalink to this heading">¶</a></h2>
+<section id="Select-a-model">
+<h3>Select a model<a class="headerlink" href="#Select-a-model" title="Permalink to this heading">¶</a></h3>
+<p>See the list of supported image classification models from TensorFlow Hub in the Intel Transfer Learning Tool.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">framework</span> <span class="o">=</span> <span class="s1">&#39;tensorflow&#39;</span>
+<span class="n">use_case</span> <span class="o">=</span> <span class="s1">&#39;image_classification&#39;</span>
+<span class="n">model_hub</span> <span class="o">=</span> <span class="s1">&#39;TFHub&#39;</span>
+<span class="n">supported_models</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">use_case</span><span class="p">)</span>
+<span class="n">supported_models</span> <span class="o">=</span> <span class="n">supported_models</span><span class="p">[</span><span class="n">use_case</span><span class="p">]</span>
+
+<span class="c1"># Filter to only get relevant models</span>
+<span class="n">supported_models</span> <span class="o">=</span> <span class="p">{</span> <span class="n">key</span><span class="p">:</span><span class="n">value</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">supported_models</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="n">framework</span><span class="p">][</span><span class="s1">&#39;model_hub&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">model_hub</span><span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Supported </span><span class="si">{}</span><span class="s2"> models for </span><span class="si">{}</span><span class="s2"> from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">use_case</span><span class="p">,</span> <span class="n">model_hub</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">supported_models</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Set the <code class="docutils literal notranslate"><span class="pre">model_name</span></code> to the model that will be used for transfer learning.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select a model</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;resnet_v1_50&quot;</span>
+
+<span class="c1"># Get information about the model (image size and the feature vector handle)</span>
+<span class="c1"># This information will be used during transfer learning using the TensorFlow framework API</span>
+<span class="k">if</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">supported_models</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">supported_models</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="n">framework</span><span class="p">]</span>
+    <span class="n">image_size</span> <span class="o">=</span> <span class="n">model_info</span><span class="p">[</span><span class="s2">&quot;image_size&quot;</span><span class="p">]</span>
+    <span class="n">feature_vector_handle</span> <span class="o">=</span> <span class="n">model_info</span><span class="p">[</span><span class="s1">&#39;feature_vector&#39;</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model Name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TF Hub feature vector: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">feature_vector_handle</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Image size: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_size</span><span class="p">))</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The specified model is unsupported. Please select a model from the list of supported models.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Select-a-dataset">
+<h3>Select a dataset<a class="headerlink" href="#Select-a-dataset" title="Permalink to this heading">¶</a></h3>
+<p>By default, the notebook will use the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/tf_flowers">TensorFlow Flowers dataset</a>, which has flower images that belong to 5 categories.</p>
+<p>To use your own dataset, set the <code class="docutils literal notranslate"><span class="pre">dataset_subdir</span></code> variable to the dataset path. The dataset directory is expected to have folders of images for each class, where the name of the folder will be used as the class name.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dataset_dir
+          ├── class_a
+          ├── class_b
+          └── class_c
+</pre></div>
+</div>
+<p>Optionally, the <code class="docutils literal notranslate"><span class="pre">dataset_subdir</span></code> directory can have <code class="docutils literal notranslate"><span class="pre">train</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code>/<code class="docutils literal notranslate"><span class="pre">validation</span></code> subdirectories. For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dataset_dir
+          ├── train
+          |   ├── class_a
+          |   ├── class_b
+          |   └── class_c
+          └── test
+              ├── class_a
+              ├── class_b
+              └── class_c
+</pre></div>
+</div>
+<p>If the dataset does not have separate folders for train and test/validation, the dataset will be split by percentage.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_directory</span><span class="p">,</span> <span class="s2">&quot;flower_photos&quot;</span><span class="p">)</span>
+
+<span class="c1"># Download the flowers dataset, if the folder doesn&#39;t exist</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">)</span>
+    <span class="n">dataset_url</span> <span class="o">=</span> <span class="s2">&quot;https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz&quot;</span>
+    <span class="n">download_and_extract_tar_file</span><span class="p">(</span><span class="n">dataset_url</span><span class="p">,</span> <span class="n">dataset_directory</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dataset path:&quot;</span><span class="p">,</span> <span class="n">dataset_subdir</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Folders in the dataset directory:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="n">d</span><span class="p">)):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-parameters">
+<h3>Define parameters<a class="headerlink" href="#Define-parameters" title="Permalink to this heading">¶</a></h3>
+<p>For consistency between the model training using the TensorFlow framework API and the model training using the Intel Transfer Learning Tool API, the next cell defines parameters that will be used by both methods.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Number of training epochs</span>
+<span class="n">training_epochs</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Shuffle the files after each training epoch</span>
+<span class="n">shuffle_files</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Define training/validation splits for the dataset</span>
+<span class="c1"># (if the dataset directory does not have subdirectories for train and test/validation)</span>
+<span class="n">validation_split</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="n">training_split</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">validation_split</span>
+
+<span class="c1"># Set seed for consistency between runs (or None)</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># List of batch size(s) to compare (maximum of 4 batch sizes to try)</span>
+<span class="n">batch_size_list</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span> <span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Validate parameter values and then print out the parameter values.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">training_epochs</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The training_epochs parameter should be an integer, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">training_epochs</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="n">training_epochs</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The training_epochs parameter should not be less than 1.&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shuffle_files</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The shuffle_files parameter should be a bool, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shuffle_files</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">validation_split</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The validation_split parameter should be a float, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">validation_split</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">training_split</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The training_split parameter should be a float, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">training_split</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="n">validation_split</span> <span class="o">+</span> <span class="n">training_split</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The sum of validation_split and training_split should not be greater than 1.&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">seed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The seed parameter should be a integer or None, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">seed</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The batch_size_list should have at most 4 values, but found </span><span class="si">{}</span><span class="s2"> values (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">),</span> <span class="n">batch_size_list</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of training epochs:&quot;</span><span class="p">,</span> <span class="n">training_epochs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shuffle files:&quot;</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training split: </span><span class="si">{}</span><span class="s2">%&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">training_split</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation split: </span><span class="si">{}</span><span class="s2">%&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">validation_split</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Seed:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Batch size list:&quot;</span><span class="p">,</span> <span class="n">batch_size_list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Define a callback method that track the time that it took to run training epochs, evaluation, and batch predictions.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Callback to track the training time for each epoch, evaluation time, or prediction time</span>
+<span class="k">class</span> <span class="nc">TimerCallback</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">Callback</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epoch_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predict_times</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="nf">on_epoch_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tf_timestamp</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">epoch</span><span class="p">,</span><span class="n">logs</span> <span class="o">=</span> <span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epoch_times</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">tf</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tf_timestamp</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="k">def</span> <span class="nf">on_test_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tf_timestamp</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">on_test_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">epoch</span><span class="p">,</span><span class="n">logs</span> <span class="o">=</span> <span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_times</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">tf</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tf_timestamp</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="k">def</span> <span class="nf">on_predict_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">logs</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tf_timestamp</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">on_predict_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">epoch</span><span class="p">,</span><span class="n">logs</span> <span class="o">=</span> <span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predict_times</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">tf</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tf_timestamp</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="3.-Compare-the-training-time-for-transfer-learning">
+<h2>3. Compare the training time for transfer learning<a class="headerlink" href="#3.-Compare-the-training-time-for-transfer-learning" title="Permalink to this heading">¶</a></h2>
+<p>In this section, we will compare the time it takes to retrain the image classification model using the dataset that was selected in the previous section.</p>
+<p>The training will be done in two different ways to compare: * Transfer learning using the TensorFlow framework and TF Hub libraries * Transfer learning using the Intel Transfer Learning Tool API</p>
+<section id="Transfer-learning-using-the-TensorFlow-framework-and-TF-Hub-libraries">
+<h3>Transfer learning using the TensorFlow framework and TF Hub libraries<a class="headerlink" href="#Transfer-learning-using-the-TensorFlow-framework-and-TF-Hub-libraries" title="Permalink to this heading">¶</a></h3>
+<p>This section goes through using the TensorFlow framework and TF Hub libraries to retrain the model using the selected dataset.</p>
+<p>First, the dataset is loaded in, which allows us to determine the number of classes in the dataset. The original ImageNet dataset that the image classification model was trained on has 1000 classes. To do transfer learning using the new dataset, we will get the feature vector from TF Hub and then add on a classification layer that matches the number of classes in the new dataset.</p>
+<p>If multiple batch sizes were set in the <code class="docutils literal notranslate"><span class="pre">batch_size_list</span></code>, training will be run for each batch size.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set seed</span>
+<span class="k">if</span> <span class="n">seed</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PYTHONHASHSEED&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+<span class="c1"># Lists to track callbacks, datasets, models, and saved model directory for each batch size experiment</span>
+<span class="n">tf_time_callback_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tf_dataset_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tf_model_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tf_export_dir_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tf_history_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Check if the dataset directory has subdirectories for train/validation/test splits</span>
+<span class="n">val_dataset_dir</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">train_dataset_dir</span> <span class="o">=</span> <span class="n">dataset_subdir</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">)):</span>
+    <span class="n">train_dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">)</span>
+    <span class="n">val_dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">val_dataset_dir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)):</span>
+            <span class="n">val_dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The dataset directory (</span><span class="si">{}</span><span class="s1">) has a &quot;train&quot; directory, but no &quot;validation&quot; or &quot;test&quot; directory.&#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using training data from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">train_dataset_dir</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using validation data from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val_dataset_dir</span><span class="p">))</span>
+
+<span class="c1"># Load the dataset</span>
+<span class="n">tf_dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">image_dataset_from_directory</span><span class="p">(</span><span class="n">train_dataset_dir</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+<span class="n">class_names</span> <span class="o">=</span> <span class="n">tf_dataset</span><span class="o">.</span><span class="n">class_names</span>
+
+<span class="k">if</span> <span class="n">shuffle_files</span><span class="p">:</span>
+    <span class="n">tf_dataset</span> <span class="o">=</span> <span class="n">tf_dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">tf_dataset</span><span class="o">.</span><span class="n">cardinality</span><span class="p">(),</span> <span class="n">reshuffle_each_iteration</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">val_dataset_dir</span><span class="p">:</span>
+    <span class="c1"># Load the validation/test sub directory</span>
+    <span class="n">train_ds</span> <span class="o">=</span> <span class="n">tf_dataset</span>
+    <span class="n">val_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">image_dataset_from_directory</span><span class="p">(</span><span class="n">val_dataset_dir</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shuffle_files</span><span class="p">:</span>
+        <span class="n">val_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">val_ds</span><span class="o">.</span><span class="n">cardinality</span><span class="p">(),</span> <span class="n">reshuffle_each_iteration</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">train_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_ds</span><span class="p">)</span>
+    <span class="n">val_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_ds</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Split the data into train/validation subsets (Note that image_dataset_from_directory can also do splitting but</span>
+    <span class="c1"># we are doing it this way to match what the Intel Transfer Learning Tool does to ensure the same sized splits)</span>
+    <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">training_split</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">tf_dataset</span><span class="p">))</span>
+    <span class="n">val_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">validation_split</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">tf_dataset</span><span class="p">))</span>
+    <span class="n">train_ds</span> <span class="o">=</span> <span class="n">tf_dataset</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">train_size</span><span class="p">)</span>
+    <span class="n">val_ds</span> <span class="o">=</span> <span class="n">tf_dataset</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="n">train_size</span><span class="p">)</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">val_size</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training dataset size:&quot;</span><span class="p">,</span> <span class="n">train_size</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation dataset size:&quot;</span><span class="p">,</span> <span class="n">val_size</span><span class="p">)</span>
+
+<span class="c1"># Preprocess the dataset</span>
+<span class="n">normalization_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Rescaling</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mi">255</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">preprocess_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize_with_pad</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">normalization_layer</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_image</span><span class="p">)</span>
+<span class="n">val_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_image</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="n">batch_size_list</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Training using batch size: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+
+    <span class="c1"># Batch the dataset</span>
+    <span class="n">batched_train_ds</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">batched_val_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="c1"># Get the feature extractor layer from TF Hub</span>
+    <span class="n">feature_extractor_layer</span> <span class="o">=</span> <span class="n">hub</span><span class="o">.</span><span class="n">KerasLayer</span><span class="p">(</span><span class="n">feature_vector_handle</span><span class="p">,</span>
+                                             <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                                             <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Add the dense layer sized according to the number of classes in our dataset</span>
+    <span class="n">tf_model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">([</span>
+      <span class="n">feature_extractor_layer</span><span class="p">,</span>
+      <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">class_names</span><span class="p">))</span>
+    <span class="p">])</span>
+
+    <span class="c1"># Configure the model optimizer and loss function</span>
+    <span class="n">tf_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+      <span class="n">optimizer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(),</span>
+      <span class="n">loss</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+      <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;acc&#39;</span><span class="p">])</span>
+
+    <span class="n">tf_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+
+    <span class="c1"># Define the callback for tracking the time it takes to train each epoch</span>
+    <span class="n">tf_time_callback</span> <span class="o">=</span> <span class="n">TimerCallback</span><span class="p">()</span>
+
+    <span class="c1"># Train the model</span>
+    <span class="n">tf_history_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">batched_train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">training_epochs</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle_files</span><span class="p">,</span>
+                                        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">tf_time_callback</span><span class="p">]))</span>
+
+    <span class="c1"># Export the trained model</span>
+    <span class="n">tf_export_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="s2">&quot;tf_saved_models&quot;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tf_export_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">tf_export_dir</span><span class="p">)</span>
+    <span class="n">tf_export_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">tf_export_dir</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Save model to:&quot;</span><span class="p">,</span> <span class="n">tf_export_dir</span><span class="p">)</span>
+    <span class="n">tf_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">tf_export_dir</span><span class="p">)</span>
+
+    <span class="c1"># Append to lists for each batch size</span>
+    <span class="n">tf_time_callback_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf_time_callback</span><span class="p">)</span>
+    <span class="n">tf_dataset_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">batched_train_ds</span><span class="p">,</span> <span class="n">batched_val_ds</span><span class="p">))</span>
+    <span class="n">tf_model_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf_model</span><span class="p">)</span>
+    <span class="n">tf_export_dir_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf_export_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Transfer-learning-using-the-Intel-Transfer-Learning-Tool-API">
+<h3>Transfer learning using the Intel Transfer Learning Tool API<a class="headerlink" href="#Transfer-learning-using-the-Intel-Transfer-Learning-Tool-API" title="Permalink to this heading">¶</a></h3>
+<p>This section uses the Intel Transfer Learning Tool API to retrain the model using the selected dataset. This API simplifies the transfer learning process, so there are less lines of code compared to directly using the TensorFlow and TensorFlow Hub libraries.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use the OptimizedPlatform Util class from the Intel Transfer Learning Tool API to set recommended settings</span>
+<span class="n">optimized_platform_util</span> <span class="o">=</span> <span class="n">OptimizedPlatformUtil</span><span class="p">(</span><span class="n">omp_num_threads</span><span class="o">=</span><span class="n">cpu_info</span><span class="o">.</span><span class="n">cores_per_socket</span><span class="p">,</span>
+                                               <span class="n">kmp_blocktime</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                               <span class="n">kmp_affinity</span><span class="o">=</span><span class="s1">&#39;granularity=fine,compact,1,0&#39;</span><span class="p">,</span>
+                                               <span class="n">tf_num_intraop_threads</span><span class="o">=</span><span class="n">cpu_info</span><span class="o">.</span><span class="n">cores_per_socket</span><span class="p">,</span>
+                                               <span class="n">tf_num_interop_threads</span><span class="o">=</span><span class="n">cpu_info</span><span class="o">.</span><span class="n">sockets</span><span class="p">,</span>
+                                               <span class="n">force_reset_env_vars</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">optimized_platform_util</span><span class="o">.</span><span class="n">env_vars_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Lists to track callbacks, datasets, models, and saved model directory for each batch size experiment</span>
+<span class="n">tlt_time_callback_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_dataset_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_model_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_export_dir_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_history_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="n">batch_size_list</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Training using batch size: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+
+    <span class="c1"># Use the model factory to get the model</span>
+    <span class="n">tlt_model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">framework</span><span class="p">)</span>
+
+    <span class="c1"># Load, split, and preprocess the dataset</span>
+    <span class="n">tlt_dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="n">use_case</span><span class="o">=</span><span class="n">use_case</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">framework</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tlt_dataset</span><span class="o">.</span><span class="n">train_subset</span><span class="p">:</span>
+        <span class="n">tlt_dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="n">training_split</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="n">validation_split</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="n">shuffle_files</span><span class="p">)</span>
+
+    <span class="n">tlt_dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">tlt_model</span><span class="o">.</span><span class="n">image_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="c1"># Define the callback for tracking the time it takes to train each epoch</span>
+    <span class="n">tlt_time_callback</span> <span class="o">=</span> <span class="n">TimerCallback</span><span class="p">()</span>
+
+    <span class="c1"># Train the model</span>
+    <span class="n">tlt_history_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">tlt_dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">training_epochs</span><span class="p">,</span>
+                                            <span class="n">shuffle_files</span><span class="o">=</span><span class="n">shuffle_files</span><span class="p">,</span> <span class="n">do_eval</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">tlt_time_callback</span><span class="p">,</span>
+                                            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">))</span>
+
+    <span class="c1"># Export the trained model</span>
+    <span class="n">tlt_export_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="s2">&quot;tlt_saved_models&quot;</span><span class="p">)</span>
+    <span class="n">tlt_export_dir</span> <span class="o">=</span> <span class="n">tlt_model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">tlt_export_dir</span><span class="p">)</span>
+
+    <span class="c1"># Append to lists for each batch size</span>
+    <span class="n">tlt_time_callback_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_time_callback</span><span class="p">)</span>
+    <span class="n">tlt_dataset_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_dataset</span><span class="p">)</span>
+    <span class="n">tlt_model_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_model</span><span class="p">)</span>
+    <span class="n">tlt_export_dir_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_export_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Optimize-the-model-using-the-Intel-Transfer-Learning-Tool-API">
+<h3>Optimize the model using the Intel Transfer Learning Tool API<a class="headerlink" href="#Optimize-the-model-using-the-Intel-Transfer-Learning-Tool-API" title="Permalink to this heading">¶</a></h3>
+<p>After training, the Intel Transfer Learning Tool can optimize the model to improve inference performance. This is done using the <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a> quantizing the model or optimizing the full precision model.</p>
+<p>First, we setup a configuration file that with parameters that will be used by the Intel Neural Compressor for quantization.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tlt_quantization_dir_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_optimized_dir_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">inc_config_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Create a tuning workspace directory for INC</span>
+<span class="n">nc_workspace</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="s1">&#39;nc_workspace&#39;</span><span class="p">)</span>
+
+<span class="c1"># Relative accuracy loss (1%)</span>
+<span class="n">relative_accuracy_criterion</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+<span class="c1"># Define the exit policy timeout (in seconds) and max number of trials. The tuning processing finishes when</span>
+<span class="c1"># the timeout or max trials is reached. A tuning timeout of 0 means that the tuning phase stops when the</span>
+<span class="c1"># accuracy criterion is met.</span>
+<span class="n">timeout</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">max_trials</span><span class="o">=</span><span class="mi">15</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="c1"># Create an output directories for the quantized and optimized models</span>
+    <span class="n">tlt_quantization_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="s1">&#39;tlt_quantized_models&#39;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">tlt_export_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">tlt_optimized_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="s1">&#39;tlt_optimized_models&#39;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">tlt_export_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+    <span class="c1"># Create an Intel Neural Compressor config based on the inputs that we are using</span>
+    <span class="n">inc_config_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_model</span><span class="o">.</span><span class="n">get_inc_config</span><span class="p">(</span><span class="n">accuracy_criterion_relative</span><span class="o">=</span><span class="n">relative_accuracy_criterion</span><span class="p">,</span>
+                                                    <span class="n">exit_policy_timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">exit_policy_max_trials</span><span class="o">=</span><span class="n">max_trials</span><span class="p">))</span>
+
+    <span class="c1"># Append to lists for each batch size</span>
+    <span class="n">tlt_quantization_dir_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_quantization_dir</span><span class="p">)</span>
+    <span class="n">tlt_optimized_dir_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_optimized_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next, we quantize the model using the config file that was just generated. Quantization aims to improve inference performance by reducing the number of bits required, by maintaining close the the same amount of accuracy as the full precision model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="c1"># Quantize the model</span>
+    <span class="n">tlt_model</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">tlt_quantization_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tlt_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">config</span><span class="o">=</span><span class="n">inc_config_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>Another option to improve inference performance is using graph optimization through the Intel Neural Compressor which: * Converts variables to constants * Removes training-only operations like checkpoint saving * Strips out parts of the graph that are never reached * Removes debug operations like CheckNumerics * Folds batch normalization ops into the pre-calculated weights * Fuses common operations into unified versions</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="c1"># Optimize the full precision model</span>
+    <span class="n">tlt_model</span><span class="o">.</span><span class="n">optimize_graph</span><span class="p">(</span><span class="n">tlt_optimized_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Compare-training-times">
+<h3>Compare training times<a class="headerlink" href="#Compare-training-times" title="Permalink to this heading">¶</a></h3>
+<p>The table below compares the time it took to train each epoch (in seconds) using the TensorFlow framework libraries directly versus the Intel Transfer Learning Tool API.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display_df</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="c1"># Sanity check that both datasets had the same number of batches</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tf_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tlt_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">train_subset</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: For batch size </span><span class="si">{}</span><span class="s2">, the TF training dataset had </span><span class="si">{}</span><span class="s2"> batches and the TLT training dataset had &quot;</span>
+              <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> batches. These values should have been the same.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tf_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">tlt_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">train_subset</span><span class="p">)))</span>
+
+    <span class="c1"># Calculate images/second</span>
+    <span class="n">tf_images_per_second</span> <span class="o">=</span> <span class="p">[</span><span class="n">train_size</span> <span class="o">/</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tf_time_callback_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">epoch_times</span><span class="p">]</span>
+    <span class="n">tlt_images_per_second</span> <span class="o">=</span> <span class="p">[</span><span class="n">train_size</span> <span class="o">/</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tlt_time_callback_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">epoch_times</span><span class="p">]</span>
+    <span class="n">performance_delta</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{0:.2f}</span><span class="s2">%&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">tlt</span><span class="o">-</span><span class="n">tf</span><span class="p">)</span><span class="o">/</span><span class="n">tf</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="k">for</span> <span class="n">tf</span><span class="p">,</span> <span class="n">tlt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tf_images_per_second</span><span class="p">,</span> <span class="n">tlt_images_per_second</span><span class="p">)]</span>
+
+    <span class="c1"># Graph the results</span>
+    <span class="n">epoch_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">training_epochs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">tf_train_time</span> <span class="o">=</span> <span class="n">tf_time_callback_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">epoch_times</span>
+    <span class="n">tlt_train_time</span> <span class="o">=</span> <span class="n">tlt_time_callback_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">epoch_times</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">,</span> <span class="n">tf_train_time</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Using TF libraries with batch size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span>
+             <span class="n">linestyle</span><span class="o">=</span><span class="n">line_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">orange</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">,</span> <span class="n">tlt_train_time</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Using TLT with batch size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span>
+             <span class="n">linestyle</span><span class="o">=</span><span class="n">line_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+
+    <span class="c1"># Create a DataFrame to display the results in a table</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s1">&#39;TF epoch time&lt;br&gt;(seconds)&#39;</span><span class="p">:</span> <span class="n">tf_time_callback_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">epoch_times</span><span class="p">,</span>
+        <span class="s1">&#39;TLT epoch time&lt;br&gt;(seconds)&#39;</span><span class="p">:</span> <span class="n">tlt_time_callback_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">epoch_times</span><span class="p">,</span>
+        <span class="s1">&#39;TF throughput&lt;br&gt;(images/sec)&#39;</span><span class="p">:</span> <span class="n">tf_images_per_second</span><span class="p">,</span>
+        <span class="s1">&#39;TLT throughput&lt;br&gt;(images/sec)&#39;</span><span class="p">:</span> <span class="n">tlt_images_per_second</span><span class="p">,</span>
+        <span class="s1">&#39;Performance&lt;br&gt;Boost&#39;</span><span class="p">:</span> <span class="n">performance_delta</span>
+    <span class="p">})</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">set_table_styles</span><span class="p">(</span><span class="n">table_styles</span><span class="p">)</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="s2">&quot;Epoch training times with batch size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="n">display_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Training time per epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Seconds&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Display tables with epoch training time for each batch size</span>
+<span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">display_df</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next, visualize the accuracy and loss metrics collected during training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Graph the training accuracy by epoch for each batch size</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="n">tf_acc_time</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tf_history_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;acc&#39;</span><span class="p">]]</span>
+    <span class="n">tlt_acc_time</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tlt_history_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;acc&#39;</span><span class="p">]]</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">,</span> <span class="n">tf_acc_time</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Using TF libraries (batch size = </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">line_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">orange</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">,</span> <span class="n">tlt_acc_time</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Using TLT (batch size = </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">line_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Training Accuracy by Epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Accuracy (%)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Graph the training loss by epoch for each batch size</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="n">tf_loss_time</span> <span class="o">=</span> <span class="n">tf_history_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span>
+    <span class="n">tlt_loss_time</span> <span class="o">=</span> <span class="n">tlt_history_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">,</span> <span class="n">tf_loss_time</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Using TF libraries (batch size = </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">line_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">orange</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">,</span> <span class="n">tlt_loss_time</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Using TLT (batch size = </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">line_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker_styles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Training Loss by Epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Epoch&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Loss&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="4.-Evaluate-and-predict">
+<h2>4. Evaluate and predict<a class="headerlink" href="#4.-Evaluate-and-predict" title="Permalink to this heading">¶</a></h2>
+<p>This section calls evaluation and prediction methods for the models trained using the TensorFlow libraries and the Intel Transfer Learning Tool.</p>
+<section id="Evaluate-the-models-using-the-validation-data">
+<h3>Evaluate the models using the validation data<a class="headerlink" href="#Evaluate-the-models-using-the-validation-data" title="Permalink to this heading">¶</a></h3>
+<p>First, evaluate the models trained using the TensorFlow libraries.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tf_eval_callback_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tf_eval_metrics_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Evaluate using the TensorFlow framework model for each batch size</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Evaluate using batch size: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+
+    <span class="n">tf_eval_callback</span> <span class="o">=</span> <span class="n">TimerCallback</span><span class="p">()</span>
+
+    <span class="c1"># Use the test split of the dataset to evaluate the model</span>
+    <span class="n">tf_eval_metrics_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf_model_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">tf_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">tf_eval_callback</span><span class="p">))</span>
+    <span class="n">tf_eval_callback_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf_eval_callback</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next, evaluate the models trained using the Intel Transfer Learning Tool.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tlt_eval_callback_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_eval_metrics_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Evaluate using the Intel Transfer Learning Tool model for each batch size</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Evaluate using batch size: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+
+    <span class="n">use_test_set</span> <span class="o">=</span> <span class="n">tlt_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">validation_subset</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tlt_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">test_subset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="n">tlt_eval_callback</span> <span class="o">=</span> <span class="n">TimerCallback</span><span class="p">()</span>
+    <span class="n">tlt_eval_metrics_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_model_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">tlt_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">tlt_eval_callback</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="n">use_test_set</span><span class="p">))</span>
+    <span class="n">tlt_eval_callback_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_eval_callback</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>After all the models have been evaluated, visualize the results using charts that the display the time that it took to evaluate each model and the accuracy that was found when using the validation dataset.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Bar chart group labels</span>
+<span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;batch size = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span> <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">batch_size_list</span><span class="p">]</span>
+
+<span class="c1"># Create grouped bar chart for evaluation time</span>
+<span class="n">decimals</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># number of decimals to use for rounding</span>
+<span class="n">tf_eval_times</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">eval_times</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">tf_eval_callback_list</span><span class="p">]</span>
+<span class="n">tlt_eval_times</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">eval_times</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">tlt_eval_callback_list</span><span class="p">]</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mf">0.24</span>  <span class="c1"># the width of the bars</span>
+<span class="n">multiplier</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1"># Setup bars for evaluation times</span>
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">tf_eval_times</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TF eval&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">orange</span><span class="p">)</span>
+<span class="n">rects_tlt</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">tlt_eval_times</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT eval&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Seconds&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Evaluation time&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1">#plt.show()</span>
+
+<span class="c1"># Evaluation accuracy comparison</span>
+<span class="n">decimals</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">tf_acc_index</span> <span class="o">=</span> <span class="n">tf_model_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metrics_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;acc&#39;</span><span class="p">)</span>
+<span class="n">tlt_acc_index</span> <span class="o">=</span> <span class="n">tlt_model_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">metrics_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;acc&#39;</span><span class="p">)</span>
+<span class="n">tf_eval_accuracy</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">tf_acc_index</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tf_eval_metrics_list</span><span class="p">]</span>
+<span class="n">tlt_eval_accuracy</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">tlt_acc_index</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_eval_metrics_list</span><span class="p">]</span>
+
+<span class="c1"># Setup bars for evaluation accuracy</span>
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">tf_eval_accuracy</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TF accuracy&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">orange</span><span class="p">)</span>
+<span class="n">rects_tlt</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">tlt_eval_accuracy</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT accuracy&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Accuracy (%)&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">mtick</span><span class="o">.</span><span class="n">PercentFormatter</span><span class="p">())</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Evaluation accuracy using the validation data&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Predict-using-a-batch-of-images">
+<h3>Predict using a batch of images<a class="headerlink" href="#Predict-using-a-batch-of-images" title="Permalink to this heading">¶</a></h3>
+<p>Use the TensorFlow libaries to get a batch of images and predict using the trained models.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tf_predict_callback_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Predict on a single batch (batch size = </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+
+    <span class="n">tf_predict_time</span> <span class="o">=</span> <span class="n">TimerCallback</span><span class="p">()</span>
+    <span class="n">dataset_batch</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">tf_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">tf_batch</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dataset_batch</span>
+    <span class="n">batch_predictions</span> <span class="o">=</span> <span class="n">tf_model_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">tf_batch</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">tf_predict_time</span><span class="p">)</span>
+    <span class="n">tf_predict_callback_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf_predict_time</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Similarly, use the Intel Transfer Learning Tool API to get a batch of images and predict using the trained models.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tlt_predict_callback_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Predict on a single batch (batch size = </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+
+    <span class="n">tlt_predict_time</span> <span class="o">=</span> <span class="n">TimerCallback</span><span class="p">()</span>
+
+    <span class="n">tlt_batch</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tlt_dataset_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">tlt_model_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">tlt_batch</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">tlt_predict_time</span><span class="p">)</span>
+    <span class="n">tlt_predict_callback_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_predict_time</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Visualize the time that it took to get predictions for a batch of images for each model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create grouped bar chart for prediction time</span>
+<span class="n">decimals</span> <span class="o">=</span> <span class="mi">3</span>   <span class="c1"># number of decimals to use for rounding</span>
+<span class="n">tf_predict_times</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">predict_times</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">tf_predict_callback_list</span><span class="p">]</span>
+<span class="n">tlt_predict_times</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">predict_times</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">tlt_predict_callback_list</span><span class="p">]</span>
+
+<span class="c1"># Setup bars for evaluation times</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">tf_predict_times</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TF predict&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">orange</span><span class="p">)</span>
+<span class="n">rects_tlt</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">tlt_predict_times</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT predict&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Seconds&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Prediction time for a single batch&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Check-performance-using-the-Intel®-Neural-Compressor">
+<h3>Check performance using the Intel® Neural Compressor<a class="headerlink" href="#Check-performance-using-the-Intel®-Neural-Compressor" title="Permalink to this heading">¶</a></h3>
+<p>Use the <a class="reference external" href="https://github.com/intel/neural-compressor/tree/master">Intel Neural Compressor</a> to determine the performance of the exported models.</p>
+<p>We will compare: * The original model that was trained using the TensorFlow and TF Hub libaries * The model trained using the Intel Transfer Learning Tool * The model trained and quantized using the Intel Transfer Learning Tool * The model trained and optimized using the Intel Transfer Learning Tool</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_dataset_dir</span> <span class="o">=</span> <span class="n">dataset_subdir</span>
+
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">)):</span>
+    <span class="n">test_dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)):</span>
+    <span class="n">test_dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_subdir</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test dataset directory:&quot;</span><span class="p">,</span> <span class="n">test_dataset_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Use the Intel Neural Compressor to get the performance of the model trained using the TensorFlow libraries.</p>
+<p>Note that you may see a <code class="docutils literal notranslate"><span class="pre">zmq.error.ZMQError:</span> <span class="pre">Address</span> <span class="pre">already</span> <span class="pre">in</span> <span class="pre">use</span></code> error in the output, which is a known issuen when running the Intel Neural Compressor from Jupyter notebooks. If this happens, rerun the cell.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tf_latency_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tf_throughput_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Check performance for TF model (batch size = </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved model directory: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tf_export_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">inc_utils</span><span class="o">.</span><span class="n">performance</span><span class="p">(</span><span class="n">tf_export_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">test_dataset_dir</span><span class="p">,</span> <span class="n">framework</span><span class="p">)</span>
+    <span class="n">tf_latency</span><span class="p">,</span> <span class="n">tf_throughput</span> <span class="o">=</span> <span class="n">inc_utils</span><span class="o">.</span><span class="n">calculate_latency_and_throughput</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+    <span class="n">tf_latency_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf_latency</span><span class="p">)</span>
+    <span class="n">tf_throughput_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf_throughput</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next, get the performance of the the model that was trained and exported by the Intel Transfer Learning Toolkit.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tlt_latency_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_throughput_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Check performance for TLT model (batch size = </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved model directory: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlt_export_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+
+    <span class="n">tlt_results</span> <span class="o">=</span> <span class="n">inc_utils</span><span class="o">.</span><span class="n">performance</span><span class="p">(</span><span class="n">tlt_export_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">test_dataset_dir</span><span class="p">,</span> <span class="n">framework</span><span class="p">)</span>
+    <span class="n">tlt_latency</span><span class="p">,</span> <span class="n">tlt_throughput</span> <span class="o">=</span> <span class="n">inc_utils</span><span class="o">.</span><span class="n">calculate_latency_and_throughput</span><span class="p">(</span><span class="n">tlt_results</span><span class="p">)</span>
+
+    <span class="n">tlt_latency_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_latency</span><span class="p">)</span>
+    <span class="n">tlt_throughput_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_throughput</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Get the performance of the model that was quantized using the Intel Transfer Learning tool with the Intel Neural Compressor.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">quantized_latency_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">quantized_throughput_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">tlt_quantized_latency</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tlt_quantized_throughput</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Check performance for TLT quantized model (batch size = </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved model directory: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlt_quantization_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tlt_quantization_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;saved_model.pb&#39;</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;The quantized model was not found at: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">Quantization may have failed for this model/batch size.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlt_quantization_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">],))</span>
+
+        <span class="n">tlt_quantized_results</span> <span class="o">=</span> <span class="n">inc_utils</span><span class="o">.</span><span class="n">performance</span><span class="p">(</span><span class="n">tlt_quantization_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">test_dataset_dir</span><span class="p">,</span> <span class="n">framework</span><span class="p">)</span>
+        <span class="n">tlt_quantized_latency</span><span class="p">,</span> <span class="n">tlt_quantized_throughput</span> <span class="o">=</span> <span class="n">inc_utils</span><span class="o">.</span><span class="n">calculate_latency_and_throughput</span><span class="p">(</span><span class="n">tlt_quantized_results</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error when trying to check the performance for the quantized model with batch size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">quantized_latency_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_quantized_latency</span><span class="p">)</span>
+        <span class="n">quantized_throughput_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_quantized_throughput</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, get the performance of the model that was optimized using the Intel Transfer Learning tool with the Intel Neural Compressor.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">optimized_latency_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">optimized_throughput_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">tlt_optimized_latency</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tlt_optimized_throughput</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Check performance for TLT optimized model (batch size = </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved model directory: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlt_optimized_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">90</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tlt_optimized_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;saved_model.pb&#39;</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;The optimized model was not found at: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">Optimization may have failed for this model/batch size.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlt_optimized_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">],))</span>
+
+        <span class="n">tlt_optimized_results</span> <span class="o">=</span> <span class="n">inc_utils</span><span class="o">.</span><span class="n">performance</span><span class="p">(</span><span class="n">tlt_optimized_dir_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">test_dataset_dir</span><span class="p">,</span> <span class="n">framework</span><span class="p">)</span>
+
+        <span class="n">tlt_optimized_latency</span><span class="p">,</span> <span class="n">tlt_optimized_throughput</span> <span class="o">=</span> <span class="n">inc_utils</span><span class="o">.</span><span class="n">calculate_latency_and_throughput</span><span class="p">(</span><span class="n">tlt_optimized_results</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error when trying to check the performance for the optimized model with batch size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">optimized_latency_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_optimized_latency</span><span class="p">)</span>
+        <span class="n">optimized_throughput_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tlt_optimized_throughput</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Visualize the latency and throughput results for all of the models.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">width</span> <span class="o">=</span> <span class="mf">0.18</span>   <span class="c1"># the width of the bars</span>
+
+<span class="c1"># Round the latency values</span>
+<span class="n">decimals</span> <span class="o">=</span> <span class="mi">2</span>   <span class="c1"># number of decimals to use for rounding</span>
+<span class="n">tf_latency_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tf_latency_list</span><span class="p">]</span>
+<span class="n">tlt_latency_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_latency_list</span><span class="p">]</span>
+<span class="n">quantized_latency_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">quantized_latency_list</span><span class="p">]</span>
+<span class="n">optimized_latency_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">optimized_latency_list</span><span class="p">]</span>
+
+<span class="c1"># Setup the grouped bar chart for latency</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tf_latency_list</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TF latency&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">orange</span><span class="p">)</span>
+<span class="n">rects_tlt</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">tlt_latency_list</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT latency&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">rects_quant</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">quantized_latency_list</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT quantized latency&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">yellow</span><span class="p">)</span>
+<span class="n">rects_opt</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">optimized_latency_list</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT optimized latency&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">dark_blue</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_quant</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_opt</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Milliseconds&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Latency&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="o">*</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Round the throughput values</span>
+<span class="n">decimals</span> <span class="o">=</span> <span class="mi">0</span>   <span class="c1"># number of decimals to use for rounding</span>
+<span class="n">tf_throughput_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tf_throughput_list</span><span class="p">]</span>
+<span class="n">tlt_throughput_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_throughput_list</span><span class="p">]</span>
+<span class="n">quantized_throughput_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">quantized_throughput_list</span><span class="p">]</span>
+<span class="n">optimized_throughput_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">optimized_throughput_list</span><span class="p">]</span>
+
+<span class="c1"># Setup the grouped bar chart for throughput</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tf_throughput_list</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TF throughput&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">orange</span><span class="p">)</span>
+<span class="n">rects_tlt</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">tlt_throughput_list</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT throughput&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">rects_quant</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">quantized_throughput_list</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT quantized throughput&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">yellow</span><span class="p">)</span>
+<span class="n">rects_opt</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">optimized_throughput_list</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT optimized throughput&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">dark_blue</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_quant</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_opt</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;images/second&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Throughput&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="o">*</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>The experiments done in this notebook allowed us to compare the training time and inference/evaluation metrics when using the TensorFlow libraries and the Intel Transfer Learning tool. We can also see how batch size affects performance. More experiments can be done by rerunning this notebook with a different model, different dataset, and/or different training parameters.</p>
+<p>Other related notebooks: * <a class="reference external" href="../image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb">Transfer Learning for Image Classification using TensorFlow and the Intel® Transfer Learning Tool API</a> * <a class="reference external" href="../image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb">Transfer Learning for Image Classification using PyTorch and the Intel® Transfer Learning Tool API</a></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on Jun 23, 2023.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

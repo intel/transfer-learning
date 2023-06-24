@@ -1,0 +1,46 @@
+﻿tlt.models.text\_classification.tf\_hf\_text\_classification\_model.TFHFTextClassificationModel
+===============================================================================================
+
+.. currentmodule:: tlt.models.text_classification.tf_hf_text_classification_model
+
+.. autoclass:: TFHFTextClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFHFTextClassificationModel.__init__
+      ~TFHFTextClassificationModel.benchmark
+      ~TFHFTextClassificationModel.cleanup_saved_objects_for_distributed
+      ~TFHFTextClassificationModel.evaluate
+      ~TFHFTextClassificationModel.export
+      ~TFHFTextClassificationModel.export_for_distributed
+      ~TFHFTextClassificationModel.load_from_directory
+      ~TFHFTextClassificationModel.optimize_graph
+      ~TFHFTextClassificationModel.predict
+      ~TFHFTextClassificationModel.quantize
+      ~TFHFTextClassificationModel.set_auto_mixed_precision
+      ~TFHFTextClassificationModel.train
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFHFTextClassificationModel.dropout_layer_rate
+      ~TFHFTextClassificationModel.framework
+      ~TFHFTextClassificationModel.hub_name
+      ~TFHFTextClassificationModel.learning_rate
+      ~TFHFTextClassificationModel.model_name
+      ~TFHFTextClassificationModel.num_classes
+      ~TFHFTextClassificationModel.preprocessor
+      ~TFHFTextClassificationModel.use_case
+   
+   

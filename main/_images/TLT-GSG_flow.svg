@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" viewBox="0 0 736 200">
+  <style>
+    @import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
+    text {
+      font-family: Roboto, Arial, Helvetica, sans-serif;
+      font-weight:400;
+      font-size: 14px;
+      fill: #fff;
+      text-anchor: middle
+    }
+    .heavy {
+      font-weight: 700
+    }
+    .st0,.st1{fill:none;stroke:#e9e9e9;stroke-width:2}
+    .st1{stroke:#525252}
+    .st2{fill:#525252}
+    .st3{fill:#0068b5}
+    .st7{ font-size:12px }
+  </style>
+  <rect width="100%" height="100%" fill="white"/>
+  <line x1="368" x2="368" y2="200" class="st0"/>
+  <line x1="176" x2="176" y2="200" class="st0"/>
+  <line x2="560" y1="100" y2="100" class="st1"/>
+  <path d="M460 94.5v12l8-6-8-6z" class="st2"/>
+  <rect width="160" height="72" y="62.5" class="st3"/>
+  <text transform="translate(80 94)">
+    <tspan  x="0">Check system</tspan>
+    <tspan dy="1.2em" x="0">requirements</tspan>
+  </text>
+  <rect width="160" height="72" x="192" y="62.5" class="st3"/>
+  <text transform="translate(272 88)">
+    <tspan  x="0">Install the Intel</tspan>
+    <tspan dy="1.2em" x="0">Transfer Learning</tspan>
+    <tspan dy="1.2em" x="0">Tool</tspan>
+  </text>
+  <path d="M400 62.5h128c8.8 0 16 7.1 16 15.8v40.4c0 8.7-7.2 15.8-16 15.8H400c-8.8 0-16-7.1-16-15.8V78.3c0-8.7 7.2-15.8 16-15.8z" class="st2"/>
+  <text class="st7" transform="translate(464 88)">
+    <tspan  x="0">Choose how to run</tspan>
+    <tspan dy="1.2em" x="0">the Intel Transfer</tspan>
+    <tspan dy="1.2em" x="0">Learning Tool</tspan>
+  </text>
+  <rect width="160" height="84" x="576" class="st3"/>
+  <text transform="translate(656 38)">
+    <tspan  x="0">a) Run using No-</tspan>
+    <tspan dy="1.2em" x="0">Code CLI</tspan>
+  </text>
+  <rect width="160" height="84" x="576" y="116" class="st3"/>
+  <text transform="translate(656 154)">
+    <tspan  x="0">b) Run using Low-</tspan>
+    <tspan dy="1.2em" x="0">Code API</tspan>
+  </text>
+  <text class="st2 st7 heavy" transform="translate(16 28.2)">1</text>
+  <path d="M16 9c8.3 0 15 6.7 15 15s-6.7 15-15 15S1 32.3 1 24 7.7 9 16 9z" class="st1"/>
+  <text class="st2 st7 heavy" transform="translate(208 28.2)">2</text>
+  <path d="M208 9c8.3 0 15 6.7 15 15s-6.7 15-15 15-15-6.7-15-15 6.7-15 15-15z" class="st1"/>
+  <text class="st2  st7 heavy" transform="translate(400 28.2)">3</text>
+  <path d="M400 9c8.3 0 15 6.7 15 15s-6.7 15-15 15-15-6.7-15-15 6.7-15 15-15z" class="st1"/>
+  <polyline points="576,42 560,42 560,158 576,158" class="st1"/>
+</svg>

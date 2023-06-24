@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Environment Setup and Running the Notebooks &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CLI Reference" href="../cli.html" />
+    <link rel="prev" title="Intel® Transfer Learning Tool API Notebook Examples" href="README.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples/examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../examples/cli/README.html">Beyond Get Started CLI Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/cli/image_classification.html">Image Classification CLI Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/cli/text_classification.html">Text Classification CLI Example</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="README.html">Jupyter Notebook API Examples</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Environment Setup and Running the Notebooks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#set-up-notebook-environment">Set Up Notebook Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="README.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="README.html#intel-transfer-learning-tool-api-tutorial-notebooks">Intel Transfer Learning Tool API Tutorial Notebooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="README.html#intel-transfer-learning-tool-api-end-to-end-pipelines">Intel Transfer Learning Tool API End-to-End Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="README.html#intel-transfer-learning-tool-performance-comparison">Intel Transfer Learning Tool Performance Comparison</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples/examples.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="README.html">Intel® Transfer Learning Tool API Notebook Examples</a></li>
+      <li class="breadcrumb-item active">Environment Setup and Running the Notebooks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/setup.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="environment-setup-and-running-the-notebooks">
+<h1>Environment Setup and Running the Notebooks<a class="headerlink" href="#environment-setup-and-running-the-notebooks" title="Permalink to this heading">¶</a></h1>
+<p>Use the instructions below to install the dependencies required to run the notebooks.</p>
+<p>System Requirements:</p>
+<ol class="arabic simple">
+<li><p>Ubuntu 20.04</p></li>
+<li><p>Python3 (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv</p></li>
+<li><p>git</p></li>
+</ol>
+<section id="set-up-notebook-environment">
+<h2>Set Up Notebook Environment<a class="headerlink" href="#set-up-notebook-environment" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>Install Intel® Transfer Learning Tool using the Developer Installation option in the <a class="reference internal" href="../GetStarted.html"><span class="doc std std-doc">Get Started</span></a> Guide.
+This is required for the Intel Transfer Learning Tool tutorial notebooks, E2E notebooks, and performance comparison. Follow the
+instructions in the <a class="reference internal" href="../GetStarted.html"><span class="doc std std-doc">Get Started Guide</span></a>. You can
+skip this step if you are only running the native framework notebooks.</p></li>
+<li><p>Activate the virtualenv or conda environment used to install Intel Transfer Learning Tool,
+then from inside the activated environment, run these steps:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">pip</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">notebooks</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</li>
+<li><p>Set environment variables for the path to the dataset folder and an output directory.
+The dataset and output directories can be empty. The notebook will download the dataset to
+the dataset directory, if it is empty. Subsequent runs will reuse the dataset.
+If the <code class="docutils literal notranslate"><span class="pre">DATASET_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">OUTPUT_DIR</span></code> variables are not defined, the notebooks will
+default to use <code class="docutils literal notranslate"><span class="pre">~/dataset</span></code> and <code class="docutils literal notranslate"><span class="pre">~/output</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export DATASET_DIR=&lt;directory to download the dataset&gt;
+export OUTPUT_DIR=&lt;output directory for the saved model&gt;
+
+mkdir -p $DATASET_DIR
+mkdir -p $OUTPUT_DIR
+</pre></div>
+</div>
+</li>
+<li><p>Navigate to the notebook directory in your clone of the Transfer Learning repo, and then start the
+<a class="reference external" href="https://jupyter.readthedocs.io/en/latest/running.html#starting-the-notebook-server">notebook server</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">notebooks</span>
+<span class="n">jupyter</span> <span class="n">notebook</span> <span class="o">--</span><span class="n">port</span> <span class="mi">8888</span>
+</pre></div>
+</div>
+</li>
+<li><p>Copy and paste the URL from the terminal to your browser to view and run the notebooks.</p></li>
+</ol>
+<p>Once you have the environment and dependencies set up, see the list of available
+notebook examples.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="README.html" class="btn btn-neutral float-left" title="Intel® Transfer Learning Tool API Notebook Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../cli.html" class="btn btn-neutral float-right" title="CLI Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on Jun 23, 2023.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

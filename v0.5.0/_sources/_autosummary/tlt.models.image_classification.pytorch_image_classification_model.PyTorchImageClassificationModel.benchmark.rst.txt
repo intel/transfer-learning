@@ -1,0 +1,6 @@
+﻿tlt.models.image\_classification.pytorch\_image\_classification\_model.PyTorchImageClassificationModel.benchmark
+================================================================================================================
+
+.. currentmodule:: tlt.models.image_classification.pytorch_image_classification_model
+
+.. automethod:: PyTorchImageClassificationModel.benchmark

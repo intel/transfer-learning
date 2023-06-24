@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Distributed Training &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/tlt-custom.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Distributed Training</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/distributed.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="distributed-training">
+<h1>Distributed Training<a class="headerlink" href="#distributed-training" title="Permalink to this heading">¶</a></h1>
+<p>Here are instructions for using distributed/multinode Training with Intel® Transfer Learning Tool.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Participating nodes should have Intel® oneAPI Base Toolkit installed. Verify the files under <code class="docutils literal notranslate"><span class="pre">/opt/intel/oneapi</span></code></p></li>
+<li><p>Participating nodes should have passwordless SSH setup. Instructions to set up are given below.</p></li>
+</ul>
+<section id="passwordless-ssh-setup">
+<h3>Passwordless SSH setup<a class="headerlink" href="#passwordless-ssh-setup" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Use an existing (or create an) SSH key pair.</p>
+<ul>
+<li><p>Check under <code class="docutils literal notranslate"><span class="pre">~/.ssh</span></code> and see if they exist. If present, make sure they have default names <code class="docutils literal notranslate"><span class="pre">(id_rsa.pub</span> <span class="pre">id_rsa)</span></code> and they don’t have any passphrase.</p></li>
+<li><p>To remove passphrase, type <code class="docutils literal notranslate"><span class="pre">ssh-keygen</span> <span class="pre">-p</span> <span class="pre">[-P</span> <span class="pre">old_passphrase]</span> <span class="pre">[-N</span> <span class="pre">new_passphrase]</span> <span class="pre">[-f</span> <span class="pre">keyfile]</span></code> by replacing <code class="docutils literal notranslate"><span class="pre">new_passphrase</span></code> with a blank space.</p></li>
+</ul>
+</li>
+<li><p>How to create SSH key pair:</p>
+<ul>
+<li><p>Get to your .ssh directory <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">~/.ssh</span></code> (if this gives you an error, change the permissions: <code class="docutils literal notranslate"><span class="pre">chmod</span> <span class="pre">u+x</span> <span class="pre">~/.ssh</span></code>)</p></li>
+<li><p>Run the command: <code class="docutils literal notranslate"><span class="pre">ssh-keygen</span> <span class="pre">-t</span> <span class="pre">rsa</span></code></p></li>
+<li><p>The first prompt will ask you what you want to call your key files <code class="docutils literal notranslate"><span class="pre">(id_rsa.pub</span> <span class="pre">id_rsa)</span></code>. Press <code class="docutils literal notranslate"><span class="pre">&lt;enter&gt;</span></code> to use the default key names.</p></li>
+<li><p>The second prompt will ask for passphrase. Do not enter any passphrase, just press <code class="docutils literal notranslate"><span class="pre">&lt;enter&gt;</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Locate the two ssh key pair files in your <code class="docutils literal notranslate"><span class="pre">.ssh</span></code> directory (<code class="docutils literal notranslate"><span class="pre">id_rsa.pub</span></code>, <code class="docutils literal notranslate"><span class="pre">id_rsa</span></code>):</p>
+<ul>
+<li><p>Open the Public Key in an editor like vi/vim/nano/pico (this is the <code class="docutils literal notranslate"><span class="pre">.pub</span></code> file)</p></li>
+<li><p>The ending of the public key may say <code class="docutils literal notranslate"><span class="pre">&lt;your_idsid&gt;&#64;&lt;hostname.domain&gt;</span></code>, edit this file to omit the <code class="docutils literal notranslate"><span class="pre">&quot;&#64;&lt;hostname.domain&gt;&quot;</span></code> at the end. The result will be your <code class="docutils literal notranslate"><span class="pre">idsid</span></code> only.</p></li>
+<li><p>Create a file in your .ssh directory called <code class="docutils literal notranslate"><span class="pre">authorized_keys</span></code></p></li>
+<li><p>Paste your entire public key into this file</p></li>
+<li><p>Make sure your new ssh key pair files AND <code class="docutils literal notranslate"><span class="pre">authorized_keys</span></code> files are read-write only for yourself with no permissions for anyone else <code class="docutils literal notranslate"><span class="pre">(chmod</span> <span class="pre">600</span> <span class="pre">file1</span> <span class="pre">file2</span> <span class="pre">file3)</span></code></p></li>
+</ul>
+</li>
+<li><p>Test the SSH <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">&lt;ip_or_hostname.domain&gt;</span></code></p></li>
+</ul>
+<p>IMPORTANT NOTE: You have to make sure the <code class="docutils literal notranslate"><span class="pre">authorized_keys</span></code> file exists on all of the target systems that will participate in running the workload (in your local home dir in your <code class="docutils literal notranslate"><span class="pre">.ssh</span></code> directory) with contents of public key inside as well.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on Jun 23, 2023.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

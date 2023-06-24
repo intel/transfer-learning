@@ -1,0 +1,6 @@
+﻿tlt.models.image\_classification.keras\_image\_classification\_model.KerasImageClassificationModel.benchmark
+============================================================================================================
+
+.. currentmodule:: tlt.models.image_classification.keras_image_classification_model
+
+.. automethod:: KerasImageClassificationModel.benchmark
