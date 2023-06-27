@@ -2,8 +2,8 @@
 
 Use the instructions below to install the dependencies required to run the notebooks.
 
-System Requirements:
-1. Ubuntu 20.04
+Software Requirements:
+1. Linux* system (validated on Ubuntu* 20.04/22.04 LTS)
 2. Python3 (3.8, 3.9, or 3.10), Pip/Conda and Virtualenv
 3. git
 
@@ -42,4 +42,4 @@ System Requirements:
 5. Copy and paste the URL from the terminal to your browser to view and run the notebooks.
 
 Once you have the environment and dependencies set up, see the list of available
-notebook examples.
+[notebooks](/notebooks/README.md).
