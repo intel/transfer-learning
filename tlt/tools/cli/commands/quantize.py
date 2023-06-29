@@ -24,7 +24,6 @@ import os
 import sys
 
 from tlt.utils.types import FrameworkType
-from tlt.utils.inc_utils import get_inc_config
 
 
 @click.command()
@@ -143,6 +142,7 @@ def quantize(model_dir, dataset_dir, dataset_file, delimiter, batch_size, approa
 
     try:
         from tlt.datasets import dataset_factory
+        from tlt.utils.inc_utils import get_inc_config
 
         if str(model.use_case) == "image_classification":
             dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
