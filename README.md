@@ -1,4 +1,9 @@
+*Note: You may find it easier to read about Intel Transfer Learning tool, follow the Get
+Started guide, and browse the API material from our published documentation site
+https://intelai.github.io/transfer-learning.*
+
 <!-- SkipBadges -->
+
 # Intel® Transfer Learning Tool
 
 Transfer learning workflows use the knowledge learned by a pre-trained model on
