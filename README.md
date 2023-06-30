@@ -3,7 +3,13 @@
 ![Unit Tests](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/unittest.yaml/badge.svg)
 ![Integration Tests](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/integration.yaml/badge.svg)
 ![Notebook Test](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/notebook-test.yaml/badge.svg)
+
+*Note: You may find it easier to read about Intel Transfer Learning tool, follow the Get
+Started guide, and browse the API material from our published documentation site
+https://intelai.github.io/transfer-learning.*
+
 <!-- SkipBadges -->
+
 # Intel® Transfer Learning Tool
 
 Transfer learning workflows use the knowledge learned by a pre-trained model on
