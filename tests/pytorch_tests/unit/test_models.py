@@ -401,3 +401,146 @@ def test_pytorch_hf_text_classification_trainer_without_val_subset(mock_download
     model.train(mock_dataset, output_dir="/tmp", use_trainer=True, seed=10)
     mock_trainer.assert_called_with(model=model._model, args=ANY, train_dataset=[1, 2, 3], eval_dataset=[4, 5, 6],
                                     compute_metrics=ANY, tokenizer=ANY)
+
+
+@pytest.mark.pytorch
+@pytest.mark.parametrize('cpu_type,expected_bf16,enable_auto_mixed_precision',
+                         [['SPR', True, None],
+                          ['CLX', False, None],
+                          ['ABC', False, None],
+                          ['SPR', False, False],
+                          ['CLX', True, True],
+                          ['ABC', True, True]])
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.optim.AdamW')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.Trainer')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.PlatformUtil')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ModelDownloader')
+def test_pytorch_tf_text_classification_trainer_mixed_precision(mock_downloader, mock_platform_util, mock_trainer,
+                                                                mock_optimizer, cpu_type, expected_bf16,
+                                                                enable_auto_mixed_precision):
+    """
+    Tests PyTorch text classification using the Hugging Face Trainer to verify that the expected bf16 arg is being
+    sent for each platform type when enable_auto_mixed_precision=None (it should be enabled for SPR, and disabled for
+    other platform types). The test also verifies that enable_auto_mixed_precision can be used to force a certain bf16
+    setting, regardless of cpu type.
+    """
+    mock_platform_util().cpu_type = cpu_type
+
+    model = model_factory.get_model(model_name='bert-base-cased', framework='pytorch')
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = HFTextClassificationDataset
+    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_dataset.train_subset = [1, 2, 3]
+    mock_dataset.validation_subset = [4, 5, 6]
+
+    model.train(mock_dataset, output_dir="/tmp", use_trainer=True,
+                enable_auto_mixed_precision=enable_auto_mixed_precision)
+    assert mock_trainer.call_args_list[0][1]['args'].bf16 == expected_bf16
+
+
+@pytest.mark.pytorch
+@pytest.mark.parametrize('cpu_type,expected_bf16,enable_auto_mixed_precision',
+                         [['SPR', True, None],
+                          ['CLX', False, None],
+                          ['ABC', False, None],
+                          ['SPR', False, False],
+                          ['CLX', True, True],
+                          ['ABC', True, True]])
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.max')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.argmax')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.nn.CrossEntropyLoss')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.save')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.get_scheduler')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.cpu.amp.autocast')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.optim.AdamW')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ipex.optimize')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.PlatformUtil')
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ModelDownloader')
+def test_pytorch_tf_text_classification_torch_mixed_precision(
+        mock_downloader, mock_platform_util, mock_ipex_optimize, mock_optimizer, mock_autocast, mock_get_scheduler,
+        mock_save, mock_loss, mock_argmax, mock_max, cpu_type, expected_bf16, enable_auto_mixed_precision):
+    """
+    Tests PyTorch text classification using the torch libraries (use_trainer=False) to verify that the expected bf16 arg
+    is being sent for each platform type when enable_auto_mixed_precision=None (it should be enabled for SPR, and
+    disabled for other platform types). The test also verifies that enable_auto_mixed_precision can be used to force a
+    certain bf16 setting, regardless of cpu type. Checks that ipex_optimize was passed the proper dtype, and that
+    the torch automatic mixed precision context when bf16 is expected to be enabled.
+    """
+    mock_platform_util().cpu_type = cpu_type
+
+    mock_model = MagicMock()
+    mock_downloader().download.return_value = mock_model
+
+    model = model_factory.get_model(model_name='bert-base-cased', framework='pytorch')
+    model._loss().item.return_value = 0.0
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = HFTextClassificationDataset
+    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_dataset.train_subset = [1, 2, 3]
+    mock_dataset.train_loader = [{
+        'input_ids': MagicMock(),
+        'token_type_ids': MagicMock(),
+        'attention_mask': MagicMock(),
+        'label': torch.tensor([1])}]
+    mock_dataset.validation_loader = mock_dataset.train_loader
+    mock_dataset.validation_subset = [4, 5, 6]
+    mock_ipex_optimize.return_value = mock_model, mock_optimizer
+    mock_argmax.return_value = torch.tensor([1])
+    mock_max.return_value = 1, torch.tensor([1])
+
+    model.train(mock_dataset, output_dir="/tmp", use_trainer=False,
+                enable_auto_mixed_precision=enable_auto_mixed_precision, ipex_optimize=True, do_eval=False)
+
+    # Ensure that ipex.optimize was called with the proper dtype
+    expected_dtype = torch.bfloat16 if expected_bf16 else None
+    mock_ipex_optimize.assert_called_once_with(mock_model, optimizer=ANY, dtype=expected_dtype)
+
+    # Check that autocast was propery called during training
+    if expected_bf16:
+        mock_autocast.assert_called_with(dtype=torch.bfloat16)
+    else:
+        assert not mock_autocast.called
+
+    # We should have gotten to the end of the fit function where checkpoints are generated
+    assert mock_save.called
+
+    # Reset the autocast mock and verify that it gets called properly during evaluate()
+    mock_autocast.reset_mock()
+    model.evaluate(mock_dataset)
+    if expected_bf16:
+        mock_autocast.assert_called_with(dtype=torch.bfloat16)
+    else:
+        assert not mock_autocast.called
+
+    # Reset the autocast mock and verify that it gets called properly during predict()
+    mock_autocast.reset_mock()
+    model.predict(mock_dataset.validation_loader)
+    if expected_bf16:
+        mock_autocast.assert_called_with(dtype=torch.bfloat16)
+    else:
+        assert not mock_autocast.called
+
+
+@pytest.mark.pytorch
+@pytest.mark.parametrize('auto_mixed_precision_arg',
+                         [['invalid'],
+                          [23.5],
+                          [42]])
+@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ModelDownloader')
+def test_pytorch_tf_text_classification_invalid_mixed_precision_arg(mock_downloader, auto_mixed_precision_arg):
+    """
+    Verifies that we get a TypeError when an invalid value is passed for enable_auto_mixed_precision
+    """
+    model = model_factory.get_model(model_name='bert-base-cased', framework='pytorch')
+
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = HFTextClassificationDataset
+    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_dataset.train_subset = [1, 2, 3]
+    mock_dataset.validation_subset = [4, 5, 6]
+
+    with pytest.raises(TypeError):
+        model.train(mock_dataset, output_dir="/tmp", use_trainer=True,
+                    enable_auto_mixed_precision=auto_mixed_precision_arg)

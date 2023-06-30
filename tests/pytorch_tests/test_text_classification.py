@@ -86,7 +86,7 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
     assert os.path.isdir(saved_model_dir)
     assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
 
-    # Reload the saved model
+    # Reload the saved model (using get_model and load_from_directory)
     reload_model = model_factory.get_model(model_name, framework)
     reload_model.load_from_directory(saved_model_dir)
 
@@ -105,9 +105,70 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
         model.quantize(inc_output_dir, dataset)
         assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
 
+    # Load the model again (this time using load_model)
+    reload_model = model_factory.load_model(model_name, saved_model_dir, framework,
+                                            'text_classification', 'huggingface')
+    assert reload_model.predict("trash movie").numpy() == model.predict("trash movie").numpy()
+
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
+
+
+@pytest.mark.integration
+@pytest.mark.pytorch
+@pytest.mark.parametrize('model_name,dataset_name',
+                         [['distilbert-base-uncased', 'imdb']])
+def test_pyt_text_classification_trainer(model_name, dataset_name):
+    """
+    Tests a PyTorch text classification model training, evaluation, saving, and reloading with --use-trainer so that
+    it's using the Hugging Face Trainer libraries.
+    """
+    framework = 'pytorch'
+    dataset_dir = '/tmp/data'
+    output_dir = tempfile.mkdtemp()
+
+    try:
+        # Get the dataset
+        dataset = dataset_factory.get_dataset(dataset_dir, 'text_classification', framework, dataset_name,
+                                              'huggingface', split=["train"], shuffle_files=False)
+
+        # Get the model
+        model = model_factory.get_model(model_name, framework)
+
+        # Preprocess the dataset
+        dataset.preprocess(model_name, batch_size=128)
+        dataset.shuffle_split(train_pct=0.005, val_pct=0.002, seed=6)
+        assert dataset._validation_type == 'shuffle_split'
+
+        # Train
+        train_history = model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False,
+                                    use_trainer=True, use_ipex=True)
+        assert train_history is not None
+        assert isinstance(train_history.metrics, dict)
+        assert 'train_loss' in train_history.metrics
+        assert 'train_runtime' in train_history.metrics
+        assert 'train_samples_per_second' in train_history.metrics
+
+        # Evaluate
+        trained_metrics = model.evaluate(dataset)
+
+        # Export the saved model
+        saved_model_dir = model.export(output_dir)
+        assert os.path.isdir(saved_model_dir)
+        assert os.path.isfile(os.path.join(saved_model_dir, "config.json"))
+        assert os.path.isfile(os.path.join(saved_model_dir, "pytorch_model.bin"))
+
+        # Load the saved model using load_model and verify that a prediction matches the original model
+        loaded_model = model_factory.load_model(model_name, saved_model_dir, framework,
+                                                'text_classification', 'huggingface')
+        reload_metrics = loaded_model.evaluate(dataset.validation_subset)
+        assert round(reload_metrics['eval_accuracy'], 3) == round(trained_metrics['eval_accuracy'], 3)
+
+    finally:
+        # Delete the temp output directory
+        if os.path.exists(output_dir) and os.path.isdir(output_dir):
+            shutil.rmtree(output_dir)
 
 
 @pytest.mark.integration

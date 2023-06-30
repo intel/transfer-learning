@@ -56,7 +56,8 @@ class HFModel(BaseModel):
                             "torch.nn.modules.loss._Loss or None but found a {}. "
                             "Example: torch.nn.CrossEntropyLoss".format(type(loss)))
 
-    def _check_train_inputs(self, output_dir, dataset, dataset_type, extra_layers, epochs, distributed, hostfile):
+    def _check_train_inputs(self, output_dir, dataset, dataset_type, extra_layers, epochs, distributed, hostfile,
+                            enable_auto_mixed_precision=None):
         verify_directory(output_dir)
 
         if distributed:
@@ -75,6 +76,10 @@ class HFModel(BaseModel):
 
         if not isinstance(epochs, int):
             raise TypeError("Invalid type for the epochs arg. Expected an int but found a {}".format(type(epochs)))
+
+        if enable_auto_mixed_precision and not isinstance(enable_auto_mixed_precision, bool):
+            raise TypeError("Invalid type provided for enable_auto_mixed_precision. Expected None or a bool but "
+                            "found a {} ({}).".format(type(enable_auto_mixed_precision), enable_auto_mixed_precision))
 
     def optimize_graph(self, output_dir, overwrite_model=False):
         """
