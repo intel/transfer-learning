@@ -9,7 +9,7 @@ Software Requirements:
 
 ## Set Up Notebook Environment
 
-1. Install Intel® Transfer Learning Tool using the Developer Installation option in the [Get Started](/GetStarted.md) Guide.
+1. Install Intel® Transfer Learning Tool using the Advanced Installation option in the [Get Started](/GetStarted.md) Guide.
    This is required for the Intel Transfer Learning Tool tutorial notebooks, E2E notebooks, and performance comparison. Follow the
    instructions in the [Get Started Guide](/GetStarted.md). You can
    skip this step if you are only running the native framework notebooks.
@@ -36,7 +36,7 @@ Software Requirements:
 4. Navigate to the notebook directory in your clone of the Transfer Learning repo, and then start the
    [notebook server](https://jupyter.readthedocs.io/en/latest/running.html#starting-the-notebook-server):
    ```
-   cd notebooks
+   cd transfer-learning/notebooks
    jupyter notebook --port 8888
    ```
 5. Copy and paste the URL from the terminal to your browser to view and run the notebooks.
