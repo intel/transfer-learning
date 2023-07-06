@@ -11,7 +11,7 @@ Image Classification Inference
 ```
 ## Table of Contents
 - [Overview](#overview)
-- [Dataset] (#dataset)
+- [Dataset](#dataset)
 - [Validated Hardware Details](#validated-hardware-details)
 - [Software Requirements](#software-requirements)
 - [How it Works?](#how-it-works)
@@ -26,13 +26,8 @@ Image Classification Inference
 
 The vision workflow aims to train an image classifier that takes in contrast-enhanced spectral mammography (CESM) images. The pipeline creates prediction for the diagnosis of breast cancer. The goal is to minimize an expert’s involvement in categorizing samples as normal, benign, or malignant, by developing and optimizing a decision support system that automatically categorizes the CESM with the help of radiologist
 
-### Dataset
+## Dataset
 The dataset is a collection of 2,006 high-resolution contrast-enhanced spectral mammography (CESM) images (1003 low energy images and 1003 subtracted CESM images) with annotations of 326 female patients. See Figure-1. Each patient has 8 images, 4 representing each side with two views (Top Down looking and Angled Top View) consisting of low energy and subtracted CESM images. Medical reports, written by radiologists, are provided for each case along with manual segmentation annotation for the abnormal findings in each image. As a preprocessing step, we segment the images based on the manual segmentation to get the region of interest and group annotation notes based on the subject and breast side. 
-
-  ![cesm_and_annotation](https://github.com/intel-innersource/frameworks.ai.transfer-learning/assets/99835661/dd886c0f-f03b-4540-98f4-e53e3fa43701)
-
-
-*Figure-1: Samples of low energy and subtracted CESM images and Medical reports, written by radiologists from the Categorized contrast enhanced mammography dataset. [(Khaled, 2022)](https://www.nature.com/articles/s41597-022-01238-0)*
 
 For more details of the dataset, visit the wikipage of the [CESM](https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=109379611#109379611bcab02c187174a288dbcbf95d26179e8) and read [Categorized contrast enhanced mammography dataset for diagnostic and artificial intelligence research](https://www.nature.com/articles/s41597-022-01238-0).
 
