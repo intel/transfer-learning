@@ -238,7 +238,8 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
             model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=2,
                                                      initial_checkpoints=init_checkpoints, early_stopping=False,
                                                      lr_decay=False, ipex_optimize=False, distributed=False,
-                                                     hostfile=None, nnodes=1, nproc_per_node=1)
+                                                     hostfile=None, nnodes=1, nproc_per_node=1, use_horovod=False,
+                                                     hvd_start_timeout=30)
         data_mock.preprocess.assert_called_once_with(batch_size=32)
 
         # Verify that the train command exit code is successful
@@ -314,7 +315,8 @@ def test_train_features(mock_inspect, mock_load_dataset, mock_get_model, model_n
             model_mock.train.assert_called_once_with(data_mock, output_dir=output_dir, epochs=15,
                                                      initial_checkpoints=None, early_stopping=early_stopping,
                                                      lr_decay=lr_decay, ipex_optimize=False, distributed=False,
-                                                     hostfile=None, nnodes=1, nproc_per_node=1)
+                                                     hostfile=None, nnodes=1, nproc_per_node=1, use_horovod=False,
+                                                     hvd_start_timeout=30)
 
         # Verify that the train command exit code is successful
         assert result.exit_code == 0

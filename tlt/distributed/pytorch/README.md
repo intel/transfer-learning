@@ -24,9 +24,9 @@ source tlt_dev_venv/bin/activate
 pip install --editable .
 ```
 
-4. Install multinode dependencies from the requirements text file. You can also compile `torch_ccl` manually from [here](https://github.com/intel/torch-ccl)
+4. Install multinode dependencies from the shell script. You can also compile `torch_ccl` manually from [here](https://github.com/intel/torch-ccl)
 ```
-pip install -r tlt/distributed/pytorch/requirements.txt
+bash tlt/distributed/pytorch/pyt_hvd_setup.sh
 ```
 
 b. Or `conda`:
@@ -79,13 +79,24 @@ tlt train \
     --nproc_per_node 2
 ```
 
+**(Optional)**: Use the `--use_horovod` flag to use horovod for distributed training
+
 ## Troubleshooting
 
-- "Port already in use" - Might happen when you keyboard interrupt training.
+- ***"Port already in use"***
+    
+    Might happen when you keyboard interrupt training.
 
-**Fix:** Release the port from the terminal (or) log out and log in again to free the port.
+    **Fix:** Release the port from the terminal (or) log out and log in again to free the port.
 
-- "HTTP Connection error" - Might happen if there are several attempts to train text classification model
-as it uses Hugging Face API to make calls to get dataset, model, tokenizer.
+- ***"HTTP Connection error"***
 
-**Fix:** Wait for about few seconds and try again.
+    Might happen if there are several attempts to train text classification model as it uses Hugging Face API to make calls to get dataset, model, tokenizer.
+
+    **Fix:** Wait for about few seconds and try again.
+
+- ***"TimeoutException"*** when using horovod
+
+    Might happen when horovod times out waiting for tasks to start. 
+    
+    **Fix:** Check connectivity between servers. You may need to increase the `--hvd-start-timeout` parameter if you have too many servers. Default value for timeout is 30 seconds.
