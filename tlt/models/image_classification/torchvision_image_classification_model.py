@@ -110,7 +110,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, seed=None, extra_layers=None, ipex_optimize=True,
-              distributed=False, hostfile=None, nnodes=1, nproc_per_node=1):
+              distributed=False, hostfile=None, nnodes=1, nproc_per_node=1, use_horovod=False, hvd_start_timeout=30):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -193,7 +193,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 )
                 batch_size = dataset._preprocessed['batch_size']
                 self._fit_distributed(saved_objects_dir, hostfile, nnodes, nproc_per_node, epochs, batch_size,
-                                      ipex_optimize)
+                                      ipex_optimize, use_horovod, hvd_start_timeout)
             except Exception as err:
                 print("Error: \'{}\' occured while distributed training".format(err))
             finally:
