@@ -193,7 +193,7 @@
 
 <div class="viewcode-block" id="TorchvisionImageClassificationModel.train"><a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train.html#tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
               <span class="n">do_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">early_stopping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lr_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-              <span class="n">distributed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hostfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+              <span class="n">distributed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hostfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">use_horovod</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hvd_start_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Trains the model using the specified image classification dataset. The first time training is called, it</span>
 <span class="sd">            will get the model from torchvision and add on a fully-connected dense layer with linear activation</span>
@@ -276,7 +276,7 @@
                 <span class="p">)</span>
                 <span class="n">batch_size</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_fit_distributed</span><span class="p">(</span><span class="n">saved_objects_dir</span><span class="p">,</span> <span class="n">hostfile</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span>
-                                      <span class="n">ipex_optimize</span><span class="p">)</span>
+                                      <span class="n">ipex_optimize</span><span class="p">,</span> <span class="n">use_horovod</span><span class="p">,</span> <span class="n">hvd_start_timeout</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s2"> occured while distributed training&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
             <span class="k">finally</span><span class="p">:</span>
@@ -397,7 +397,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Jun 23, 2023.
+      <span class="lastupdated">Last updated on Jul 07, 2023.
       </span></p>
   </div>
 

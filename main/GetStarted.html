@@ -214,26 +214,6 @@ command, which displays help information about the Intel Transfer Learning Tool:
 </pre></div>
 </div>
 </li>
-<li><p><strong>Prepare the Dataset</strong></p>
-<p>The Intel Transfer Learning Tool can use datasets from existing dataset catalogs
-or custom datasets that you have on your machine.  The following CLI and API
-examples use the Intel Transfer Learning Tool’s custom dataset option
-(<code class="docutils literal notranslate"><span class="pre">--dataset-dir</span></code>) with the TensorFlow flowers dataset.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Create a directory for the dataset to be downloaded
-DATASET_DIR=/tmp/dataset
-mkdir -p ${DATASET_DIR}
-
-# Download and extract the dataset (be sure https_proxy is set if needed)
-wget -P ${DATASET_DIR} https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
-tar -xzf ${DATASET_DIR}/flower_photos.tgz -C ${DATASET_DIR}
-
-# Set the DATASET_DIR to the extracted images folder
-DATASET_DIR=${DATASET_DIR}/flower_photos
-</pre></div>
-</div>
-<p>At this point, you should have a <code class="docutils literal notranslate"><span class="pre">flower_photos</span></code> folder with
-subfolders for <code class="docutils literal notranslate"><span class="pre">daisy</span></code>, <code class="docutils literal notranslate"><span class="pre">dandelion</span></code>, <code class="docutils literal notranslate"><span class="pre">roses</span></code>, <code class="docutils literal notranslate"><span class="pre">sunflower</span></code>, and <code class="docutils literal notranslate"><span class="pre">tulips</span></code>.</p>
-</li>
 </ol>
 </section>
 <section id="run-the-intel-transfer-learning-tool">
@@ -254,18 +234,22 @@ available image classifier models using the command:</p>
 </pre></div>
 </div>
 <p><strong>Train a Model</strong></p>
-<p>In this example, we’ll use the <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">train</span></code> command to use the TensorFlow
-ResNet50v1.5 model using the flowers dataset we already prepared and write the
-trained model to a folder specified with <code class="docutils literal notranslate"><span class="pre">--output-dir</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir ${DATASET_DIR} --output-dir /tmp/output
+<p>In this example, we’ll use the <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">train</span></code> command to retrain the TensorFlow
+ResNet50v1.5 model using a flowers dataset from the
+<a class="reference external" href="https://www.tensorflow.org/datasets/catalog/tf_flowers">TensorFlow Datasets catalog</a>.
+The <code class="docutils literal notranslate"><span class="pre">--dataset-dir</span></code> and <code class="docutils literal notranslate"><span class="pre">--output-dir</span></code> paths need to point to writable folders on your system.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use the follow environment variable setting to reduce the warnings and log output from TensorFlow</span>
+<span class="n">export</span> <span class="n">TF_CPP_MIN_LOG_LEVEL</span><span class="o">=</span><span class="s2">&quot;2&quot;</span>
+
+<span class="n">tlt</span> <span class="n">train</span> <span class="o">-</span><span class="n">f</span> <span class="n">tensorflow</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="n">resnet_v1_50</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="n">name</span> <span class="n">tf_flowers</span> <span class="o">--</span><span class="n">dataset</span><span class="o">-</span><span class="nb">dir</span> <span class="s2">&quot;/tmp/data-$</span><span class="si">{USER}</span><span class="s2">&quot;</span> <span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="s2">&quot;/tmp/output-$</span><span class="si">{USER}</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Model</span> <span class="n">name</span><span class="p">:</span> <span class="n">resnet_v1_50</span>
 <span class="n">Framework</span><span class="p">:</span> <span class="n">tensorflow</span>
+<span class="n">Dataset</span> <span class="n">name</span><span class="p">:</span> <span class="n">tf_flowers</span>
 <span class="n">Training</span> <span class="n">epochs</span><span class="p">:</span> <span class="mi">1</span>
-<span class="n">Dataset</span> <span class="nb">dir</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">flower_photos</span>
-<span class="n">Output</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span>
-<span class="n">Found</span> <span class="mi">3670</span> <span class="n">files</span> <span class="n">belonging</span> <span class="n">to</span> <span class="mi">5</span> <span class="n">classes</span><span class="o">.</span>
+<span class="n">Dataset</span> <span class="nb">dir</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">data</span><span class="o">-</span><span class="n">user</span>
+<span class="n">Output</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">-</span><span class="n">user</span>
 <span class="o">...</span>
 <span class="n">Model</span><span class="p">:</span> <span class="s2">&quot;sequential&quot;</span>
 <span class="n">_________________________________________________________________</span>
@@ -278,9 +262,9 @@ trained model to a folder specified with <code class="docutils literal notransla
 <span class="n">Trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span><span class="mi">245</span>
 <span class="n">Non</span><span class="o">-</span><span class="n">trainable</span> <span class="n">params</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span><span class="mi">561</span><span class="p">,</span><span class="mi">152</span>
 <span class="n">_________________________________________________________________</span>
-<span class="n">Checkpoint</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50_checkpoints</span>
+<span class="n">Checkpoint</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">-</span><span class="n">user</span><span class="o">/</span><span class="n">resnet_v1_50_checkpoints</span>
 <span class="mi">86</span><span class="o">/</span><span class="mi">86</span> <span class="p">[</span><span class="o">==============================</span><span class="p">]</span> <span class="o">-</span> <span class="mi">24</span><span class="n">s</span> <span class="mi">248</span><span class="n">ms</span><span class="o">/</span><span class="n">step</span> <span class="o">-</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">0.4600</span> <span class="o">-</span> <span class="n">acc</span><span class="p">:</span> <span class="mf">0.8438</span>
-<span class="n">Saved</span> <span class="n">model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
+<span class="n">Saved</span> <span class="n">model</span> <span class="n">directory</span><span class="p">:</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">output</span><span class="o">-</span><span class="n">user</span><span class="o">/</span><span class="n">resnet_v1_50</span><span class="o">/</span><span class="mi">1</span>
 </pre></div>
 </div>
 <p>After training completes, the <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">train</span></code> command evaluates the model. The loss and
@@ -310,22 +294,27 @@ notebook environment.</p>
 <span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
 <span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
 
-<span class="c1"># Specify the directory where the TensorFlow flowers dataset has been downloaded and extracted</span>
-<span class="c1"># (https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz)</span>
-<span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
-    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+<span class="n">username</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;USER&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">)</span>
 
-<span class="c1"># Specify a directory for output</span>
-<span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OUTPUT_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;OUTPUT_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
-    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+<span class="c1"># Specify a writable directory for the dataset to be downloaded</span>
+<span class="n">dataset_dir</span> <span class="o">=</span> <span class="s1">&#39;/tmp/data-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">)</span>
+
+<span class="c1"># Specify a writeable directory for output (such as saved model files)</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s1">&#39;/tmp/output-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
 
 <span class="c1"># Get the model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;resnet_v1_50&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">)</span>
 
-<span class="c1"># Load and preprocess a dataset</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s2">&quot;flower_photos&quot;</span><span class="p">),</span>
-                                       <span class="n">use_case</span><span class="o">=</span><span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_CLASSIFICATION</span><span class="p">,</span> \
-                                       <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">)</span>
+<span class="c1"># Download and preprocess the flowers dataset from the TensorFlow datasets catalog</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="n">dataset_dir</span><span class="p">,</span>
+                                      <span class="n">dataset_name</span><span class="o">=</span><span class="s1">&#39;tf_flowers&#39;</span><span class="p">,</span>
+                                      <span class="n">use_case</span><span class="o">=</span><span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_CLASSIFICATION</span><span class="p">,</span>
+                                      <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">TENSORFLOW</span><span class="p">,</span>
+                                      <span class="n">dataset_catalog</span><span class="o">=</span><span class="s1">&#39;tf_datasets&#39;</span><span class="p">)</span>
 <span class="n">dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">image_size</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">image_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
 <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="mf">.75</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">.25</span><span class="p">)</span>
 
@@ -382,7 +371,7 @@ CLI commands in the <a class="reference internal" href="cli.html"><span class="d
 
   <div role="contentinfo">
     <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Jun 23, 2023.
+      <span class="lastupdated">Last updated on Jul 07, 2023.
       </span></p>
   </div>
 

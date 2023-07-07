@@ -521,6 +521,12 @@
 <dd><p>Use horovod instead of default MPI</p>
 </dd></dl>
 
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tlt-train-hvd-start-timeout">
+<span class="sig-name descname"><span class="pre">--hvd-start-timeout</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--hvd_start_timeout</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hvd_start_timeout&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-hvd-start-timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Horovodrun has to perform all the checks and start the processes before the specified timeout. The default value is 30 seconds.  Alternatively, The environment variable HOROVOD_START_TIMEOUT can also be used to specify the initialization timeout. Currently only supports PyTorch.</p>
+</dd></dl>
+
 </section>
 </section>
 </section>
@@ -537,7 +543,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Jun 23, 2023.
+      <span class="lastupdated">Last updated on Jul 07, 2023.
       </span></p>
   </div>
 
