@@ -93,7 +93,7 @@ if tf_env:
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('model_name,expected_class,expected_image_size',
                          [['efficientnet_b0', TFHubImageClassificationModel, 224],
-                          ['google/bert_uncased_L-2_H-128_A-2', TFHFTextClassificationModel, None]])
+                          ['google_bert_uncased_L-2_H-128_A-2', TFHFTextClassificationModel, None]])
 def test_tf_model_load(model_name, expected_class, expected_image_size):
     """
     Checks that a model can be downloaded
@@ -141,7 +141,7 @@ if tf_env:
 @pytest.mark.parametrize('model_name,use_case,hub',
                          [['ResNet50', 'image_classification', 'Keras'],
                           ['efficientnet_b0', 'image_classification', 'TFHub'],
-                          ['google/bert_uncased_L-2_H-128_A-2', 'text_classification', 'huggingface']])
+                          ['google_bert_uncased_L-2_H-128_A-2', 'text_classification', 'huggingface']])
 def test_get_supported_models(model_name, use_case, hub):
     """
     Call get supported models and checks to make sure the dictionary has keys for each use case,
@@ -233,7 +233,7 @@ if tf_env:
                              [['efficientnet_b0', ImageClassificationDataset,
                                'tlt.models.image_classification.tfhub_image_classification_model.'
                                'TFHubImageClassificationModel._get_hub_model', ['a', 'b', 'c']],
-                              ['google/bert_uncased_L-2_H-128_A-2',
+                              ['google_bert_uncased_L-2_H-128_A-2',
                               TextClassificationDataset, 'tlt.models.text_classification.tf_hf_text_classification_model.'  # noqa: E501
                                'TFHFTextClassificationModel._get_hub_model', ['a', 'b']],
                               ['ResNet50', ImageClassificationDataset,

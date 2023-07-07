@@ -38,10 +38,10 @@ cp ${DATASET_DIR}/SMSSpamCollection ${DATASET_DIR}/${DATASET_FILE}
 sed -i 's/ham/0/g' ${DATASET_DIR}/${DATASET_FILE}
 sed -i 's/spam/1/g' ${DATASET_DIR}/${DATASET_FILE}
 
-# Train google/bert_uncased_L-10_H-256_A-4 using our dataset file, which has tab delimiters
+# Train google_bert_uncased_L-10_H-256_A-4 using our dataset file, which has tab delimiters
 tlt train \
     -f tensorflow \
-    --model-name google/bert_uncased_L-10_H-256_A-4 \
+    --model-name google_bert_uncased_L-10_H-256_A-4 \
     --output-dir ${OUTPUT_DIR} \
     --dataset-dir ${DATASET_DIR} \
     --dataset-file ${DATASET_FILE} \
@@ -53,7 +53,7 @@ tlt train \
 # Note that your --model-dir path may vary, since each training run creates a new directory
 tlt eval \
     --model-dir ${OUTPUT_DIR}/google_bert_uncased_L-10_H-256_A-4/1 \
-    --model-name google/bert_uncased_L-10_H-256_A-4 \
+    --model-name google_bert_uncased_L-10_H-256_A-4 \
     --dataset-dir ${DATASET_DIR} \
     --dataset-file ${DATASET_FILE} \
     --class-names 0,1 \
@@ -79,10 +79,10 @@ mkdir -p ${OUTPUT_DIR}
 # Name of the dataset to use
 DATASET_NAME=imdb_reviews
 
-# Train google/bert_uncased_L-10_H-256_A-4 using the TFDS dataset
+# Train google_bert_uncased_L-10_H-256_A-4 using the TFDS dataset
 tlt train \
     -f tensorflow \
-    --model-name google/bert_uncased_L-10_H-256_A-4 \
+    --model-name google_bert_uncased_L-10_H-256_A-4 \
     --output-dir ${OUTPUT_DIR} \
     --dataset-dir ${DATASET_DIR} \
     --dataset-name ${DATASET_NAME} \
@@ -92,7 +92,7 @@ tlt train \
 # Note that your --model-dir path may vary, since each training run creates a new directory
 tlt eval \
     --model-dir ${OUTPUT_DIR}/google_bert_uncased_L-10_H-256_A-4/2 \
-    --model-name google/bert_uncased_L-10_H-256_A-4 \
+    --model-name google_bert_uncased_L-10_H-256_A-4 \
     --dataset-dir ${DATASET_DIR} \
     --dataset-name ${DATASET_NAME}
 ```
