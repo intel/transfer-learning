@@ -24,9 +24,6 @@ docker compose build
 OR
 ```bash
 docker pull intel/ai-tools:tlt-0.5.0
-docker pull intel/ai-tools:tlt-devel-0.5.0
-docker pull intel/ai-tools:tlt-dist-0.5.0
-docker pull intel/ai-tools:tlt-dist-devel-0.5.0
 ```
 
 ## Use Docker Image
@@ -56,11 +53,19 @@ OR
 helm repo add cowboysysop https://cowboysysop.github.io/charts/
 helm install <release name> cowboysysop/training-operator
 ```
+
+### 3. Build Distributed Container
+```bash
+cd docker
+docker compose build
+docker push <registry>:tlt-dist-latest
+```
+
 ### 3. Deploy TLT Distributed Job
 For more customization information, see the chart [README](./docker/chart/README.md)
 ```bash
 export NAMESPACE=kubeflow
-helm install --namespace ${NAMESPACE} --set ... tlt-distributed ./docker/chart
+helm install --namespace ${NAMESPACE} --set imageName=<registry> --set imageTag=tlt-dist-latest --set ... tlt-distributed ./docker/chart
 ```
 ### 4. View 
 To view your workflow progress
