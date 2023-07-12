@@ -47,6 +47,7 @@ def test_train_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_
     dataset_dir = os.path.join(tmp_dir, 'data')
     output_dir = os.path.join(tmp_dir, 'output')
     dummy_image_size = 100
+    dummy_use_case = 'use_case'
 
     try:
         for new_dir in [output_dir, dataset_dir]:
@@ -54,6 +55,7 @@ def test_train_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_
 
         model_mock = MagicMock()
         model_mock.image_size = dummy_image_size
+        model_mock.use_case = dummy_use_case
         data_mock = MagicMock()
 
         # Test where the preprocessing command will have an image size
@@ -70,7 +72,7 @@ def test_train_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_
                                 "--output-dir", output_dir])
 
         # Verify that the expected calls were made
-        mock_get_model.assert_called_once_with(model_name, str(framework))
+        mock_get_model.assert_called_once_with(model_name, str(framework), None)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
         assert data_mock.shuffle_split.called
         assert model_mock.train.called
@@ -103,6 +105,7 @@ def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mo
     dataset_dir = os.path.join(tmp_dir, 'data')
     output_dir = os.path.join(tmp_dir, 'output')
     dummy_image_size = 100
+    dummy_use_case = 'use_case'
 
     try:
         for new_dir in [output_dir, dataset_dir]:
@@ -110,6 +113,7 @@ def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mo
 
         model_mock = MagicMock()
         model_mock.image_size = dummy_image_size
+        model_mock.use_case = dummy_use_case
         data_mock = MagicMock()
 
         # Test where the preprocessing command just has a batch_size arg
@@ -127,7 +131,7 @@ def test_train_preprocess_without_image_size(mock_inspect, mock_load_dataset, mo
                                 "--output-dir", output_dir])
 
         # Verify that the expected calls were made
-        mock_get_model.assert_called_once_with(model_name, str(framework))
+        mock_get_model.assert_called_once_with(model_name, str(framework), None)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
         assert data_mock.shuffle_split.called
         assert model_mock.train.called
@@ -165,6 +169,7 @@ def test_train_add_augmentation(mock_inspect, mock_load_dataset, mock_get_model,
             os.makedirs(new_dir)
 
         model_mock = MagicMock()
+        model_mock.use_case = 'use_case'
         data_mock = MagicMock()
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
@@ -176,7 +181,7 @@ def test_train_add_augmentation(mock_inspect, mock_load_dataset, mock_get_model,
                                 "--output-dir", output_dir, "--add_aug", add_aug])
 
         # Verify that the expected calls were made
-        mock_get_model.assert_called_once_with(model_name, str(framework))
+        mock_get_model.assert_called_once_with(model_name, str(framework), None)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
         assert data_mock.shuffle_split.called
         assert model_mock.train.called
@@ -214,6 +219,7 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
 
         # Setup mocks
         model_mock = MagicMock()
+        model_mock.use_case = 'use_case'
         data_mock = MagicMock()
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
@@ -225,7 +231,7 @@ def test_train_init_checkpoints(mock_load_dataset, mock_get_model, model_name, f
                                 "--output-dir", output_dir, "--init-checkpoints", init_checkpoints, "--epochs", 2])
 
         # Verify that the expected calls were made
-        mock_get_model.assert_called_once_with(model_name, str(framework))
+        mock_get_model.assert_called_once_with(model_name, str(framework), None)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
 
         # Verify that train and preprocess were called with the right arguments
@@ -274,6 +280,7 @@ def test_train_features(mock_inspect, mock_load_dataset, mock_get_model, model_n
             os.makedirs(new_dir)
 
         model_mock = MagicMock()
+        model_mock.use_case = 'use_case'
         data_mock = MagicMock()
         mock_get_model.return_value = model_mock
         mock_load_dataset.return_value = data_mock
@@ -300,7 +307,7 @@ def test_train_features(mock_inspect, mock_load_dataset, mock_get_model, model_n
                                     dataset_dir, "--output-dir", output_dir, "--epochs", epochs])
 
         # Verify that the expected calls were made
-        mock_get_model.assert_called_once_with(model_name, str(framework))
+        mock_get_model.assert_called_once_with(model_name, str(framework), None)
         mock_load_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework)
         assert data_mock.shuffle_split.called
         assert model_mock.train.called
@@ -348,6 +355,7 @@ def test_train_dataset_catalog(mock_get_dataset, mock_get_model, model_name, fra
 
         # Setup mocks
         model_mock = MagicMock()
+        model_mock.use_case = 'use_case'
         data_mock = MagicMock()
         mock_get_model.return_value = model_mock
         mock_get_dataset.return_value = data_mock
@@ -360,7 +368,7 @@ def test_train_dataset_catalog(mock_get_dataset, mock_get_model, model_name, fra
                                 "--dataset-catalog", dataset_catalog])
 
         # Verify that the expected calls were made
-        mock_get_model.assert_called_once_with(model_name, str(framework))
+        mock_get_model.assert_called_once_with(model_name, str(framework), None)
         mock_get_dataset.assert_called_once_with(dataset_dir, model_mock.use_case, model_mock.framework,
                                                  dataset_name, dataset_catalog)
 

@@ -23,9 +23,7 @@ from enum import Enum, auto
 
 class UseCaseType(Enum):
     IMAGE_CLASSIFICATION = auto()
-    OBJECT_DETECTION = auto()
     TEXT_CLASSIFICATION = auto()
-    QUESTION_ANSWERING = auto()
     IMAGE_ANOMALY_DETECTION = auto()
 
     def __str__(self):
@@ -37,13 +35,8 @@ class UseCaseType(Enum):
 
         if use_case_str in ["image_classification", "image classification"]:
             return UseCaseType.IMAGE_CLASSIFICATION
-        elif use_case_str in ["object_detection", "object detection"]:
-            return UseCaseType.OBJECT_DETECTION
         elif use_case_str in ["text_classification", "text classification"]:
             return UseCaseType.TEXT_CLASSIFICATION
-        elif use_case_str in ["question_answer", "question_answering",
-                              "question answer", "question answering"]:
-            return UseCaseType.QUESTION_ANSWERING
         elif use_case_str in ["anomaly_detection", "anomaly detection",
                               "image_anomaly_detection", "image anomaly detection"]:
             return UseCaseType.IMAGE_ANOMALY_DETECTION

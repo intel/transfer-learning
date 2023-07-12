@@ -106,12 +106,26 @@ class TestImageAnomalyDetectionCustomDataset:
         assert len(features) == 32
 
         # Evaluate
-        threshold, auroc = model.evaluate(dataset, pca_components)
+        threshold, auroc = model.evaluate(dataset)
         assert isinstance(auroc, float)
 
         # Predict with a batch
-        predictions = model.predict(images, pca_components)
+        predictions = model.predict(images)
         assert len(predictions) == 32
+
+        # Export the saved model
+        saved_model_dir = model.export(self._output_dir)
+        assert os.path.isdir(saved_model_dir)
+        assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
+
+        # Reload the saved model
+        reload_model = model_factory.get_model(model_name, framework, use_case)
+        reload_model.load_from_directory(saved_model_dir)
+
+        # Evaluate reloaded model
+        reload_threshold, reload_auroc = reload_model.evaluate(dataset)
+        assert reload_threshold == threshold
+        assert reload_auroc == auroc
 
     def test_custom_model_workflow(self):
         """
@@ -164,16 +178,16 @@ class TestImageAnomalyDetectionCustomDataset:
         assert len(features) == 32
 
         # Evaluate
-        threshold, auroc = model.evaluate(dataset, pca_components)
+        threshold, auroc = model.evaluate(dataset)
         assert isinstance(auroc, float)
 
         # Predict with a batch
-        predictions = model.predict(images, pca_components)
+        predictions = model.predict(images)
         assert len(predictions) == 32
 
     @pytest.mark.parametrize('model_name',
                              ['resnet18'])
-    def test_simsiam_workflow(self, model_name):
+    def test_simsiam_workflow_quantization(self, model_name):
         """
         Tests the workflow for PYT image anomaly detection using a custom dataset
         and simsiam feature extractor enabled
@@ -200,17 +214,23 @@ class TestImageAnomalyDetectionCustomDataset:
                                                     seed=10, simsiam=True, initial_checkpoints=None)
 
         # Evaluate
-        threshold, auroc = model.evaluate(dataset, pca_components)
+        threshold, auroc = model.evaluate(dataset)
         assert isinstance(auroc, float)
 
         # Predict with a batch
         images, labels = dataset.get_batch(subset='validation')
-        predictions = model.predict(images, pca_components)
+        predictions = model.predict(images)
         assert len(predictions) == 32
+
+        # Quantization
+        inc_output_dir = os.path.join(self._output_dir, "quantized", model_name)
+        os.makedirs(inc_output_dir, exist_ok=True)
+        model.quantize(inc_output_dir, dataset)
+        assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
 
     @pytest.mark.parametrize('model_name',
                              ['resnet18'])
-    def test_cutpaste_workflow(self, model_name):
+    def test_cutpaste_workflow_benchmark(self, model_name):
         """
         Tests the workflow for PYT image anomaly detection using a custom dataset
         and cutpaste feature extractor enabled
@@ -238,10 +258,18 @@ class TestImageAnomalyDetectionCustomDataset:
                                                     cutpaste=True)
 
         # Evaluate
-        threshold, auroc = model.evaluate(dataset, pca_components, use_test_set=True)
+        threshold, auroc = model.evaluate(dataset, use_test_set=True)
         assert isinstance(auroc, float)
 
         # Predict with a batch
         images, labels = dataset.get_batch(subset='test')
-        predictions = model.predict(images, pca_components)
+        predictions = model.predict(images, pca_mats=pca_components)
         assert len(predictions) == 32
+
+        # Export the saved model
+        saved_model_dir = model.export(self._output_dir)
+        assert os.path.isdir(saved_model_dir)
+        assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
+
+        # Benchmark
+        model.benchmark(dataset=dataset)

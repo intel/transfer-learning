@@ -105,10 +105,8 @@ def test_get_supported_models():
                          [['tensorflow', None],
                           ['pytorch', None],
                           [None, 'image_classification'],
-                          [None, 'question_answering'],
                           ['tensorflow', 'image_classification'],
                           ['pytorch', 'text_classification'],
-                          ['pytorch', 'question_answering'],
                           ['pytorch', 'image_anomaly_detection']])
 def test_get_supported_models_with_filter(framework, use_case):
     """

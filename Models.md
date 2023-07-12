@@ -170,9 +170,6 @@
 
 | Model name | Framework | Model Hub |
 |------------|-----------|-----------|
-| resnet101 | PyTorch | Torchvision |
-| resnet152 | PyTorch | Torchvision |
 | resnet18 | PyTorch | Torchvision |
-| resnet34 | PyTorch | Torchvision |
 | resnet50 | PyTorch | Torchvision |
 

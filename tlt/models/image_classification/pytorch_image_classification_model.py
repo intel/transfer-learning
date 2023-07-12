@@ -68,7 +68,9 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         self._model = None
         self._num_classes = None
 
-        PyTorchModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.IMAGE_CLASSIFICATION)
+        use_case = kwargs.get('use_case', UseCaseType.IMAGE_CLASSIFICATION)
+
+        PyTorchModel.__init__(self, model_name, FrameworkType.PYTORCH, use_case)
         ImageClassificationModel.__init__(self, self._image_size, self._do_fine_tuning, self._dropout_layer_rate,
                                           self._model_name, self._framework, self._use_case)
 

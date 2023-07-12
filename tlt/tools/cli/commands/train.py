@@ -22,6 +22,7 @@ import inspect
 import sys
 
 from tlt.distributed import TLT_DISTRIBUTED_DIR
+from tlt.utils.types import UseCaseType
 
 
 @click.command()
@@ -34,6 +35,11 @@ from tlt.distributed import TLT_DISTRIBUTED_DIR
               required=True,
               type=str,
               help="Name of the model to use")
+@click.option("--use-case", "--use_case",
+              required=False,
+              type=click.Choice(['image_classification', 'anomaly_detection', 'image_anomaly_detection',
+                                 'text_classification']),
+              help="Specify the use case if the model is supported by multiple use cases")
 @click.option("--output-dir", "--output_dir",
               required=True,
               type=click.Path(dir_okay=True, file_okay=False),
@@ -130,9 +136,19 @@ from tlt.distributed import TLT_DISTRIBUTED_DIR
               help="Horovodrun has to perform all the checks and start the processes before the specified timeout. "
               "The default value is 30 seconds.  Alternatively, The environment variable HOROVOD_START_TIMEOUT can "
               "also be used to specify the initialization timeout. Currently only supports PyTorch.")
-def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimiter, class_names, dataset_name,
+@click.option("--simsiam",
+              required=False,
+              type=click.BOOL,
+              is_flag=True,
+              help="Use SimSiam anomaly detection")
+@click.option("--cutpaste",
+              required=False,
+              type=click.BOOL,
+              is_flag=True,
+              help="Use CutPaste anomaly detection")
+def train(framework, model_name, use_case, output_dir, dataset_dir, dataset_file, delimiter, class_names, dataset_name,
           dataset_catalog, epochs, init_checkpoints, add_aug, early_stopping, lr_decay, ipex_optimize, distributed,
-          nnodes, nproc_per_node, hostfile, use_horovod, hvd_start_timeout):
+          nnodes, nproc_per_node, hostfile, use_horovod, hvd_start_timeout, simsiam, cutpaste):
     """
     Trains the model
     """
@@ -202,14 +218,17 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     from tlt.datasets import dataset_factory
     # Get the model
     try:
-        model = model_factory.get_model(model_name, framework)
+        model = model_factory.get_model(model_name, framework, use_case)
     except Exception as e:
         sys.exit("Error while getting the model (model name: {}, framework: {}):\n{}".format(
             model_name, framework, str(e)))
+
+    print("Use case: {}\n".format(model.use_case), flush=True)
+
     # Get the dataset
     try:
         if not dataset_name and not dataset_catalog:
-            if str(model.use_case) == 'text_classification':
+            if model.use_case == UseCaseType.TEXT_CLASSIFICATION:
                 if not dataset_file:
                     raise ValueError("Loading a text classification dataset requires --dataset-file to specify the "
                                      "file name of the .csv file to load from the --dataset-dir.")
@@ -244,10 +263,14 @@ def train(framework, model_name, output_dir, dataset_dir, dataset_file, delimite
     # Train the model using the dataset
     if framework == 'pytorch':
         try:
-            model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
-                        early_stopping=early_stopping, lr_decay=lr_decay, ipex_optimize=ipex_optimize,
-                        distributed=distributed, hostfile=hostfile, nnodes=nnodes, nproc_per_node=nproc_per_node,
-                        use_horovod=use_horovod, hvd_start_timeout=hvd_start_timeout)
+            if model.use_case == UseCaseType.IMAGE_ANOMALY_DETECTION:
+                model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
+                            simsiam=simsiam, cutpaste=cutpaste)
+            else:
+                model.train(dataset, output_dir=output_dir, epochs=epochs, initial_checkpoints=init_checkpoints,
+                            early_stopping=early_stopping, lr_decay=lr_decay, ipex_optimize=ipex_optimize,
+                            distributed=distributed, hostfile=hostfile, nnodes=nnodes, nproc_per_node=nproc_per_node,
+                            use_horovod=use_horovod, hvd_start_timeout=hvd_start_timeout)
         except Exception as e:
             sys.exit("There was an error during model training:\n{}".format(str(e)))
 

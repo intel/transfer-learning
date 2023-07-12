@@ -115,7 +115,10 @@ def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_name
         from tlt.models.model_factory import get_model
 
         print("Loading model object for {} using {}".format(model_name, str(framework)), flush=True)
-        model = get_model(model_name, framework)
+        if os.path.exists(os.path.join(model_dir, 'pca_mats.pkl')):
+            model = get_model(model_name, framework, use_case='image_anomaly_detection')
+        else:
+            model = get_model(model_name, framework)
 
         print("Loading saved model from:", model_path)
         model.load_from_directory(model_dir)

@@ -165,11 +165,9 @@ def test_get_supported_models(model_name, use_case, hub):
                          [['tensorflow', None],
                           ['pytorch', None],
                           [None, 'image_classification'],
-                          [None, 'question_answering'],
                           ['tensorflow', 'image_classification'],
                           ['tensorflow', 'text_classification'],
-                          ['pytorch', 'text_classification'],
-                          ['pytorch', 'question_answering']])
+                          ['pytorch', 'text_classification']])
 def test_get_supported_models_with_filter(framework, use_case):
     """
     Tests getting the dictionary of supported models while filtering by framework and/or use case.
