@@ -186,7 +186,7 @@ def get_dataset(dataset_dir: str, use_case: UseCaseType, framework: FrameworkTyp
         if framework is FrameworkType.TENSORFLOW:
             dataset_catalog = "tf_datasets"
         elif framework is FrameworkType.PYTORCH:
-            if use_case in [UseCaseType.IMAGE_CLASSIFICATION, UseCaseType.OBJECT_DETECTION]:
+            if use_case in [UseCaseType.IMAGE_CLASSIFICATION]:
                 dataset_catalog = "torchvision"
             elif use_case is UseCaseType.TEXT_CLASSIFICATION:
                 dataset_catalog = "huggingface"
