@@ -12,8 +12,8 @@ which has images of hazelnuts belonging to 5 classes: crack, cut, good, hole, an
 dataset is already formatted in the expected format with subfolders for each class.
 ```bash
 # Set dataset and output directories
-DATASET_DIR=/tmp/data/mvtec/hazelnut
-OUTPUT_DIR=/tmp/output
+export DATASET_DIR=/tmp/data/mvtec/hazelnut
+export OUTPUT_DIR=/tmp/output
 mkdir -p ${OUTPUT_DIR}
 
 # Fine-tune a resnet50 feature extractor for anomaly detection using CutPaste and the hazelnut photos directory
@@ -40,8 +40,8 @@ and fine-tuning using the SimSiam method with manually downloaded weights and th
 [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad).
 ```bash
 # Set dataset and output directories
-DATASET_DIR=/tmp/data/mvtec/bottle
-OUTPUT_DIR=/tmp/output
+export DATASET_DIR=/tmp/data/mvtec/bottle
+export OUTPUT_DIR=/tmp/output
 mkdir -p ${OUTPUT_DIR}
 
 # Download the starting checkpoints for the SimSiam feature extractor

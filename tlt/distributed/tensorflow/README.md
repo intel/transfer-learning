@@ -74,6 +74,9 @@ horovodrun \
 **Step 2:** Launch a distributed training job with TLT CLI using the appropriate flags.
 
 ```
+export DATASET_DIR=/tmp/dataset
+export OUTPUT_DIR=/tmp/output
+
 tlt train \
     -f tensorflow \
     --dataset-dir $DATASET_DIR \
@@ -157,4 +160,3 @@ horovodrun \
     --model-name bert-base-uncased \
     --dataset-name imdb_reviews
  ```
- 

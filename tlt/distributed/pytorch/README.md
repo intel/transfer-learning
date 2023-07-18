@@ -67,6 +67,9 @@ the first IP address to be of the current node.
 
 **Step 2:** Launch a distributed training job with TLT CLI using the appropriate flags.
 ```
+export DATASET_DIR=/tmp/dataset
+export OUTPUT_DIR=/tmp/output
+
 tlt train \
     -f pytorch \
     --model_name resnet50 \

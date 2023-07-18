@@ -20,8 +20,8 @@ the label (`ham` or `spam`) and the second column is the text of the SMS message
 labels are replaced with numerical values before training.
 ```bash
 # Create dataset and output directories
-DATASET_DIR=/tmp/data
-OUTPUT_DIR=/tmp/output
+export DATASET_DIR=/tmp/data
+export OUTPUT_DIR=/tmp/output
 mkdir -p ${DATASET_DIR}
 mkdir -p ${OUTPUT_DIR}
 
@@ -71,8 +71,8 @@ and [glue/cola](https://www.tensorflow.org/datasets/catalog/glue#gluecola_defaul
 
 ```bash
 # Create dataset and output directories
-DATASET_DIR=/tmp/data
-OUTPUT_DIR=/tmp/output
+export DATASET_DIR=/tmp/data
+export OUTPUT_DIR=/tmp/output
 mkdir -p ${DATASET_DIR}
 mkdir -p ${OUTPUT_DIR}
 
@@ -114,8 +114,8 @@ one epoch using 2 nodes and 2 processes per node.
 
 ```bash
 # Create dataset and output directories
-DATASET_DIR=/tmp/data
-OUTPUT_DIR=/tmp/output
+export DATASET_DIR=/tmp/data
+export OUTPUT_DIR=/tmp/output
 mkdir -p ${DATASET_DIR}
 mkdir -p ${OUTPUT_DIR}
 

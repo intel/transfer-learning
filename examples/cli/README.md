@@ -60,10 +60,10 @@ wget -P ${DATASET_DIR} https://storage.googleapis.com/download.tensorflow.org/ex
 tar -xzf ${DATASET_DIR}/flower_photos.tgz -C ${DATASET_DIR}
 
 # Set the DATASET_DIR to the extracted images folder
-DATASET_DIR=${DATASET_DIR}/flower_photos
+export DATASET_DIR=${DATASET_DIR}/flower_photos
 
 # Supress debug information from TensorFlow 2.12
-TF_CPP_MIN_LOG_LEVEL=2
+export TF_CPP_MIN_LOG_LEVEL=2
 ```
 
 After the dataset directory is ready, use the `tlt train` command to train one of the models from
