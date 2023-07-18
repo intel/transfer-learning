@@ -24,7 +24,7 @@ import shutil
 import tempfile
 from unittest.mock import MagicMock
 
-from tlt.utils.file_utils import validate_model_name, download_file
+from tlt.utils.file_utils import download_file, get_model_name_from_path, validate_model_name
 
 
 @pytest.mark.common
@@ -70,3 +70,17 @@ def test_download():
     # Delete the temp output directory
     if os.path.exists(output_dir) and os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
+
+
+@pytest.mark.common
+@pytest.mark.parametrize('model_dir,expected_model_name',
+                         [['/tmp/user/resnet_v2_50/12/', 'resnet_v2_50'],
+                          ['/tmp/user/resnet_v2_50/12', 'resnet_v2_50'],
+                          ['/localdisk/folder/google_bert_uncased_L-2_H-128_A-2/8/',
+                           'google_bert_uncased_L-2_H-128_A-2']])
+def test_get_model_name_from_path(model_dir, expected_model_name):
+    """
+    Tests the file utils method that returns the model name from a model directory path. Verifies that the model name
+    returned matches the expected model name.
+    """
+    assert expected_model_name == get_model_name_from_path(model_dir)
