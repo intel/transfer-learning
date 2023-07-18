@@ -22,6 +22,7 @@ import click
 import os
 import sys
 
+from tlt.utils.file_utils import get_model_name_from_path
 from tlt.utils.types import FrameworkType
 
 
@@ -59,7 +60,7 @@ def optimize(model_dir, output_dir):
                  "models. No such files found in the model directory ({}).".format(model_dir))
 
     # Get the model name from the directory path, assuming models are exported like <model name>/n
-    model_name = os.path.basename(os.path.dirname(model_dir))
+    model_name = get_model_name_from_path(model_dir)
 
     print("Model name:", model_name)
     print("Framework:", framework)

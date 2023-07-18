@@ -24,6 +24,7 @@ import os
 import shutil
 import sys
 
+from tlt.utils.file_utils import get_model_name_from_path
 from tlt.utils.types import FrameworkType
 
 
@@ -81,7 +82,7 @@ def benchmark(model_dir, dataset_dir, batch_size, output_dir, dataset_file, deli
     else:
         sys.exit("Benchmarking is currently only implemented for TensorFlow saved_model.pb and PyTorch model.pt "
                  "models. No such files found in the model directory ({}).".format(model_dir))
-    model_name = os.path.basename(os.path.dirname(model_dir))
+    model_name = get_model_name_from_path(model_dir)
 
     print("Model name:", model_name)
     print("Framework:", framework)
