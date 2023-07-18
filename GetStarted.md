@@ -61,7 +61,8 @@ approaches.
 
 3. **Install Intel Transfer Learning Tool**
 
-   Use the Basic Installation instructions unless you plan on making code changes.
+   Use the Basic Installation instructions unless you plan on making code changes or installing the latest code from the repository.
+   Please note that mixing basic and advanced installation options within the same virtual environment is not supported.
 
    a. **Basic Installation**
 

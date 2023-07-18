@@ -9,7 +9,7 @@ Software Requirements:
 
 ## Set Up Notebook Environment
 
-1. Install Intel® Transfer Learning Tool using the Advanced Installation option in the [Get Started](/GetStarted.md) Guide.
+1. Install Intel® Transfer Learning Tool using any of the installation options in the [Get Started](/GetStarted.md) Guide.
    This is required for the Intel Transfer Learning Tool tutorial notebooks, E2E notebooks, and performance comparison. Follow the
    instructions in the [Get Started Guide](/GetStarted.md). You can
    skip this step if you are only running the native framework notebooks.
