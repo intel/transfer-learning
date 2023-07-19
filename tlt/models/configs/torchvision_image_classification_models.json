@@ -141,7 +141,7 @@
         "model_hub": "torchvision",
         "classification_layer": ["classifier", 6],
         "image_size": 224,
-        "original_dataset": "IMAGENET1K_V2"
+        "original_dataset": "IMAGENET1K_V1"
     },
     "convnext_tiny": {
         "model_hub": "torchvision",

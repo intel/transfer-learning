@@ -82,7 +82,7 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
         if not dataset_name:
             dataset_name = os.path.basename(dataset_dir)
 
-        ImageClassificationDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog=None)
+        ImageClassificationDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog='custom')
 
         self._info = {
             "name": dataset_name,

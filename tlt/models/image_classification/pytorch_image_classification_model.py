@@ -497,7 +497,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             else:
                 saved_model_dir = os.path.join(saved_model_dir, "1")
             verify_directory(saved_model_dir)
-            model_copy = dill.dumps(self._model)
+            model_copy = dill.dumps(self._model, recurse=True)
             torch.save(model_copy, os.path.join(saved_model_dir, 'model.pt'))
             print("Saved model directory:", saved_model_dir)
 
