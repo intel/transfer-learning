@@ -243,7 +243,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         if not dataset_name:
             dataset_name = os.path.basename(dataset_dir)
 
-        PyTorchDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog=None)
+        PyTorchDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog='custom_anomaly')
 
         self._info = {
             "name": dataset_name,
@@ -252,7 +252,7 @@ class PyTorchCustomImageAnomalyDetectionDataset(PyTorchDataset):
         self._num_workers = num_workers
         self.train_sampler = None
         self._shuffle = self.train_sampler is None
-        self._preprocessed = None
+        self._preprocessed = {}
         self._train_indices = None
         self._validation_indices = None
         self._test_indices = None

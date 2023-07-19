@@ -25,7 +25,20 @@ import numpy as np
 import random
 import inspect
 
+from torch.utils.data import Subset
 from tlt.datasets.dataset import BaseDataset
+
+
+class TransformedSubset(Subset):
+    def __init__(self, dataset, indices, transform=None):
+        super().__init__(dataset, indices)
+        self.transform = transform
+
+    def __getitem__(self, index):
+        x, y = self.dataset[self.indices[index]]
+        if self.transform:
+            x = self.transform(x)
+        return x, y
 
 
 class PyTorchDataset(BaseDataset):
@@ -38,27 +51,41 @@ class PyTorchDataset(BaseDataset):
         Class constructor
         """
         BaseDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog)
+        self._transform = None
 
     @property
     def train_subset(self):
         """
         A subset of the dataset used for training
         """
-        return torch.utils.data.Subset(self._dataset, self._train_indices) if self._train_indices else None
+        if self.dataset_catalog == 'custom' and self._transform is not None:
+            return TransformedSubset(self._dataset, self._train_indices, transform=self._transform) if \
+                self._train_indices else None
+        else:
+            return torch.utils.data.Subset(self._dataset, self._train_indices) if self._train_indices else None
 
     @property
     def validation_subset(self):
         """
         A subset of the dataset used for validation/evaluation
         """
-        return torch.utils.data.Subset(self._dataset, self._validation_indices) if self._validation_indices else None
+        if self.dataset_catalog == 'custom' and self._transform is not None:
+            return TransformedSubset(self._dataset, self._validation_indices, transform=self._transform) if \
+                self._validation_indices else None
+        else:
+            return torch.utils.data.Subset(self._dataset, self._validation_indices) if self._validation_indices \
+                else None
 
     @property
     def test_subset(self):
         """
         A subset of the dataset held out for final testing/evaluation
         """
-        return torch.utils.data.Subset(self._dataset, self._test_indices) if self._test_indices else None
+        if self.dataset_catalog == 'custom' and self._transform is not None:
+            return TransformedSubset(self._dataset, self._test_indices, transform=self._transform) if \
+                self._test_indices else None
+        else:
+            return torch.utils.data.Subset(self._dataset, self._test_indices) if self._test_indices else None
 
     @property
     def data_loader(self):
@@ -230,7 +257,8 @@ class PyTorchDataset(BaseDataset):
 
             return T.Compose(transforms)
 
-        self._dataset.transform = get_transform(image_size, add_aug)
+        self._transform = get_transform(image_size, add_aug)
+        self._dataset.transform = self._transform
         self._preprocessed = {'image_size': image_size, 'batch_size': batch_size}
         self._make_data_loaders(batch_size=batch_size)
 
