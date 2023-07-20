@@ -19,7 +19,7 @@
 #
 
 from numbers import Number
-import pickle
+import pickle  # nosec B403
 from tqdm import tqdm
 
 from sklearn.decomposition import PCA
@@ -686,4 +686,4 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         pca_file_name = os.path.join(model_dir, 'pca_mats.pkl')
         if os.path.isfile(pca_file_name):
             with open(pca_file_name, 'rb') as pca_file:
-                self._pca_mats = pickle.load(pca_file)
+                self._pca_mats = pickle.load(pca_file)  # nosec B301
