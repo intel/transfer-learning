@@ -157,10 +157,10 @@ wget -P ${DATASET_DIR} https://storage.googleapis.com/download.tensorflow.org/ex
 tar -xzf ${DATASET_DIR}/flower_photos.tgz -C ${DATASET_DIR}
 
 # Set the DATASET_DIR to the extracted images folder
-DATASET_DIR=${DATASET_DIR}/flower_photos
+export DATASET_DIR=${DATASET_DIR}/flower_photos
 
 # Supress debug information from TensorFlow 2.12
-TF_CPP_MIN_LOG_LEVEL=2
+export TF_CPP_MIN_LOG_LEVEL=2
 </pre></div>
 </div>
 <p>After the dataset directory is ready, use the <code class="docutils literal notranslate"><span class="pre">tlt</span> <span class="pre">train</span></code> command to train one of the models from
@@ -337,7 +337,7 @@ Note that graph optimization is also done as part of the quantization flow, so t
 
   <div role="contentinfo">
     <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Jul 07, 2023.
+      <span class="lastupdated">Last updated on Jul 21, 2023.
       </span></p>
   </div>
 
