@@ -21,11 +21,12 @@ spec:
             args:
             - --verbose
             - -np
-            - {{ .Values.workers }}
+            - "{{ .Values.workers }}"
             - --hostfile
             - /etc/mpi/hostfile
             - python
             - /tmp/intel-transfer-learning/tlt/distributed/tensorflow/run_train_tf.py
+            - --k8
             - --batch_denom
             - "{{ .Values.batchDenom }}"
             - --batch_size
@@ -33,18 +34,18 @@ spec:
             - --dataset-dir
             - /tmp/data
             - --dataset-name
-            - {{ .Values.datasetName }}
+            - "{{ .Values.datasetName }}"
             - --epochs
             - "{{ .Values.epochs }}"
             - --model-name
-            - {{ .Values.modelName }}
+            - "{{ .Values.modelName }}"
             - --output-dir
             - /tmp/output
             - --scaling
             - "{{ .Values.scaling }}"
             - --shuffle
             - --use-case
-            - {{ .Values.useCase }}
+            - "{{ .Values.useCase }}"
             resources:
               limits:
                 cpu: {{ .Values.resources.cpu }}

@@ -79,6 +79,12 @@ class DistributedTF:
     def __init__(self) -> None:
         hvd.init()
 
+    def rank(self):
+        return hvd.rank()
+
+    def allreduce(self, x):
+        hvd.allreduce(x)
+
     def prepare_dataset(self, dataset, use_case, global_batch_size, scaling, **kwargs):
         if scaling.lower() == 'weak':
             batch_size = global_batch_size

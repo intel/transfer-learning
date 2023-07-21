@@ -25,6 +25,8 @@ import argparse
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
+from filelock import FileLock
+
 from tlt.distributed.tensorflow.utils.tf_distributed_util import (
     DistributedTF,
     DistributedTrainingArguments
@@ -33,12 +35,17 @@ from tlt.distributed.tensorflow.utils.tf_distributed_util import (
 
 if __name__ == '__main__':
 
+    dist_tf = DistributedTF()
+
+    hvd_lock_file = os.path.join(tempfile.gettempdir(), '.horovod_lock')
     default_data_dir = os.path.join(tempfile.gettempdir(), 'data')
     default_output_dir = os.path.join(tempfile.gettempdir(), 'output')
 
-    for d in [default_data_dir, default_output_dir]:
-        if not os.path.exists(d):
-            os.makedirs(d)
+    # Create directories "/tmp/data" and "/tmp/output" if they don't exist
+    with FileLock(hvd_lock_file):
+        for d in [default_data_dir, default_output_dir]:
+            if not os.path.exists(d):
+                os.makedirs(d)
 
     def directory_path(path):
         if os.path.isdir(path):
@@ -88,10 +95,11 @@ if __name__ == '__main__':
                         help="Input image size to the given model, for which input shape is determined as "
                         "(image_size, image_size, 3). This arg is helpful if you "
                         "plan to use this as a stand-alone script.")
+    parser.add_argument('--k8', action='store_true', required=False,
+                        help="Use this flag when running on a Kubernetes cluster to differentiate with the "
+                        "dataset download logic on bare metal.")
 
     args = parser.parse_args()
-
-    dtf = DistributedTF()
 
     model = None
     optimizer, loss = None, None
@@ -99,7 +107,7 @@ if __name__ == '__main__':
     val_data, val_labels = None, None
 
     if args.tlt_saved_objects_dir is not None:
-        model, optimizer, loss, train_data, val_data = dtf.load_saved_objects(args.tlt_saved_objects_dir)
+        model, optimizer, loss, train_data, val_data = dist_tf.load_saved_objects(args.tlt_saved_objects_dir)
     else:
         if args.dataset_name is None:
             raise argparse.ArgumentError(args.dataset_name, "Please provide a dataset name to load from tfds "
@@ -108,9 +116,15 @@ if __name__ == '__main__':
             raise argparse.ArgumentError(args.model_name, "Please provide TensorFlow Hub's model url/feature "
                                          "vector url (or) Huggingface hub name using --model-name")
 
-        train_data, data_info = tfds.load(args.dataset_name, data_dir=args.dataset_dir, split='train',
-                                          as_supervised=True, with_info=True)
-        val_data = tfds.load(args.dataset_name, data_dir=args.dataset_dir, split='test', as_supervised=True)
+        if args.k8:
+            # Change the lock file to a location shared by PVC and visible to all k8 workers.
+            hvd_lock_file = os.path.join(args.dataset_dir, '.horovod_lock')
+
+        with FileLock(hvd_lock_file):
+            train_data, data_info = tfds.load(args.dataset_name, data_dir=args.dataset_dir, split='train',
+                                              as_supervised=True, with_info=True)
+            val_data = tfds.load(args.dataset_name, data_dir=args.dataset_dir, split='test', as_supervised=True)
+        os.remove(hvd_lock_file)
         num_classes = data_info.features['label'].num_classes
 
         if args.use_case == 'image_classification':
@@ -123,21 +137,23 @@ if __name__ == '__main__':
                     raise argparse.ArgumentError(args.image_size, "Unable to determine input_shape, please "
                                                  "provide --image-size/--image_size")
 
-            train_data = dtf.prepare_dataset(train_data, args.use_case, args.batch_size, args.scaling)
-            val_data = dtf.prepare_dataset(val_data, args.use_case, args.batch_size, args.scaling)
+            train_data = dist_tf.prepare_dataset(train_data, args.use_case, args.batch_size, args.scaling)
+            val_data = dist_tf.prepare_dataset(val_data, args.use_case, args.batch_size, args.scaling)
 
-            model = dtf.prepare_model(args.model_name, args.use_case, input_shape, num_classes)
+            model = dist_tf.prepare_model(args.model_name, args.use_case, input_shape, num_classes)
 
         elif args.use_case == 'text_classification':
             input_shape = (args.max_seq_length,)
             from transformers import BertTokenizer
             hf_bert_tokenizer = BertTokenizer.from_pretrained(args.model_name)
 
-            train_data = dtf.prepare_dataset(train_data, args.use_case, args.batch_size, args.scaling,
-                                             max_seq_length=args.max_seq_length, hf_bert_tokenizer=hf_bert_tokenizer)
-            val_data = dtf.prepare_dataset(val_data, args.use_case, args.batch_size, args.scaling,
-                                           max_seq_length=args.max_seq_length, hf_bert_tokenizer=hf_bert_tokenizer)
-            model = dtf.prepare_model(args.model_name, args.use_case, input_shape, num_classes)
+            train_data = dist_tf.prepare_dataset(
+                train_data, args.use_case, args.batch_size, args.scaling,
+                max_seq_length=args.max_seq_length, hf_bert_tokenizer=hf_bert_tokenizer
+            )
+            val_data = dist_tf.prepare_dataset(val_data, args.use_case, args.batch_size, args.scaling,
+                                               max_seq_length=args.max_seq_length, hf_bert_tokenizer=hf_bert_tokenizer)
+            model = dist_tf.prepare_model(args.model_name, args.use_case, input_shape, num_classes)
 
         optimizer = tf.keras.optimizers.Adam()
         loss = tf.keras.losses.BinaryCrossentropy(from_logits=True) if num_classes == 2 else \
@@ -160,4 +176,4 @@ if __name__ == '__main__':
         args.use_case == 'text_classification' else None
     )
 
-    dtf.launch_distributed_job(training_args)
+    dist_tf.launch_distributed_job(training_args)
