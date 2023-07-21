@@ -506,7 +506,7 @@ def test_pytorch_tf_text_classification_torch_mixed_precision(
 
     # Reset the autocast mock and verify that it gets called properly during evaluate()
     mock_autocast.reset_mock()
-    model.evaluate(mock_dataset)
+    model.evaluate(mock_dataset, enable_auto_mixed_precision=enable_auto_mixed_precision)
     if expected_bf16:
         mock_autocast.assert_called_with(dtype=torch.bfloat16)
     else:
@@ -514,7 +514,7 @@ def test_pytorch_tf_text_classification_torch_mixed_precision(
 
     # Reset the autocast mock and verify that it gets called properly during predict()
     mock_autocast.reset_mock()
-    model.predict(mock_dataset.validation_loader)
+    model.predict(mock_dataset.validation_loader, enable_auto_mixed_precision=enable_auto_mixed_precision)
     if expected_bf16:
         mock_autocast.assert_called_with(dtype=torch.bfloat16)
     else:

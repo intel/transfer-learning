@@ -591,7 +591,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorch
 
         return self._history
 
-    def evaluate(self, dataset_or_dataloader=None):
+    def evaluate(self, dataset_or_dataloader=None, enable_auto_mixed_precision=None):
         """
            Evaulates the model on the given dataset (or) dataloader. If Hugging Face Trainer object was used to
            train the model, it evaluates on the 'eval_dataset' given in the Trainer arguments
@@ -599,6 +599,14 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorch
            Args:
                dataset_or_dataloader (datasets.arrow_dataset.Dataset/DataLoader/TextClassificationDataset): The
                     dataset/dataloader to use for evaluation.
+               enable_auto_mixed_precision (bool or None): Enable auto mixed precision for evaluation. Mixed precision
+                    uses both 16-bit and 32-bit floating point types to make evaluation run faster and use less memory.
+                    It is recommended to enable auto mixed precision when running on platforms that support
+                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                    does not support bfloat16, it can be detrimental to the evaluation performance. If
+                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to
+                    None.
 
            Returns:
                Dictionary with loss, accuracy, runtime, and samples per second metrics
@@ -607,6 +615,16 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorch
                TypeError: if the dataset specified is not a datasets.arrow_dataset.Dataset (or) a
                     TextClassificationDataset (or) a DataLoader
         """
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision will be disabled for evaluation.".format(str(e)))
+
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
+
         if self._trainer:
             results = self._trainer.evaluate()
             print("Val Acc: {:.5f}".format(results.get("eval_accuracy")))
@@ -675,13 +693,21 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorch
 
         return results
 
-    def predict(self, input_samples, return_raw=False):
+    def predict(self, input_samples, return_raw=False, enable_auto_mixed_precision=None):
         """
            Generates predictions for the specified input samples.
 
            Args:
                input_samples (str, list, encoded dict, TextClassificationDataset):
                     Input samples to use to predict.
+               enable_auto_mixed_precision (bool or None): Enable auto mixed precision for prediction. Mixed precision
+                    uses both 16-bit and 32-bit floating point types to make prediction run faster and use less memory.
+                    It is recommended to enable auto mixed precision when running on platforms that support
+                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                    does not support bfloat16, it can be detrimental to the prediction performance. If
+                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to
+                    None.
                return_raw (Bool):
                     Option to return the HF SequenceClassifierOutput object containing the
                     logits Torch Tensor, if set to True.
@@ -692,6 +718,16 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorch
            Raises:
                NotImplementedError: if the given input_samples is of type DataLoader
         """
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision will be disabled for prediction.".format(str(e)))
+
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
+
         encoded_input = None
 
         # If 'input_samples' is a single text string or a list of text strings
