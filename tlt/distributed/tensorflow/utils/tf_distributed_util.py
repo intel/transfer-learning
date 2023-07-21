@@ -185,10 +185,8 @@ class DistributedTF:
         if training_args.scaling.lower() == 'weak':
             multiplier = np.sqrt(training_args.global_batch_size // training_args.batch_denom)
             optimizer.lr = optimizer.lr * multiplier
-            batch_size = training_args.global_batch_size
         elif training_args.scaling.lower() == 'strong':
             optimizer.lr = optimizer.lr * hvd.size()
-            batch_size = training_args.global_batch_size // hvd.size()
 
         if training_args.use_case == 'image_classification':
             hvd_optimizer = hvd.DistributedOptimizer(
@@ -246,7 +244,7 @@ class DistributedTF:
                             tf.convert_to_tensor(val_labels))
 
         start = time.time()
-        steps_per_epoch_per_worker = len(training_args.train_data) // batch_size
+        steps_per_epoch_per_worker = len(training_args.train_data)
         steps_per_epoch_per_worker = steps_per_epoch_per_worker // hvd.size()
         if hvd.size() > 2:
             steps_per_epoch_per_worker += 1
