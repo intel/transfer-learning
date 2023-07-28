@@ -19,6 +19,8 @@ ARG IMAGE_NAME=ubuntu
 ARG IMAGE_TAG=22.04
 FROM ${IMAGE_NAME}:${IMAGE_TAG} as base
 
+ENV LANG C.UTF-8
+
 # TLT base target
 FROM base as tlt-base
 
@@ -40,9 +42,6 @@ RUN ln -sf "$(which ${PYTHON})" /usr/bin/python
 # TLT target for GitHub actions
 FROM tlt-base as tlt-ci
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-ENV LANG C.UTF-8
 ARG PYTHON=python3
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
@@ -60,6 +59,8 @@ RUN ${PYTHON} -m pip install virtualenv
 
 # TLT target for development
 FROM tlt-ci as tlt-devel
+
+ARG PYTHON=python3
 
 COPY . /tmp/intel-transfer-learning
 
@@ -109,12 +110,11 @@ RUN mkdir -p /var/run/sshd && \
 # TLT target for with MPI, Horovod and all development tools
 FROM tlt-mpi as tlt-dist-devel
 
+ARG PYTHON=python3
 ARG HOROVOD_WITH_PYTORCH=1
 ARG HOROVOD_WITHOUT_MXNET=1
 ARG HOROVOD_WITH_TENSORFLOW=1
-ARG HOROVOD_VERSION
-
-ARG PYTHON=python3
+ARG HOROVOD_VERSION=0.28.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
@@ -128,7 +128,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 RUN python -m pip install --no-cache-dir horovod==${HOROVOD_VERSION}
 
-ARG ONECCL_VERSION
+ARG ONECCL_VERSION=1.13.0
 ARG ONECCL_URL=https://developer.intel.com/ipex-whl-stable-cpu
 
 RUN python -m pip install --no-cache-dir oneccl_bind_pt==${ONECCL_VERSION} -f ${ONECCL_URL}
