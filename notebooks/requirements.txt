@@ -28,3 +28,4 @@ torch==1.13.1
 torchvision==0.14.1
 transformers~=4.30.0
 urllib3~=2.0.2
+evaluate==0.4.0
