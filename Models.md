@@ -173,3 +173,12 @@
 | resnet18 | PyTorch | Torchvision |
 | resnet50 | PyTorch | Torchvision |
 
+## Text Generation (API only)
+
+| Model name | Framework | Model Hub |
+|------------|-----------|-----------|
+| bloom-560m | PyTorch | Hugging Face |
+| bloomz-3b | PyTorch | Hugging Face |
+| bloomz-560m | PyTorch | Hugging Face |
+| distilgpt2 | PyTorch | Hugging Face |
+| gpt-j-6b | PyTorch | Hugging Face |

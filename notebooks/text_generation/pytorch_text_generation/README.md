@@ -3,7 +3,7 @@
 This notebook demonstrates instruction tuning [pretrained causal language models from Hugging Face](https://huggingface.co/models)
 using text generation datasets from the [Hugging Face Datasets catalog](https://huggingface.co/datasets) or
 a custom dataset. The [databricks-dolly-15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k) dataset is used
-from the Hugging Face Datasets catalog, and an [Intel domain dataset](https://raw.githubusercontent.com/intel/intel-extension-for-transformers/main/workflows/chatbot/fine_tuning/instruction_tuning_pipeline/data/intel_domain.json)
+from the Hugging Face Datasets catalog, and an [Intel domain dataset](https://raw.githubusercontent.com/intel/intel-extension-for-transformers/1.0.1/examples/optimization/pytorch/huggingface/language-modeling/chatbot/intel_domain.json)
 is used as an example of a custom dataset being loaded from a json file.
 
 The notebook includes options for bfloat16 precision training,

@@ -39,6 +39,22 @@ Image Classification Methods
    image_classification_model.ImageClassificationModel.quantize
    image_classification_model.ImageClassificationModel.benchmark
 
+Image Anomaly Detection Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. currentmodule:: tlt.models.image_anomaly_detection
+
+.. autosummary::
+  :toctree: _autosummary
+  :nosignatures:
+
+   torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.train
+   torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.quantize
+   torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.benchmark
+
+   pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train
+   pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.quantize
+   pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.benchmark
+
 Text Classification Methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -66,3 +82,17 @@ Text Classification Methods
    text_classification_model.TextClassificationModel.train
    text_classification_model.TextClassificationModel.quantize
    text_classification_model.TextClassificationModel.benchmark
+
+Text Generation Methods
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: tlt.models.text_generation
+
+.. autosummary::
+  :toctree: _autosummary
+  :nosignatures:
+  :recursive:
+
+   pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.train
+
+   text_generation_model.TextGenerationModel.train

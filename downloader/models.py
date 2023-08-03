@@ -30,7 +30,7 @@ class ModelDownloader():
 
     Can download models from TF Hub, Torchvision, and Hugging Face.
     """
-    def __init__(self, model_name, hub, model_dir=None, **kwargs):
+    def __init__(self, model_name, hub, model_dir=None, hf_model_class=None, **kwargs):
         """
         Class constructor for a ModelDownloader.
 
@@ -40,14 +40,22 @@ class ModelDownloader():
                     'torchvision', 'pytorch_hub', 'hugging_face', and 'keras'
                 model_dir (str): Local destination directory of the model, if None the model hub's default cache
                     directory will be used
+                hf_model_class (str or None): Optional argument for specifying the Hugging Face model type; if None,
+                                              the AutoModelForSequenceClassification class will be used
                 kwargs (optional): Some model hubs accept additional keyword arguments when downloading
 
         """
         if model_dir is not None and not os.path.isdir(model_dir):
             os.makedirs(model_dir)
 
+        if hf_model_class is not None:
+            hf_model_class = locate('transformers.{}'.format(hf_model_class))
+            if hf_model_class is None:
+                raise ValueError('The class name {} is not a valid transformers model type'.format(hf_model_class))
+
         self._model_name = model_name
         self._model_dir = model_dir
+        self._hf_model_class = hf_model_class
         self._type = ModelType.from_str(hub)
         self._args = kwargs
 
@@ -94,10 +102,13 @@ class ModelDownloader():
         elif self._type == ModelType.HUGGING_FACE:
             if self._model_dir is not None:
                 os.environ['TRANSFORMERS_CACHE'] = self._model_dir
-            # AutoModelForSequenceClassification is currently the only supported model type
-            from transformers import AutoModelForSequenceClassification
 
-            return AutoModelForSequenceClassification.from_pretrained(self._model_name, **self._args)
+            if self._hf_model_class is not None:
+                hf_model_class = self._hf_model_class
+            else:
+                from transformers import AutoModelForSequenceClassification as hf_model_class
+
+            return hf_model_class.from_pretrained(self._model_name, **self._args)
 
         elif self._type == ModelType.KERAS_APPLICATIONS:
             if self._model_dir is not None:

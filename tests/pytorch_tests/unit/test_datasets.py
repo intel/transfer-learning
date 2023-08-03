@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import json
 import os
 import math
 import pytest
@@ -28,6 +29,8 @@ from numpy.testing import assert_array_equal
 from PIL import Image
 import random
 import string
+
+from datasets.arrow_dataset import Dataset as Arrow_Dataset
 
 from tlt.datasets.dataset_factory import get_dataset, load_dataset
 
@@ -58,6 +61,18 @@ try:
     from tlt.datasets.text_classification.hf_custom_text_classification_dataset import HFCustomTextClassificationDataset
 except ModuleNotFoundError:
     print("Unable to import HFCustomTextClassificationDataset. Hugging Face's 'tranformers' API may not be \
+            installed in the current env")
+
+try:
+    from tlt.datasets.text_generation.hf_text_generation_dataset import HFTextGenerationDataset
+except ModuleNotFoundError:
+    print("Unable to import HFTextGenerationDataset. Hugging Face's 'tranformers' API may not be installed \
+            in the current env")
+
+try:
+    from tlt.datasets.text_generation.hf_custom_text_generation_dataset import HFCustomTextGenerationDataset
+except ModuleNotFoundError:
+    print("Unable to import HFCustomTextGenerationDataset. Hugging Face's 'tranformers' API may not be \
             installed in the current env")
 
 
@@ -531,11 +546,7 @@ class TestImageAnomalyDetectionDataset:
         assert tlt_dataset._validation_type == 'shuffle_split'
 
 
-# =======================================================================================
-
-# Testing for Text classification use case
-
-
+# Tests for Text Classification use case
 hf_metadata = {
     'imdb': {
         'class_names': ['neg', 'pos'],
@@ -647,6 +658,8 @@ class TestTextClassificationDataset:
         else:
             assert type(tlt_dataset) == HFTextClassificationDataset
 
+        assert isinstance(tlt_dataset.dataset, Arrow_Dataset)
+
     def test_class_names_and_size(self, text_classification_data):
         """
         Verify the class type, dataset class names, and dataset length after initializaion
@@ -685,3 +698,151 @@ class TestTextClassificationDataset:
 
         assert 'Sum of percentage arguments must be less than or equal to 1.' == str(sum_err_message.value)
         assert 'Percentage arguments must be floats.' == str(float_err_message.value)
+
+
+# Tests for Text Generation use case
+
+class TextGenerationDatasetForTest:
+    def __init__(self, dataset_dir, dataset_name=None, dataset_catalog=None):
+        """
+        This class wraps initialization for text generation datasets.
+
+        For a text generation dataset from Hugging Face catalog, provide the dataset_dir, dataset_name, and \
+        dataset_catalog. The dataset factory will be used to load the specified dataset.
+        """
+        use_case = 'text_generation'
+        framework = 'pytorch'
+        dataset_dir = tempfile.mkdtemp(dir=dataset_dir)
+
+        if dataset_name and dataset_catalog:
+            # Text Generation HF datasets are not implemented yet; this is copied here to make it easier in future
+            self._dataset_catalog = dataset_catalog
+            self._tlt_dataset = get_dataset(dataset_dir, use_case, framework, dataset_name, dataset_catalog)
+        else:
+            self._dataset_catalog = None
+            dataset_schema = {
+                "instruction_key": "instruction",
+                "context_key": "context",
+                "response_key": "response"
+            }
+            dataset = self._create_dataset(n_records=50, dataset_schema=dataset_schema)
+
+            with open(os.path.join(dataset_dir, 'text_gen_dataset.json'), 'w') as f:
+                json.dump(dataset, f)
+
+            self._tlt_dataset = load_dataset(dataset_dir, use_case, framework, train_file_name='text_gen_dataset.json')
+
+        self._dataset_dir = dataset_dir
+
+    @property
+    def tlt_dataset(self):
+        """
+        Returns the tlt dataset object
+        """
+        return self._tlt_dataset
+
+    def _create_dataset(self, n_records, dataset_schema):
+        n_sentences = list(range(3, 10))
+
+        def get_random_word(n_chars):
+            return ''.join(random.choices(string.ascii_letters, k=n_chars))
+
+        def get_random_sentence(n_words):
+            sentence = ''
+            for _ in range(n_words):
+                sentence += '{} '.format(get_random_word(random.choice(list(range(2, 10)))))
+            return sentence.rstrip()
+
+        dataset = []
+        for row in range(n_records):
+            dataset.append({
+                dataset_schema["instruction_key"]: get_random_sentence(random.choice(n_sentences)),
+                dataset_schema["context_key"]: get_random_sentence(random.choice(n_sentences)),
+                dataset_schema["response_key"]: get_random_sentence(random.choice(n_sentences))
+            })
+
+        return dataset
+
+    def cleanup(self):
+        """
+        Clean up - remove temp files that were created
+        """
+        print("Deleting temp directory:", self._dataset_dir)
+        shutil.rmtree(self._dataset_dir)
+
+
+# Dataset parameters used to define datasets that will be initialized and tested using TestTextGenerationDataset
+# The parameters are: dataset_dir, dataset_name, dataset_catalog which map to the constructor parameters for
+# TextGenerationDatasetForTest, which initializes the dataset using the dataset factory.
+dataset_params = [("/tmp/data", None, None)]
+
+
+@pytest.fixture(scope="class", params=dataset_params)
+def text_generation_data(request):
+    params = request.param
+
+    tg_dataset = TextGenerationDatasetForTest(*params)
+
+    dataset_dir, dataset_name, dataset_catalog = params
+
+    def cleanup():
+        tg_dataset.cleanup()
+
+    request.addfinalizer(cleanup)
+
+    # Return the tlt dataset along with metadata that tests might need
+    return (tg_dataset.tlt_dataset, dataset_dir, dataset_name, dataset_catalog)
+
+
+@pytest.mark.integration
+@pytest.mark.pytorch
+class TestTextGenerationDataset:
+    """
+    This class contains text generation dataset tests that only require the dataset to be initialized once. These
+    tests will be run once for each of the datasets defined in the dataset_params list.
+    """
+
+    def test_tlt_dataset(self, text_generation_data):
+        """
+        Tests whether a matching Intel Transfer Learning Tool dataset object is returned
+        """
+        tlt_dataset, dataset_dir, dataset_name, dataset_catalog = text_generation_data
+        if dataset_catalog is None:
+            assert type(tlt_dataset) == HFCustomTextGenerationDataset
+            assert isinstance(tlt_dataset.dataset, Arrow_Dataset)
+            assert len(tlt_dataset.dataset) == 50
+        else:
+            assert type(tlt_dataset) == HFTextGenerationDataset
+
+    def test_shuffle_split_errors(self, text_generation_data):
+        """
+        Checks that splitting into train, validation, and test subsets will error if inputs are wrong
+        """
+        tlt_dataset, _, _, _ = text_generation_data
+        with pytest.raises(ValueError) as sum_err_message:
+            tlt_dataset.shuffle_split(train_pct=.5, val_pct=.5, test_pct=.2)
+
+        with pytest.raises(ValueError) as float_err_message:
+            tlt_dataset.shuffle_split(train_pct=1, val_pct=0)
+
+        assert 'Sum of percentage arguments must be less than or equal to 1.' == str(sum_err_message.value)
+        assert 'Percentage arguments must be floats.' == str(float_err_message.value)
+
+    def test_shuffle_split(self, text_generation_data):
+        """
+        Checks validity of splitting into train, validation, and test subsets
+        """
+        tlt_dataset, _, _, _ = text_generation_data
+
+        # Without test_pct
+        tlt_dataset.shuffle_split(train_pct=.5, val_pct=.5)
+        assert len(tlt_dataset.dataset) == 50
+        assert len(tlt_dataset.train_subset) == 25
+        assert len(tlt_dataset.validation_subset) == 25
+
+        # With test_pct
+        tlt_dataset.shuffle_split(train_pct=.50, val_pct=.20, test_pct=.10)
+        assert len(tlt_dataset.dataset) == 50
+        assert len(tlt_dataset.train_subset) == 25
+        assert len(tlt_dataset.validation_subset) == 10
+        assert len(tlt_dataset.test_subset) == 5

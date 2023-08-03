@@ -69,6 +69,13 @@ except ModuleNotFoundError:
     print("WARNING: Unable to import HFTextClassificationDataset. Hugging Face's `transformers` API may not \
            be installed in the current env")
 
+try:
+    from tlt.models.text_generation.pytorch_hf_text_generation_model import PyTorchHFTextGenerationModel  # noqa: E501
+    from tlt.datasets.text_generation.hf_custom_text_generation_dataset import HFCustomTextGenerationDataset  # noqa: E501
+except ModuleNotFoundError:
+    print("WARNING: Unable to import HFTextGeneration classes. Hugging Face's `transformers` API may not \
+           be installed in the current env")
+
 
 @pytest.mark.pytorch
 def test_torchvision_efficientnet_b0():
@@ -107,7 +114,8 @@ def test_get_supported_models():
                           [None, 'image_classification'],
                           ['tensorflow', 'image_classification'],
                           ['pytorch', 'text_classification'],
-                          ['pytorch', 'image_anomaly_detection']])
+                          ['pytorch', 'image_anomaly_detection'],
+                          ['pytorch', 'text_generation']])
 def test_get_supported_models_with_filter(framework, use_case):
     """
     Tests getting the dictionary of supported models while filtering by framework and/or use case.
@@ -265,6 +273,25 @@ def test_resnet50_anomaly_extract_pca():
             components = pca(data_mats_orig, 0.97)
         assert type(components) == decomposition._pca.PCA
         assert components.n_components == 0.97
+
+
+@patch('tlt.models.text_generation.pytorch_hf_text_generation_model.Trainer')
+@pytest.mark.pytorch
+def test_distilgpt2_text_generation_train(mock_trainer):
+    model = model_factory.get_model('distilgpt2', 'pytorch')
+    assert type(model) == PyTorchHFTextGenerationModel
+    with patch('tlt.datasets.text_generation.hf_custom_text_generation_dataset.HFCustomTextGenerationDataset') as mock_dataset:  # noqa: E501
+        mock_dataset.__class__ = HFCustomTextGenerationDataset
+        mock_dataset.train_subset = ['a', 'b', 'c', 'd']
+        mock_dataset.validation_subset = ['e', 'f']
+
+        expected_value = "a"
+        mock_trainer().train.return_value = expected_value
+
+        return_val = model.train(mock_dataset, output_dir="/tmp/output/pytorch")
+
+        assert mock_trainer().train.call_count == 1
+        assert return_val == expected_value
 
 
 # This is necessary to protect from import errors when testing in a pytorch only environment

@@ -30,8 +30,13 @@ demonstrate its usage.
 
 **Features:**
 * Supports PyTorch\* and TensorFlow\*
-* Select from over [100 image classification and text classification models](Models.md) from
+* Select from over [100 computer vision and natural language processing models](Models.md) from
   Torchvision, PyTorch Hub, TensorFlow Hub, Keras, and Hugging Face
+* Use cases include:
+  * Image Classification
+  * Text Classification
+  * Text Generation
+  * Vision Anomaly Detection
 * Use your own custom dataset or get started quickly with built-in datasets
 * Automatically create a trainable classification layer customized for your dataset
 * Pre-process your dataset using scaling, cropping, batching, and splitting
@@ -43,7 +48,7 @@ demonstrate its usage.
 * Quantize to INT8 to reduce model size and speed up inference using Intel® Neural Compressor
 * Optimize model for FP32 inference using Intel Neural Compressor
 * Reduce training time with auto-mixed precision for select hardware platforms
-* Further reduce training time with multinode training for PyTorch
+* Further reduce training time with multinode training
 
 ## How the Intel Transfer Learning Tool Works
 
@@ -52,7 +57,7 @@ PyTorch using either no-code command line interface (CLI) commands at a bash
 prompt, or low-code application programming interface (API) calls from a Python
 script.
 
-Use your own dataset or select an existing image or text classification dataset listed in the
+Use your own dataset or select an existing image or text dataset listed in the
 [public datasets](DATASETS.md) documentation. Construct your own CLI or API commands for training, evaluation,
 and optimization using the TensorFlow or PyTorch framework, and finally export
 your saved model optimized for inference on Intel CPUs.

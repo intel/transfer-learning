@@ -1,0 +1,27 @@
+{
+    "distilgpt2": {
+        "model_hub": "huggingface",
+        "hub_name": "distilgpt2",
+        "lora_target_modules": []
+    },
+    "gpt-j-6b": {
+        "model_hub": "huggingface",
+        "hub_name": "EleutherAI/gpt-j-6b",
+        "lora_target_modules": ["q_proj", "v_proj"]
+    },
+    "bloom-560m": {
+        "model_hub": "huggingface",
+        "hub_name": "bigscience/bloom-560m",
+        "lora_target_modules": ["query_key_value"]
+    },
+    "bloomz-3b": {
+	      "model_hub": "huggingface",
+	      "hub_name": "bigscience/bloomz-3b",
+	      "lora_target_modules": ["query_key_value"]
+    },
+    "bloomz-560m": {
+	      "model_hub": "huggingface",
+	      "hub_name": "bigscience/bloomz-560m",
+	      "lora_target_modules": ["query_key_value"]
+    }
+}
