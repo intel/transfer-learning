@@ -108,6 +108,13 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
                 self.batch_losses = []
                 self.batch_acc = []
 
+            def on_epoch_begin(self, epoch, logs=None):
+                self.batch_losses = []
+                self.batch_acc = []
+
+            def on_train_batch_begin(self, batch, logs=None):
+                self.model.reset_metrics()
+
             def on_train_batch_end(self, batch, logs=None):
                 if logs and isinstance(logs, dict):
 
@@ -122,7 +129,11 @@ class TFTextClassificationModel(TextClassificationModel, TFModel):
 
                     if accuracy_key:
                         self.batch_acc.append(logs[accuracy_key])
-                self.model.reset_metrics()
+
+            def on_epoch_end(self, epoch, logs=None):
+                # Using the average over all batches is also common instead of just the last batch
+                logs['loss'] = self.batch_losses[-1]  # np.mean(self.batch_losses)
+                logs['acc'] = self.batch_acc[-1]  # np.mean(self.batch_acc)
 
         batch_stats_callback = CollectBatchStats()
 
