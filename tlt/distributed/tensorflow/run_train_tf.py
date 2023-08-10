@@ -31,6 +31,7 @@ from tlt.distributed.tensorflow.utils.tf_distributed_util import (
     DistributedTF,
     DistributedTrainingArguments
 )
+from tlt.models.model_factory import get_supported_models
 
 
 if __name__ == '__main__':
@@ -88,13 +89,8 @@ if __name__ == '__main__':
                         help="Dataset name to load from tfds. This arg is helpful if you "
                         "plan to use this as a stand-alone script. Custom dataset is not supported yet!")
     parser.add_argument('--model-name', '--model_name', type=str, default=None,
-                        help="TensorFlow image classification model url/ feature vector url from TensorFlow Hub "
-                        "(or) Huggingface hub name for text classification models. This arg is helpful if you "
-                        "plan to use this as a stand-alone script.")
-    parser.add_argument('--image-size', '--image_size', type=int, default=None,
-                        help="Input image size to the given model, for which input shape is determined as "
-                        "(image_size, image_size, 3). This arg is helpful if you "
-                        "plan to use this as a stand-alone script.")
+                        help="TensorFlow image classification model name (or) Huggingface hub model name for text "
+                        "classification. This arg is helpful if you plan to use this as a stand-alone script.")
     parser.add_argument('--k8', action='store_true', required=False,
                         help="Use this flag when running on a Kubernetes cluster to differentiate with the "
                         "dataset download logic on bare metal.")
@@ -109,12 +105,14 @@ if __name__ == '__main__':
     if args.tlt_saved_objects_dir is not None:
         model, optimizer, loss, train_data, val_data = dist_tf.load_saved_objects(args.tlt_saved_objects_dir)
     else:
+        supported_models = get_supported_models('tensorflow', args.use_case)
         if args.dataset_name is None:
-            raise argparse.ArgumentError(args.dataset_name, "Please provide a dataset name to load from tfds "
-                                         "using --dataset-name")
-        if args.model_name is None:
-            raise argparse.ArgumentError(args.model_name, "Please provide TensorFlow Hub's model url/feature "
-                                         "vector url (or) Huggingface hub name using --model-name")
+            raise ValueError("Please provide a dataset name to load from tfds "
+                             "using --dataset-name")
+        if args.model_name is None or args.model_name not in supported_models[args.use_case].keys():
+            raise ValueError("Please provide/modify TensorFlow Hub's model name (or) "
+                             "Huggingface hub model name. Supported models for {} are:\n {}".format(
+                                 args.use_case, list(supported_models[args.use_case].keys())))
 
         if args.k8:
             # Change the lock file to a location shared by PVC and visible to all k8 workers.
@@ -128,19 +126,21 @@ if __name__ == '__main__':
         num_classes = data_info.features['label'].num_classes
 
         if args.use_case == 'image_classification':
-            if args.image_size is not None:
-                input_shape = (args.image_size, args.image_size, 3)
-            else:
-                try:
-                    input_shape = data_info.features['image'].shape
-                except (KeyError, AttributeError):
-                    raise argparse.ArgumentError(args.image_size, "Unable to determine input_shape, please "
-                                                 "provide --image-size/--image_size")
+            model_url = supported_models['image_classification'][args.model_name]['tensorflow']['feature_vector']
+            image_size = supported_models['image_classification'][args.model_name]['tensorflow']['image_size']
+            input_shape = (image_size, image_size, 3)
 
-            train_data = dist_tf.prepare_dataset(train_data, args.use_case, args.batch_size, args.scaling)
-            val_data = dist_tf.prepare_dataset(val_data, args.use_case, args.batch_size, args.scaling)
+            def preprocess_image(image, label):
+                image = tf.image.convert_image_dtype(image, tf.float32)
+                image = tf.image.resize_with_pad(image, image_size, image_size)
+                return (image, label)
 
-            model = dist_tf.prepare_model(args.model_name, args.use_case, input_shape, num_classes)
+            train_data = dist_tf.prepare_dataset(train_data, args.use_case, args.batch_size, args.scaling,
+                                                 map_func=preprocess_image)
+            val_data = dist_tf.prepare_dataset(val_data, args.use_case, args.batch_size, args.scaling,
+                                               map_func=preprocess_image)
+
+            model = dist_tf.prepare_model(model_url, args.use_case, input_shape, num_classes)
 
         elif args.use_case == 'text_classification':
             input_shape = (args.max_seq_length,)
