@@ -67,7 +67,7 @@ class TestTextGenerationCustomDataset:
 
         # Get the dataset
         dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework,
-                                               train_file_name='code_alpaca_20k.json', shuffle_files=False)
+                                               dataset_file='code_alpaca_20k.json', shuffle_files=False)
 
         # Get the model
         model = model_factory.get_model(model_name, framework)

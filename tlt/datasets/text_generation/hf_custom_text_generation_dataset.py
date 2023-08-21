@@ -36,8 +36,8 @@ class HFCustomTextGenerationDataset(TextGenerationDataset, HFDataset):
         self,
         dataset_dir,
         dataset_name: Optional[str],
-        train_file_name: str,
-        validation_file_name: Optional[str] = None,
+        dataset_file: str,
+        validation_file: Optional[str] = None,
         num_workers: int = 0,
         shuffle_files: bool = True,
         seed: int = None,
@@ -68,9 +68,9 @@ class HFCustomTextGenerationDataset(TextGenerationDataset, HFDataset):
             dataset_dir (str): Directory containing the dataset
             dataset_name (str): Name of the dataset. If no dataset name is given, the dataset_dir folder name
                 will be used as the dataset name.
-            train_file_name (str): Name of the training file to load from the dataset directory; must be .json, .txt,
+            dataset_file (str): Name of the training file to load from the dataset directory; must be .json, .txt,
                                    or .csv
-            validation_file_name (str): Optional, name of the validation file to load from the dataset directory;
+            validation_file (str): Optional, name of the validation file to load from the dataset directory;
                                         must be .json, .txt, or .csv
             num_workers (int): Number of workers to pass into a DataLoader.
             shuffle_files (bool): optional; Whether to shuffle the data. Defaults to True.
@@ -79,8 +79,8 @@ class HFCustomTextGenerationDataset(TextGenerationDataset, HFDataset):
         Raises:
             FileNotFoundError: if the file is not found in the dataset directory
         """
-        train_file = os.path.join(dataset_dir, train_file_name)
-        validation_file = os.path.join(dataset_dir, validation_file_name) if validation_file_name else None
+        train_file = os.path.join(dataset_dir, dataset_file)
+        validation_file = os.path.join(dataset_dir, validation_file) if validation_file else None
 
         # Sanity check
         for input_file in [i for i in [train_file, validation_file] if i is not None]:
@@ -89,7 +89,7 @@ class HFCustomTextGenerationDataset(TextGenerationDataset, HFDataset):
 
         # The dataset name is only used for informational purposes. Default to use the file name without extension.
         if not dataset_name:
-            dataset_name = os.path.splitext(train_file_name)[0]
+            dataset_name = os.path.splitext(dataset_file)[0]
 
         TextGenerationDataset.__init__(self, dataset_dir, dataset_name)
 
@@ -122,8 +122,8 @@ class HFCustomTextGenerationDataset(TextGenerationDataset, HFDataset):
         self._info = {
             "name": dataset_name,
             "dataset_dir": dataset_dir,
-            "train_file_name": train_file_name,
-            "validation_file_name": validation_file_name
+            "dataset_file": dataset_file,
+            "validation_file": validation_file
         }
 
         self._shuffle = shuffle_files

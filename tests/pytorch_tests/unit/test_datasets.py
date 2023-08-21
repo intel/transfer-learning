@@ -730,7 +730,7 @@ class TextGenerationDatasetForTest:
             with open(os.path.join(dataset_dir, 'text_gen_dataset.json'), 'w') as f:
                 json.dump(dataset, f)
 
-            self._tlt_dataset = load_dataset(dataset_dir, use_case, framework, train_file_name='text_gen_dataset.json')
+            self._tlt_dataset = load_dataset(dataset_dir, use_case, framework, dataset_file='text_gen_dataset.json')
 
         self._dataset_dir = dataset_dir
 

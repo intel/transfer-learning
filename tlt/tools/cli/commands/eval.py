@@ -21,6 +21,7 @@
 import click
 import inspect
 import os
+import pandas as pd
 import sys
 
 from tlt.utils.file_utils import get_model_name_from_path
@@ -69,7 +70,21 @@ from tlt.utils.types import FrameworkType
                    "If a dataset name is provided and no dataset catalog is given, it will default to use "
                    "tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets "
                    "for HuggingFace models.")
-def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_names, dataset_name, dataset_catalog):
+@click.option("--dataset-file", "--dataset_file",
+              required=False,
+              type=str,
+              help="Name of a file in the dataset directory to load. Used for loading a .csv file for text "
+                   "classification fine tuning, or a json / txt file for text generation")
+@click.option("--prompt-with-context", "--prompt_with_context",
+              required=False,
+              type=str,
+              help="Prompt with added context used to build the prompt dictionary")
+@click.option("--prompt-without-context", "--prompt_without_context",
+              required=False,
+              type=str,
+              help="Prompt without added context used to build the prompt dictionary")
+def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_names, dataset_name, dataset_catalog,
+         prompt_with_context, prompt_without_context):
     """
     Evaluates a model that has already been trained
     """
@@ -103,8 +118,9 @@ def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_name
         framework = FrameworkType.PYTORCH
         model_path = pytorch_model_path
     else:
-        sys.exit("Evaluation is currently only implemented for TensorFlow saved models and PyTorch .pt models. No such "
-                 "files found in the model directory ({}).".format(model_dir))
+        # It uses HF Trainer
+        framework = FrameworkType.PYTORCH
+        model_path = dataset_dir
 
     if not model_name:
         model_name = get_model_name_from_path(model_dir)
@@ -138,6 +154,14 @@ def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_name
                 dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
                                                        class_names=class_names, csv_file_name=dataset_file,
                                                        delimiter=delimiter)
+            elif str(model.use_case) == 'text_generation':
+                dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework,
+                                                       dataset_file=dataset_file)
+                if os.path.exists(os.path.join(dataset_dir, "dataset_schema.json")):
+                    ds_schema = pd.read_json(os.path.join(dataset_dir, "dataset_schema.json"), orient='index')
+                else:
+                    sys.exit("Error: Dataset directory should contain a JSON file containing the dataset schema titled "
+                             "\"dataset_schema.json\".")
             else:
                 dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework)
         else:
@@ -146,6 +170,19 @@ def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_name
 
         if 'image_size' in inspect.getfullargspec(dataset.preprocess).args:
             dataset.preprocess(image_size=model.image_size, batch_size=32)
+        elif 'prompt_dict' in inspect.getfullargspec(dataset.preprocess).args:
+            dataset_schema = {"instruction_key": ds_schema.loc["instruction_key", 0],
+                              "context_key": ds_schema.loc["context_key", 0],
+                              "response_key": ds_schema.loc["response_key", 0]}
+            prompt_dict = {"prompt_with_context": (prompt_with_context + "\n\n"
+                                                   "### Instruction:\n{{{instruction_key}}}\n\n### "
+                                                   "Context:\n{{{context_key}}}\n\n### Response:\n{{{response_key}}}"
+                                                   .format(**dataset_schema)),
+                           "prompt_without_context": (prompt_without_context + "\n\n"
+                                                      "### Instruction:\n{{{instruction_key}}}\n\n### "
+                                                      "Response:\n{{{response_key}}}".format(**dataset_schema))}
+            dataset.preprocess(model.hub_name, batch_size=32, prompt_dict=prompt_dict, dataset_schema=dataset_schema,
+                               concatenate=True)
         else:
             dataset.preprocess(batch_size=32)
 
