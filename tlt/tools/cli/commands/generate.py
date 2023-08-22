@@ -95,10 +95,7 @@ def generate(model_dir, model_name, prompt, temperature, top_p, top_k, repetitio
         if os.path.exists(model_dir):
             model.load_from_directory(model_dir)
 
-    print()
-    print("Prompt:", prompt)
-    print()
-
+    prompt = prompt.replace("\\n", "\n")
     output = model.generate(prompt, temperature=temperature, repetition_penalty=repetition_penalty, top_p=top_p,
                             top_k=top_k, num_beams=num_beams, max_new_tokens=max_new_tokens)
-    print(output)
+    print(*output, sep='\n')

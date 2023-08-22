@@ -58,18 +58,31 @@ class TestTextGenerationCustomDataset:
                 print("Deleting test directory:", dir)
                 shutil.rmtree(dir)
 
+    @patch("tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.generate")
     @pytest.mark.parametrize('model_name,prompt',
                              [['distilgpt2', 'The size of an apple is'],
-                              ['distilgpt2', 'A large fruit is']])
-    def test_base_generation(self, model_name, prompt):
+                              ['distilgpt2', 'A large fruit is'],
+                              ['distilgpt2',
+                               'The input describes a task.\\n\\nInstruction:\nWrite a song.\\n\\n### Response:\n']])
+    def test_base_generation(self, mock_generate, model_name, prompt):
         """
-        Tests the full workflow for PYT text generation using a custom dataset
+        Tests the CLI generate command for PYT text generation using a HF pretrained model
         """
         runner = CliRunner()
+
+        # Define a dummy response
+        mock_generate.return_value = [prompt + ' so good.']
 
         # Generate a text completion
         result = runner.invoke(generate,
                                ["--model-name", model_name, "--prompt", prompt])
+
+        # Verify that the TLT generate method was called with a properly formatted prompt string
+        assert len(mock_generate.call_args_list) == 1
+        prompt_arg = mock_generate.call_args_list[0][0]
+        assert "\\n" not in prompt_arg
+
+        # Verify that we didn't get any errors
         assert result is not None
         assert result.exit_code == 0
 
