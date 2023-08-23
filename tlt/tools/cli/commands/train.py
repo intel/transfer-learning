@@ -276,6 +276,9 @@ def train(framework, model_name, use_case, output_dir, dataset_dir, dataset_file
                 if not class_names:
                     raise ValueError("Loading a text classification dataset requires --class-names to specify a list "
                                      "of the class labels for the dataset.")
+                elif len(class_names) == 0:
+                    raise ValueError("Loading a text classification dataset requires --class-names to specify a list "
+                                     "of the class labels of which the len > 0")
                 dataset = dataset_factory.load_dataset(dataset_dir, model.use_case, model.framework, dataset_name,
                                                        class_names=class_names, csv_file_name=dataset_file,
                                                        delimiter=delimiter)

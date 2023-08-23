@@ -409,6 +409,8 @@ class TFModel(BaseModel):
             FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file
             is not found
         """
+        os.environ["NC_ENV_CONF"] = "True"
+
         # If provided, the saved model directory should exist and contain a saved_model.pb file
         if saved_model_dir is not None:
             if not os.path.isdir(saved_model_dir):

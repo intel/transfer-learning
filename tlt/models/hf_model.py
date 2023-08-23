@@ -176,6 +176,8 @@ class HFModel(BaseModel):
             FileNotFoundError: if a model.pt is not found in the saved_model_dir or if the inc_config_path file
             is not found
         """
+        os.environ["NC_ENV_CONF"] = "True"
+
         # Verify dataset is of the right type
         if not isinstance(dataset, self._inc_compatible_dataset):
             raise NotImplementedError('Quantization has only been implemented for TLT datasets, and type '
