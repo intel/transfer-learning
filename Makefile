@@ -57,7 +57,10 @@ integration: tlt_test_venv
 
 lint: tlt_test_venv
 	@echo "Style checks..."
-	@. $(ACTIVATE_TEST_VENV) && flake8 tlt tests downloader
+	@. $(ACTIVATE_TEST_VENV) && \
+        	flake8 tlt tests downloader && \
+		flake8 notebooks && \
+		flake8 docs
 
 clean:
 	rm -rf tlt_test_venv

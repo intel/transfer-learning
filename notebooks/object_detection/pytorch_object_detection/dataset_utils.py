@@ -18,12 +18,11 @@
 
 import os
 import csv
-import glob
 import numpy as np
 import torch
 import torchvision
 from PIL import Image
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Tuple
 
 
 COCO_LABELS = [
@@ -44,6 +43,7 @@ COCO_LABELS = [
 KITTI_LABELS = [
     '__background__', 'Person', 'Vehicle'
 ]
+
 
 class PennFudanDataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms):
@@ -103,11 +103,12 @@ class PennFudanDataset(torch.utils.data.Dataset):
         if self.transforms is not None:
             img = self.transforms(img)
             # target needs augmentations
-            
+
         return img, target
 
     def __len__(self):
         return len(self.imgs)
+
 
 class Kitti(torchvision.datasets.Kitti):
     def _parse_target(self, index: int):
@@ -118,12 +119,12 @@ class Kitti(torchvision.datasets.Kitti):
             for line in content:
                 if line[0] in ['Pedestrian', 'Person_sitting', 'Cyclist']:
                     boxes.append([float(x) for x in line[4:8]])
-                    labels.append(1) # Re-label Pedestrian, Person_sitting, Cyclist to Person=1
+                    labels.append(1)  # Re-label Pedestrian, Person_sitting, Cyclist to Person=1
                 if line[0] in ['Car', 'Truck', 'Van', 'Tram']:
                     boxes.append([float(x) for x in line[4:8]])
-                    labels.append(2) # Re-label Car, Truck, Van, Tram to Vehicle=2
-        
-        boxes = torch.FloatTensor(boxes)  
+                    labels.append(2)  # Re-label Car, Truck, Van, Tram to Vehicle=2
+
+        boxes = torch.FloatTensor(boxes)
         target = {}
         target['image_id'] = torch.tensor([index])
         target['boxes'] = boxes
@@ -133,7 +134,6 @@ class Kitti(torchvision.datasets.Kitti):
 
         return target
 
-    
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """Get item at a given index.
 

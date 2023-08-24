@@ -17,7 +17,6 @@
 #
 
 import torch
-import torchvision
 from pydoc import locate
 
 # Dictionary of Torchvision video classification models
@@ -33,10 +32,11 @@ torchvision_model_map = {
     }
 }
 
+
 def get_retrainable_model(model_name, num_classes, do_fine_tuning=False):
     # Load an video classification model pretrained on Kinetic400
     pretrained_model_class = locate('torchvision.models.video.{}'.format(model_name))
-    classifier_layer = torchvision_model_map[model_name]['classifier']       
+    classifier_layer = torchvision_model_map[model_name]['classifier']
     model = pretrained_model_class(pretrained=True)
 
     if not do_fine_tuning:
@@ -51,5 +51,5 @@ def get_retrainable_model(model_name, num_classes, do_fine_tuning=False):
         classifier = getattr(model, classifier_layer)
         num_features = classifier.in_features
         setattr(model, classifier_layer, torch.nn.Linear(num_features, num_classes))
-        
+
     return model

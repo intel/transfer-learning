@@ -39,8 +39,9 @@ hf_model_map = {
     },
 }
 
+
 class INCDataloader:
-    def __init__(self, dataset, tokenizer, batch_size=1, device='cpu', 
+    def __init__(self, dataset, tokenizer, batch_size=1, device='cpu',
                  max_seq_length=512, for_calib=False):
         self.dataset = dataset
         self.tokenizer = tokenizer
@@ -98,4 +99,3 @@ class INCDataloader:
 
     def __len__(self):
         return self.length
-
