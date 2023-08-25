@@ -60,15 +60,15 @@ figure:
 
 ## Get Started
 
-The [Get Started](GetStarted.md) guide walks you through the steps to check
-system requirements, install, and then run the tool with a couple of examples
-showing no-code CLI and low-code API approaches. After that, you can check out
+Check out the [Get Started Guide](GetStarted.md) which will walk you through the
+steps to check system requirements, install, and then run the tool with a couple of
+examples showing no-code CLI and low-code API approaches. After that, you can check out
 these additional CLI and API [Examples](examples/README.md).
 
 <!-- ExpandGetStarted-Start -->
-As described in the [Get Started](GetStarted.md) guide, once you have a Python
-3.9 environment set up, you do a basic install of the Intel Transfer Learning
-Tool using:
+As described in the [Get Started Guide](GetStarted.md), once you have a Python 
+environment set up, you do a basic install of the Intel Transfer Learning
+Tool. Here are some examples of commands you will find in the [Get Started Guide](GetStarted.md):
 
 ```
 pip install intel-transfer-learning-tool
