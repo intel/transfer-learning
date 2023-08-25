@@ -22,7 +22,7 @@ import os
 import torch
 from torchvision import datasets
 
-from tlt.datasets.pytorch_dataset import PyTorchDataset
+from tlt.datasets.pytorch_dataset import PyTorchDataset, TransformedSubset
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 
 
@@ -95,6 +95,7 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
         self._train_indices = None
         self._validation_indices = None
         self._test_indices = None
+        self._transform = None
 
         self._train_pct = 1.0
         self._val_pct = 0
@@ -132,6 +133,7 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
             self._validation_type = None
             self._dataset = datasets.ImageFolder(self._dataset_dir)
             self._class_names = self._dataset.classes
+            self._dataset = torch.utils.data.ConcatDataset([self._dataset])
 
     @property
     def class_names(self):
@@ -150,6 +152,8 @@ class PyTorchCustomImageClassificationDataset(ImageClassificationDataset, PyTorc
     @property
     def dataset(self):
         """
-        Returns the framework dataset object (torch.utils.data.Dataset)
+        Returns the framework dataset object
         """
+        if self._transform is not None:
+            return TransformedSubset(self._dataset, range(len(self._dataset)), transform=self._transform)
         return self._dataset
