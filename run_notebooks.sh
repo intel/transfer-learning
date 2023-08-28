@@ -36,6 +36,13 @@ fi
 
 CURDIR=$PWD
 INPUT=$1
+SUCCESS=0
+
+# Set to an error exit code, if any notebook fails
+exit_code_summary=${SUCCESS}
+
+# Array tracking the notebooks with errors
+failed_notebooks=()
 
 if [[ $INPUT == "tensorflow" ]] ; then
     notebooks=${tf_notebooks[*]}
@@ -71,6 +78,26 @@ for notebook in ${notebooks[*]}; do
 
     pushd ${DIR}
     PYTHONPATH=${CURDIR} ipython notebook_test.py
+    script_exit_code=$?
+
+    if [ ${script_exit_code} != ${SUCCESS} ]; then
+        failed_notebooks+=(${notebook})
+        exit_code_summary=${script_exit_code}
+    fi
+
     rm notebook_test.py
     popd
 done
+
+# If any notebook failed, print out the failing notebook(s)
+if [ ${exit_code_summary} != ${SUCCESS} ]; then
+    echo ""
+    echo "Failed notebooks:"
+    for failed_nb in "${failed_notebooks[@]}"
+    do
+        echo ${failed_nb}
+    done
+fi
+
+exit ${exit_code_summary}
+
