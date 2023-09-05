@@ -64,8 +64,8 @@ class PyTorchHFTextGenerationModel(TextGenerationModel, HFModel, PyTorchModel):
         # extra properties that will become configurable in the future
         self._model_name = model_name
         self._generate_checkpoints = True
+        self._device = 'cpu'
         self._tokenizer = None
-        self._lora_target_modules = hf_model_map[model_name]["lora_target_modules"]
         self._enable_auto_mixed_precision = False
 
         TextGenerationModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.TEXT_GENERATION)
@@ -201,22 +201,19 @@ class PyTorchHFTextGenerationModel(TextGenerationModel, HFModel, PyTorchModel):
         self._tokenizer.pad_token_id = (0)
         self._tokenizer.padding_side = "left"
 
-        if self._lora_target_modules:
-            print('Using Low-Rank Adaptation (LoRA) for {}'.format(self.model_name))
+        print('Using Low-Rank Adaptation (LoRA) for {}'.format(self.model_name))
 
-            # PEFT settings
-            peft_config = LoraConfig(
-                r=lora_rank,
-                lora_alpha=lora_alpha,
-                lora_dropout=lora_dropout,
-                target_modules=self._lora_target_modules,
-                bias="none",
-                task_type=TaskType.CAUSAL_LM,
-            )
-            self._model = get_peft_model(self._model, peft_config)
-            self._model.print_trainable_parameters()
-        else:
-            print('Not applying LoRA because it is not compatible with {}'.format(self.model_name))
+        # PEFT settings
+        peft_config = LoraConfig(
+            r=lora_rank,
+            lora_alpha=lora_alpha,
+            lora_dropout=lora_dropout,
+            bias="none",
+            task_type=TaskType.CAUSAL_LM,
+        )
+        self._model = get_peft_model(self._model, peft_config)
+        self._model.print_trainable_parameters()
+        self._model.train()
 
         if use_trainer:
             # Randomly mask the tokens
@@ -284,6 +281,7 @@ class PyTorchHFTextGenerationModel(TextGenerationModel, HFModel, PyTorchModel):
                       "Mixed precision will be disabled for evaluation.".format(str(e)))
 
         self._enable_auto_mixed_precision = enable_auto_mixed_precision
+        self._model.eval()
 
         if self._trainer:
             eval_results = self._trainer.evaluate()
@@ -369,6 +367,8 @@ class PyTorchHFTextGenerationModel(TextGenerationModel, HFModel, PyTorchModel):
             print("The model has not been fine-tuned yet, so generation is being done using the original model")
             self._model = self._get_hub_model(model_name=self.hub_name)
 
+        self._model.eval()
+
         if self._tokenizer is None:
             try:
                 self._tokenizer = AutoTokenizer.from_pretrained(self.hub_name)
@@ -404,15 +404,16 @@ class PyTorchHFTextGenerationModel(TextGenerationModel, HFModel, PyTorchModel):
         )
 
         if self._enable_auto_mixed_precision:
-            # Call model using the torch automatic mixed precision context when mixed precision is enabled
-            with torch.cpu.amp.autocast(dtype=torch.bfloat16):
+            with torch.no_grad():
+                with torch.cpu.amp.autocast(dtype=torch.bfloat16):
+                    output = self._model.generate(input_ids=encoded_input['input_ids'],
+                                                  generation_config=generation_config,
+                                                  max_new_tokens=max_new_tokens)
+        else:
+            with torch.no_grad():
                 output = self._model.generate(input_ids=encoded_input['input_ids'],
                                               generation_config=generation_config,
                                               max_new_tokens=max_new_tokens)
-        else:
-            output = self._model.generate(input_ids=encoded_input['input_ids'],
-                                          generation_config=generation_config,
-                                          max_new_tokens=max_new_tokens)
 
         if not decode:
             return output
@@ -455,12 +456,7 @@ class PyTorchHFTextGenerationModel(TextGenerationModel, HFModel, PyTorchModel):
         verify_directory(model_dir, require_directory_exists=True)
 
         try:
-            # Load model using the transformers method
-            self._model = AutoModelForCausalLM.from_pretrained(model_dir)
-            self._tokenizer = AutoTokenizer.from_pretrained(model_dir)
-        except OSError:
-            # Try using the PEFT method
             model = AutoModelForCausalLM.from_pretrained(self.hub_name)
             self._model = PeftModelForCausalLM.from_pretrained(model, model_dir)
         except Exception:
-            raise ValueError("Unable to load model from {}")
+            raise ValueError("Unable to load model from {}".format(model_dir))

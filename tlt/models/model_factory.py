@@ -295,12 +295,10 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
 
     for model_use_case in models.keys():
         if markdown:
-            print("## {}{}\n".format(model_use_case.replace("_", " ").title(),
-                                     ' (API only)' if model_use_case == 'text_generation' else ''))
+            print("## {}\n".format(model_use_case.replace("_", " ").title()))
         else:
             print("-" * 30)
-            print("{}{}".format(model_use_case.replace("_", " ").upper(),
-                                ' (API only)' if model_use_case == 'text_generation' else ''))
+            print("{}".format(model_use_case.replace("_", " ").upper()))
             print("-" * 30)
 
         if len(models[model_use_case].keys()) == 0:

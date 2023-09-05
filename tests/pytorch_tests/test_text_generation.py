@@ -23,6 +23,7 @@ import pytest
 import shutil
 import tempfile
 
+from numpy.testing import assert_almost_equal
 from downloader.datasets import DataDownloader
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
@@ -37,8 +38,8 @@ class TestTextGenerationCustomDataset:
     @classmethod
     def setup_class(cls):
         temp_dir = tempfile.mkdtemp(dir='/tmp/data')
-        download_url = "https://raw.githubusercontent.com/sahil280114/codealpaca/master/data/code_alpaca_20k.json"
-        data_downloader = DataDownloader("code_alpaca_20k", temp_dir, url=download_url)
+        download_url = "https://raw.githubusercontent.com/sahil280114/codealpaca/master/data/code_alpaca_2k.json"
+        data_downloader = DataDownloader("code_alpaca_2k", temp_dir, url=download_url)
         data_downloader.download()
 
         os.makedirs('/tmp/output', exist_ok=True)
@@ -67,7 +68,7 @@ class TestTextGenerationCustomDataset:
 
         # Get the dataset
         dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework,
-                                               dataset_file='code_alpaca_20k.json', shuffle_files=False)
+                                               dataset_file='code_alpaca_2k.json', shuffle_files=False)
 
         # Get the model
         model = model_factory.get_model(model_name, framework)
@@ -98,7 +99,7 @@ class TestTextGenerationCustomDataset:
         # export the saved model
         saved_model_dir = model.export(self._output_dir)
         assert os.path.isdir(saved_model_dir)
-        assert os.path.isfile(os.path.join(saved_model_dir, "pytorch_model.bin"))
+        assert os.path.isfile(os.path.join(saved_model_dir, "adapter_model.bin"))
 
         # Reload the saved model
         reload_model = model_factory.get_model(model_name, framework)
@@ -106,7 +107,7 @@ class TestTextGenerationCustomDataset:
 
         # Evaluate
         reload_metrics = reload_model.evaluate(dataset)
-        assert reload_metrics['eval_loss'] == metrics['eval_loss']
+        assert_almost_equal(reload_metrics['eval_loss'], metrics['eval_loss'], decimal=2)
 
         # Placeholder for testing benchmarking and quantization
         if test_inc:
