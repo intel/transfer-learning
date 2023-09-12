@@ -3,7 +3,7 @@ metadata:
   namespace: kubeflow
 
 imageName: intel/ai-tools
-imageTag: 0.5.0-dist-devel
+imageTag: 0.6.0-dist-devel
 
 batchDenom: 1
 batchSize: 128
