@@ -12,7 +12,7 @@ on:
       - '**'
 jobs:
   unit-test:
-    runs-on: [ aia-devops ]
+    runs-on: [ xai-tlt ]
     container:
       image: ${{ vars.GHA_IMAGE }}
       env:
