@@ -41,11 +41,20 @@ class TestModelDownload:
     """
     @classmethod
     def setup_class(cls):
-        cls._model_dir = tempfile.mkdtemp()
+        # Check if the environment variable for the model directory is set
+        cls._model_dir = os.environ.get('MODEL_DIR')
+        print("temp dir is:", cls._model_dir)
+
+        # If not set, then use a temp directory
+        if cls._model_dir is None:
+            cls._model_dir = tempfile.mkdtemp()
+            cls._using_temp_dir = True
+        else:
+            cls._using_temp_dir = False
 
     @classmethod
     def teardown_class(cls):
-        if os.path.exists(cls._model_dir):
+        if cls._using_temp_dir and os.path.exists(cls._model_dir):
             print("Deleting test directory:", cls._model_dir)
             shutil.rmtree(cls._model_dir)
 
