@@ -52,6 +52,7 @@ class PyTorchDataset(BaseDataset):
         """
         BaseDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog)
         self._transform = None
+        self._shuffle = False
 
     @property
     def train_subset(self):
@@ -164,6 +165,7 @@ class PyTorchDataset(BaseDataset):
         test_size = int(test_pct * length)
         generator = torch.Generator().manual_seed(seed) if seed else None
         if shuffle_files:
+            self._shuffle = True
             dataset_indices = torch.randperm(length, generator=generator).tolist()
         else:
             dataset_indices = range(length)
@@ -185,23 +187,23 @@ class PyTorchDataset(BaseDataset):
             random.seed(worker_seed)
 
         if self._dataset:
-            self._data_loader = loader(self.dataset, batch_size=batch_size, shuffle=False,
+            self._data_loader = loader(self.dataset, batch_size=batch_size, shuffle=self._shuffle,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
         else:
             self._data_loader = None
         if self._train_indices:
-            self._train_loader = loader(self.train_subset, batch_size=batch_size, shuffle=False,
+            self._train_loader = loader(self.train_subset, batch_size=batch_size, shuffle=self._shuffle,
                                         num_workers=self._num_workers, worker_init_fn=seed_worker, generator=generator)
         else:
             self._train_loader = None
         if self._validation_indices:
-            self._validation_loader = loader(self.validation_subset, batch_size=batch_size, shuffle=False,
+            self._validation_loader = loader(self.validation_subset, batch_size=batch_size, shuffle=self._shuffle,
                                              num_workers=self._num_workers, worker_init_fn=seed_worker,
                                              generator=generator)
         else:
             self._validation_loader = None
         if self._test_indices:
-            self._test_loader = loader(self.test_subset, batch_size=batch_size, shuffle=False,
+            self._test_loader = loader(self.test_subset, batch_size=batch_size, shuffle=self._shuffle,
                                        num_workers=self._num_workers, worker_init_fn=seed_worker,
                                        generator=generator)
         else:
