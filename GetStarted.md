@@ -118,7 +118,7 @@ programming experience is required, and you'll need basic Python knowledge to
 use the API. Choose the approach that works best for you.
 
 
-### Run Using the No-Code CLI
+### a) Run Using the No-Code CLI
 
 Let's continue from the previous step where you prepared the dataset, and train
 a model using CLI commands.  This example uses the CLI to train an image
@@ -179,7 +179,7 @@ that includes evaluation, benchmarking, and quantization in the datasets.
 Read about all the CLI commands in the [CLI reference](/cli.md).
 Find more examples in our list of [Examples](examples/README.md).
 
-### Run Using the Low-Code API
+### b) Run Using the Low-Code API
 
 The following Python code example trains an image classification model with the TensorFlow
 flowers dataset using API calls from Python.  The model is
@@ -254,7 +254,7 @@ an Intel-optimized saved model for deployment. The sample CLI and API commands
 we've presented show how to execute end-to-end transfer learning workflows. 
 
 For the no-code CLI, you can follow a
-complete example that includes trainng, evaluation, benchmarking, and quantization
+complete example that includes training, evaluation, benchmarking, and quantization
 in the datasets, as well as some additional models in the [Beyond Get Started
 CLI example](examples/cli/README.md) documentation. You can also read about all the
 CLI commands in the [CLI reference](/cli.md).
