@@ -1,9 +1,8 @@
 # Text Generation Instruction Tuning with PyTorch and the Intel® Transfer Learning Tool API
 
 This notebook demonstrates how to use the Intel Transfer Learning Tool API to do instruction fine-tuning for 
-text generation with a [large language model from Hugging Face](https://huggingface.co/models). It uses a custom
-[Intel domain dataset](https://raw.githubusercontent.com/intel/intel-extension-for-transformers/1.0.1/examples/optimization/pytorch/huggingface/language-modeling/chatbot/intel_domain.json)
-loaded from a json file.
+text generation with a [large language model from Hugging Face](https://huggingface.co/models). It uses a subset
+of the [Code Alpaca](https://github.com/sahil280114/codealpaca) dataset loaded from a json file.
 
 The notebook includes options for bfloat16 precision training and
 [Intel® Extension for PyTorch\*](https://intel.github.io/intel-extension-for-pytorch) which extends PyTorch
@@ -21,3 +20,30 @@ The notebook performs the following steps:
 ## Running the notebook
 
 To run the notebook, follow the instructions to setup the [notebook environment](/notebooks/setup.md).
+
+## References
+
+Dataset Citations
+
+<b>[databricks-dolly-15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k)</b> - Copyright (2023) Databricks, Inc. This dataset was developed at Databricks (https://www.databricks.com) and its use is subject to the CC BY-SA 3.0 license. Certain categories of material in the dataset include materials from the following sources, licensed under the CC BY-SA 3.0 license: Wikipedia (various pages) - https://www.wikipedia.org/ Copyright © Wikipedia editors and contributors.
+
+```
+@software{together2023redpajama,
+  author = {Together Computer},
+  title = {RedPajama: An Open Source Recipe to Reproduce LLaMA training dataset},
+  month = April,
+  year = 2023,
+  url = {https://github.com/togethercomputer/RedPajama-Data}
+}
+```
+
+```
+@misc{codealpaca,
+  author = {Sahil Chaudhary},
+  title = {Code Alpaca: An Instruction-following LLaMA model for code generation},
+  year = {2023},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/sahil280114/codealpaca}},
+}
+```
