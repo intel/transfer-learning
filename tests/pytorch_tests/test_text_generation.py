@@ -116,3 +116,21 @@ class TestTextGenerationCustomDataset:
             model.quantize(inc_output_dir, dataset)
             assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
             model.benchmark(saved_model_dir=inc_output_dir, dataset=dataset)
+
+    @pytest.mark.pytorch
+    def test_bad_json(self):
+        """
+        Tests that HuggingFace load dataset methodology handles bad JSON reads
+        """
+        json_path = os.path.join(self._dataset_dir, 'code_alpaca_2k.json')
+        output_path = os.path.join(self._output_dir, "bad_json.json")
+
+        shutil.copyfile(json_path, output_path)
+
+        with open(output_path, "a", encoding="utf-8") as file:
+            file.write("}")
+
+        import gzip
+        with pytest.raises(gzip.BadGzipFile):
+            dataset_factory.load_dataset(self._output_dir, use_case="text_generation", framework="pytorch",
+                                         dataset_file="bad_json.json", shuffle_files=False)
