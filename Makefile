@@ -33,7 +33,7 @@ tlt_test_venv: $(CURDIR)/tests/requirements-test.txt
 	@test -d tlt_test_venv || virtualenv -p python3 tlt_test_venv
 
 	@echo "Building the TLT API in tlt_test_venv env..."
-	@. $(ACTIVATE_TEST_VENV) && pip install --editable .
+	@. $(ACTIVATE_TEST_VENV) && pip install .
 
 	@echo "Installing test dependencies..."
 	@. $(ACTIVATE_TEST_VENV) && pip install -r $(CURDIR)/tests/requirements-test.txt

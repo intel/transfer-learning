@@ -27,7 +27,7 @@ source tlt_dev_venv/bin/activate
 Step 2: Install TLT from the `setup.py` script (You can skip this step if you already have TLT installed)
 
 ```
-pip install --editable .
+pip install .
 ```
 
 Step 3: Install multinode dependencies

@@ -83,7 +83,7 @@ approaches.
       install after each code change (preferred):
 
       ```
-      pip install --editable .
+      pip install .
       ```
 
       or build and install a wheel:
