@@ -161,9 +161,9 @@ def test_pyt_text_classification_trainer(model_name, dataset_name):
 
         # Load the saved model using load_model and verify that a prediction matches the original model
         loaded_model = model_factory.load_model(model_name, saved_model_dir, framework,
-                                                'text_classification', 'huggingface')
+                                                'text_classification', model_hub='huggingface')
         reload_metrics = loaded_model.evaluate(dataset.validation_subset)
-        assert round(reload_metrics['eval_accuracy'], 3) == round(trained_metrics['eval_accuracy'], 3)
+        assert round(reload_metrics['eval_loss'], 3) == round(trained_metrics['eval_loss'], 3)
 
     finally:
         # Delete the temp output directory

@@ -74,6 +74,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorch
 
         # extra properties that will become configurable in the future
         self._model_name = model_name
+        self._model_hub = None
         self._dropout_layer_rate = 0.1
         self._do_fine_tuning = False
         self._dropout_layer_rate = None
@@ -630,7 +631,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorch
             print("Val Acc: {:.5f}".format(results.get("eval_accuracy")))
         else:
             if isinstance(dataset_or_dataloader, Dataset):
-                dataloader = DataLoader(dataset_or_dataloader, batch_size=16)
+                dataloader = DataLoader(dataset_or_dataloader, batch_size=1)
                 validation_data_length = len(dataset_or_dataloader)
             elif isinstance(dataset_or_dataloader, DataLoader):
                 dataloader = dataset_or_dataloader
@@ -638,7 +639,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorch
             elif isinstance(dataset_or_dataloader, HFTextClassificationDataset) or \
                     isinstance(dataset_or_dataloader, HFCustomTextClassificationDataset):
                 dataloader = dataset_or_dataloader.validation_loader
-                validation_data_length = len(dataset_or_dataloader)
+                validation_data_length = len(dataset_or_dataloader.validation_subset)
             else:
                 raise TypeError("Invalid dataset/dataloader: {}".format(dataset_or_dataloader))
 

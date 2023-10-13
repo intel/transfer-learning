@@ -184,10 +184,11 @@ def eval(model_dir, model_name, dataset_dir, dataset_file, delimiter, class_name
             dataset.preprocess(model.hub_name, batch_size=32, prompt_dict=prompt_dict, dataset_schema=dataset_schema,
                                concatenate=True)
         else:
-            dataset.preprocess(batch_size=32)
+            dataset.preprocess(model_name, batch_size=32)
 
         dataset.shuffle_split(seed=10)
 
-        model.evaluate(dataset)
+        result = model.evaluate(dataset)
+        print(result)
     except Exception as e:
         sys.exit("An error occurred during evaluation: {}".format(str(e)))
