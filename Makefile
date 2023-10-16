@@ -33,7 +33,7 @@ tlt_test_venv: $(CURDIR)/tests/requirements-test.txt
 	@test -d tlt_test_venv || virtualenv -p python3 tlt_test_venv
 
 	@echo "Building the TLT API in tlt_test_venv env..."
-	@. $(ACTIVATE_TEST_VENV) && pip install .
+	@. $(ACTIVATE_TEST_VENV) && pip install --extra-index-url https://download.pytorch.org/whl/cpu .
 
 	@echo "Installing test dependencies..."
 	@. $(ACTIVATE_TEST_VENV) && pip install -r $(CURDIR)/tests/requirements-test.txt
@@ -43,7 +43,7 @@ tlt_notebook_venv: $(CURDIR)/notebooks/requirements.txt
 	@test -d tlt_notebook_venv || virtualenv -p python3 tlt_notebook_venv
 
 	@echo "Installing TF & PYT notebook dependencies..."
-	@. $(ACTIVATE_NOTEBOOK_VENV) && pip install -r $(CURDIR)/notebooks/requirements.txt
+	@. $(ACTIVATE_NOTEBOOK_VENV) && pip install --extra-index-url https://download.pytorch.org/whl/cpu -r $(CURDIR)/notebooks/requirements.txt
 
 test: unittest integration
 
@@ -79,7 +79,7 @@ test_docs: html
 
 tlt_notebook_venv: tlt_test_venv
 	@echo "Installing notebook dependencies..."
-	@. $(ACTIVATE_TEST_VENV) && pip install -r $(CURDIR)/notebooks/requirements.txt
+	@. $(ACTIVATE_TEST_VENV) && pip install --extra-index-url https://download.pytorch.org/whl/cpu -r $(CURDIR)/notebooks/requirements.txt
 
 test_notebook_custom: tlt_notebook_venv
 	@echo "Testing Jupyter notebooks with custom datasets..."

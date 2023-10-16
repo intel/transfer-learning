@@ -1,2 +1,2 @@
-dill~=0.3.6
-horovod~=0.28.0
+dill==0.3.7
+horovod[mpi,tensorflow]==0.28.1

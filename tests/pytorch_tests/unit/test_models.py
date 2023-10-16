@@ -83,7 +83,7 @@ def test_torchvision_efficientnet_b0():
     Checks that an efficientnet_b0 model can be downloaded from TFHub
     """
     model = model_factory.get_model('efficientnet_b0', 'pytorch')
-    assert type(model) == TorchvisionImageClassificationModel
+    assert isinstance(model, TorchvisionImageClassificationModel)
     assert model.model_name == 'efficientnet_b0'
 
 
@@ -225,7 +225,7 @@ def test_torchvision_efficientnet_b0_train():
 @pytest.mark.pytorch
 def test_bert_train():
     model = model_factory.get_model('distilbert-base-uncased', 'pytorch')
-    assert type(model) == PyTorchHFTextClassificationModel
+    assert isinstance(model, PyTorchHFTextClassificationModel)
     with patch('tlt.datasets.text_classification.hf_text_classification_dataset.HFTextClassificationDataset') as mock_dataset:  # noqa: E501
         mock_dataset.__class__ = HFTextClassificationDataset
         mock_dataset.train_subset = ['1', '2', '3']
@@ -256,7 +256,7 @@ def test_bert_train():
 @pytest.mark.pytorch
 def test_resnet50_anomaly_extract_pca():
     model = model_factory.get_model(model_name="resnet50", framework="pytorch", use_case="anomaly_detection")
-    assert type(model) == TorchvisionImageAnomalyDetectionModel
+    assert isinstance(model, TorchvisionImageAnomalyDetectionModel)
 
     # Call extract_features and PCA on 5 randomly generated images
     data = torch.rand(5, 3, 225, 225)  # NCHW
@@ -271,7 +271,7 @@ def test_resnet50_anomaly_extract_pca():
     if not numpy.isnan(data_mats_orig).any():
         with torch.no_grad():
             components = pca(data_mats_orig, 0.97)
-        assert type(components) == decomposition._pca.PCA
+        assert isinstance(components, decomposition._pca.PCA)
         assert components.n_components == 0.97
 
 
@@ -279,7 +279,7 @@ def test_resnet50_anomaly_extract_pca():
 @pytest.mark.pytorch
 def test_distilgpt2_text_generation_train(mock_trainer):
     model = model_factory.get_model('distilgpt2', 'pytorch')
-    assert type(model) == PyTorchHFTextGenerationModel
+    assert isinstance(model, PyTorchHFTextGenerationModel)
     with patch('tlt.datasets.text_generation.hf_custom_text_generation_dataset.HFCustomTextGenerationDataset') as mock_dataset:  # noqa: E501
         mock_dataset.__class__ = HFCustomTextGenerationDataset
         mock_dataset.train_subset = ['a', 'b', 'c', 'd']
@@ -342,7 +342,7 @@ if torch_env:
         model._fit = MagicMock()
         assert model._optimizer_class == optimizer
         assert model._loss_class == loss
-        assert type(model._loss) == loss
+        assert isinstance(model._loss, loss)
 
         mock_dataset = MagicMock()
         mock_dataset.__class__ = dataset_type
@@ -353,9 +353,9 @@ if torch_env:
         # Train is called and optimizer and loss objects should match the input types
         model.train(mock_dataset, output_dir="/tmp/output/pytorch")
         assert model._optimizer_class == optimizer
-        assert type(model._optimizer) == optimizer
+        assert isinstance(model._optimizer, optimizer)
         assert model._loss_class == loss
-        assert type(model._loss) == loss
+        assert isinstance(model._loss, loss)
 
 
 # This is necessary to protect from import errors when testing in a pytorch only environment

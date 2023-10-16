@@ -44,7 +44,7 @@ from tlt.models.image_anomaly_detection.simsiam import builder
 from tlt.models.image_anomaly_detection import utils
 
 from tlt.models.image_anomaly_detection.cutpaste.model import ProjectionNet
-from tlt.models.image_anomaly_detection.cutpaste.cutpaste import CutPasteNormal,\
+from tlt.models.image_anomaly_detection.cutpaste.cutpaste import CutPasteNormal, \
     CutPasteScar, CutPaste3Way, CutPasteUnion
 
 import intel_extension_for_pytorch as ipex

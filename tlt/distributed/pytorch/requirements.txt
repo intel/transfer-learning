@@ -1,2 +1,4 @@
-oneccl-bind-pt @ https://intel-extension-for-pytorch.s3.amazonaws.com/torch_ccl/cpu/oneccl_bind_pt-1.13.0%2Bcpu-cp39-cp39-linux_x86_64.whl
-horovod[mpi,pytorch]~=0.28.0
+horovod[mpi,pytorch]==0.28.1
+oneccl-bind-pt @ https://intel-extension-for-pytorch.s3.amazonaws.com/torch_ccl/cpu/oneccl_bind_pt-1.13.0%2Bcpu-cp310-cp310-linux_x86_64.whl; python_version=='3.10'
+oneccl-bind-pt @ https://intel-extension-for-pytorch.s3.amazonaws.com/torch_ccl/cpu/oneccl_bind_pt-1.13.0%2Bcpu-cp38-cp38-linux_x86_64.whl; python_version=='3.8'
+oneccl-bind-pt @ https://intel-extension-for-pytorch.s3.amazonaws.com/torch_ccl/cpu/oneccl_bind_pt-1.13.0%2Bcpu-cp39-cp39-linux_x86_64.whl; python_version=='3.9'

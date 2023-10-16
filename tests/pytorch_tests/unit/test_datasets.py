@@ -82,7 +82,7 @@ def test_torchvision_subset():
     Checks that a torchvision test subset can be loaded
     """
     data = get_dataset('/tmp/data', 'image_classification', 'pytorch', 'CIFAR10', 'torchvision', split=["test"])
-    assert type(data) == TorchvisionImageClassificationDataset
+    assert isinstance(data, TorchvisionImageClassificationDataset)
     assert len(data.dataset) > 0
 
 
@@ -333,14 +333,14 @@ class TestImageClassificationDataset:
         tlt_dataset, dataset_name, dataset_classes, splits = image_classification_data
 
         if dataset_name is None:
-            assert type(tlt_dataset) == PyTorchCustomImageClassificationDataset
+            assert isinstance(tlt_dataset, PyTorchCustomImageClassificationDataset)
             assert len(tlt_dataset.class_names) == len(dataset_classes)
             if splits is None:
                 assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
             else:
                 assert len(tlt_dataset.dataset) == len(dataset_classes) * len(splits) * 50
         else:
-            assert type(tlt_dataset) == TorchvisionImageClassificationDataset
+            assert isinstance(tlt_dataset, TorchvisionImageClassificationDataset)
             assert len(tlt_dataset.class_names) == len(torchvision_metadata[dataset_name]['class_names'])
             assert len(tlt_dataset.dataset) == torchvision_metadata[dataset_name]['size']
 
@@ -484,7 +484,7 @@ class TestImageAnomalyDetectionDataset:
         """
         tlt_dataset, dataset_name, dataset_classes, use_case = anomaly_detection_data
 
-        assert type(tlt_dataset) == PyTorchCustomImageAnomalyDetectionDataset
+        assert isinstance(tlt_dataset, PyTorchCustomImageAnomalyDetectionDataset)
         assert len(tlt_dataset.class_names) == 2  # Always 2 for anomaly detection
         assert len(tlt_dataset.defect_names) == len(dataset_classes) - 1  # Subtract 1 for the "good" class
         assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
@@ -654,9 +654,9 @@ class TestTextClassificationDataset:
         """
         tlt_dataset, _, dataset_name, _, _ = text_classification_data
         if dataset_name is None:
-            assert type(tlt_dataset) == HFCustomTextClassificationDataset
+            assert isinstance(tlt_dataset, HFCustomTextClassificationDataset)
         else:
-            assert type(tlt_dataset) == HFTextClassificationDataset
+            assert isinstance(tlt_dataset, HFTextClassificationDataset)
 
         assert isinstance(tlt_dataset.dataset, Arrow_Dataset)
 
@@ -808,11 +808,11 @@ class TestTextGenerationDataset:
         """
         tlt_dataset, dataset_dir, dataset_name, dataset_catalog = text_generation_data
         if dataset_catalog is None:
-            assert type(tlt_dataset) == HFCustomTextGenerationDataset
+            assert isinstance(tlt_dataset, HFCustomTextGenerationDataset)
             assert isinstance(tlt_dataset.dataset, Arrow_Dataset)
             assert len(tlt_dataset.dataset) == 50
         else:
-            assert type(tlt_dataset) == HFTextGenerationDataset
+            assert isinstance(tlt_dataset, HFTextGenerationDataset)
 
     def test_shuffle_split_errors(self, text_generation_data):
         """

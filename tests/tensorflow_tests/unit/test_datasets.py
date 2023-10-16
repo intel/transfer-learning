@@ -54,7 +54,7 @@ def test_tf_flowers_10pct():
     """
     flowers = get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers',
                           'tf_datasets', split=["train[:10%]"])
-    assert type(flowers) == TFDSImageClassificationDataset
+    assert isinstance(flowers, TFDSImageClassificationDataset)
     assert len(flowers.dataset) < 3670
 
 
@@ -497,7 +497,7 @@ class TestImageClassificationDataset:
         tlt_dataset, dataset_name, dataset_classes, use_case, splits = test_data
 
         if dataset_name is None:
-            assert type(tlt_dataset) == TFCustomImageClassificationDataset
+            assert isinstance(tlt_dataset, TFCustomImageClassificationDataset)
             assert len(tlt_dataset.class_names) == len(dataset_classes)
             if splits is None:
                 assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
@@ -505,9 +505,9 @@ class TestImageClassificationDataset:
                 assert len(tlt_dataset.dataset) == len(dataset_classes) * len(splits) * 50
         else:
             if use_case == 'image_classification':
-                assert type(tlt_dataset) == TFDSImageClassificationDataset
+                assert isinstance(tlt_dataset, TFDSImageClassificationDataset)
             elif use_case == 'text_classification':
-                assert type(tlt_dataset) == TFDSTextClassificationDataset
+                assert isinstance(tlt_dataset, TFDSTextClassificationDataset)
 
             assert len(tlt_dataset.class_names) == len(tfds_metadata[dataset_name]['class_names'])
             assert len(tlt_dataset.dataset) == tfds_metadata[dataset_name]['size']
