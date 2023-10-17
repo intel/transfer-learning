@@ -100,6 +100,10 @@ command can be found using, for example, `tlt train --help`.
 
 <!-- ExpandGetStarted-End -->
 
+## Note on Evaluation and Bias
+
+Intel Transfer Learning Tool provides standard evaluation metrics such as accuracy and loss for validation/test/train sets. While important, it's essential to acknowledge that these metrics may not explicitly capture biases. Users should be cautious and consider potential biases by analyzing disparities in the data and model prediction. Techniques such as confusion matrices, PR curves, ROC curves, local attribution-based and `gradCAM` explanations, can all be good indicators for bias. Clear documentation of model behavior and performance is also crucial for iterative bias mitigation. [Intel® Explainable AI Tools](https://github.com/IntelAI/intel-xai-tools/tree/main) provides components that demonstrate the aformentioned techniques with [Explainer](https://github.com/IntelAI/intel-xai-tools/tree/main/explainer), a simple API providing post-hoc model distillation and visualization methods, as well as The [Model Card Generator](https://github.com/IntelAI/intel-xai-tools/tree/main/model_card_gen) which provides an interactive HTML report that containing these workflows and demonstrations of model behavior.
+
 ## Support
 
 The Intel Transfer Learning Tool team tracks bugs and enhancement requests using
