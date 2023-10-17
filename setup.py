@@ -61,7 +61,7 @@ setup(name="intel-transfer-learning-tool",
         EXTRA_PACKAGES['pytorch'] + \
         EXTRA_PACKAGES['tensorflow'],
       extras_require=EXTRA_PACKAGES,
-      python_requires=">3.8",
+      python_requires=">=3.8",
       entry_points={
         "console_scripts": [
             "tlt = tlt.tools.cli.main:cli_group"

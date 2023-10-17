@@ -114,7 +114,7 @@ ARG PYTHON=python3
 ARG HOROVOD_WITH_PYTORCH=1
 ARG HOROVOD_WITHOUT_MXNET=1
 ARG HOROVOD_WITH_TENSORFLOW=1
-ARG HOROVOD_VERSION=0.28.0
+ARG HOROVOD_VERSION=0.28.1
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
@@ -128,7 +128,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 RUN python -m pip install --no-cache-dir horovod==${HOROVOD_VERSION}
 
-ARG ONECCL_VERSION=1.13.0
+ARG ONECCL_VERSION=2.0.0
 ARG ONECCL_URL=https://developer.intel.com/ipex-whl-stable-cpu
 
 RUN python -m pip install --no-cache-dir oneccl_bind_pt==${ONECCL_VERSION} -f ${ONECCL_URL}
