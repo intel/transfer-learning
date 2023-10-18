@@ -45,7 +45,7 @@ class TorchvisionImageClassificationDataset(ImageClassificationDataset, PyTorchD
         if dataset_name not in DATASETS:
             raise ValueError("Dataset name is not supported. Choose from: {}".format(DATASETS))
 
-        ImageClassificationDataset.__init__(self, dataset_dir, dataset_name)
+        ImageClassificationDataset.__init__(self, dataset_dir, dataset_name, dataset_catalog='torchvision')
         self._num_workers = num_workers
         self._shuffle = shuffle_files
         self._preprocessed = {}

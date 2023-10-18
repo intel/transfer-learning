@@ -67,7 +67,7 @@ def main():
     if (do_train):
         model, history, dict_metrics = train_vision_wl(train_dataset_dir,
                                                        output_dir, model_name,
-                                                       batch_size, epochs, bf16)
+                                                       batch_size, epochs, bf16=bf16)
         run_inference(train_dataset_dir, saved_model_dir, class_labels,
                       model_name, vision_int8_inference, output_file_train)
 

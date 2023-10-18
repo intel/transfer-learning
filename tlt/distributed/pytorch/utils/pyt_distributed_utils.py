@@ -22,14 +22,133 @@ import os
 
 import torch
 import torch.distributed as dist
+import torch.multiprocessing as mp
+import torchvision.transforms as T
 
 from tqdm import tqdm
 from random import Random
 from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 import oneccl_bindings_for_pytorch  # noqa # pylint: disable=unused-import
 import intel_extension_for_pytorch as ipex
+
+import horovod.torch as hvd
+
+
+class HorovodTrainer:
+    def __init__(self, cuda=False) -> None:
+        # Horovod: limit # of CPU threads to be used per worker.
+        torch.set_num_threads(1)
+
+        dataloader_kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+        # When supported, use 'forkserver' to spawn dataloader workers instead of 'fork' to prevent
+        # issues with Infiniband implementations that are not fork-safe
+        if (dataloader_kwargs.get('num_workers', 0) > 0 and hasattr(mp, '_supports_context') and
+                mp._supports_context and 'forkserver' in mp.get_all_start_methods()):
+            dataloader_kwargs['multi_processing_context'] = 'forkserver'
+
+        self.dataloader_kwargs = dataloader_kwargs
+
+        # Init horovod
+        hvd.init()
+
+    def prepare_data(self, dataset, use_case, batch_size=128, **kwargs):
+        if not kwargs.get('is_preprocessed'):
+            if use_case == 'image_classification':
+                dataset.transform = T.Compose([
+                    T.ToTensor(),
+                    T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                ])
+                pass
+            elif use_case == 'text_classification':
+                hf_tokenizer = kwargs.get('hf_tokenizer')
+                max_seq_length = kwargs.get('max_seq_length')
+                text_column_names = kwargs.get('text_column_names')
+
+                def tokenize_func(sample):
+                    args = (sample[c] for c in text_column_names)
+                    result = hf_tokenizer(*args, padding='max_length', max_length=max_seq_length,
+                                          truncation=True)
+                    return result
+                dataset = dataset.map(tokenize_func)
+                dataset.set_format('torch')
+        data_sampler = DistributedSampler(dataset, num_replicas=hvd.size(), rank=hvd.rank())
+        dataloader = DataLoader(dataset, batch_size=batch_size, sampler=data_sampler,
+                                **self.dataloader_kwargs)
+        return dataloader, data_sampler
+
+    def prepare_model(self, model, use_case, optimizer=None, loss=None, scale_lr=True):
+        if optimizer is None:
+            if use_case == 'image_classification':
+                optimizer = torch.optim.Adam(model.parameters())
+            elif use_case == 'text_classification':
+                optimizer = torch.optim.AdamW(model.parameters())
+
+        if loss is None:
+            loss = torch.nn.CrossEntropyLoss()
+        # Horovod: scale learning rate by lr_scaler.
+        if scale_lr:
+            scaled_lr = optimizer.param_groups[0]['lr'] * hvd.size()
+            optimizer.param_groups[0]['lr'] = scaled_lr
+
+        # Horovod: broadcast parameters & optimizer state.
+        hvd.broadcast_parameters(model.state_dict(), root_rank=0)
+        hvd.broadcast_optimizer_state(optimizer, root_rank=0)
+
+        # Horovod: wrap optimizer with DistributedOptimizer.
+        optimizer = hvd.DistributedOptimizer(
+            optimizer,
+            named_parameters=model.named_parameters(),
+            compression=hvd.Compression.none,
+            op=hvd.Average
+        )
+
+        self.model = model
+        self.optimizer = optimizer
+        self.criterion = loss
+
+    def fit(self, dataloader, data_sampler, use_case, epochs=1, log_interval=10):
+        if use_case == 'image_classification':
+            for epoch in range(1, epochs + 1):
+                self.model.train()
+
+                # Horovod: set epoch to sampler for shuffling
+                data_sampler.set_epoch(epoch)
+                for batch_idx, (data, target) in enumerate(dataloader):
+                    self.optimizer.zero_grad()
+                    output = self.model(data)
+                    loss = self.criterion(output, target)
+                    loss.backward()
+                    self.optimizer.step()
+                    if batch_idx % log_interval == 0:
+                        # Horovod: use train_sampler to determine the number of examples in
+                        # this worker's partition.
+                        print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                            epoch, batch_idx * len(data), len(data_sampler),
+                            100. * batch_idx / len(dataloader), loss.item()))
+        elif use_case == 'text_classification':
+            for epoch in range(1, epochs + 1):
+                self.model.train()
+
+                data_sampler.set_epoch(epoch)
+                for batch_idx, data in enumerate(dataloader):
+                    inputs = {k: v for k, v in data.items() if k in ['input_ids', 'token_type_ids', 'attention_mask']}
+                    labels = data['label']
+                    outputs = self.model(**inputs)
+                    loss = self.criterion(outputs.logits, labels)
+
+                    loss.backward()
+                    self.optimizer.step()
+
+                    if batch_idx % log_interval == 0:
+                        # Horovod: use train_sampler to determine the number of examples in
+                        # this worker's partition.
+                        print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                            epoch, batch_idx * len(data), len(data_sampler),
+                            100. * batch_idx / len(dataloader), loss.item()))
+
 
 """ Dataset partitioning helper classes and methods """
 

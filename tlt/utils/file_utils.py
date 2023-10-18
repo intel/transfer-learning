@@ -145,3 +145,18 @@ def validate_model_name(model_name):
         model_name = " ".join(model_name.split())
         model_name = re.sub('[^a-zA-Z\d_-]', '_', model_name)  # noqa: W605
         return model_name
+
+
+def get_model_name_from_path(model_directory):
+    """
+    Returns the model name from the directory assuming that the model directory is formatted like:
+    <root directory>/<model name>/n/saved_model.pb (for TensorFlow) or
+    <root directory>/<model name>/n/model.pt (for PyTorch)
+
+    Args:
+        model_directory (str): Directory path string with model name and numbered subdirectory
+
+    Returns:
+        str
+    """
+    return os.path.basename(os.path.dirname(model_directory.rstrip('/')))

@@ -245,62 +245,85 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                     'loss': train_epoch_loss,
                 }, os.path.join(checkpoint_dir, 'checkpoint.pt'))
 
-    def _fit_distributed(self, saved_objects_dir, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize):
+    def _fit_distributed(self, saved_objects_dir, hostfile, nnodes, nproc_per_node, epochs, batch_size, ipex_optimize,
+                         use_horovod, hvd_start_timeout):
         import subprocess  # nosec: B404
         distributed_vision_script = os.path.join(TLT_DISTRIBUTED_DIR, "pytorch", "run_train_pyt.py")
 
-        default_port = '29500'
-        default_master_addr = '127.0.0.1'
+        if use_horovod:
+            with open(hostfile, 'r') as f:
+                ip_addresses = [line.rstrip() for line in f]
+            bash_cmd = 'horovodrun'
+            bash_cmd += ' -np {}'.format(nnodes * nproc_per_node)
+            bash_cmd += ' -H '
+            for node in range(nnodes):
+                bash_cmd += '{}:{},'.format(ip_addresses[node], nproc_per_node)
+            bash_cmd = bash_cmd[:-1]  # Remove trailing comma
+            bash_cmd += ' --start-timeout {}'.format(hvd_start_timeout)
+            bash_cmd += ' python {}'.format(distributed_vision_script)
+            bash_cmd += ' --use_horovod'
+            bash_cmd += ' --use_case {}'.format('image_classification')
+            bash_cmd += ' --tlt_saved_objects_dir {}'.format(saved_objects_dir)
+            bash_cmd += ' --epochs {}'.format(epochs)
+            bash_cmd += ' --batch_size {}'.format(batch_size)
+            if not ipex_optimize:
+                bash_cmd += ' --disable_ipex'
+            print(bash_cmd)
+            subprocess.run(bash_cmd.split(' '))
+        else:
 
-        addresses = []
+            default_port = '29500'
+            default_master_addr = '127.0.0.1'
 
-        if hostfile is not None:
-            if os.path.isfile(hostfile):
-                # if addresses are given as line separated IP addresses
-                with open(hostfile) as hf:
-                    addresses = hf.readlines()
-                addresses = [a.strip('\n') for a in addresses]
-            else:
-                # if addresses are given as a comma separated IP addresses
-                addresses = hostfile.split(',')
+            addresses = []
 
-            default_master_addr = addresses[0]
+            if hostfile is not None:
+                if os.path.isfile(hostfile):
+                    # if addresses are given as line separated IP addresses
+                    with open(hostfile) as hf:
+                        addresses = hf.readlines()
+                    addresses = [a.strip('\n') for a in addresses]
+                else:
+                    # if addresses are given as a comma separated IP addresses
+                    addresses = hostfile.split(',')
 
-            # If port is given in the format of "0.0.0.0:9999"
-            if ':' in default_master_addr:
-                colon_index = default_master_addr.index(':')
-                default_port = default_master_addr[colon_index + 1:]
-                default_master_addr = default_master_addr[:colon_index]
+                default_master_addr = addresses[0]
 
-                # We create/rewrite the hostfile to contain only IP addresses
-                with open('hostfile', 'w') as hf:
-                    for addr in addresses:
-                        if ':' in addr:
-                            addr = addr[:addr.index(':')]
-                        hf.write(addr + '\n')
-                hostfile = 'hostfile'
+                # If port is given in the format of "0.0.0.0:9999"
+                if ':' in default_master_addr:
+                    colon_index = default_master_addr.index(':')
+                    default_port = default_master_addr[colon_index + 1:]
+                    default_master_addr = default_master_addr[:colon_index]
 
-        bash_command = 'python -m intel_extension_for_pytorch.cpu.launch --distributed'
-        bash_command += ' --hostfile {}'.format(hostfile)
-        bash_command += ' --nnodes {}'.format(nnodes)
-        bash_command += ' --nproc_per_node {}'.format(nproc_per_node)
-        bash_command += ' {}'.format(distributed_vision_script)
-        bash_command += ' --master_addr {}'.format(default_master_addr)
-        bash_command += ' --master_port {}'.format(default_port)
-        bash_command += ' --backend {}'.format('ccl')
-        bash_command += ' --tlt_saved_objects_dir {}'.format(saved_objects_dir)
-        bash_command += ' --use_case {}'.format('image_classification')
-        bash_command += ' --epochs {}'.format(epochs)
-        bash_command += ' --batch_size {}'.format(batch_size)
-        if not ipex_optimize:
-            bash_command += ' --disable_ipex'
+                    # We create/rewrite the hostfile to contain only IP addresses
+                    with open('hostfile', 'w') as hf:
+                        for addr in addresses:
+                            if ':' in addr:
+                                addr = addr[:addr.index(':')]
+                            hf.write(addr + '\n')
+                    hostfile = 'hostfile'
 
-        print(bash_command)
-        subprocess.run(bash_command.split(' '))
+            bash_command = 'python -m intel_extension_for_pytorch.cpu.launch --distributed'
+            bash_command += ' --hostfile {}'.format(hostfile)
+            bash_command += ' --nnodes {}'.format(nnodes)
+            bash_command += ' --nproc_per_node {}'.format(nproc_per_node)
+            bash_command += ' {}'.format(distributed_vision_script)
+            bash_command += ' --master_addr {}'.format(default_master_addr)
+            bash_command += ' --master_port {}'.format(default_port)
+            bash_command += ' --backend {}'.format('ccl')
+            bash_command += ' --tlt_saved_objects_dir {}'.format(saved_objects_dir)
+            bash_command += ' --use_case {}'.format('image_classification')
+            bash_command += ' --epochs {}'.format(epochs)
+            bash_command += ' --batch_size {}'.format(batch_size)
+            if not ipex_optimize:
+                bash_command += ' --disable_ipex'
+
+            print(bash_command)
+            subprocess.run(bash_command.split(' '))
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, seed=None, ipex_optimize=True, distributed=False,
-              hostfile=None, nnodes=1, nproc_per_node=1):
+              hostfile=None, nnodes=1, nproc_per_node=1, use_horovod=False, hvd_start_timeout=30):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -357,7 +380,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 )
                 batch_size = dataset._preprocessed['batch_size']
                 self._fit_distributed(saved_objects_dir, hostfile, nnodes, nproc_per_node, epochs, batch_size,
-                                      ipex_optimize)
+                                      ipex_optimize, use_horovod, hvd_start_timeout)
             except Exception as err:
                 print("Error: \'{}\' occured while distributed training".format(err))
             finally:
@@ -472,7 +495,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             else:
                 saved_model_dir = os.path.join(saved_model_dir, "1")
             verify_directory(saved_model_dir)
-            model_copy = dill.dumps(self._model)
+            model_copy = dill.dumps(self._model, recurse=True)
             torch.save(model_copy, os.path.join(saved_model_dir, 'model.pt'))
             print("Saved model directory:", saved_model_dir)
 

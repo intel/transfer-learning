@@ -61,7 +61,8 @@ approaches.
 
 3. **Install Intel Transfer Learning Tool**
 
-   Use the Basic Installation instructions unless you plan on making code changes.
+   Use the Basic Installation instructions unless you plan on making code changes or installing the latest code from the repository.
+   Please note that mixing basic and advanced installation options within the same virtual environment is not supported.
 
    a. **Basic Installation**
 
@@ -107,29 +108,6 @@ approaches.
    tlt --help
    ```
 
-6. **Prepare the Dataset**
-
-   The Intel Transfer Learning Tool can use datasets from existing dataset catalogs
-   or custom datasets that you have on your machine.  The following CLI and API
-   examples use the Intel Transfer Learning Tool's custom dataset option
-   (`--dataset-dir`) with the TensorFlow flowers dataset.
-
-   ```
-   # Create a directory for the dataset to be downloaded
-   DATASET_DIR=/tmp/dataset
-   mkdir -p ${DATASET_DIR}
-
-   # Download and extract the dataset (be sure https_proxy is set if needed)
-   wget -P ${DATASET_DIR} https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
-   tar -xzf ${DATASET_DIR}/flower_photos.tgz -C ${DATASET_DIR}
-
-   # Set the DATASET_DIR to the extracted images folder
-   DATASET_DIR=${DATASET_DIR}/flower_photos
-   ```
-
-   At this point, you should have a `flower_photos` folder with
-   subfolders for `daisy`, `dandelion`, `roses`, `sunflower`, and `tulips`.
-
 ## &#9314; Run the Intel Transfer Learning Tool
 
 With the Intel Transfer Learning Tool, you can train AI models with TensorFlow or
@@ -153,20 +131,23 @@ tlt list models --use-case image_classification
 
 **Train a Model**
 
-In this example, we'll use the ``tlt train`` command to use the TensorFlow
-ResNet50v1.5 model using the flowers dataset we already prepared and write the
-trained model to a folder specified with `--output-dir`.
-
+In this example, we'll use the `tlt train` command to retrain the TensorFlow
+ResNet50v1.5 model using a flowers dataset from the
+[TensorFlow Datasets catalog](https://www.tensorflow.org/datasets/catalog/tf_flowers).
+The `--dataset-dir` and `--output-dir` paths need to point to writable folders on your system.
 ```
-tlt train -f tensorflow --model-name resnet_v1_50 --dataset-dir ${DATASET_DIR} --output-dir /tmp/output
+# Use the follow environment variable setting to reduce the warnings and log output from TensorFlow
+export TF_CPP_MIN_LOG_LEVEL="2"
+
+tlt train -f tensorflow --model-name resnet_v1_50 --dataset-name tf_flowers --dataset-dir "/tmp/data-${USER}" --output-dir "/tmp/output-${USER}"
 ```
 ```
 Model name: resnet_v1_50
 Framework: tensorflow
+Dataset name: tf_flowers
 Training epochs: 1
-Dataset dir: /tmp/dataset/flower_photos
-Output directory: /tmp/output
-Found 3670 files belonging to 5 classes.
+Dataset dir: /tmp/data-user
+Output directory: /tmp/output-user
 ...
 Model: "sequential"
 _________________________________________________________________
@@ -179,9 +160,9 @@ Total params: 23,571,397
 Trainable params: 10,245
 Non-trainable params: 23,561,152
 _________________________________________________________________
-Checkpoint directory: /tmp/output/resnet_v1_50_checkpoints
+Checkpoint directory: /tmp/output-user/resnet_v1_50_checkpoints
 86/86 [==============================] - 24s 248ms/step - loss: 0.4600 - acc: 0.8438
-Saved model directory: /tmp/output/resnet_v1_50/1
+Saved model directory: /tmp/output-user/resnet_v1_50/1
 ```
 
 After training completes, the `tlt train` command evaluates the model. The loss and
@@ -217,22 +198,27 @@ from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.types import FrameworkType, UseCaseType
 
-# Specify the directory where the TensorFlow flowers dataset has been downloaded and extracted
-# (https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz)
-dataset_dir = os.environ["DATASET_DIR"] if "DATASET_DIR" in os.environ else \
-    os.path.join(os.environ["HOME"], "dataset")
+username = os.getenv('USER', 'user')
 
-# Specify a directory for output
-output_dir = os.environ["OUTPUT_DIR"] if "OUTPUT_DIR" in os.environ else \
-    os.path.join(os.environ["HOME"], "output")
+# Specify a writable directory for the dataset to be downloaded
+dataset_dir = '/tmp/data-{}'.format(username)
+if not os.path.exists(dataset_dir):
+    os.makedirs(dataset_dir)
+
+# Specify a writeable directory for output (such as saved model files)
+output_dir = '/tmp/output-{}'.format(username)
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
 # Get the model
 model = model_factory.get_model(model_name="resnet_v1_50", framework=FrameworkType.TENSORFLOW)
 
-# Load and preprocess a dataset
-dataset = dataset_factory.load_dataset(dataset_dir = os.path.join(dataset_dir, "flower_photos"),
-                                       use_case=UseCaseType.IMAGE_CLASSIFICATION, \
-                                       framework=FrameworkType.TENSORFLOW)
+# Download and preprocess the flowers dataset from the TensorFlow datasets catalog
+dataset = dataset_factory.get_dataset(dataset_dir=dataset_dir,
+                                      dataset_name='tf_flowers',
+                                      use_case=UseCaseType.IMAGE_CLASSIFICATION,
+                                      framework=FrameworkType.TENSORFLOW,
+                                      dataset_catalog='tf_datasets')
 dataset.preprocess(image_size=model.image_size, batch_size=32)
 dataset.shuffle_split(train_pct=.75, val_pct=.25)
 
