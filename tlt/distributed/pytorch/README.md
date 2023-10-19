@@ -21,7 +21,7 @@ source tlt_dev_venv/bin/activate
 
 3. Install Intel® Transfer Learning Tool (see main [README](/README.md))
 ```
-pip install --editable .
+pip install .
 ```
 
 4. Install multinode dependencies from the shell script. You can also compile `torch_ccl` manually from [here](https://github.com/intel/torch-ccl)
@@ -41,7 +41,7 @@ conda activate tlt_dev_venv
 
 3. Install Intel® Transfer Learning Tool (see main [README](/README.md))
 ```
-pip install --editable .
+pip install .
 ```
 
 4. Install dependencies from the shell script

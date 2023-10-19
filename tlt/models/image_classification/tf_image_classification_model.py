@@ -297,14 +297,27 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
             self._history = history.history
             return self._history
 
-    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False, callbacks=None):
+    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False, callbacks=None,
+                 enable_auto_mixed_precision=None):
         """
         Evaluate the accuracy of the model on a dataset.
 
-        If there is a validation subset, evaluation will be done on it (by default) or on the test set
-        (by setting use_test_set=True). Otherwise, the entire non-partitioned dataset will be
-        used for evaluation.
+        Args:
+            enable_auto_mixed_precision (bool or None): Enable auto mixed precision for evaluate. Mixed precision
+                uses both 16-bit and 32-bit floating point types to make evaluation run faster and use less memory.
+                It is recommended to enable auto mixed precision when running on platforms that support
+                bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                does not support bfloat16, it can be detrimental to the evaluation performance. If
+                enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                running with Intel fourth generation Xeon processors, and disabled for other platforms.
+            use_test_set (bool): If there is a validation subset, evaluation will be done on it (by default) or on
+                the test set (by setting use_test_set=True). Otherwise, the entire non-partitioned dataset will be
+                used for evaluation.
         """
+
+        # Set auto mixed precision
+        self.set_auto_mixed_precision(enable_auto_mixed_precision)
+
         if use_test_set:
             if dataset.test_subset:
                 eval_dataset = dataset.test_subset
@@ -323,7 +336,7 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
 
         return self._model.evaluate(eval_dataset, callbacks=callbacks)
 
-    def predict(self, input_samples, return_type='class', callbacks=None):
+    def predict(self, input_samples, return_type='class', callbacks=None, enable_auto_mixed_precision=None):
         """
         Perform feed-forward inference and predict the classes of the input_samples.
 
@@ -333,6 +346,13 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
                                return the raw output/logits of the last layer of the network, using 'probabilities' will
                                return the output vector after applying a softmax function (so results sum to 1)
             callbacks (list): List of keras.callbacks.Callback instances to apply during predict
+            enable_auto_mixed_precision (bool or None): Enable auto mixed precision for prediction. Mixed precision
+                uses both 16-bit and 32-bit floating point types to make prediction run faster and use less memory.
+                It is recommended to enable auto mixed precision when running on platforms that support
+                bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                does not support bfloat16, it can be detrimental to the inference performance. If
+                enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                running with Intel fourth generation Xeon processors, and disabled for other platforms.
 
         Returns:
             List of classes, probability vectors, or raw score vectors
@@ -340,6 +360,10 @@ class TFImageClassificationModel(ImageClassificationModel, TFModel):
         Raises:
             ValueError: if the return_type is not one of 'class', 'probabilities', or 'scores'
         """
+
+        # Set auto mixed precision
+        self.set_auto_mixed_precision(enable_auto_mixed_precision)
+
         return_types = ['class', 'probabilities', 'scores']
         if not isinstance(return_type, str) or return_type not in return_types:
             raise ValueError('Invalid return_type ({}). Expected one of {}.'.format(return_type, return_types))

@@ -30,7 +30,7 @@ We present an unsupervised, mixed method end-to-end fine-tuning & inference refe
 
 More information can be found in the paper [MVTec AD – A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection](https://www.mvtec.com/fileadmin/Redaktion/mvtec.com/company/research/datasets/mvtec_ad.pdf)
 
-![Statistical_overview_of_the_MVTec_AD_dataset](assets/mvtec_dataset_characteristics.JPG)
+![Statistical_overview_of_the_MVTec_AD_dataset](assets/mvtec_dataset_characteristics.jpg)
 <br>
 *Table 1:  Statistical overview of the MVTec AD dataset. For each category, the number of training and test images is given together with additional information about the defects present in the respective test images. [Source](https://www.mvtec.com/fileadmin/Redaktion/mvtec.com/company/research/datasets/mvtec_ad.pdf)*
 
@@ -60,7 +60,7 @@ The use case can work with 3 different options for modeling of the vision subtas
 * **SimSiam self-supervised learning:** is a contrastive learning method based on Siamese networks. It learns meaningful representation of dataset without using any labels. SimSiam requires a dataloader such that it can produce two different augmented images from one underlying image. The end goal is to train the network to produce same features for both images. It takes a ResNet model as the backbone and fine-tunes the model on the augmented dataset to get closer feature embeddings for the use case. Read more [here.](https://arxiv.org/pdf/2011.10566.pdf)
 * **Cut-Paste self-supervised learning:** is a contrastive learning method similar to SimSiam but differs in the augmentations used during training. It take a ResNet model as backbone and fine-tunes the model after applying a data augmentation strategy that cuts an image patch and pastes at a random location of a large image. This allows us to construct a high performance model for defect detection without presence of anomalous data. Read more [here.](https://arxiv.org/pdf/2104.04015.pdf)
 
-![visual_quality_inspection_pipeline](assets/visual_quality_inspection_pipeline.JPG)
+![visual_quality_inspection_pipeline](assets/visual_quality_inspection_pipeline.jpg)
 *Figure 1: Visual quality inspection pipeline. Above diagram is an example when using SimSiam self-supervised training.*
 
 Training stage only uses defect-free data. Images are loaded using a dataloader and shuffling, resizing & normalization processing is applied. Then one of the above stated transfer learning technique is used to fine-tune a model and extract discriminative features from an intermediate layer. A PCA kernel is trained over these features to reduce the dimension of the feature space while retaining 99% variance. This pre-processing of the intermediate features of a DNN is needed to prevent matrix singularities and rank deficiencies from arising.
@@ -69,7 +69,7 @@ During inference, the feature from a test image is generated through the same ne
 
 
 **Architecture:**
-![Visual_quality_inspection_layered_architecture](assets/Visual_quality_inspection_layered_architecture.JPG)
+![Visual_quality_inspection_layered_architecture](assets/Visual_quality_inspection_layered_architecture.jpg)
 The components shown under the 'Transfer Learning Tool repo' in the figure above is what is included in this folder
 
 

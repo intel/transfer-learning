@@ -70,6 +70,11 @@ model_map = {
                             "class": "TorchvisionImageAnomalyDetectionModel"},
             "Custom": {"module": "tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model",
                        "class": "PyTorchImageAnomalyDetectionModel"}
+        },
+        UseCaseType.TEXT_GENERATION:
+        {
+            "huggingface": {"module": "tlt.models.text_generation.pytorch_hf_text_generation_model",
+                            "class": "PyTorchHFTextGenerationModel"},
         }
     }
 }
@@ -293,7 +298,7 @@ def print_supported_models(framework: FrameworkType = None, use_case: UseCaseTyp
             print("## {}\n".format(model_use_case.replace("_", " ").title()))
         else:
             print("-" * 30)
-            print(model_use_case.replace("_", " ").upper())
+            print("{}".format(model_use_case.replace("_", " ").upper()))
             print("-" * 30)
 
         if len(models[model_use_case].keys()) == 0:

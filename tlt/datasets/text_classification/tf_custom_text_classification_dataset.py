@@ -75,7 +75,7 @@ class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
 
     """
 
-    def __init__(self, dataset_dir, dataset_name, csv_file_name, class_names, label_map_func=None,
+    def __init__(self, dataset_dir, dataset_name, csv_file_name, class_names=[], label_map_func=None,
                  defaults=[tf.string, tf.string], delimiter=",", header=False, select_cols=None, exclude_cols=None,
                  shuffle_files=True, seed=None, **kwargs):
         """
@@ -84,11 +84,6 @@ class TFCustomTextClassificationDataset(TextClassificationDataset, TFDataset):
         dataset_file = os.path.join(dataset_dir, csv_file_name)
         if not os.path.exists(dataset_file):
             raise FileNotFoundError("The dataset file ({}) does not exist".format(dataset_file))
-
-        if not isinstance(class_names, list):
-            raise TypeError("The class_names is expected to be a list, but found a {}", type(class_names))
-        if len(class_names) == 0:
-            raise ValueError("The class_names list cannot be empty.")
 
         if label_map_func and not callable(label_map_func):
             raise TypeError("The label_map_func is expected to be a function, but found a {}", type(label_map_func))

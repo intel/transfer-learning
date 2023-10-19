@@ -54,6 +54,10 @@ dataset_map = {
             "custom": {"module": "tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset",
                        "class": "PyTorchCustomImageAnomalyDetectionDataset"}
         },
+        UseCaseType.TEXT_GENERATION: {
+            "custom": {"module": "tlt.datasets.text_generation.hf_custom_text_generation_dataset",
+                       "class": "HFCustomTextGenerationDataset"}
+        },
     }
 }
 

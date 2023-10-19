@@ -17,10 +17,7 @@
 #
 
 import json
-import os
 import pandas as pd
-
-from zipfile import ZipFile
 
 
 def get_model_map(json_path, return_data_frame=False):

@@ -19,7 +19,7 @@ conda install -y \
   -c pytorch -c intel -c conda-forge
 
 pip install \
-  'datasets~=2.12.0' \
+  'datasets==2.14.5' \
   'intel_extension_for_pytorch==1.13.100' \
   'transformers~=4.30.0'
 

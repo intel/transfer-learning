@@ -6,7 +6,7 @@ metadata:
 spec:
   storageClassName: {{ .Values.pvcScn }}
   accessModes:
-    - "ReadWriteOnce"
+    - "ReadWriteMany"
   resources: 
     requests:
       storage: {{ .Values.pvcResources.data }}
@@ -19,7 +19,7 @@ metadata:
 spec:
   storageClassName: {{ .Values.pvcScn }}
   accessModes:
-    - "ReadWriteOnce"
+    - "ReadWriteMany"
   resources: 
     requests:
       storage: {{ .Values.pvcResources.output }}

@@ -32,7 +32,7 @@ from torchvision.datasets.folder import default_loader, IMG_EXTENSIONS
 
 from tlt.datasets.pytorch_dataset import PyTorchDataset
 from tlt.models.image_anomaly_detection.simsiam import loader as ssloader
-from tlt.models.image_anomaly_detection.cutpaste.cutpaste import CutPasteNormal, CutPasteScar,\
+from tlt.models.image_anomaly_detection.cutpaste.cutpaste import CutPasteNormal, CutPasteScar, \
     CutPaste3Way, CutPasteUnion, get_cutpaste_transforms
 
 

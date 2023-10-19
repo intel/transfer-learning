@@ -31,7 +31,6 @@ from transformers import TFBertModel, BertConfig
 
 from pydoc import locate
 from tlt.utils.dataset_utils import prepare_huggingface_input_data
-from tlt.models.model_factory import get_model_info
 
 
 # This needs to be imported last to avoid "free(): invalid pointer" error
@@ -79,6 +78,12 @@ class DistributedTF:
     def __init__(self) -> None:
         hvd.init()
 
+    def rank(self):
+        return hvd.rank()
+
+    def allreduce(self, x):
+        hvd.allreduce(x)
+
     def prepare_dataset(self, dataset, use_case, global_batch_size, scaling, **kwargs):
         if scaling.lower() == 'weak':
             batch_size = global_batch_size
@@ -86,10 +91,11 @@ class DistributedTF:
             batch_size = global_batch_size // hvd.size()
 
         if use_case == 'image_classification':
-            dataset = dataset.shard(num_shards=hvd.size(), index=hvd.rank())
-            dataset = dataset.cache()
             if 'map_func' in kwargs:
                 dataset = dataset.map(map_func=kwargs.get('map_func'), num_parallel_calls=tf.data.AUTOTUNE)
+            dataset = dataset.shard(num_shards=hvd.size(), index=hvd.rank())
+            dataset = dataset.cache()
+            dataset = dataset.shuffle(buffer_size=10000)
             dataset = dataset.batch(batch_size)
             dataset = dataset.prefetch(tf.data.AUTOTUNE)
         elif use_case == 'text_classification':
@@ -136,11 +142,6 @@ class DistributedTF:
         return dataset
 
     def prepare_model(self, model_name, use_case, input_shape, num_classes, **kwargs):
-        # Try to get model url from TLT supported models
-        model_info = get_model_info(model_name, 'tensorflow', use_case)
-        if model_info != {}:
-            fw_enum = list(model_info.keys())[0]
-            model_name = model_info[fw_enum]['tensorflow']['feature_vector']
         if use_case == 'image_classification':
             model = tf.keras.models.Sequential([
                 hub.KerasLayer(model_name, input_shape=input_shape),
@@ -158,6 +159,9 @@ class DistributedTF:
             classifier = tf.keras.layers.Dense(dense_layer_dims, activation=None, name='classifier')(bert_output)
 
             model = tf.keras.Model(inputs=[input_ids, attention_mask], outputs=classifier)
+
+        if hvd.rank() == 0:
+            model.summary(print_fn=print)
 
         return model
 
@@ -179,10 +183,8 @@ class DistributedTF:
         if training_args.scaling.lower() == 'weak':
             multiplier = np.sqrt(training_args.global_batch_size // training_args.batch_denom)
             optimizer.lr = optimizer.lr * multiplier
-            batch_size = training_args.global_batch_size
         elif training_args.scaling.lower() == 'strong':
             optimizer.lr = optimizer.lr * hvd.size()
-            batch_size = training_args.global_batch_size // hvd.size()
 
         if training_args.use_case == 'image_classification':
             hvd_optimizer = hvd.DistributedOptimizer(
@@ -240,7 +242,7 @@ class DistributedTF:
                             tf.convert_to_tensor(val_labels))
 
         start = time.time()
-        steps_per_epoch_per_worker = len(training_args.train_data) // batch_size
+        steps_per_epoch_per_worker = len(training_args.train_data)
         steps_per_epoch_per_worker = steps_per_epoch_per_worker // hvd.size()
         if hvd.size() > 2:
             steps_per_epoch_per_worker += 1

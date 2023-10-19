@@ -1,3 +1,9 @@
+![Style Checks](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/style-test.yaml/badge.svg)
+![Doc Test](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/docs-test.yaml/badge.svg)
+![Unit Tests](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/unittest.yaml/badge.svg)
+![Integration Tests](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/integration.yaml/badge.svg)
+![Notebook Test](https://github.com/intel-innersource/frameworks.ai.transfer-learning/actions/workflows/notebook-test.yaml/badge.svg)
+
 *Note: You may find it easier to read about Intel Transfer Learning tool, follow the Get
 Started guide, and browse the API material from our published documentation site
 https://intelai.github.io/transfer-learning.*
@@ -24,8 +30,13 @@ demonstrate its usage.
 
 **Features:**
 * Supports PyTorch\* and TensorFlow\*
-* Select from over [100 image classification and text classification models](Models.md) from
+* Select from over [100 computer vision and natural language processing models](Models.md) from
   Torchvision, PyTorch Hub, TensorFlow Hub, Keras, and Hugging Face
+* Use cases include:
+  * Image Classification
+  * Text Classification
+  * Text Generation
+  * Vision Anomaly Detection
 * Use your own custom dataset or get started quickly with built-in datasets
 * Automatically create a trainable classification layer customized for your dataset
 * Pre-process your dataset using scaling, cropping, batching, and splitting
@@ -37,7 +48,7 @@ demonstrate its usage.
 * Quantize to INT8 to reduce model size and speed up inference using Intel® Neural Compressor
 * Optimize model for FP32 inference using Intel Neural Compressor
 * Reduce training time with auto-mixed precision for select hardware platforms
-* Further reduce training time with multinode training for PyTorch
+* Further reduce training time with multinode training
 
 ## How the Intel Transfer Learning Tool Works
 
@@ -46,7 +57,7 @@ PyTorch using either no-code command line interface (CLI) commands at a bash
 prompt, or low-code application programming interface (API) calls from a Python
 script.
 
-Use your own dataset or select an existing image or text classification dataset listed in the
+Use your own dataset or select an existing image or text dataset listed in the
 [public datasets](DATASETS.md) documentation. Construct your own CLI or API commands for training, evaluation,
 and optimization using the TensorFlow or PyTorch framework, and finally export
 your saved model optimized for inference on Intel CPUs.
@@ -88,6 +99,10 @@ Use `tlt --help` to see the list of CLI commands.  More detailed help for each
 command can be found using, for example, `tlt train --help`.
 
 <!-- ExpandGetStarted-End -->
+
+## Note on Evaluation and Bias
+
+Intel Transfer Learning Tool provides standard evaluation metrics such as accuracy and loss for validation/test/train sets. While important, it's essential to acknowledge that these metrics may not explicitly capture biases. Users should be cautious and consider potential biases by analyzing disparities in the data and model prediction. Techniques such as confusion matrices, PR curves, ROC curves, local attribution-based and `gradCAM` explanations, can all be good indicators for bias. Clear documentation of model behavior and performance is also crucial for iterative bias mitigation. [Intel® Explainable AI Tools](https://github.com/IntelAI/intel-xai-tools/tree/main) provides components that demonstrate the aformentioned techniques with [Explainer](https://github.com/IntelAI/intel-xai-tools/tree/main/explainer), a simple API providing post-hoc model distillation and visualization methods, as well as The [Model Card Generator](https://github.com/IntelAI/intel-xai-tools/tree/main/model_card_gen) which provides an interactive HTML report that containing these workflows and demonstrations of model behavior.
 
 ## Support
 

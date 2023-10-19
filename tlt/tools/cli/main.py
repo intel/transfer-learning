@@ -26,6 +26,7 @@ from tlt.tools.cli.commands.list import list_group
 from tlt.tools.cli.commands.optimize import optimize
 from tlt.tools.cli.commands.quantize import quantize
 from tlt.tools.cli.commands.train import train
+from tlt.tools.cli.commands.generate import generate
 
 
 @click.group('cli')
@@ -40,6 +41,7 @@ cli_group.add_command(eval)
 cli_group.add_command(quantize)
 cli_group.add_command(benchmark)
 cli_group.add_command(optimize)
+cli_group.add_command(generate)
 
 if __name__ == '__main__':
     cli_group()

@@ -34,6 +34,17 @@ Image Classification
     pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset
     image_classification_dataset.ImageClassificationDataset
 
+Image Anomaly Detection
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: tlt.datasets.image_anomaly_detection
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+    pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset
+
 Text Classification
 ^^^^^^^^^^^^^^^^^^^
 
@@ -48,6 +59,18 @@ Text Classification
     tf_custom_text_classification_dataset.TFCustomTextClassificationDataset
     hf_custom_text_classification_dataset.HFCustomTextClassificationDataset
     text_classification_dataset.TextClassificationDataset
+
+Text Generation
+^^^^^^^^^^^^^^^
+
+.. currentmodule:: tlt.datasets.text_generation
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+    hf_custom_text_generation_dataset.HFCustomTextGenerationDataset
+    text_generation_dataset.TextGenerationDataset
 
 Base Classes
 ^^^^^^^^^^^^
@@ -101,6 +124,18 @@ Image Classification
    pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel
    image_classification_model.ImageClassificationModel
 
+Image Anomaly Detection
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: tlt.models.image_anomaly_detection
+
+.. autosummary::
+  :toctree: _autosummary
+  :nosignatures:
+
+   torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel
+   pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel
+
 Text Classification
 ^^^^^^^^^^^^^^^^^^^
 
@@ -114,6 +149,18 @@ Text Classification
    pytorch_hf_text_classification_model.PyTorchHFTextClassificationModel
    tf_hf_text_classification_model.TFHFTextClassificationModel
    text_classification_model.TextClassificationModel
+
+Text Generation
+^^^^^^^^^^^^^^^
+
+.. currentmodule:: tlt.models.text_generation
+
+.. autosummary::
+  :toctree: _autosummary
+  :nosignatures:
+
+   pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel
+   text_generation_model.TextGenerationModel
 
 Base Classes
 ^^^^^^^^^^^^

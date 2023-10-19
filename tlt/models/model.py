@@ -102,16 +102,6 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def predict(self, input_samples):
-        """
-        Generates predictions for the input samples.
-
-        The input samples can be a BaseDataset type of object or a numpy array.
-        Returns a numpy array of predictions.
-        """
-        pass
-
-    @abc.abstractmethod
     def export(self, output_dir: str):
         """
         Export the serialized model to an output directory

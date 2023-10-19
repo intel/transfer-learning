@@ -54,22 +54,23 @@ def test_tf_flowers_10pct():
     """
     flowers = get_dataset('/tmp/data', 'image_classification', 'tensorflow', 'tf_flowers',
                           'tf_datasets', split=["train[:10%]"])
-    assert type(flowers) == TFDSImageClassificationDataset
+    assert isinstance(flowers, TFDSImageClassificationDataset)
     assert len(flowers.dataset) < 3670
 
 
 @pytest.mark.tensorflow
 @pytest.mark.parametrize('dataset_name,use_case,train_split,val_split,test_split,train_len,val_len,test_len',
-                         [['beans', 'image_classification', 'train', 'validation', None, 1034, 133, 0],
+                         [['rock_paper_scissors', 'image_classification', 'train', None, 'test', 2520, 0, 372],
                           ['glue/cola', 'text_classification', 'train', 'validation', 'test', 8551, 1043, 1063]])
 def test_defined_split(dataset_name, use_case, train_split, val_split, test_split, train_len, val_len, test_len):
     """
     Checks that dataset can be loaded into train, validation, and test subsets based on TFDS splits and then
     re-partitioned with shuffle-split
     """
+    dataset_dir = os.environ.get('CACHE_DIR', '/tmp/data')  # Check if the environment variable is set
     splits = [train_split, val_split, test_split]
     splits = [s for s in splits if s]  # Filter out ones that are None
-    data = get_dataset('/tmp/data', use_case, 'tensorflow', dataset_name, 'tf_datasets', split=splits)
+    data = get_dataset(dataset_dir, use_case, 'tensorflow', dataset_name, 'tf_datasets', split=splits)
 
     total_len = train_len + val_len + test_len
     assert len(data.dataset) == total_len
@@ -496,7 +497,7 @@ class TestImageClassificationDataset:
         tlt_dataset, dataset_name, dataset_classes, use_case, splits = test_data
 
         if dataset_name is None:
-            assert type(tlt_dataset) == TFCustomImageClassificationDataset
+            assert isinstance(tlt_dataset, TFCustomImageClassificationDataset)
             assert len(tlt_dataset.class_names) == len(dataset_classes)
             if splits is None:
                 assert len(tlt_dataset.dataset) == len(dataset_classes) * 50
@@ -504,9 +505,9 @@ class TestImageClassificationDataset:
                 assert len(tlt_dataset.dataset) == len(dataset_classes) * len(splits) * 50
         else:
             if use_case == 'image_classification':
-                assert type(tlt_dataset) == TFDSImageClassificationDataset
+                assert isinstance(tlt_dataset, TFDSImageClassificationDataset)
             elif use_case == 'text_classification':
-                assert type(tlt_dataset) == TFDSTextClassificationDataset
+                assert isinstance(tlt_dataset, TFDSTextClassificationDataset)
 
             assert len(tlt_dataset.class_names) == len(tfds_metadata[dataset_name]['class_names'])
             assert len(tlt_dataset.dataset) == tfds_metadata[dataset_name]['size']
