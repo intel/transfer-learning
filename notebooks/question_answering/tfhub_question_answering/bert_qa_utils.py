@@ -21,14 +21,11 @@ import json
 import os
 import pandas as pd
 import sys
-import tensorflow as tf
+from tlt.utils.file_utils import download_file
+from zipfile import ZipFile
 
 sys.path.append(os.environ["TF_MODELS_DIR"])
 
-from official.common import distribute_utils
-from official.legacy.bert.run_squad_helper import get_dataset_fn
-from tlt.utils.file_utils import download_file
-from zipfile import ZipFile
 
 def create_mini_dataset_file(original_file, output_file, num_dataset_items, overwrite=False):
     """
@@ -41,37 +38,37 @@ def create_mini_dataset_file(original_file, output_file, num_dataset_items, over
     """
     if not os.path.exists(output_file) or overwrite:
         import random
-        
+
         with open(original_file) as f:
             original_data = json.load(f)
 
         total_len = len(original_data["data"])
-        
+
         if num_dataset_items > total_len:
             raise ValueError("The number of dataset items ({}) cannot be more than the total "
                              "dataset length ({}).".format(num_dataset_items, total_len))
-        
+
         item_indicies = random.sample(range(0, total_len), num_dataset_items)
         print("Total dataset length:", total_len)
         print("Randomly selected dataset indices:", item_indicies)
-        
+
         articles = []
-        
+
         for data_index in item_indicies:
             article = {}
             article["paragraphs"] = original_data["data"][data_index]["paragraphs"]
             article["title"] = original_data["data"][data_index]["title"]
-            
+
             for p in article["paragraphs"]:
                 for qas in p["qas"]:
                     qas["id"] = str(qas["id"])
-            
+
             articles.append(article)
 
         # Add the article to a dictionary for the mini dataset
         mini_data = {}
         mini_data["data"] = articles
-        
+
         # Add on a version
         mini_data["version"] = original_data["version"] if "version" in original_data.keys() else "1.0"
 
@@ -86,7 +83,7 @@ def create_mini_dataset_file(original_file, output_file, num_dataset_items, over
 
 def display_predictions(predict_data_path, results_file_path, n=10):
     """ Displays n number of predictions along with the actual value """
-    
+
     def get_data_list():
         count = 0
         data_list = []
@@ -116,7 +113,7 @@ def display_predictions(predict_data_path, results_file_path, n=10):
                                        "Predicted Answer",
                                        "Actual Answer(s)"])
     return predict_df.style.hide(axis="index")
-                    
+
 
 def get_config_and_vocab_from_zip(zip_url, bert_dir):
     """
@@ -132,7 +129,7 @@ def get_config_and_vocab_from_zip(zip_url, bert_dir):
     """
     vocab_txt = os.path.join(bert_dir, "vocab.txt")
     bert_config = os.path.join(bert_dir, "bert_config.json")
-    
+
     if not os.path.exists(vocab_txt) or not os.path.exists(bert_config):
         downloaded_file = download_file(zip_url, bert_dir)
         with ZipFile(downloaded_file, "r") as checkpoint_zip:
@@ -149,60 +146,13 @@ def get_config_and_vocab_from_zip(zip_url, bert_dir):
                             if matches:
                                 os.replace(matches[0], file_path)
                         break
-            
+
             if not os.path.exists(vocab_txt):
                 get_file_from_zip(vocab_txt)
-            
+
             if not os.path.exists(bert_config):
                 get_file_from_zip(bert_config)
 
         os.remove(downloaded_file)
-        
+
     return vocab_txt, bert_config
-
-
-# This function was taken from the TensorFlow Model Garden repo and adapted
-# to be a utility function that has a string for the strategy, directly passes
-# in the max_seq_length instead of a metadata object, and removes the need for FLAGS
-# being defined (instead just passes in the predict_batch_size as an arg).
-
-# https://github.com/tensorflow/models/blob/v2.7.0/official/nlp/bert/run_squad_helper.py#L176
-def predict_squad_customized(strategy_str, max_seq_length, predict_batch_size,
-                             predict_tfrecord_path, num_steps, squad_model):
-    
-    strategy = distribute_utils.get_distribution_strategy(distribution_strategy=strategy_str)
-    
-    """Make predictions using a Bert-based squad model."""
-    predict_dataset_fn = get_dataset_fn(
-        predict_tfrecord_path,
-        max_seq_length,
-        predict_batch_size,
-        is_training=False)
-    predict_iterator = iter(
-        strategy.distribute_datasets_from_function(predict_dataset_fn))
-
-    @tf.function
-    def predict_step(iterator):
-        """Predicts on distributed devices."""
-
-        def _replicated_step(inputs):
-            """Replicated prediction calculation."""
-            x, _ = inputs
-            unique_ids = x.pop('unique_ids')
-            start_logits, end_logits = squad_model(x, training=False)
-            return dict(
-                unique_ids=unique_ids,
-                start_logits=start_logits,
-                end_logits=end_logits)
-
-        outputs = strategy.run(_replicated_step, args=(next(iterator),))
-        return tf.nest.map_structure(strategy.experimental_local_results, outputs)
-
-    all_results = []
-    for _ in range(num_steps):
-        predictions = predict_step(predict_iterator)
-        for result in get_raw_results(predictions):
-            all_results.append(result)
-        if len(all_results) % 100 == 0:
-            print('Made predictions for %d records.', len(all_results))
-    return all_results

@@ -30,14 +30,12 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+from datetime import datetime
 import os
+import sphinx_rtd_theme
 import sys
-import shutil
-import glob
 sys.path.insert(0, os.path.abspath('../..'))
 sys.setrecursionlimit(1500)
-import sphinx_rtd_theme
-from datetime import datetime
 
 # -- Project information -----------------------------------------------------
 
@@ -91,9 +89,11 @@ html_favicon = 'images/favicon-intel-32x32.png'
 html_static_path = ['_static']
 templates_path = ['_templates']
 
+
 def setup(app):
-   app.add_css_file("tlt-custom.css")
-   app.add_js_file("tlt-custom.js")
+    app.add_css_file("tlt-custom.css")
+    app.add_js_file("tlt-custom.js")
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -108,4 +108,4 @@ myst_heading_anchors = 2
 suppress_warnings = ["myst.xref_missing", "myst.header"]
 
 # ask the myst parser to process <img> tags so Sphinx can handle the properly
-myst_enable_extensions = [ "html_image" ]
+myst_enable_extensions = ["html_image"]

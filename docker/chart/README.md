@@ -13,7 +13,7 @@ A Helm chart for Kubernetes
 | datasetName | string | `"cifar10"` | Dataset name to load from tfds |
 | epochs | int | `1` | Total epochs to train the model |
 | imageName | string | `"intel/ai-tools"` |  |
-| imageTag | string | `"0.5.0-dist-devel"` |  |
+| imageTag | string | `"0.6.0-dist-devel"` |  |
 | metadata.name | string | `"tlt-distributed"` |  |
 | metadata.namespace | string | `"kubeflow"` |  |
 | modelName | string | `"https://tfhub.dev/google/efficientnet/b1/feature-vector/1"` | TF Hub or HuggingFace model URL |

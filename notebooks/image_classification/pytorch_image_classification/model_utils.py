@@ -17,7 +17,6 @@
 #
 
 import torch
-import torchvision
 from pydoc import locate
 
 
@@ -55,18 +54,19 @@ torchvision_model_map = {
     }
 }
 
+
 def get_retrainable_model(model_name, num_classes, do_fine_tuning=False):
     # Load an image classification model pretrained on ImageNet
     pretrained_model_class = locate('torchvision.models.{}'.format(model_name))
     classifier_layer = torchvision_model_map[model_name]['classifier']
-                                                         
+
     model = pretrained_model_class(pretrained=True)
 
     if not do_fine_tuning:
         for param in model.parameters():
             param.requires_grad = False
 
-    if type(classifier_layer) == list:
+    if isinstance(classifier_layer, list):
         classifier = getattr(model, classifier_layer[0])[classifier_layer[1]]
         num_features = classifier.in_features
         model.classifier[classifier_layer[1]] = torch.nn.Linear(num_features, num_classes)
@@ -74,6 +74,5 @@ def get_retrainable_model(model_name, num_classes, do_fine_tuning=False):
         classifier = getattr(model, classifier_layer)
         num_features = classifier.in_features
         setattr(model, classifier_layer, torch.nn.Linear(num_features, num_classes))
-        
-    return model
 
+    return model

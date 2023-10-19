@@ -14,7 +14,7 @@ jobs:
       credentials: # CAAS Registry Creds
         username: ${{ secrets.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_TOKEN }}
-    runs-on: [aia-devops] # Runner Label
+    runs-on: [ xai-tlt ] # Runner Label
     steps:
     - uses: actions/checkout@v3
       with:
@@ -37,7 +37,7 @@ jobs:
       credentials: # CAAS Registry Creds
         username: ${{ secrets.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_TOKEN }}
-    runs-on: [aia-devops]
+    runs-on: [ xai-tlt ]
     steps:
     - uses: docker/login-action@v2
       with: # CAAS Registry Creds

@@ -28,3 +28,6 @@ This is a comprehensive list of public datasets used by this repository.
 | [CDD-CESM](https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=109379611) |  PyTorch & TensorFlow | Image & Text Classification |
 | [SQuAD](https://rajpurkar.github.io/SQuAD-explorer/) |  PyTorch & TensorFlow | Text Classification |
 | [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad) |  PyTorch | Anomaly Detection |
+| [Code Alpaca](https://github.com/sahil280114/codealpaca) |  PyTorch | Text Generation |
+| [Dolly-15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k) |  PyTorch | Text Generation |
+| [RedPajama-Data](https://github.com/togethercomputer/RedPajama-Data) |  PyTorch | Text Generation |

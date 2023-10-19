@@ -45,6 +45,16 @@ class TextClassificationModel(BaseModel):
         """
         pass
 
+    @abc.abstractmethod
+    def predict(self, input_samples):
+        """
+        Generates predictions for the input samples.
+
+        The input samples can be a BaseDataset type of object or a numpy array.
+        Returns a numpy array of predictions.
+        """
+        pass
+
     @property
     def dropout_layer_rate(self):
         """

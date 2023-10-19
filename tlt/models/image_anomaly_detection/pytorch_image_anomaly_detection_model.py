@@ -19,6 +19,7 @@
 #
 
 from numbers import Number
+import pickle  # nosec B403
 from tqdm import tqdm
 
 from sklearn.decomposition import PCA
@@ -30,18 +31,20 @@ import torch.nn as nn
 import os
 import torch.optim
 import torch.optim.lr_scheduler as lr_scheduler
-from torchvision.models import resnet18, resnet50
 
+from downloader.models import ModelDownloader
 from tlt.models.image_classification.pytorch_image_classification_model import PyTorchImageClassificationModel
 from tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset \
     import PyTorchCustomImageAnomalyDetectionDataset
 from tlt.utils.file_utils import verify_directory, validate_model_name
+from tlt.utils.platform_util import PlatformUtil
+from tlt.utils.types import UseCaseType
 
 from tlt.models.image_anomaly_detection.simsiam import builder
 from tlt.models.image_anomaly_detection import utils
 
 from tlt.models.image_anomaly_detection.cutpaste.model import ProjectionNet
-from tlt.models.image_anomaly_detection.cutpaste.cutpaste import CutPasteNormal,\
+from tlt.models.image_anomaly_detection.cutpaste.cutpaste import CutPasteNormal, \
     CutPasteScar, CutPaste3Way, CutPasteUnion
 
 import intel_extension_for_pytorch as ipex
@@ -124,12 +127,18 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         """
         Class constructor
         """
-        PyTorchImageClassificationModel.__init__(self, model_name, model, optimizer, loss, **kwargs)
+        PyTorchImageClassificationModel.__init__(self, model_name, model, optimizer, loss,
+                                                 use_case=UseCaseType.IMAGE_ANOMALY_DETECTION, **kwargs)
         self.simsiam = False
         self.cutpaste = False
         self._layer_name = 'layer3'
         self._pooling = 'avg'
         self._kernel_size = 2
+        self._pca_mats = None
+        self._enable_auto_mixed_precision = False
+
+        # Store the dataset type that this model type can use for Intel Neural Compressor
+        self._inc_compatible_dataset = (PyTorchCustomImageAnomalyDetectionDataset)
 
     def _check_train_inputs(self, output_dir, dataset, dataset_type, pooling, kernel_size, pca_threshold):
         verify_directory(output_dir)
@@ -150,10 +159,8 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         """
         Load checkpoints from the given checkpoint directory based on feature extractor
         """
-        if model_name == 'resnet50':
-            net = resnet50(pretrained=False)
-        elif model_name == 'resnet18':
-            net = resnet18(pretrained=False)
+        downloader = ModelDownloader(model_name, hub='torchvision', model_dir=None)
+        net = downloader.download()
 
         ckpt = torch.load(os.path.join(checkpoint_dir, filename), map_location=torch.device('cpu'))
         state_dict = ckpt['state_dict']
@@ -197,7 +204,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
     def train_simsiam(self, dataset, output_dir, epochs, feature_dim,
                       pred_dim, batch_size=64, initial_checkpoints=None,
-                      generate_checkpoints=False, precision='float32'):
+                      generate_checkpoints=False, ipex_optimize=True, precision='float32'):
         """
             Trains a SimSiam model using the specified dataset.
 
@@ -210,6 +217,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
                 initial_checkpoints (str): Path to checkpoint weights to load.
                 generate_checkpoints (bool): Whether to save/preserve the best weights during
                                              SimSiam or CutPaste training, default is False.
+                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.
                 precision (str): precision in which model to be trained, default is float32.
 
             Returns:
@@ -248,8 +256,11 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         print("Fine-tuning Simsiam Model on ", epochs, "epochs using ", num_images, " training images")
         self._model.train()
 
-        model, optimizer = ipex.optimize(self._model, optimizer=optimizer,
-                                         dtype=torch.bfloat16 if precision == 'bfloat16' else torch.float32)
+        if ipex_optimize:
+            model, optimizer = ipex.optimize(self._model, optimizer=optimizer,
+                                             dtype=torch.bfloat16 if precision == 'bfloat16' else torch.float32)
+        else:
+            model = self._model
 
         valid_model_name = validate_model_name(self.model_name)
         checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(valid_model_name))
@@ -292,7 +303,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
     def train_cutpaste(self, dataset, output_dir, optim, epochs, freeze_resnet,
                        head_layer, cutpaste_type, initial_checkpoints=None,
-                       generate_checkpoints=False, precision='float32'):
+                       generate_checkpoints=False, ipex_optimize=True, precision='float32'):
         """
             Trains a CutPaste model using the specified dataset.
 
@@ -308,6 +319,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
                 initial_checkpoints (str): path for feature extractor model
                 generate_checkpoints (bool): Whether to save/preserve the best weights during
                                              SimSiam or CutPaste training, default is False.
+                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.
                 precision (str): precision in which model to be trained, default is float32.
 
             Returns:
@@ -359,8 +371,11 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
             print("Fine-tuning CUT-PASTE Model on ", epochs, "epochs using ", num_images, " training images")
             self._model.train()
 
-            model, optimizer = ipex.optimize(self._model, optimizer=optimizer,
-                                             dtype=torch.bfloat16 if precision == 'bfloat16' else torch.float32)
+            if ipex_optimize:
+                model, optimizer = ipex.optimize(self._model, optimizer=optimizer,
+                                                 dtype=torch.bfloat16 if precision == 'bfloat16' else torch.float32)
+            else:
+                model = self._model
 
             for step in range(epochs):
                 epoch = int(step / 1)
@@ -405,21 +420,22 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
                                                        model_path, feature_extractor='cutpaste')
         return self._model
 
-    def train(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, output_dir, epochs=2,
-              batch_size=64, feature_dim=2048, pred_dim=512,
+    def train(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, output_dir, epochs=1,
+              batch_size=64, feature_dim=1000, pred_dim=250,
               generate_checkpoints=False, initial_checkpoints=None, seed=None, pooling='avg',
               kernel_size=2, pca_threshold=0.99, simsiam=False, cutpaste=False, cutpaste_type='normal',
-              freeze_resnet=20, head_layer=2, optim='sgd', layer_name='layer3', precision='float32'):
+              freeze_resnet=20, head_layer=2, optim='sgd', layer_name='layer3', ipex_optimize=True,
+              enable_auto_mixed_precision=None):
         """
             Trains the model using the specified image anomaly detection dataset.
 
             Args:
                 dataset (PyTorchCustomImageAnomalyDetectionDataset): Dataset to use when training the model
                 output_dir (str): Path to a writeable directory for output files
-                batch_size (int): batch size for every forward opeartion, default is 64
+                batch_size (int): batch size for every forward operation, default is 64
                 layer_name (str): The layer name whose output is desired for the extracted features
-                feature_dim (int): Feature dimension, default is 2048
-                pred_dim (int): Hidden dimension of the predictor, default is 512
+                feature_dim (int): Feature dimension, default is 1000
+                pred_dim (int): Hidden dimension of the predictor, default is 250
                 epochs (int): Number of epochs to train the model
                 generate_checkpoints (bool): Whether to save/preserve the best weights during
                                              SimSiam or CutPaste training, default is False.
@@ -430,15 +446,23 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
                 pca_threshold (float): Threshold to apply to PCA model, default is 0.99
                 simsiam (bool): Boolean option to enable/disable simsiam training, default is False
                 cutpaste (bool): Boolean option to enable/disable cutpaste training, default is False
-                cutpaste-type (str): cutpaste variant to use, default is normal
-                freeze_resnet (int): Epochs upto which we freeze ResNet layers and only train
+                cutpaste_type (str): cutpaste variant to use, default is normal
+                freeze_resnet (int): Epochs up to which we freeze ResNet layers and only train
                                      the new header with FC layers, default is 20
-                head_layer (int): number of layers in the projection head, default is 1
+                head_layer (int): number of layers in the projection head, default is 2
                 optim (str): Choice of optimizer to use for training, default is sgd
-                precision (str): precision in which model to be trained, default is float32.
+                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.
+                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
+                    uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
+                    It is recommended to enable auto mixed precision training when running on platforms that support
+                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                    does not support bfloat16, it can be detrimental to the training performance. If
+                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to
+                    None.
 
             Returns:
-                Fitted principal components
+                Fitted principal components and PyTorch feature extraction model
         """
         self._check_train_inputs(output_dir, dataset, PyTorchCustomImageAnomalyDetectionDataset, pooling,
                                  kernel_size, pca_threshold)
@@ -451,14 +475,27 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         self.simsiam = simsiam
         self.cutpaste = cutpaste
 
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision training will be disabled.".format(str(e)))
+
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
+        precision = 'float32' if not enable_auto_mixed_precision else 'bfloat16'
+
         if self.simsiam:
             model = self.train_simsiam(dataset, output_dir, epochs, feature_dim,
                                        pred_dim, batch_size, initial_checkpoints,
-                                       generate_checkpoints=False, precision='float32')
+                                       generate_checkpoints=False, ipex_optimize=ipex_optimize,
+                                       precision=precision)
         elif self.cutpaste:
             model = self.train_cutpaste(dataset, output_dir, optim, epochs, freeze_resnet,
                                         head_layer, cutpaste_type, initial_checkpoints,
-                                        generate_checkpoints=False, precision='float32')
+                                        generate_checkpoints=False, ipex_optimize=ipex_optimize,
+                                        precision=precision)
         else:
             model = self.load_pretrained_model()
             print("Loading '{}' model".format(self.model_name))
@@ -488,7 +525,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
         return self._pca_mats, model
 
-    def evaluate(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, pca_mats, use_test_set=False):
+    def evaluate(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, pca_mats=None, use_test_set=False):
         """
         Evaluate the accuracy of the model on a dataset.
         If there is a validation set, evaluation will be done on it (by default) or on the test set
@@ -499,7 +536,8 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
             dataset (PyTorchCustomImageAnomalyDetectionDataset): Dataset on which evaluation
                                                                  is performed
             pca_mats (PCA components): Components responsible for the top (threshold)% of the
-                                       features' variability
+                                       features' variability; if not provided, the model's last
+                                       calculated PCA will be used
             use_test_set (bool): If set to True, evaluation is done on test set else on validation
                                  set if available
 
@@ -507,6 +545,12 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
             threshold : Computed threshold for prediction
             auc_roc_binary : AUROC score
         """
+        if pca_mats is None:
+            if self._pca_mats is None:
+                raise ValueError("Either pass in the pca_mats to use or use the train() method to generate them.")
+            else:
+                pca_mats = self._pca_mats
+
         dataset._dataset.transform = dataset._validation_transform
         if use_test_set:
             if dataset.test_subset:
@@ -555,14 +599,15 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
         return threshold, auc_roc_binary
 
-    def predict(self, input_samples, pca_mats, return_type='scores', threshold=None):
+    def predict(self, input_samples, pca_mats=None, return_type='scores', threshold=None):
         """
         Perform inference and predict the class of the input_samples.
 
         Args:
             input_samples (tensor): Input tensor with one or more samples to perform inference on
             pca_mats (PCA components): Components responsible for the top (threshold)% of the
-                                       features' variability
+                                       features' variability; if not provided, the model's last
+                                       calculated PCA will be used
             return_type (str): Using 'scores' will return the raw output of the PCA model and using 'class' will return
                                the highest scoring class based on a user-provided threshold (default: 'scores')
             threshold (numerical): Optional; When using return_type "class" this is the threshold for determining
@@ -571,6 +616,12 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         Returns:
             List of predictions ('good' or 'bad') or raw score vector
         """
+        if pca_mats is None:
+            if self._pca_mats is None:
+                raise ValueError("Either pass in the pca_mats to use or use the train() method to generate them.")
+            else:
+                pca_mats = self._pca_mats
+
         if return_type == 'class' and not isinstance(threshold, Number):
             raise ValueError("For class prediction, please give a numeric threshold.")
 
@@ -596,3 +647,43 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
             return scores
         else:
             return ['good' if s >= threshold else 'bad' for s in scores]
+
+    def export(self, output_dir):
+        """
+           Exports a trained model as a model.pt file along with the PCA components as pca_mats.pkl. The files
+           will be written to the output directory in a directory with the model's name, and a unique numbered
+           directory. The directory number will increment each time the model is exported.
+
+           Args:
+               output_dir (str): A writeable output directory.
+
+           Returns:
+               The path to the numbered saved model directory
+
+           Raises:
+               TypeError: if the output_dir is not a string
+               FileExistsError: the specified output directory already exists as a file
+               ValueError: if the model has not been loaded or trained yet
+        """
+        # Call the base class to write the model file
+        saved_model_dir = PyTorchImageClassificationModel.export(self, output_dir)
+
+        if self._pca_mats:
+            pca_file_name = os.path.join(saved_model_dir, 'pca_mats.pkl')
+            with open(pca_file_name, 'wb') as pca_file:
+                pickle.dump(self._pca_mats, pca_file)
+            print('Saved principal components: {}'.format(pca_file_name))
+
+        return saved_model_dir
+
+    def load_from_directory(self, model_dir: str):
+        """
+        Load a saved model and its PCA components from the model_dir path
+        """
+        # Call the base class to load the model file
+        PyTorchImageClassificationModel.load_from_directory(self, model_dir)
+
+        pca_file_name = os.path.join(model_dir, 'pca_mats.pkl')
+        if os.path.isfile(pca_file_name):
+            with open(pca_file_name, 'rb') as pca_file:
+                self._pca_mats = pickle.load(pca_file)  # nosec B301

@@ -11,7 +11,6 @@ on:
       - r0.2
       - r0.3
       - r0.4
-      - r0.5
     tags:
       - '**'
     paths:
@@ -21,9 +20,10 @@ jobs:
     if: github.event.review.state == 'approved' ||
         github.event.pull_request.merged == true ||
         github.event_name == 'push'
-    runs-on: [ aia-devops ]
+    runs-on: [ xai-tlt ]
     container:
       image: ${{ vars.GHA_IMAGE }}
+      options: --shm-size=4GB
       env:
         http_proxy: ${{ secrets.HTTP_PROXY }}
         https_proxy: ${{ secrets.HTTPS_PROXY }}

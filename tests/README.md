@@ -21,7 +21,7 @@ make integration
 conda create --name tlt_dev_venv python=3.9
 
 # Install tlt for TensorFlow and/or PyTorch
-pip3 install --editable .
+pip3 install .
 
 # Install the test requirements
 pip3 install -r tests/requirements-test.txt

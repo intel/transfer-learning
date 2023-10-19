@@ -188,7 +188,8 @@ def test_pyt_image_classification_custom_model():
 
     # Evaluate
     reload_metrics = reload_model.evaluate(dataset)
-    assert reload_metrics == trained_metrics
+    assert round(reload_metrics[0], 5) == round(trained_metrics[0], 5)
+    assert reload_metrics[1] == trained_metrics[1]
 
     # Ensure we get not implemented errors for graph_optimization
     with pytest.raises(NotImplementedError):

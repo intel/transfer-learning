@@ -1,0 +1,26 @@
+{
+    "distilgpt2": {
+        "model_hub": "huggingface",
+        "hub_name": "distilgpt2"
+    },
+    "gpt2": {
+        "model_hub": "huggingface",
+        "hub_name": "gpt2"
+    },
+    "gpt-j-6b": {
+        "model_hub": "huggingface",
+        "hub_name": "EleutherAI/gpt-j-6b"
+    },
+    "bloom-560m": {
+        "model_hub": "huggingface",
+        "hub_name": "bigscience/bloom-560m"
+    },
+    "bloomz-3b": {
+	      "model_hub": "huggingface",
+	      "hub_name": "bigscience/bloomz-3b"
+    },
+    "bloomz-560m": {
+	      "model_hub": "huggingface",
+	      "hub_name": "bigscience/bloomz-560m"
+    }
+}

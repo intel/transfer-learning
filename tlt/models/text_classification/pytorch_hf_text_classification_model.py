@@ -33,6 +33,7 @@ from torch.utils.data import DataLoader
 
 # Hugging Face imports
 from transformers import (
+    AutoModelForSequenceClassification,
     AutoTokenizer,
     EvalPrediction,
     TrainingArguments,
@@ -47,8 +48,10 @@ from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
 from tlt.distributed import TLT_DISTRIBUTED_DIR
 from tlt.utils.file_utils import read_json_file, validate_model_name, verify_directory
+from tlt.utils.platform_util import PlatformUtil
 from tlt.utils.types import FrameworkType, UseCaseType
 from tlt.models.hf_model import HFModel
+from tlt.models.pytorch_model import PyTorchModel
 from tlt.models.text_classification.text_classification_model import TextClassificationModel
 from tlt.datasets.text_classification.text_classification_dataset import TextClassificationDataset
 from tlt.datasets.text_classification.hf_text_classification_dataset import HFTextClassificationDataset
@@ -58,7 +61,7 @@ from tlt.datasets.text_classification.hf_custom_text_classification_dataset impo
 MODEL_CONFIG_DIR = os.path.join(TLT_BASE_DIR, "models/configs")
 
 
-class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
+class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorchModel):
     """
     Class to represent a PyTorch Hugging Face pretrained model that can be used for multi-class text classification
     fine tuning.
@@ -71,6 +74,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
 
         # extra properties that will become configurable in the future
         self._model_name = model_name
+        self._model_hub = None
         self._dropout_layer_rate = 0.1
         self._do_fine_tuning = False
         self._dropout_layer_rate = None
@@ -83,6 +87,8 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         TextClassificationModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.TEXT_CLASSIFICATION,
                                          self._dropout_layer_rate)
         HFModel.__init__(self, model_name, FrameworkType.PYTORCH, UseCaseType.TEXT_CLASSIFICATION)
+        PyTorchModel.__init__(self, model_name, framework=FrameworkType.PYTORCH,
+                              use_case=UseCaseType.TEXT_CLASSIFICATION)
 
         # Store the dataset type that this model type can use for Intel Neural Compressor
         self._inc_compatible_dataset = (HFCustomTextClassificationDataset, HFTextClassificationDataset)
@@ -103,6 +109,10 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         self._num_classes = None
         self._trainer = None
         self._history = None
+        self._enable_auto_mixed_precision = False
+
+        if model and isinstance(model, str):
+            self.load_from_directory(model)
 
     def export_for_distributed(self, export_dir, train_data=None, val_data=None):
         """
@@ -203,7 +213,12 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 self._optimizer.zero_grad()
 
                 # Forward pass
-                outputs = self._model(**inputs)
+                if self._enable_auto_mixed_precision:
+                    # Call model using the torch automatic mixed precision context when mixed precision is enabled
+                    with torch.cpu.amp.autocast(dtype=torch.bfloat16):
+                        outputs = self._model(**inputs)
+                else:
+                    outputs = self._model(**inputs)
                 loss = self._loss(outputs.logits, labels)
 
                 # Backward pass
@@ -393,6 +408,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
         ipex_optimize: bool = True,
         use_trainer: bool = False,
         force_download: bool = False,
+        enable_auto_mixed_precision: bool = None,
         distributed: bool = False,
         hostfile: str = None,
         nnodes: int = 1,
@@ -428,6 +444,14 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             use_trainer (bool): If use_trainer is True, then the model training is done using the Hugging Face Trainer
                 and if use_trainer is False, the model training is done using native PyTorch training loop
             force_download (bool): Downloads the model with default parameters. Defaults to False.
+            enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
+                    uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
+                    It is recommended to enable auto mixed precision training when running on platforms that support
+                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                    does not support bfloat16, it can be detrimental to the training performance. If
+                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to
+                    None.
             distributed (bool): Boolean flag to use distributed training. Defaults to False.
             hostfile (str): Name of the hostfile for distributed training. Defaults to None.
             nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
@@ -444,12 +468,24 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
 
         """
         self._check_train_inputs(output_dir, dataset, TextClassificationDataset,
-                                 extra_layers, epochs, distributed, hostfile)
+                                 extra_layers, epochs, distributed, hostfile, enable_auto_mixed_precision)
+
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision training will be disabled.".format(str(e)))
+
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
 
         if not self._model:
             self._num_classes = len(dataset.class_names)
             self._model = self._get_hub_model(model_name=self.hub_name, num_classes=self._num_classes,
                                               force_download=force_download)
+
+        self._model.train()
 
         if not self._optimizer:
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
@@ -508,7 +544,8 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 num_train_epochs=epochs,
                 learning_rate=learning_rate,
                 data_seed=seed,
-                use_ipex=ipex_optimize
+                use_ipex=ipex_optimize,
+                bf16=enable_auto_mixed_precision
             )
 
             if seed is not None:
@@ -547,15 +584,15 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                 self.cleanup_saved_objects_for_distributed()
         else:
             self._trainer = None
-            self._model.train()
             if ipex_optimize:
-                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+                ipex_dtype = torch.bfloat16 if self._enable_auto_mixed_precision else None
+                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer, dtype=ipex_dtype)
             # Call the _fit method to train the model with native PyTorch API
             self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
 
         return self._history
 
-    def evaluate(self, dataset_or_dataloader=None):
+    def evaluate(self, dataset_or_dataloader=None, enable_auto_mixed_precision=None):
         """
            Evaulates the model on the given dataset (or) dataloader. If Hugging Face Trainer object was used to
            train the model, it evaluates on the 'eval_dataset' given in the Trainer arguments
@@ -563,6 +600,14 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
            Args:
                dataset_or_dataloader (datasets.arrow_dataset.Dataset/DataLoader/TextClassificationDataset): The
                     dataset/dataloader to use for evaluation.
+               enable_auto_mixed_precision (bool or None): Enable auto mixed precision for evaluation. Mixed precision
+                    uses both 16-bit and 32-bit floating point types to make evaluation run faster and use less memory.
+                    It is recommended to enable auto mixed precision when running on platforms that support
+                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                    does not support bfloat16, it can be detrimental to the evaluation performance. If
+                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to
+                    None.
 
            Returns:
                Dictionary with loss, accuracy, runtime, and samples per second metrics
@@ -571,12 +616,22 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                TypeError: if the dataset specified is not a datasets.arrow_dataset.Dataset (or) a
                     TextClassificationDataset (or) a DataLoader
         """
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision will be disabled for evaluation.".format(str(e)))
+
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
+
         if self._trainer:
             results = self._trainer.evaluate()
             print("Val Acc: {:.5f}".format(results.get("eval_accuracy")))
         else:
             if isinstance(dataset_or_dataloader, Dataset):
-                dataloader = DataLoader(dataset_or_dataloader, batch_size=16)
+                dataloader = DataLoader(dataset_or_dataloader, batch_size=1)
                 validation_data_length = len(dataset_or_dataloader)
             elif isinstance(dataset_or_dataloader, DataLoader):
                 dataloader = dataset_or_dataloader
@@ -584,7 +639,7 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             elif isinstance(dataset_or_dataloader, HFTextClassificationDataset) or \
                     isinstance(dataset_or_dataloader, HFCustomTextClassificationDataset):
                 dataloader = dataset_or_dataloader.validation_loader
-                validation_data_length = len(dataset_or_dataloader)
+                validation_data_length = len(dataset_or_dataloader.validation_subset)
             else:
                 raise TypeError("Invalid dataset/dataloader: {}".format(dataset_or_dataloader))
 
@@ -608,7 +663,12 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
                           if k in ['input_ids', 'token_type_ids', 'attention_mask']}
                 labels = data_batch['label'].to(device)
 
-                outputs = self._model(**inputs)
+                if self._enable_auto_mixed_precision:
+                    # Call model using the torch automatic mixed precision context when mixed precision is enabled
+                    with torch.cpu.amp.autocast(dtype=torch.bfloat16):
+                        outputs = self._model(**inputs)
+                else:
+                    outputs = self._model(**inputs)
                 predictions = torch.argmax(outputs.logits, dim=-1)
                 loss = self._loss(outputs.logits, labels)
 
@@ -634,13 +694,21 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
 
         return results
 
-    def predict(self, input_samples, return_raw=False):
+    def predict(self, input_samples, return_raw=False, enable_auto_mixed_precision=None):
         """
            Generates predictions for the specified input samples.
 
            Args:
                input_samples (str, list, encoded dict, TextClassificationDataset):
                     Input samples to use to predict.
+               enable_auto_mixed_precision (bool or None): Enable auto mixed precision for prediction. Mixed precision
+                    uses both 16-bit and 32-bit floating point types to make prediction run faster and use less memory.
+                    It is recommended to enable auto mixed precision when running on platforms that support
+                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                    does not support bfloat16, it can be detrimental to the prediction performance. If
+                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to
+                    None.
                return_raw (Bool):
                     Option to return the HF SequenceClassifierOutput object containing the
                     logits Torch Tensor, if set to True.
@@ -651,6 +719,16 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
            Raises:
                NotImplementedError: if the given input_samples is of type DataLoader
         """
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision will be disabled for prediction.".format(str(e)))
+
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
+
         encoded_input = None
 
         # If 'input_samples' is a single text string or a list of text strings
@@ -682,7 +760,13 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             raise NotImplementedError("Prediction using Dataloader hasn't been implmented yet. \
                                 Use raw text or Dataset as input!")
 
-        output = self._model(**encoded_input)
+        if self._enable_auto_mixed_precision:
+            # Call model using the torch automatic mixed precision context when mixed precision is enabled
+            with torch.cpu.amp.autocast(dtype=torch.bfloat16):
+                output = self._model(**encoded_input)
+        else:
+            output = self._model(**encoded_input)
+
         if return_raw:
             return output
 
@@ -705,10 +789,15 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
             else:
                 saved_model_dir = os.path.join(saved_model_dir, "1")
             verify_directory(saved_model_dir)
-            # If we have a distributed model, save only the encapsulated model
-            # (it was wrapped in PyTorch DistributedDataParallel or DataParallel)
-            model_copy = dill.dumps(self._model.module if hasattr(self._model, 'module') else self._model)  # noqa: E501, nosec: B301
-            torch.save(model_copy, os.path.join(saved_model_dir, 'model.pt'))
+
+            if self._trainer:
+                self._trainer.save_model(saved_model_dir)
+            else:
+                # If we have a distributed model, save only the encapsulated model
+                # (it was wrapped in PyTorch DistributedDataParallel or DataParallel)
+                model_copy = dill.dumps(self._model.module if hasattr(self._model, 'module') else self._model)  # noqa: E501, nosec: B301
+                torch.save(model_copy, os.path.join(saved_model_dir, 'model.pt'))
+
             print("Saved model directory:", saved_model_dir)
 
             return saved_model_dir
@@ -717,16 +806,29 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel):
 
     def load_from_directory(self, model_dir: str):
         """
-        Loads a saved pytorch model from the given model_dir directory
+        Loads a saved pytorch model from the given model_dir directory. If a 'model.pt' file is in the directory,
+        use the PyTorch model load method. If the 'model.pt' does not exist, check for a 'config.json' and
+        'pytorch_model.bin' file to determine if it's a transformers model. If it is a transformers model, load the
+        model using the transformers auto model from pretrained method.
 
         Args:
             model_dir(str): Path to the saved model directory
         """
-
         verify_directory(model_dir, require_directory_exists=True)
-        model_copy = torch.load(os.path.join(model_dir, 'model.pt'))
-        self._model = dill.loads(model_copy)  # nosec: B301
-        self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
+
+        if os.path.exists(os.path.join(model_dir, 'model.pt')):
+            # Load torch model
+            PyTorchModel.load_from_directory(self, model_dir)
+        elif os.path.exists(os.path.join(model_dir, 'config.json')) and \
+                os.path.exists(os.path.join(model_dir, 'pytorch_model.bin')):
+            # Load model using the transformers method
+            self._model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+            self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
+        else:
+            raise ValueError("Unable to load model from {} because a model.pt file or pytorch_model.bin and "
+                             "config.json files were not found")
+
+        self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
 
     def list_layers(self, verbose=False):
         """

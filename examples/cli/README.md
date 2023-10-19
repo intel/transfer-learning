@@ -225,3 +225,5 @@ Starting graph optimization
 More CLI examples can be found here:
 * [Image classification examples](/examples/cli/image_classification.md)
 * [Text classification examples](/examples/cli/text_classification.md)
+* [Text Generation examples](/examples/cli/text_generation.md)
+* [Vision anomaly detection examples](/examples/cli/image_anomaly_detection.md)

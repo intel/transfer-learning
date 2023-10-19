@@ -141,38 +141,45 @@
 | bert-large-uncased | PyTorch | Hugging Face |
 | clinical-bert | PyTorch | Hugging Face |
 | distilbert-base-uncased | PyTorch | Hugging Face |
-| google/bert_uncased_L-10_H-128_A-2 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-10_H-256_A-4 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-10_H-512_A-8 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-10_H-768_A-12 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-12_H-128_A-2 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-12_H-256_A-4 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-12_H-512_A-8 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-12_H-768_A-12 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-2_H-128_A-2 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-2_H-256_A-4 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-2_H-512_A-8 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-2_H-768_A-12 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-4_H-128_A-2 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-4_H-256_A-4 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-4_H-512_A-8 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-4_H-768_A-12 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-6_H-128_A-2 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-6_H-256_A-4 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-6_H-512_A-8 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-6_H-768_A-12 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-8_H-128_A-2 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-8_H-256_A-4 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-8_H-512_A-8 | TensorFlow | Hugging Face |
-| google/bert_uncased_L-8_H-768_A-12 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-10_H-128_A-2 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-10_H-256_A-4 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-10_H-512_A-8 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-10_H-768_A-12 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-12_H-128_A-2 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-12_H-256_A-4 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-12_H-512_A-8 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-12_H-768_A-12 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-2_H-128_A-2 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-2_H-256_A-4 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-2_H-512_A-8 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-2_H-768_A-12 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-4_H-128_A-2 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-4_H-256_A-4 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-4_H-512_A-8 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-4_H-768_A-12 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-6_H-128_A-2 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-6_H-256_A-4 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-6_H-512_A-8 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-6_H-768_A-12 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-8_H-128_A-2 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-8_H-256_A-4 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-8_H-512_A-8 | TensorFlow | Hugging Face |
+| google_bert_uncased_L-8_H-768_A-12 | TensorFlow | Hugging Face |
 
 ## Image Anomaly Detection
 
 | Model name | Framework | Model Hub |
 |------------|-----------|-----------|
-| resnet101 | PyTorch | Torchvision |
-| resnet152 | PyTorch | Torchvision |
 | resnet18 | PyTorch | Torchvision |
-| resnet34 | PyTorch | Torchvision |
 | resnet50 | PyTorch | Torchvision |
 
+## Text Generation
+
+| Model name | Framework | Model Hub |
+|------------|-----------|-----------|
+| bloom-560m | PyTorch | Hugging Face |
+| bloomz-3b | PyTorch | Hugging Face |
+| bloomz-560m | PyTorch | Hugging Face |
+| distilgpt2 | PyTorch | Hugging Face |
+| gpt-j-6b | PyTorch | Hugging Face |
+| gpt2 | PyTorch | Hugging Face |

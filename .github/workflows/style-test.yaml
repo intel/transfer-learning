@@ -13,7 +13,7 @@ on:
 # installs dependencies and runs the linter
 jobs:
   style-test:
-    runs-on: [ aia-devops ]
+    runs-on: [ xai-tlt ]
     container:
       image: ${{ vars.GHA_IMAGE }}
       env:

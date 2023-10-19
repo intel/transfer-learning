@@ -7,7 +7,7 @@ Install `tlt` and its dependencies for developers as described the [Get Started]
 # Run these commands from root of the project
 python3 -m virtualenv tlt_dev_venv
 source tlt_dev_venv/bin/activate
-python -m pip install --editable .
+python -m pip install .
 ```
 
 Install Pandoc, Sphinx and a few other tools required to build docs

@@ -91,7 +91,7 @@ def test_eval_preprocess_with_image_size(mock_inspect, mock_load_dataset, mock_g
 
 @pytest.mark.common
 @pytest.mark.parametrize('model_name,framework',
-                         [['google/bert_uncased_L-10_H-128_A-2', FrameworkType.TENSORFLOW],
+                         [['google_bert_uncased_L-10_H-128_A-2', FrameworkType.TENSORFLOW],
                           ['bert_en_uncased_L-12_H-768_A-12', FrameworkType.PYTORCH]])
 @patch("tlt.models.model_factory.get_model")
 @patch("tlt.datasets.dataset_factory.load_dataset")
@@ -102,11 +102,9 @@ def test_eval_preprocess_without_image_size(mock_inspect, mock_load_dataset, moc
     model and dataset are mocked out. The test verifies that the proper args are used for calling preprocess()
     """
     runner = CliRunner()
-
     tmp_dir = tempfile.mkdtemp()
     dataset_dir = os.path.join(tmp_dir, 'data')
     model_dir = os.path.join(tmp_dir, 'model')
-    dummy_image_size = 100
 
     try:
         for new_dir in [model_dir, dataset_dir]:
@@ -119,7 +117,6 @@ def test_eval_preprocess_without_image_size(mock_inspect, mock_load_dataset, moc
             Path(os.path.join(model_dir, 'model.pt')).touch()
 
         model_mock = MagicMock()
-        model_mock.image_size = dummy_image_size
         data_mock = MagicMock()
 
         # Test where the preprocessing command just has a batch_size arg
@@ -142,8 +139,10 @@ def test_eval_preprocess_without_image_size(mock_inspect, mock_load_dataset, moc
         assert data_mock.shuffle_split.called
         assert model_mock.evaluate.called
 
-        # Verify that preprocess was called with just batch size
-        data_mock.preprocess.assert_called_once_with(batch_size=32)
+        # Verify that preprocess was called with model name and batch size
+        model_name = model_dir.split('/')[2]
+
+        data_mock.preprocess.assert_called_once_with(model_name, batch_size=32)
     finally:
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)

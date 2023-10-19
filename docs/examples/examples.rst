@@ -12,5 +12,6 @@ Examples
    cli/README
    Image Classification CLI Example <cli/image_classification.rst>
    Text Classification CLI Example <cli/text_classification.rst>
+   Vision Anomaly Detection CLI Example <cli/image_anomaly_detection.rst>
    Jupyter Notebook API Examples <../notebooks/README>
 

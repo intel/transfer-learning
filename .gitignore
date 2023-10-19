@@ -9,7 +9,6 @@ _autosummary
 **.log
 **/*.cache
 **/**.whl
-**/**/models/
 **/**venv
 **venv*
 build/

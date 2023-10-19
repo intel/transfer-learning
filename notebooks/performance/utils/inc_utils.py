@@ -23,7 +23,7 @@ def performance(saved_model_dir, batch_size, image_size, dataset_dir, framework,
                 cores_per_instance=None, num_of_instance=None, inter_num_of_threads=None, intra_num_of_threads=None):
     """
     Uses the Intel Neural Compressor to get performance metrics for the specified model.
-    
+
     :param saved_model_dir: Model to load
     :param batch_size: Batch size
     :param image_size: Image input size
@@ -66,7 +66,7 @@ def performance(saved_model_dir, batch_size, image_size, dataset_dir, framework,
 def calculate_latency_and_throughput(results):
     """
     Parses the results from the benchmarking function and returns the latency (ms) and throughput (samples/sec)
-    
+
     :param results: Return value from calling the performance util function
     :param batch_size: batch size
     :return: latency (ms) and throughput (images/sec)
