@@ -103,15 +103,15 @@ class CPUInfo():
             for entry in membind_bind_info:
                 cpu_id = int(entry[0])
                 core_id = int(entry[1])
-                node_id = int(entry[2])
+                socket_id = int(entry[2])
                 # On a machine where there is no NUMA nodes, entry[3] could be empty, so set socket_id = -1
                 if entry[3] != "":
-                    socket_id = int(entry[3])
+                    node_id = int(entry[3])
                 else:
-                    socket_id = -1
+                    node_id = -1
 
                 # Skip nodes other than current node number
-                if node_number != node_id:
+                if node_number != socket_id:
                     continue
 
                 # Add core info

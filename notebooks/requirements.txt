@@ -31,5 +31,5 @@ tensorflow-hub==0.15.0
 torch==1.13.1
 torchvision==0.14.1
 transformers==4.34.0
-urllib3==2.0.6
+urllib3==2.0.7
 evaluate==0.4.0
