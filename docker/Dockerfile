@@ -67,7 +67,7 @@ COPY . /tmp/intel-transfer-learning
 WORKDIR /tmp/intel-transfer-learning
 
 RUN ${PYTHON} setup.py bdist_wheel && \
-    pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu dist/*.whl
+    ${PYTHON} -m pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu dist/*.whl
 
 # TLT target for deployment
 FROM tlt-base as tlt-prod
