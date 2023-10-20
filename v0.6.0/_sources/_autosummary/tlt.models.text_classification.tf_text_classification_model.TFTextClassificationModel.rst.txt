@@ -1,0 +1,45 @@
+﻿tlt.models.text\_classification.tf\_text\_classification\_model.TFTextClassificationModel
+=========================================================================================
+
+.. currentmodule:: tlt.models.text_classification.tf_text_classification_model
+
+.. autoclass:: TFTextClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFTextClassificationModel.__init__
+      ~TFTextClassificationModel.benchmark
+      ~TFTextClassificationModel.cleanup_saved_objects_for_distributed
+      ~TFTextClassificationModel.evaluate
+      ~TFTextClassificationModel.export
+      ~TFTextClassificationModel.export_for_distributed
+      ~TFTextClassificationModel.load_from_directory
+      ~TFTextClassificationModel.optimize_graph
+      ~TFTextClassificationModel.predict
+      ~TFTextClassificationModel.quantize
+      ~TFTextClassificationModel.set_auto_mixed_precision
+      ~TFTextClassificationModel.train
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFTextClassificationModel.dropout_layer_rate
+      ~TFTextClassificationModel.framework
+      ~TFTextClassificationModel.learning_rate
+      ~TFTextClassificationModel.model_name
+      ~TFTextClassificationModel.num_classes
+      ~TFTextClassificationModel.preprocessor
+      ~TFTextClassificationModel.use_case
+   
+   

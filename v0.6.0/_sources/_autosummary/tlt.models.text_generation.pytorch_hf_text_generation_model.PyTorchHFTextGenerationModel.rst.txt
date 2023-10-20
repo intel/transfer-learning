@@ -1,0 +1,43 @@
+﻿tlt.models.text\_generation.pytorch\_hf\_text\_generation\_model.PyTorchHFTextGenerationModel
+=============================================================================================
+
+.. currentmodule:: tlt.models.text_generation.pytorch_hf_text_generation_model
+
+.. autoclass:: PyTorchHFTextGenerationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PyTorchHFTextGenerationModel.__init__
+      ~PyTorchHFTextGenerationModel.benchmark
+      ~PyTorchHFTextGenerationModel.evaluate
+      ~PyTorchHFTextGenerationModel.export
+      ~PyTorchHFTextGenerationModel.freeze_layer
+      ~PyTorchHFTextGenerationModel.generate
+      ~PyTorchHFTextGenerationModel.list_layers
+      ~PyTorchHFTextGenerationModel.load_from_directory
+      ~PyTorchHFTextGenerationModel.optimize_graph
+      ~PyTorchHFTextGenerationModel.quantize
+      ~PyTorchHFTextGenerationModel.train
+      ~PyTorchHFTextGenerationModel.unfreeze_layer
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PyTorchHFTextGenerationModel.framework
+      ~PyTorchHFTextGenerationModel.learning_rate
+      ~PyTorchHFTextGenerationModel.model_name
+      ~PyTorchHFTextGenerationModel.preprocessor
+      ~PyTorchHFTextGenerationModel.use_case
+   
+   

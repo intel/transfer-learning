@@ -1,0 +1,46 @@
+﻿tlt.datasets.image\_anomaly\_detection.pytorch\_custom\_image\_anomaly\_detection\_dataset.PyTorchCustomImageAnomalyDetectionDataset
+====================================================================================================================================
+
+.. currentmodule:: tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset
+
+.. autoclass:: PyTorchCustomImageAnomalyDetectionDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PyTorchCustomImageAnomalyDetectionDataset.__init__
+      ~PyTorchCustomImageAnomalyDetectionDataset.get_batch
+      ~PyTorchCustomImageAnomalyDetectionDataset.get_inc_dataloaders
+      ~PyTorchCustomImageAnomalyDetectionDataset.preprocess
+      ~PyTorchCustomImageAnomalyDetectionDataset.shuffle_split
+      ~PyTorchCustomImageAnomalyDetectionDataset.simsiam_transform
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PyTorchCustomImageAnomalyDetectionDataset.class_names
+      ~PyTorchCustomImageAnomalyDetectionDataset.data_loader
+      ~PyTorchCustomImageAnomalyDetectionDataset.dataset
+      ~PyTorchCustomImageAnomalyDetectionDataset.dataset_catalog
+      ~PyTorchCustomImageAnomalyDetectionDataset.dataset_dir
+      ~PyTorchCustomImageAnomalyDetectionDataset.dataset_name
+      ~PyTorchCustomImageAnomalyDetectionDataset.defect_names
+      ~PyTorchCustomImageAnomalyDetectionDataset.info
+      ~PyTorchCustomImageAnomalyDetectionDataset.test_loader
+      ~PyTorchCustomImageAnomalyDetectionDataset.test_subset
+      ~PyTorchCustomImageAnomalyDetectionDataset.train_loader
+      ~PyTorchCustomImageAnomalyDetectionDataset.train_subset
+      ~PyTorchCustomImageAnomalyDetectionDataset.validation_loader
+      ~PyTorchCustomImageAnomalyDetectionDataset.validation_subset
+   
+   

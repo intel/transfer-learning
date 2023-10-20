@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 544 632">
+ <style>
+    @import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
+    text {
+      font-family: Roboto, Arial, Helvetica, sans-serif;
+      font-weight:400;
+      font-size: 14px;
+      fill: #fff;
+      text-anchor: middle
+    }
+    .st0{fill:none;stroke:#525252;stroke-width:2;stroke-miterlimit:10}
+    .st3{fill:#525252}
+    .st4{fill:#fff;stroke:#0068b5;stroke-width:2;stroke-miterlimit:10}
+    .st5{fill:#0068b5}
+    .reverseText{fill:#2b2c30}
+    .boxHeading{font-weight:700;}
+    .boxBody{font-size:12px}
+    .key,.medium{font-weight:700}
+    .key{fill:#2b2c30;font-size:12px;text-anchor:start}
+  </style>
+  <rect width="100%" height="100%" fill="white"/>
+  <g id="Layer_1">
+    <line x1="503.2" x2="528" y1="338" y2="338" class="st0"/>
+    <line x1="503.2" x2="528" y1="424" y2="424" class="st0"/>
+    <line x1="16" x2="40.8" y1="338" y2="338" class="st0"/>
+    <line x1="16" x2="40.8" y1="424" y2="424" class="st0"/>
+    <line x1="272" x2="272" y1="5.2" y2="396" class="st0"/>
+    <polyline points="304,250 528,250 528,512 304,512" class="st0"/>
+    <polyline points="240,512 16,512 16,338" class="st0"/>
+    <polyline fill="none" stroke="#525252" stroke-dasharray="8,4" stroke-width="2" points="16,338 16,250 240,250"/>
+    <path id="Vector_2_x5F_3" d="M278 392h-12l6 8 6-8z" class="st3"/>
+    <path id="Vector_2" d="M10 392.7h12l-6-9.6-6 9.6z" class="st3"/>
+    <path id="Vector_2_x5F_2" d="M534 383.1h-12l6 9.6 6-9.6z" class="st3"/>
+    <rect width="464" height="112" x="40" class="st4"/>
+    <rect width="464" height="64" x="40" y="136" class="st4"/>
+    <rect width="464" height="64" x="40" y="224" class="st5"/>
+    <rect width="464" height="64" x="40" y="312" class="st5"/>
+    <rect width="464" height="64" x="40" y="400" class="st5"/>
+    <text class="reverseText" transform="translate(272 27)">
+      <tspan x="0" class="boxHeading">Select Framework, Use Case, Dataset &amp; Model</tspan>
+      <tspan x="0" dy="1.6em" class="boxBody"><tspan class="medium">Framework</tspan> : TensorFlow, PyTorch</tspan>
+      <tspan x="0" dy="1.3em" class="boxBody"><tspan class="medium">Use Case</tspan> : Image Classification, Text Classification</tspan>
+      <tspan x="0" dy="1.3em" class="boxBody"><tspan class="medium">Dataset</tspan> : Public catalog (TF Hub, Torchvision, Hugging face), or Custom</tspan>
+      <tspan x="0" dy="1.3em" class="boxBody"><tspan class="medium">Model</tspan> : EfficientNet, InceptionV3, MobileNetV2, ResNet, BERT…</tspan>
+    </text>
+    <text class="reverseText" transform="translate(272 163)">
+      <tspan x="0" class="boxHeading">Pre-Process &amp; Split Dataset</tspan>
+      <tspan x="0" dy="1.6em" class="boxBody">Resize, Batch, Split Train/Val, Augmentation</tspan>
+    </text>
+    <text transform="translate(272 251)">
+      <tspan x="0" class="boxHeading">Train</tspan>
+      <tspan x="0" dy="1.6em" class="boxBody">Num Epochs, Initial Checkpoint, Distributed…</tspan>
+    </text>
+    <text transform="translate(272 339)">
+      <tspan x="0" class="boxHeading">Evaluate &amp; Predict</tspan>
+      <tspan x="0" dy="1.6em" class="boxBody">Evaluation, Prediction, Benchmarking</tspan>
+    </text>
+    <text transform="translate(272 427)">
+      <tspan x="0" class="boxHeading">Optimize</tspan>
+      <tspan x="0" dy="1.6em" class="boxBody">Quantization or FP32 Graph Optimization</tspan>
+    </text>
+    <path id="Vector" d="M289.1 516.4v-8.7c2-.6 3.4-2.5 3.4-4.7 0-2.7-2.2-4.9-4.9-4.9-1.2 0-2.4.5-3.3 1.3l-7.6-4.4c.1-.4.1-.7.1-1.1 0-2.7-2.2-4.9-4.9-4.9s-4.9 2.2-4.9 4.9c0 .3 0 .7.1 1.1l-7.6 4.4c-.9-.8-2.1-1.3-3.3-1.3-2.7 0-4.9 2.2-4.9 4.9 0 2.2 1.4 4 3.4 4.7v8.7c-2 .6-3.4 2.5-3.4 4.7 0 2.7 2.2 4.9 4.9 4.9 1.2 0 2.4-.5 3.3-1.3l7.6 4.4c-.1.4-.1.7-.1 1.1 0 2.7 2.2 4.9 4.9 4.9s4.9-2.2 4.9-4.9c0-.3 0-.7-.1-1.1l7.6-4.4c.9.8 2.1 1.3 3.3 1.3 2.7 0 4.9-2.2 4.9-4.9.1-2.2-1.3-4.1-3.4-4.7zm-1.4-11.5c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0 14.2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm-10.8-8.2 7.4-4.3c.5.5 1.2.9 1.8 1.1v8.7c-.7.2-1.4.6-1.9 1.2l-7.4-4.4c.1-.5.2-.9.2-1.3s0-.7-.1-1zm6 11.2-7.6 4.4c-.5-.5-1.2-.8-1.8-1.1v-8.9c.6-.2 1.2-.5 1.7-.9l7.7 4.5c-.1.3-.1.6-.1.9 0 .4 0 .7.1 1.1zm-21.8-2.3 7.8-4.4c.5.4 1.1.8 1.7 1v9c-.7.2-1.3.6-1.8 1.1l-7.6-4.4c.1-.4.1-.7.1-1.1 0-.3-.1-.8-.2-1.2zm0-17.9 7.6-4.4c.6.5 1.2.9 2 1.1l-.1 8.5c-.7.2-1.4.6-1.9 1.2l-7.5-4.4c.1-.4.1-.7.1-1.1s-.1-.5-.2-.9zm11 11.9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm-.1-17.9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0 32.2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm10.9-24.1-7.4 4.3c-.6-.5-1.2-.9-2-1.2l.1-8.6c.6-.2 1.2-.6 1.7-1l7.6 4.4c-.1.4-.1.7-.1 1.1s0 .7.1 1zm-15.5 8.9-7.8 4.4c-.5-.4-1.1-.8-1.7-1v-8.7c.7-.2 1.3-.6 1.8-1.1l7.6 4.4c-.1.3-.1.6-.1.8 0 .5.1.8.2 1.2zM256.3 501c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 1-2 2-2zm0 18.1c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 1-2 2-2z" class="st5"/>
+    <text class="reverseText boxBody medium" transform="translate(272 550.72)">Export Model</text>
+    <g id="Key_item">
+      <defs>
+        <rect id="SVGID_1_" width="24" height="24" x="40" y="576"/>
+      </defs>
+      <g id="Key_item_link" clip-path="url(#SVGID_00000118372852810006914920000018349303243660350108_)">
+        <rect id="Colours_6" width="24" height="24" x="40" y="576" class="st5"/>
+      </g>
+      <text transform="translate(72 592.2)" class="key">Optimizations for Intel</text>
+    </g>
+    <g id="Key_item_x5F_2">
+      <defs>
+        <rect id="SVGID_00000101068924030577568470000007297780801334610855_" width="24" height="24" x="40" y="608"/>
+      </defs>
+      <g id="Key_item_link_x5F_2" clip-path="url(#SVGID_00000065770435734207191060000005076644969967626119_)">
+        <path id="Colours_7" d="M52 608c6.6 0 12 5.4 12 12s-5.4 12-12 12-12-5.4-12-12 5.4-12 12-12z" class="st3"/>
+        <text transform="translate(52 624.2)" class="boxHeading">A</text>
+      </g>
+      <text transform="translate(72 624.2)" class="key">Retraining not possible once optimized</text>
+    </g>
+    <g id="Connection_Label">
+      <path d="M16 278c8.8 0 16 7.2 16 16s-7.2 16-16 16-16-7.2-16-16 7.2-16 16-16z" class="st3"/>
+      <text transform="translate(16 298.2)" class="boxHeading">A</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,49 @@
+﻿tlt.models.image\_classification.keras\_image\_classification\_model.KerasImageClassificationModel
+==================================================================================================
+
+.. currentmodule:: tlt.models.image_classification.keras_image_classification_model
+
+.. autoclass:: KerasImageClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~KerasImageClassificationModel.__init__
+      ~KerasImageClassificationModel.benchmark
+      ~KerasImageClassificationModel.cleanup_saved_objects_for_distributed
+      ~KerasImageClassificationModel.evaluate
+      ~KerasImageClassificationModel.export
+      ~KerasImageClassificationModel.export_for_distributed
+      ~KerasImageClassificationModel.load_from_directory
+      ~KerasImageClassificationModel.optimize_graph
+      ~KerasImageClassificationModel.predict
+      ~KerasImageClassificationModel.quantize
+      ~KerasImageClassificationModel.set_auto_mixed_precision
+      ~KerasImageClassificationModel.train
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~KerasImageClassificationModel.do_fine_tuning
+      ~KerasImageClassificationModel.dropout_layer_rate
+      ~KerasImageClassificationModel.feature_vector_url
+      ~KerasImageClassificationModel.framework
+      ~KerasImageClassificationModel.image_size
+      ~KerasImageClassificationModel.learning_rate
+      ~KerasImageClassificationModel.model_name
+      ~KerasImageClassificationModel.model_url
+      ~KerasImageClassificationModel.num_classes
+      ~KerasImageClassificationModel.preprocessor
+      ~KerasImageClassificationModel.use_case
+   
+   

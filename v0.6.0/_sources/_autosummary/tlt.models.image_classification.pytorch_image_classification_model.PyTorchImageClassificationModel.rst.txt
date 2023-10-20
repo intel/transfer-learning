@@ -1,0 +1,49 @@
+﻿tlt.models.image\_classification.pytorch\_image\_classification\_model.PyTorchImageClassificationModel
+======================================================================================================
+
+.. currentmodule:: tlt.models.image_classification.pytorch_image_classification_model
+
+.. autoclass:: PyTorchImageClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PyTorchImageClassificationModel.__init__
+      ~PyTorchImageClassificationModel.benchmark
+      ~PyTorchImageClassificationModel.cleanup_saved_objects_for_distributed
+      ~PyTorchImageClassificationModel.evaluate
+      ~PyTorchImageClassificationModel.export
+      ~PyTorchImageClassificationModel.export_for_distributed
+      ~PyTorchImageClassificationModel.freeze_layer
+      ~PyTorchImageClassificationModel.list_layers
+      ~PyTorchImageClassificationModel.load_from_directory
+      ~PyTorchImageClassificationModel.optimize_graph
+      ~PyTorchImageClassificationModel.predict
+      ~PyTorchImageClassificationModel.quantize
+      ~PyTorchImageClassificationModel.train
+      ~PyTorchImageClassificationModel.unfreeze_layer
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PyTorchImageClassificationModel.do_fine_tuning
+      ~PyTorchImageClassificationModel.dropout_layer_rate
+      ~PyTorchImageClassificationModel.framework
+      ~PyTorchImageClassificationModel.image_size
+      ~PyTorchImageClassificationModel.learning_rate
+      ~PyTorchImageClassificationModel.model_name
+      ~PyTorchImageClassificationModel.num_classes
+      ~PyTorchImageClassificationModel.preprocessor
+      ~PyTorchImageClassificationModel.use_case
+   
+   

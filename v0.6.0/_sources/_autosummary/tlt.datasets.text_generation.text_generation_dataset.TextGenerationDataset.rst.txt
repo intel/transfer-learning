@@ -1,0 +1,36 @@
+﻿tlt.datasets.text\_generation.text\_generation\_dataset.TextGenerationDataset
+=============================================================================
+
+.. currentmodule:: tlt.datasets.text_generation.text_generation_dataset
+
+.. autoclass:: TextGenerationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TextGenerationDataset.__init__
+      ~TextGenerationDataset.get_batch
+      ~TextGenerationDataset.preprocess
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TextGenerationDataset.dataset
+      ~TextGenerationDataset.dataset_catalog
+      ~TextGenerationDataset.dataset_dir
+      ~TextGenerationDataset.dataset_name
+      ~TextGenerationDataset.test_subset
+      ~TextGenerationDataset.train_subset
+      ~TextGenerationDataset.validation_subset
+   
+   

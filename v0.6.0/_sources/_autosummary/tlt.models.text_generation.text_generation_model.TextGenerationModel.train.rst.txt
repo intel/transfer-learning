@@ -1,0 +1,6 @@
+﻿tlt.models.text\_generation.text\_generation\_model.TextGenerationModel.train
+=============================================================================
+
+.. currentmodule:: tlt.models.text_generation.text_generation_model
+
+.. automethod:: TextGenerationModel.train

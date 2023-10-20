@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2023 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">import</span> <span class="nn">pickle</span>  <span class="c1"># nosec B403</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torchvision.models.feature_extraction</span> <span class="kn">import</span> <span class="n">create_feature_extractor</span><span class="p">,</span> <span class="n">get_graph_node_names</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span>
+<span class="kn">import</span> <span class="nn">torch.optim.lr_scheduler</span> <span class="k">as</span> <span class="nn">lr_scheduler</span>
+
+<span class="kn">from</span> <span class="nn">downloader.models</span> <span class="kn">import</span> <span class="n">ModelDownloader</span>
+<span class="kn">from</span> <span class="nn">tlt.models.image_classification.pytorch_image_classification_model</span> <span class="kn">import</span> <span class="n">PyTorchImageClassificationModel</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset</span> \
+    <span class="kn">import</span> <span class="nn">PyTorchCustomImageAnomalyDetectionDataset</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">verify_directory</span><span class="p">,</span> <span class="n">validate_model_name</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.platform_util</span> <span class="kn">import</span> <span class="n">PlatformUtil</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">UseCaseType</span>
+
+<span class="kn">from</span> <span class="nn">tlt.models.image_anomaly_detection.simsiam</span> <span class="kn">import</span> <span class="n">builder</span>
+<span class="kn">from</span> <span class="nn">tlt.models.image_anomaly_detection</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="kn">from</span> <span class="nn">tlt.models.image_anomaly_detection.cutpaste.model</span> <span class="kn">import</span> <span class="n">ProjectionNet</span>
+<span class="kn">from</span> <span class="nn">tlt.models.image_anomaly_detection.cutpaste.cutpaste</span> <span class="kn">import</span> <span class="n">CutPasteNormal</span><span class="p">,</span> \
+    <span class="n">CutPasteScar</span><span class="p">,</span> <span class="n">CutPaste3Way</span><span class="p">,</span> <span class="n">CutPasteUnion</span>
+
+<span class="kn">import</span> <span class="nn">intel_extension_for_pytorch</span> <span class="k">as</span> <span class="nn">ipex</span>
+
+
+<span class="k">def</span> <span class="nf">extract_features</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">pooling</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts features of the layers specified using a layer name</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model (PyTorchImageAnomalyDetectionModel/SimSiam/ProjectionNet): Model on which features</span>
+<span class="sd">                                                                         are to be extracted</span>
+<span class="sd">        data (torch.Tensor): Images to extract features from</span>
+<span class="sd">        layer_name (string): The layer name whose output is desired for the extracted features</span>
+<span class="sd">        pooling (list[string, int]): Pooling to be applied on the extracted layer (&#39;avg&#39; or &#39;max&#39;), default is &#39;avg&#39;</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        outputs: Extracted features after applying pooling</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError if the parameters are not within the expected values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="n">layer_name</span><span class="p">]</span>
+    <span class="n">pooling_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;avg&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">pooling</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">pooling_list</span> <span class="ow">and</span> <span class="n">pooling</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;avg&#39;</span><span class="p">:</span>
+        <span class="n">pool_out</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">avg_pool2d</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">pooling</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">pooling</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">pooling_list</span> <span class="ow">and</span> <span class="n">pooling</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span>
+        <span class="n">pool_out</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">pooling</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The specified pooling is not supported&quot;</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">pool_out</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">pool_out</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">outputs</span>
+
+
+<span class="k">def</span> <span class="nf">get_feature_extraction_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get partial model split by a specified layer name</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model (PyTorchImageAnomalyDetectionModel/SimSiam/ProjectionNet): Model on which features have to be extracted</span>
+<span class="sd">        layer_name (string): The layer name whose output is desired for the extracted features</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        outputs: Partial model</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError if the parameters are not within the expected values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">layer_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_children</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="n">layer_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">layer_names</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid layer_name for the model. Choose from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">layer_names</span><span class="p">))</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">return_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">layer</span><span class="p">:</span> <span class="n">layer</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="p">[</span><span class="n">layer_name</span><span class="p">]}</span>
+    <span class="n">partial_model</span> <span class="o">=</span> <span class="n">create_feature_extractor</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">return_nodes</span><span class="o">=</span><span class="n">return_nodes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">partial_model</span>
+
+
+<span class="k">def</span> <span class="nf">pca</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.99</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Finds the principal components of the features specified.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            features (torch.Tensor): Input features</span>
+<span class="sd">            threshold (float): Threshold to apply to PCA model, default is 0.99</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PCA components responsible for the top (threshold)% of the features&#39; variability</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">principal_components</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span>
+    <span class="n">pca_mats</span> <span class="o">=</span> <span class="n">principal_components</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pca_mats</span>
+
+
+<div class="viewcode-block" id="PyTorchImageAnomalyDetectionModel">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.html#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel">[docs]</a>
+<span class="k">class</span> <span class="nc">PyTorchImageAnomalyDetectionModel</span><span class="p">(</span><span class="n">PyTorchImageClassificationModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to represent a PyTorch model for image classification</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PyTorchImageAnomalyDetectionModel.__init__">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.html#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class constructor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">PyTorchImageClassificationModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span>
+                                                 <span class="n">use_case</span><span class="o">=</span><span class="n">UseCaseType</span><span class="o">.</span><span class="n">IMAGE_ANOMALY_DETECTION</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simsiam</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutpaste</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layer_name</span> <span class="o">=</span> <span class="s1">&#39;layer3&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pooling</span> <span class="o">=</span> <span class="s1">&#39;avg&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kernel_size</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Store the dataset type that this model type can use for Intel Neural Compressor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inc_compatible_dataset</span> <span class="o">=</span> <span class="p">(</span><span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_check_train_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">,</span> <span class="n">pooling</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">pca_threshold</span><span class="p">):</span>
+        <span class="n">verify_directory</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The dataset must be a </span><span class="si">{}</span><span class="s2"> but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_type</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="n">pooling</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;avg&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The specified pooling is not supported. It must be one of: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="s1">&#39;avg&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kernel_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The kernel_size  must be a </span><span class="si">{}</span><span class="s2"> but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">kernel_size</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pca_threshold</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pca_threshold</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">pca_threshold</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The pca_threshold must be a float between 0 and 1  but found </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pca_threshold</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">load_checkpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load checkpoints from the given checkpoint directory based on feature extractor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">downloader</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="s1">&#39;torchvision&#39;</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+
+        <span class="n">ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">))</span>
+        <span class="n">state_dict</span> <span class="o">=</span> <span class="n">ckpt</span><span class="p">[</span><span class="s1">&#39;state_dict&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">feature_extractor</span> <span class="o">==</span> <span class="s1">&#39;simsiam&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">state_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="c1"># retain only encoder up to before the embedding layer</span>
+                <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;encoder.&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;encoder.fc&#39;</span><span class="p">):</span>
+                    <span class="c1"># remove prefix</span>
+                    <span class="n">state_dict</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;encoder.&quot;</span><span class="p">):]]</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="c1"># delete renamed or unused k</span>
+                <span class="k">del</span> <span class="n">state_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">feature_extractor</span> <span class="o">==</span> <span class="s1">&#39;cutpaste&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">state_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="c1"># retain only encoder up to before the embedding layer</span>
+                <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;model.&#39;</span><span class="p">):</span>
+                    <span class="c1"># remove prefix</span>
+                    <span class="n">state_dict</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;model.&quot;</span><span class="p">):]]</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="c1"># delete renamed or unused k</span>
+                <span class="k">del</span> <span class="n">state_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">head_layers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">512</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_layer</span> <span class="o">+</span> <span class="p">[</span><span class="mi">128</span><span class="p">]</span>
+            <span class="n">num_classes</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s2">&quot;out.weight&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">net</span> <span class="o">=</span> <span class="n">ProjectionNet</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">head_layers</span><span class="o">=</span><span class="n">head_layers</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="n">num_classes</span><span class="p">)</span>
+            <span class="n">train_nodes</span><span class="p">,</span> <span class="n">eval_nodes</span> <span class="o">=</span> <span class="n">get_graph_node_names</span><span class="p">(</span><span class="n">net</span><span class="p">)</span>
+
+        <span class="c1"># load params</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">net</span>
+
+    <span class="k">def</span> <span class="nf">load_pretrained_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Return PyTorchImageAnomalyDetectionModel object for</span>
+<span class="sd">            feature extraction and finding PCA</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                Model object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+
+    <span class="k">def</span> <span class="nf">train_simsiam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">feature_dim</span><span class="p">,</span>
+                      <span class="n">pred_dim</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Trains a SimSiam model using the specified dataset.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                dataset (str): Dataset to use when training the model</span>
+<span class="sd">                output_dir (str): Path to a writeable directory for output files</span>
+<span class="sd">                epochs (int): Number of epochs to train the model</span>
+<span class="sd">                feature_dim (int): feature dimension</span>
+<span class="sd">                pred_dim (int): hidden dimension of the predictor</span>
+<span class="sd">                initial_checkpoints (str): Path to checkpoint weights to load.</span>
+<span class="sd">                generate_checkpoints (bool): Whether to save/preserve the best weights during</span>
+<span class="sd">                                             SimSiam or CutPaste training, default is False.</span>
+<span class="sd">                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.</span>
+<span class="sd">                precision (str): precision in which model to be trained, default is float32.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                Model object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LR</span> <span class="o">=</span> <span class="mf">0.171842137353148</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size_ss</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">epochs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simsiam</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">dataset</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_simsiam_transform</span>
+        <span class="n">dataloader</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_train_loader</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating SIMSIAM feature extractor with the backbone of &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">initial_checkpoints</span><span class="p">:</span>
+            <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">SimSiam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">feature_dim</span><span class="p">,</span> <span class="n">pred_dim</span><span class="p">)</span>
+
+        <span class="n">init_lr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LR</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">/</span> <span class="mi">256</span>
+
+        <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+
+        <span class="n">optim_params</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="s1">&#39;fix_lr&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                        <span class="p">{</span><span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predictor</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="s1">&#39;fix_lr&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}]</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">optim_params</span><span class="p">,</span> <span class="n">init_lr</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+        <span class="n">num_images</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">train_subset</span><span class="p">)</span>
+
+        <span class="n">best_least_Loss</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+        <span class="n">is_best_ans</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">file_name_least_loss</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fine-tuning Simsiam Model on &quot;</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="s2">&quot;epochs using &quot;</span><span class="p">,</span> <span class="n">num_images</span><span class="p">,</span> <span class="s2">&quot; training images&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">ipex_optimize</span><span class="p">:</span>
+            <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">ipex</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+                                             <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span> <span class="k">if</span> <span class="n">precision</span> <span class="o">==</span> <span class="s1">&#39;bfloat16&#39;</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+
+        <span class="n">valid_model_name</span> <span class="o">=</span> <span class="n">validate_model_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_checkpoints&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">valid_model_name</span><span class="p">))</span>
+        <span class="n">verify_directory</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">):</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">adjust_learning_rate</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">init_lr</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">)</span>
+
+            <span class="n">curr_loss</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_fit_simsiam</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">generate_checkpoints</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">curr_loss</span> <span class="o">&lt;</span> <span class="n">best_least_Loss</span><span class="p">):</span>
+                    <span class="n">best_least_Loss</span> <span class="o">=</span> <span class="n">curr_loss</span>
+                    <span class="n">is_best_ans</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">file_name_least_loss</span> <span class="o">=</span> <span class="s1">&#39;simsiam_checkpoint_</span><span class="si">{:04d}</span><span class="s1">.pth.tar&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+
+                <span class="n">utils</span><span class="o">.</span><span class="n">save_checkpoint</span><span class="p">({</span>
+                    <span class="s1">&#39;epoch&#39;</span><span class="p">:</span> <span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s1">&#39;arch&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                    <span class="s1">&#39;state_dict&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+                    <span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+                <span class="p">},</span> <span class="n">is_best_ans</span><span class="p">,</span> <span class="n">file_name_least_loss</span><span class="p">,</span>
+                    <span class="n">best_least_Loss</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">)</span>
+                <span class="n">is_best_ans</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">epoch</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">file_name_least_loss</span> <span class="o">=</span> <span class="s1">&#39;simsiam_checkpoint_</span><span class="si">{:04d}</span><span class="s1">.pth.tar&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+                    <span class="n">utils</span><span class="o">.</span><span class="n">save_checkpoint</span><span class="p">({</span>
+                        <span class="s1">&#39;epoch&#39;</span><span class="p">:</span> <span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="s1">&#39;arch&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                        <span class="s1">&#39;state_dict&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+                    <span class="p">},</span> <span class="n">is_best</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">file_name_least_loss</span><span class="p">,</span>
+                        <span class="n">loss</span><span class="o">=</span><span class="n">curr_loss</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="o">=</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. Of Epochs=&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Batch Size =&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size_ss</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_checkpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span>
+                                                   <span class="n">file_name_least_loss</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="s1">&#39;simsiam&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+
+    <span class="k">def</span> <span class="nf">train_cutpaste</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">freeze_resnet</span><span class="p">,</span>
+                       <span class="n">head_layer</span><span class="p">,</span> <span class="n">cutpaste_type</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Trains a CutPaste model using the specified dataset.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                dataset (str): Dataset to use when training the model</span>
+<span class="sd">                output_dir (str): Path to a writeable directory for output files</span>
+<span class="sd">                optim (str): Choice of optimizer to use for training</span>
+<span class="sd">                epochs (int): Number of epochs to train the model</span>
+<span class="sd">                freeze_resnet (int): Epochs upto which we freeze ResNet layers</span>
+<span class="sd">                                     and only train the new header with FC layers</span>
+<span class="sd">                head_layer (int): number of layers in the projection head</span>
+<span class="sd">                cutpaste-type (str): cutpaste variant to use</span>
+<span class="sd">                initial_checkpoints (str): path for feature extractor model</span>
+<span class="sd">                generate_checkpoints (bool): Whether to save/preserve the best weights during</span>
+<span class="sd">                                             SimSiam or CutPaste training, default is False.</span>
+<span class="sd">                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.</span>
+<span class="sd">                precision (str): precision in which model to be trained, default is float32.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                Model object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variant_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;normal&#39;</span><span class="p">:</span> <span class="n">CutPasteNormal</span><span class="p">,</span> <span class="s1">&#39;scar&#39;</span><span class="p">:</span> <span class="n">CutPasteScar</span><span class="p">,</span>
+                            <span class="s1">&#39;3way&#39;</span><span class="p">:</span> <span class="n">CutPaste3Way</span><span class="p">,</span> <span class="s1">&#39;union&#39;</span><span class="p">:</span> <span class="n">CutPasteUnion</span><span class="p">}</span>
+        <span class="n">variant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variant_map</span><span class="p">[</span><span class="n">cutpaste_type</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutpaste</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">dataset</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_cutpaste_transform</span>
+        <span class="n">dataloader</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_train_loader</span>
+
+        <span class="n">valid_model_name</span> <span class="o">=</span> <span class="n">validate_model_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_checkpoints&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">valid_model_name</span><span class="p">))</span>
+        <span class="n">verify_directory</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">initial_checkpoints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&gt; creating CUT-PASTE feature extractor with the backbone of&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">))</span>
+
+            <span class="c1"># create Model:</span>
+            <span class="n">head_layers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">512</span><span class="p">]</span> <span class="o">*</span> <span class="n">head_layer</span> <span class="o">+</span> <span class="p">[</span><span class="mi">128</span><span class="p">]</span>
+            <span class="n">num_classes</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">variant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">CutPaste3Way</span> <span class="k">else</span> <span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">ProjectionNet</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                        <span class="n">head_layers</span><span class="o">=</span><span class="n">head_layers</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="n">num_classes</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">freeze_resnet</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">freeze_resnet</span><span class="p">()</span>
+
+            <span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+            <span class="n">weight_decay</span> <span class="o">=</span> <span class="mf">0.00003</span>
+            <span class="n">momentum</span> <span class="o">=</span> <span class="mf">0.9</span>
+            <span class="k">if</span> <span class="n">optim</span> <span class="o">==</span> <span class="s2">&quot;sgd&quot;</span><span class="p">:</span>
+                <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="n">momentum</span><span class="p">,</span>
+                                            <span class="n">weight_decay</span><span class="o">=</span><span class="n">weight_decay</span><span class="p">)</span>
+                <span class="n">scheduler</span> <span class="o">=</span> <span class="n">lr_scheduler</span><span class="o">.</span><span class="n">CosineAnnealingWarmRestarts</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">epochs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">optim</span> <span class="o">==</span> <span class="s2">&quot;adam&quot;</span><span class="p">:</span>
+                <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">weight_decay</span><span class="p">)</span>
+                <span class="n">scheduler</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR unkown optimizer: </span><span class="si">{</span><span class="n">optim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">num_images</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">train_subset</span><span class="p">)</span>
+            <span class="n">best_least_Loss</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+            <span class="n">is_best_ans</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">file_name_least_loss</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fine-tuning CUT-PASTE Model on &quot;</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="s2">&quot;epochs using &quot;</span><span class="p">,</span> <span class="n">num_images</span><span class="p">,</span> <span class="s2">&quot; training images&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">ipex_optimize</span><span class="p">:</span>
+                <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">ipex</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+                                                 <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span> <span class="k">if</span> <span class="n">precision</span> <span class="o">==</span> <span class="s1">&#39;bfloat16&#39;</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+                <span class="n">epoch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">step</span> <span class="o">/</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">curr_loss</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_fit_cutpaste</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span>
+                                                <span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">freeze_resnet</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">generate_checkpoints</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">curr_loss</span> <span class="o">&lt;</span> <span class="n">best_least_Loss</span><span class="p">):</span>
+                        <span class="n">best_least_Loss</span> <span class="o">=</span> <span class="n">curr_loss</span>
+                        <span class="n">is_best_ans</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">file_name_least_loss</span> <span class="o">=</span> <span class="s1">&#39;cutpaste_checkpoint_</span><span class="si">{:04d}</span><span class="s1">.pth.tar&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+                    <span class="c1"># Saves the Best Intermediate Checkpoints got till this step.</span>
+                    <span class="n">utils</span><span class="o">.</span><span class="n">save_checkpoint</span><span class="p">({</span>
+                        <span class="s1">&#39;epoch&#39;</span><span class="p">:</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="s1">&#39;arch&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                        <span class="s1">&#39;state_dict&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+                        <span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+                    <span class="p">},</span> <span class="n">is_best</span><span class="o">=</span><span class="n">is_best_ans</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">file_name_least_loss</span><span class="p">,</span>
+                        <span class="n">loss</span><span class="o">=</span><span class="n">best_least_Loss</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="o">=</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+                    <span class="n">is_best_ans</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">epoch</span> <span class="o">==</span> <span class="n">epochs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">file_name_least_loss</span> <span class="o">=</span> <span class="s1">&#39;cutpaste_checkpoint_</span><span class="si">{:04d}</span><span class="s1">.pth.tar&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+                        <span class="n">utils</span><span class="o">.</span><span class="n">save_checkpoint</span><span class="p">({</span>
+                            <span class="s1">&#39;epoch&#39;</span><span class="p">:</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                            <span class="s1">&#39;arch&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                            <span class="s1">&#39;state_dict&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+                        <span class="p">},</span> <span class="n">is_best</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">file_name_least_loss</span><span class="p">,</span>
+                            <span class="n">loss</span><span class="o">=</span><span class="n">curr_loss</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="o">=</span><span class="n">checkpoint_dir</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_checkpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span>
+                                                       <span class="n">file_name_least_loss</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="s1">&#39;cutpaste&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">):</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="c1"># checking if it is a file and correct self-supervised technique</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutpaste</span><span class="p">:</span>
+                    <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_checkpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span>
+                                                       <span class="n">model_path</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="s1">&#39;cutpaste&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+
+<div class="viewcode-block" id="PyTorchImageAnomalyDetectionModel.train">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train.html#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train">[docs]</a>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">feature_dim</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">pred_dim</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
+              <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pooling</span><span class="o">=</span><span class="s1">&#39;avg&#39;</span><span class="p">,</span>
+              <span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pca_threshold</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">simsiam</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cutpaste</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cutpaste_type</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+              <span class="n">freeze_resnet</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">head_layer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="s1">&#39;sgd&#39;</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="s1">&#39;layer3&#39;</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+              <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Trains the model using the specified image anomaly detection dataset.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                dataset (PyTorchCustomImageAnomalyDetectionDataset): Dataset to use when training the model</span>
+<span class="sd">                output_dir (str): Path to a writeable directory for output files</span>
+<span class="sd">                batch_size (int): batch size for every forward operation, default is 64</span>
+<span class="sd">                layer_name (str): The layer name whose output is desired for the extracted features</span>
+<span class="sd">                feature_dim (int): Feature dimension, default is 1000</span>
+<span class="sd">                pred_dim (int): Hidden dimension of the predictor, default is 250</span>
+<span class="sd">                epochs (int): Number of epochs to train the model</span>
+<span class="sd">                generate_checkpoints (bool): Whether to save/preserve the best weights during</span>
+<span class="sd">                                             SimSiam or CutPaste training, default is False.</span>
+<span class="sd">                initial_checkpoints (str): Path to checkpoint weights to load</span>
+<span class="sd">                seed (int): Optional, set a seed for reproducibility</span>
+<span class="sd">                pooling (str): Pooling to be applied on the extracted layer (&#39;avg&#39; or &#39;max&#39;), default is &#39;avg&#39;</span>
+<span class="sd">                kernel_size (int): Kernel size in the pooling layer, default is 2</span>
+<span class="sd">                pca_threshold (float): Threshold to apply to PCA model, default is 0.99</span>
+<span class="sd">                simsiam (bool): Boolean option to enable/disable simsiam training, default is False</span>
+<span class="sd">                cutpaste (bool): Boolean option to enable/disable cutpaste training, default is False</span>
+<span class="sd">                cutpaste_type (str): cutpaste variant to use, default is normal</span>
+<span class="sd">                freeze_resnet (int): Epochs up to which we freeze ResNet layers and only train</span>
+<span class="sd">                                     the new header with FC layers, default is 20</span>
+<span class="sd">                head_layer (int): number of layers in the projection head, default is 2</span>
+<span class="sd">                optim (str): Choice of optimizer to use for training, default is sgd</span>
+<span class="sd">                ipex_optimize (bool): Use Intel Extension for PyTorch (IPEX). Defaults to True.</span>
+<span class="sd">                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision</span>
+<span class="sd">                    uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.</span>
+<span class="sd">                    It is recommended to enable auto mixed precision training when running on platforms that support</span>
+<span class="sd">                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that</span>
+<span class="sd">                    does not support bfloat16, it can be detrimental to the training performance. If</span>
+<span class="sd">                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
+<span class="sd">                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to</span>
+<span class="sd">                    None.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                Fitted principal components and PyTorch feature extraction model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_train_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">,</span> <span class="n">pooling</span><span class="p">,</span>
+                                 <span class="n">kernel_size</span><span class="p">,</span> <span class="n">pca_threshold</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pooling</span> <span class="o">=</span> <span class="n">pooling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kernel_size</span> <span class="o">=</span> <span class="n">kernel_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pca_threshold</span> <span class="o">=</span> <span class="n">pca_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layer_name</span> <span class="o">=</span> <span class="n">layer_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simsiam</span> <span class="o">=</span> <span class="n">simsiam</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutpaste</span> <span class="o">=</span> <span class="n">cutpaste</span>
+
+        <span class="k">if</span> <span class="n">enable_auto_mixed_precision</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Only automatically enable auto mixed precision for SPR</span>
+                <span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="n">PlatformUtil</span><span class="p">()</span><span class="o">.</span><span class="n">cpu_type</span> <span class="o">==</span> <span class="s1">&#39;SPR&#39;</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to determine the CPU type: </span><span class="si">{}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                      <span class="s2">&quot;Mixed precision training will be disabled.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enable_auto_mixed_precision</span> <span class="o">=</span> <span class="n">enable_auto_mixed_precision</span>
+        <span class="n">precision</span> <span class="o">=</span> <span class="s1">&#39;float32&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">enable_auto_mixed_precision</span> <span class="k">else</span> <span class="s1">&#39;bfloat16&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simsiam</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_simsiam</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">feature_dim</span><span class="p">,</span>
+                                       <span class="n">pred_dim</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">,</span>
+                                       <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="n">ipex_optimize</span><span class="p">,</span>
+                                       <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutpaste</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_cutpaste</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">freeze_resnet</span><span class="p">,</span>
+                                        <span class="n">head_layer</span><span class="p">,</span> <span class="n">cutpaste_type</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">,</span>
+                                        <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="n">ipex_optimize</span><span class="p">,</span>
+                                        <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_pretrained_model</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading &#39;</span><span class="si">{}</span><span class="s2">&#39; model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">))</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">get_feature_extraction_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">)</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_train_transform</span>
+        <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_batch</span><span class="p">()</span>
+        <span class="n">outputs_inner</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">),</span> <span class="n">layer_name</span><span class="p">,</span>
+                                         <span class="n">pooling</span><span class="o">=</span><span class="p">[</span><span class="n">pooling</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">])</span>
+        <span class="n">data_mats_orig</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">outputs_inner</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">train_subset</span><span class="p">)))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
+
+        <span class="c1"># Feature extraction</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">data_idx</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">num_ims</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">_train_loader</span><span class="p">):</span>
+                <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
+                <span class="n">num_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">pooling</span><span class="o">=</span><span class="p">[</span><span class="n">pooling</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">])</span>
+                <span class="n">oi</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+                <span class="n">data_mats_orig</span><span class="p">[:,</span> <span class="n">data_idx</span><span class="p">:</span><span class="n">data_idx</span> <span class="o">+</span> <span class="n">num_samples</span><span class="p">]</span> <span class="o">=</span> <span class="n">oi</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">num_ims</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">data_idx</span> <span class="o">+=</span> <span class="n">num_samples</span>
+
+        <span class="c1"># PCA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span> <span class="o">=</span> <span class="n">pca</span><span class="p">(</span><span class="n">data_mats_orig</span><span class="p">,</span> <span class="n">pca_threshold</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span><span class="p">,</span> <span class="n">model</span></div>
+
+
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">,</span> <span class="n">pca_mats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the accuracy of the model on a dataset.</span>
+<span class="sd">        If there is a validation set, evaluation will be done on it (by default) or on the test set</span>
+<span class="sd">        (by setting use_test_set=True). Otherwise, all of the good samples in the dataset will be</span>
+<span class="sd">        used for evaluation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset (PyTorchCustomImageAnomalyDetectionDataset): Dataset on which evaluation</span>
+<span class="sd">                                                                 is performed</span>
+<span class="sd">            pca_mats (PCA components): Components responsible for the top (threshold)% of the</span>
+<span class="sd">                                       features&#39; variability; if not provided, the model&#39;s last</span>
+<span class="sd">                                       calculated PCA will be used</span>
+<span class="sd">            use_test_set (bool): If set to True, evaluation is done on test set else on validation</span>
+<span class="sd">                                 set if available</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            threshold : Computed threshold for prediction</span>
+<span class="sd">            auc_roc_binary : AUROC score</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pca_mats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either pass in the pca_mats to use or use the train() method to generate them.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pca_mats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span>
+
+        <span class="n">dataset</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_validation_transform</span>
+        <span class="k">if</span> <span class="n">use_test_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test_subset</span><span class="p">:</span>
+                <span class="n">eval_loader</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test_loader</span>
+                <span class="n">data_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test_subset</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No test subset is defined&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">eval_loader</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_loader</span>
+            <span class="n">data_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eval_loader</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data_loader</span>
+            <span class="n">data_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Evaluating on </span><span class="si">{}</span><span class="s2"> test images&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_length</span><span class="p">))</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">get_feature_extraction_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_name</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">gt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">data_length</span><span class="p">)</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">data_length</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">eval_loader</span><span class="p">)):</span>
+                <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">)</span>
+                <span class="n">num_im</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_name</span><span class="p">,</span>
+                                           <span class="n">pooling</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pooling</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kernel_size</span><span class="p">])</span>
+                <span class="n">feature_shapes</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">shape</span>
+                <span class="n">oi</span> <span class="o">=</span> <span class="n">outputs</span>
+                <span class="n">oi_or</span> <span class="o">=</span> <span class="n">oi</span>
+                <span class="n">oi_j</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">oi</span><span class="p">)</span>
+                <span class="n">oi_reconstructed</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">oi_j</span><span class="p">)</span>
+                <span class="n">fre</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">oi_or</span> <span class="o">-</span> <span class="n">oi_reconstructed</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">feature_shapes</span><span class="p">)</span>
+                <span class="n">fre_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fre</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># NxCxHxW --&gt; NxHxW</span>
+                <span class="n">scores</span><span class="p">[</span><span class="n">count</span><span class="p">:</span> <span class="n">count</span> <span class="o">+</span> <span class="n">num_im</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">fre_score</span>
+                <span class="n">gt</span><span class="p">[</span><span class="n">count</span><span class="p">:</span><span class="n">count</span> <span class="o">+</span> <span class="n">num_im</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="n">num_im</span>
+
+            <span class="n">gt</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="n">fpr_binary</span><span class="p">,</span> <span class="n">tpr_binary</span><span class="p">,</span> <span class="n">thres</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_curve</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">find_threshold</span><span class="p">(</span><span class="n">fpr_binary</span><span class="p">,</span> <span class="n">tpr_binary</span><span class="p">,</span> <span class="n">thres</span><span class="p">)</span>
+        <span class="n">auc_roc_binary</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">auc</span><span class="p">(</span><span class="n">fpr_binary</span><span class="p">,</span> <span class="n">tpr_binary</span><span class="p">)</span>
+        <span class="n">accuracy_score</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">threshold</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;AUROC: </span><span class="si">{</span><span class="n">auc_roc_binary</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Accuracy: </span><span class="si">{</span><span class="n">accuracy_score</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">auc_roc_binary</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_samples</span><span class="p">,</span> <span class="n">pca_mats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;scores&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform inference and predict the class of the input_samples.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_samples (tensor): Input tensor with one or more samples to perform inference on</span>
+<span class="sd">            pca_mats (PCA components): Components responsible for the top (threshold)% of the</span>
+<span class="sd">                                       features&#39; variability; if not provided, the model&#39;s last</span>
+<span class="sd">                                       calculated PCA will be used</span>
+<span class="sd">            return_type (str): Using &#39;scores&#39; will return the raw output of the PCA model and using &#39;class&#39; will return</span>
+<span class="sd">                               the highest scoring class based on a user-provided threshold (default: &#39;scores&#39;)</span>
+<span class="sd">            threshold (numerical): Optional; When using return_type &quot;class&quot; this is the threshold for determining</span>
+<span class="sd">                                   whether a score counts as an anomaly or not</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of predictions (&#39;good&#39; or &#39;bad&#39;) or raw score vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pca_mats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either pass in the pca_mats to use or use the train() method to generate them.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pca_mats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span>
+
+        <span class="k">if</span> <span class="n">return_type</span> <span class="o">==</span> <span class="s1">&#39;class&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;For class prediction, please give a numeric threshold.&quot;</span><span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">get_feature_extraction_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_name</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_samples</span><span class="p">))</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">input_samples</span> <span class="o">=</span> <span class="n">input_samples</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">)</span>
+            <span class="n">num_im</span> <span class="o">=</span> <span class="n">input_samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_name</span><span class="p">,</span>
+                                       <span class="n">pooling</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pooling</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kernel_size</span><span class="p">])</span>
+            <span class="n">feature_shapes</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">oi</span> <span class="o">=</span> <span class="n">outputs</span>
+            <span class="n">oi_or</span> <span class="o">=</span> <span class="n">oi</span>
+            <span class="n">oi_j</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">oi</span><span class="p">)</span>
+            <span class="n">oi_reconstructed</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">oi_j</span><span class="p">)</span>
+            <span class="n">fre</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">oi_or</span> <span class="o">-</span> <span class="n">oi_reconstructed</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">feature_shapes</span><span class="p">)</span>
+            <span class="n">fre_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fre</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># NxCxHxW --&gt; NxHxW</span>
+            <span class="n">scores</span><span class="p">[</span><span class="n">count</span><span class="p">:</span> <span class="n">count</span> <span class="o">+</span> <span class="n">num_im</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">fre_score</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="n">num_im</span>
+
+        <span class="k">if</span> <span class="n">return_type</span> <span class="o">==</span> <span class="s1">&#39;scores&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">scores</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;good&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">&gt;=</span> <span class="n">threshold</span> <span class="k">else</span> <span class="s1">&#39;bad&#39;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">           Exports a trained model as a model.pt file along with the PCA components as pca_mats.pkl. The files</span>
+<span class="sd">           will be written to the output directory in a directory with the model&#39;s name, and a unique numbered</span>
+<span class="sd">           directory. The directory number will increment each time the model is exported.</span>
+
+<span class="sd">           Args:</span>
+<span class="sd">               output_dir (str): A writeable output directory.</span>
+
+<span class="sd">           Returns:</span>
+<span class="sd">               The path to the numbered saved model directory</span>
+
+<span class="sd">           Raises:</span>
+<span class="sd">               TypeError: if the output_dir is not a string</span>
+<span class="sd">               FileExistsError: the specified output directory already exists as a file</span>
+<span class="sd">               ValueError: if the model has not been loaded or trained yet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Call the base class to write the model file</span>
+        <span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">PyTorchImageClassificationModel</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span><span class="p">:</span>
+            <span class="n">pca_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="s1">&#39;pca_mats.pkl&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pca_file_name</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pca_file</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span><span class="p">,</span> <span class="n">pca_file</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved principal components: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pca_file_name</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">saved_model_dir</span>
+
+    <span class="k">def</span> <span class="nf">load_from_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a saved model and its PCA components from the model_dir path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Call the base class to load the model file</span>
+        <span class="n">PyTorchImageClassificationModel</span><span class="o">.</span><span class="n">load_from_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">)</span>
+
+        <span class="n">pca_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s1">&#39;pca_mats.pkl&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">pca_file_name</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pca_file_name</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pca_file</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pca_file</span><span class="p">)</span>  <span class="c1"># nosec B301</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on Oct 19, 2023.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.models.text_generation.pytorch_hf_text_generation_model &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tlt.models.text_generation.pytorch_hf_text_generation_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tlt.models.text_generation.pytorch_hf_text_generation_model</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2023 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">requests.adapters</span> <span class="kn">import</span> <span class="n">ProxyError</span>
+
+<span class="c1"># Hugging Face imports</span>
+<span class="kn">from</span> <span class="nn">peft</span> <span class="kn">import</span> <span class="n">LoraConfig</span><span class="p">,</span> <span class="n">TaskType</span><span class="p">,</span> <span class="n">get_peft_model</span><span class="p">,</span> <span class="n">PeftModelForCausalLM</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AutoModelForCausalLM</span><span class="p">,</span>
+    <span class="n">AutoTokenizer</span><span class="p">,</span>
+    <span class="n">DataCollatorForSeq2Seq</span><span class="p">,</span>
+    <span class="n">TrainingArguments</span><span class="p">,</span>
+    <span class="n">GenerationConfig</span><span class="p">,</span>
+    <span class="n">Trainer</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">downloader.models</span> <span class="kn">import</span> <span class="n">ModelDownloader</span>
+<span class="kn">from</span> <span class="nn">tlt</span> <span class="kn">import</span> <span class="n">TLT_BASE_DIR</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">read_json_file</span><span class="p">,</span> <span class="n">validate_model_name</span><span class="p">,</span> <span class="n">verify_directory</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.platform_util</span> <span class="kn">import</span> <span class="n">PlatformUtil</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
+<span class="kn">from</span> <span class="nn">tlt.models.hf_model</span> <span class="kn">import</span> <span class="n">HFModel</span>
+<span class="kn">from</span> <span class="nn">tlt.models.pytorch_model</span> <span class="kn">import</span> <span class="n">PyTorchModel</span>
+<span class="kn">from</span> <span class="nn">tlt.models.text_generation.text_generation_model</span> <span class="kn">import</span> <span class="n">TextGenerationModel</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets.text_generation.text_generation_dataset</span> <span class="kn">import</span> <span class="n">TextGenerationDataset</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets.text_generation.hf_custom_text_generation_dataset</span> <span class="kn">import</span> <span class="n">HFCustomTextGenerationDataset</span>
+
+
+<span class="n">MODEL_CONFIG_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TLT_BASE_DIR</span><span class="p">,</span> <span class="s2">&quot;models/configs&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PyTorchHFTextGenerationModel">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.html#tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel">[docs]</a>
+<span class="k">class</span> <span class="nc">PyTorchHFTextGenerationModel</span><span class="p">(</span><span class="n">TextGenerationModel</span><span class="p">,</span> <span class="n">HFModel</span><span class="p">,</span> <span class="n">PyTorchModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to represent a PyTorch Hugging Face pretrained model that can be used for text generation</span>
+<span class="sd">    fine tuning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PyTorchHFTextGenerationModel.__init__">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.html#tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">hf_model_map</span> <span class="o">=</span> <span class="n">read_json_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">TLT_BASE_DIR</span><span class="p">,</span> <span class="s2">&quot;models/configs/pytorch_hf_text_generation_models.json&quot;</span><span class="p">))</span>
+
+        <span class="c1"># extra properties that will become configurable in the future</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_checkpoints</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="s1">&#39;cpu&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">TextGenerationModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">FrameworkType</span><span class="o">.</span><span class="n">PYTORCH</span><span class="p">,</span> <span class="n">UseCaseType</span><span class="o">.</span><span class="n">TEXT_GENERATION</span><span class="p">)</span>
+        <span class="n">HFModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">FrameworkType</span><span class="o">.</span><span class="n">PYTORCH</span><span class="p">,</span> <span class="n">UseCaseType</span><span class="o">.</span><span class="n">TEXT_GENERATION</span><span class="p">)</span>
+        <span class="n">PyTorchModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="n">FrameworkType</span><span class="o">.</span><span class="n">PYTORCH</span><span class="p">,</span> <span class="n">use_case</span><span class="o">=</span><span class="n">UseCaseType</span><span class="o">.</span><span class="n">TEXT_GENERATION</span><span class="p">)</span>
+
+        <span class="c1"># Store the dataset type that this model type can use for Intel Neural Compressor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inc_compatible_dataset</span> <span class="o">=</span> <span class="p">(</span><span class="n">HFCustomTextGenerationDataset</span><span class="p">)</span>
+
+        <span class="c1"># model definition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span> <span class="o">=</span> <span class="n">hf_model_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s2">&quot;hub_name&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trainer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_directory</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_hub_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">downloader</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="s1">&#39;hugging_face&#39;</span><span class="p">,</span>
+                                     <span class="n">hf_model_class</span><span class="o">=</span><span class="s1">&#39;AutoModelForCausalLM&#39;</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">ProxyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Max retries reached. Sleeping for 10 sec...&#39;</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">model</span>
+
+<div class="viewcode-block" id="PyTorchHFTextGenerationModel.train">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.train.html#tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.train">[docs]</a>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">lora_rank</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">lora_alpha</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+        <span class="n">lora_dropout</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">max_train_samples</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">do_eval</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+        <span class="n">ipex_optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_trainer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">enable_auto_mixed_precision</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Trains the model using the specified text generation dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset (TextGenerationDataset): The dataset to use for training. If a train subset has been defined, that</span>
+<span class="sd">                                             subset will be used to fit the model. Otherwise, the entire</span>
+<span class="sd">                                             non-partitioned dataset will be used.</span>
+<span class="sd">            output_dir (str): A writeable output directory to write checkpoint files during training</span>
+<span class="sd">            epochs (int): The number of training epochs [default: 1]</span>
+<span class="sd">            initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the</span>
+<span class="sd">                                       latest checkpoint will be used.</span>
+<span class="sd">            temperature (float): The value used to modulate the next token probabilities [default: 1.0]</span>
+<span class="sd">            lora_rank (int): LoRA rank parameter [default: 8]</span>
+<span class="sd">            lora_alpha (int): LoRA alpha parameter [default: 32]</span>
+<span class="sd">            lora_dropout (float): LoRA dropout parameter [default: 0.05]</span>
+<span class="sd">            max_train_samples (int or None): Use this to truncate the training set to a maximum number of samples</span>
+<span class="sd">                                             for quick testing [default: None]</span>
+<span class="sd">            do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated</span>
+<span class="sd">                            at the end of each epoch. If the dataset does not have a validation split, the test subset</span>
+<span class="sd">                            will be used.</span>
+<span class="sd">            device (str): Device to train the model. Defaults to &quot;cpu&quot;</span>
+<span class="sd">            ipex_optimize (bool): Optimize the model using Intel® Extension for PyTorch. Defaults to True</span>
+<span class="sd">            use_trainer (bool): Placeholder argument, model training is done using the Hugging Face Trainer</span>
+<span class="sd">                                and a native PyTorch training loop is not yet implemented.</span>
+<span class="sd">            force_download (bool): Downloads the model with default parameters. Defaults to False.</span>
+<span class="sd">            enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision</span>
+<span class="sd">                    uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.</span>
+<span class="sd">                    It is recommended to enable auto mixed precision training when running on platforms that support</span>
+<span class="sd">                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that</span>
+<span class="sd">                    does not support bfloat16, it can be detrimental to the training performance. If</span>
+<span class="sd">                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
+<span class="sd">                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to</span>
+<span class="sd">                    None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Hugging Face TrainOutput object</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TypeError: if the dataset specified is not a TextGenerationDataset</span>
+<span class="sd">            ValueError: if the given dataset has not been preprocessed yet</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_train_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">TextGenerationDataset</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span>
+                                 <span class="n">enable_auto_mixed_precision</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">enable_auto_mixed_precision</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Only automatically enable auto mixed precision for SPR</span>
+                <span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="n">PlatformUtil</span><span class="p">()</span><span class="o">.</span><span class="n">cpu_type</span> <span class="o">==</span> <span class="s1">&#39;SPR&#39;</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to determine the CPU type: </span><span class="si">{}</span><span class="s2">. Mixed precision training will be disabled.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enable_auto_mixed_precision</span> <span class="o">=</span> <span class="n">enable_auto_mixed_precision</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_hub_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_data_loader</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation_data_loader</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Get the eval_dataset</span>
+        <span class="n">eval_dataset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test_subset</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">do_eval</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: The dataset provided does not have a validation or test subset.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Truncate the train dataset if desired</span>
+        <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_subset</span>
+        <span class="k">if</span> <span class="n">max_train_samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Truncating training dataset to size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_train_samples</span><span class="p">))</span>
+            <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">max_train_samples</span><span class="p">))</span>
+
+        <span class="c1"># Initialize tokenizer</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_tokenizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">pad_token_id</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">padding_side</span> <span class="o">=</span> <span class="s2">&quot;left&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Using Low-Rank Adaptation (LoRA) for </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">))</span>
+
+        <span class="c1"># PEFT settings</span>
+        <span class="n">peft_config</span> <span class="o">=</span> <span class="n">LoraConfig</span><span class="p">(</span>
+            <span class="n">r</span><span class="o">=</span><span class="n">lora_rank</span><span class="p">,</span>
+            <span class="n">lora_alpha</span><span class="o">=</span><span class="n">lora_alpha</span><span class="p">,</span>
+            <span class="n">lora_dropout</span><span class="o">=</span><span class="n">lora_dropout</span><span class="p">,</span>
+            <span class="n">bias</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="n">task_type</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">CAUSAL_LM</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">get_peft_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">peft_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">print_trainable_parameters</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">use_trainer</span><span class="p">:</span>
+            <span class="c1"># Randomly mask the tokens</span>
+            <span class="n">data_collator</span> <span class="o">=</span> <span class="n">DataCollatorForSeq2Seq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="p">,</span> <span class="n">pad_to_multiple_of</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
+                                                   <span class="n">padding</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">training_args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">num_train_epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+                <span class="n">do_eval</span><span class="o">=</span><span class="n">do_eval</span><span class="p">,</span>
+                <span class="n">do_train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">no_cuda</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">overwrite_output_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;preprocessing_info&#39;</span><span class="p">][</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span>
+                <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;preprocessing_info&#39;</span><span class="p">][</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span>
+                <span class="n">use_ipex</span><span class="o">=</span><span class="n">ipex_optimize</span><span class="p">,</span>
+                <span class="n">bf16</span><span class="o">=</span><span class="n">enable_auto_mixed_precision</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Initialize our Trainer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="n">training_args</span><span class="p">,</span>
+                <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+                <span class="n">eval_dataset</span><span class="o">=</span><span class="n">eval_dataset</span><span class="p">,</span>
+                <span class="n">tokenizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="p">,</span>
+                <span class="n">data_collator</span><span class="o">=</span><span class="n">data_collator</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">resume_from_checkpoint</span><span class="o">=</span><span class="n">initial_checkpoints</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Training without the Hugging Face Trainer is not implemented yet&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span></div>
+
+
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluates the model on the &#39;eval_dataset&#39; given in the Trainer arguments</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset (TextGenerationDataset): The dataset to use for evaluation. If Hugging Face Trainer object was used</span>
+<span class="sd">                                             to train the model, it evaluates on the &#39;eval_dataset&#39; given in the Trainer</span>
+<span class="sd">                                             arguments</span>
+<span class="sd">            enable_auto_mixed_precision (bool or None): Enable auto mixed precision for evaluation. Mixed precision</span>
+<span class="sd">                    uses both 16-bit and 32-bit floating point types to make evaluation run faster and use less memory.</span>
+<span class="sd">                    It is recommended to enable auto mixed precision when running on platforms that support</span>
+<span class="sd">                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that</span>
+<span class="sd">                    does not support bfloat16, it can be detrimental to the evaluation performance. If</span>
+<span class="sd">                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
+<span class="sd">                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to</span>
+<span class="sd">                    None.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Perplexity metric</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: if the model has not been trained yet and does not have an associated Trainer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">enable_auto_mixed_precision</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Only automatically enable auto mixed precision for SPR</span>
+                <span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="n">PlatformUtil</span><span class="p">()</span><span class="o">.</span><span class="n">cpu_type</span> <span class="o">==</span> <span class="s1">&#39;SPR&#39;</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to determine the CPU type: </span><span class="si">{}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                      <span class="s2">&quot;Mixed precision will be disabled for evaluation.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enable_auto_mixed_precision</span> <span class="o">=</span> <span class="n">enable_auto_mixed_precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trainer</span><span class="p">:</span>
+            <span class="n">eval_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">TextGenerationDataset</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected a dataset of type TextGenerationDataset and got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+            <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_subset</span>
+            <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span>
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;preprocessing_info&#39;</span><span class="p">][</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
+            <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_tokenizer</span>
+            <span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token_id</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">tokenizer</span><span class="o">.</span><span class="n">padding_side</span> <span class="o">=</span> <span class="s2">&quot;left&quot;</span>
+            <span class="n">data_collator</span> <span class="o">=</span> <span class="n">DataCollatorForSeq2Seq</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">pad_to_multiple_of</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">training_args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;/tmp/output&#39;</span><span class="p">,</span>
+                <span class="n">do_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">do_train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">no_cuda</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+                <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+                <span class="n">bf16</span><span class="o">=</span><span class="n">enable_auto_mixed_precision</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Initialize Trainer</span>
+            <span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="n">training_args</span><span class="p">,</span>
+                <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+                <span class="n">eval_dataset</span><span class="o">=</span><span class="n">eval_dataset</span><span class="p">,</span>
+                <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+                <span class="n">data_collator</span><span class="o">=</span><span class="n">data_collator</span>
+            <span class="p">)</span>
+
+            <span class="n">eval_results</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Perplexity: </span><span class="si">{</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">eval_results</span><span class="p">[</span><span class="s1">&#39;eval_loss&#39;</span><span class="p">])</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">eval_results</span>
+
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_samples</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">repetition_penalty</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">num_beams</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                 <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates text completions for the specified input samples.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_samples (dict, encoded dict): Input sample to use to generate text completion.</span>
+<span class="sd">            temperature (float): The value used to modulate the next token probabilities [default: 1.0]</span>
+<span class="sd">            top_p (float): If set to float &lt; 1, only the smallest set of most probable tokens with probabilities that</span>
+<span class="sd">                           add up to top_p or higher are kept for generation [default: 0.75]</span>
+<span class="sd">            top_k (int): The number of highest probability vocabulary tokens to keep for top-k-filtering [default: 40]</span>
+<span class="sd">            repetition_penalty (float): The parameter for repetition penalty. 1.0 means no penalty. [default: 1.0]</span>
+<span class="sd">            num_beams (int): Number of beams for beam search. 1 means no beam search. [default: 4]</span>
+<span class="sd">            max_new_tokens (int): The maximum number of new tokens generated [default: 128]</span>
+<span class="sd">            decode (bool): Set to False if the tokenized output is desired, otherwise if True, the decoded response</span>
+<span class="sd">                           will be returned [default: True]</span>
+<span class="sd">            enable_auto_mixed_precision (bool or None): Enable auto mixed precision for evaluation. Mixed precision</span>
+<span class="sd">                    uses both 16-bit and 32-bit floating point types to make evaluation run faster and use less memory.</span>
+<span class="sd">                    It is recommended to enable auto mixed precision when running on platforms that support</span>
+<span class="sd">                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that</span>
+<span class="sd">                    does not support bfloat16, it can be detrimental to the evaluation performance. If</span>
+<span class="sd">                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
+<span class="sd">                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to</span>
+<span class="sd">                    None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of strings</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: if the given input_samples is of type DataLoader</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">enable_auto_mixed_precision</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Only automatically enable auto mixed precision for SPR</span>
+                <span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="n">PlatformUtil</span><span class="p">()</span><span class="o">.</span><span class="n">cpu_type</span> <span class="o">==</span> <span class="s1">&#39;SPR&#39;</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to determine the CPU type: </span><span class="si">{}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                      <span class="s2">&quot;Mixed precision will be disabled for generation.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enable_auto_mixed_precision</span> <span class="o">=</span> <span class="n">enable_auto_mixed_precision</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The model has not been fine-tuned yet, so generation is being done using the original model&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_hub_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ProxyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Max retries reached. Sleeping for 10 sec...&quot;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">pad_token_id</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">padding_side</span> <span class="o">=</span> <span class="s2">&quot;left&quot;</span>
+
+        <span class="c1"># If &#39;input_samples&#39; is a single text string or a list of text strings</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_samples</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_samples</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">encoded_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="p">(</span><span class="n">input_samples</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s1">&#39;pt&#39;</span><span class="p">)</span>
+        <span class="c1"># If &#39;input_samples&#39; is an encoded input dict</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_samples</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;input_ids&#39;</span> <span class="ow">in</span> <span class="n">input_samples</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># Requires at least the keys below</span>
+            <span class="n">required_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">,</span> <span class="s1">&#39;attention_mask&#39;</span><span class="p">,</span> <span class="s1">&#39;labels&#39;</span><span class="p">]</span>
+            <span class="n">encoded_input</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">input_samples</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">required_keys</span><span class="p">}</span>
+        <span class="c1"># If &#39;input_samples&#39; is a single unencoded dict</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_samples</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">encoded_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="p">(</span><span class="n">input_samples</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s1">&#39;pt&#39;</span><span class="p">)</span>
+        <span class="c1"># if &#39;input_samples&#39; is any other kind of object</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Generation using a List, Dataset, or Dataloader hasn&#39;t been implemented yet. &quot;</span>
+                                      <span class="s2">&quot;Use an unencoded or encoded dictionary.&quot;</span><span class="p">)</span>
+
+        <span class="n">generation_config</span> <span class="o">=</span> <span class="n">GenerationConfig</span><span class="p">(</span>
+            <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+            <span class="n">top_p</span><span class="o">=</span><span class="n">top_p</span><span class="p">,</span>
+            <span class="n">top_k</span><span class="o">=</span><span class="n">top_k</span><span class="p">,</span>
+            <span class="n">repetition_penalty</span><span class="o">=</span><span class="n">repetition_penalty</span><span class="p">,</span>
+            <span class="n">num_beams</span><span class="o">=</span><span class="n">num_beams</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enable_auto_mixed_precision</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">autocast</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">):</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">input_ids</span><span class="o">=</span><span class="n">encoded_input</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span>
+                                                  <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+                                                  <span class="n">max_new_tokens</span><span class="o">=</span><span class="n">max_new_tokens</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">input_ids</span><span class="o">=</span><span class="n">encoded_input</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span>
+                                              <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+                                              <span class="n">max_new_tokens</span><span class="o">=</span><span class="n">max_new_tokens</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">decode</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">output</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">batch_decode</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the model and tokenizer to the given output_dir directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_dir (str): Path to save the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
+            <span class="n">verify_directory</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">valid_model_name</span> <span class="o">=</span> <span class="n">validate_model_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+            <span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">valid_model_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)):</span>
+                <span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+            <span class="n">verify_directory</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_trainer</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved model directory:&quot;</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">saved_model_dir</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to export the model, because it hasn&#39;t been trained yet&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_from_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads a saved pytorch model from the given model_dir directory. Requires a &#39;config.json&#39; and</span>
+<span class="sd">        &#39;pytorch_model.bin&#39; file corresponding to a transformers model in the model_dir.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_dir(str): Path to the transformers model directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">verify_directory</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">require_directory_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hub_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">PeftModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to load model from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_dir</span><span class="p">))</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2023, Intel Corporation.
+      <span class="lastupdated">Last updated on Oct 19, 2023.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

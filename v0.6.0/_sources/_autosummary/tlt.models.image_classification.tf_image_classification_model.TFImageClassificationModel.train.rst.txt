@@ -1,0 +1,6 @@
+﻿tlt.models.image\_classification.tf\_image\_classification\_model.TFImageClassificationModel.train
+==================================================================================================
+
+.. currentmodule:: tlt.models.image_classification.tf_image_classification_model
+
+.. automethod:: TFImageClassificationModel.train

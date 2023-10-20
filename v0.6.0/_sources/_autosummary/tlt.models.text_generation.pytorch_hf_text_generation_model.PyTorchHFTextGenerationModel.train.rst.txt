@@ -1,0 +1,6 @@
+﻿tlt.models.text\_generation.pytorch\_hf\_text\_generation\_model.PyTorchHFTextGenerationModel.train
+===================================================================================================
+
+.. currentmodule:: tlt.models.text_generation.pytorch_hf_text_generation_model
+
+.. automethod:: PyTorchHFTextGenerationModel.train

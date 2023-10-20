@@ -1,0 +1,6 @@
+﻿tlt.models.image\_anomaly\_detection.pytorch\_image\_anomaly\_detection\_model.PyTorchImageAnomalyDetectionModel.benchmark
+==========================================================================================================================
+
+.. currentmodule:: tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model
+
+.. automethod:: PyTorchImageAnomalyDetectionModel.benchmark
