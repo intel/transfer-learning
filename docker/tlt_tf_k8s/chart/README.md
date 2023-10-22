@@ -1,4 +1,4 @@
-# TLT TF Distributed Training
+# Intel® Transfer Learning Tool TensorFlow Distributed Training
 
 ![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.16.0](https://img.shields.io/badge/AppVersion-1.16.0-informational?style=flat-square)
 
@@ -16,7 +16,7 @@ A Helm chart for Kubernetes
 | imageTag | string | `"0.6.0-dist-devel"` |  |
 | metadata.name | string | `"tlt-distributed"` |  |
 | metadata.namespace | string | `"kubeflow"` |  |
-| modelName | string | `"https://tfhub.dev/google/efficientnet/b1/feature-vector/1"` | TF Hub or HuggingFace model URL |
+| modelName | string | `"https://tfhub.dev/google/efficientnet/b1/feature-vector/1"` | TensorFlow Hub or HuggingFace model URL |
 | pvcName | string | `"tlt"` |  |
 | pvcResources.data | string | `"2Gi"` | Amount of Storage for Dataset |
 | pvcResources.output | string | `"1Gi"` | Amount of Storage for Output Directory |
