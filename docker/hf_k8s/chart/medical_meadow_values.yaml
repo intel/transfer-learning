@@ -1,14 +1,14 @@
 metadata:
-  name: medical-meadow-pytorchjob
+  name: medical-meadow
   namespace: kubeflow
 
 secret:
-  name: medical-meadow-hf-token-secret
   encodedToken:
 
 image:
- name: amr-registry.caas.intel.com/aiops/mlops
- tag: torch-2.0.1-huggingface-multinode-python-3.9
+ name: amr-registry.caas.intel.com/aiops/mlops       # TODO: Replace with the public image/tag when it's available
+ tag: torch-2.0.1-huggingface-multinode-python-3.9   # TODO: Replace with the public image/tag when it's available
+ pullPolicy: IfNotPresent
 
 elasticPolicy:
   rdzvBackend: c10d
@@ -84,17 +84,15 @@ envVars:
 
 # Resources allocated to each worker
 resources:
-  cpuRequest: 200
-  cpuLimit: 200
-  memoryRequest: 226Gi
-  memoryLimit: 226Gi
-  nodeSelectorLabel: team
-  nodeSelectorValue: dell-poc
+  cpuRequest:
+  cpuLimit:
+  memoryRequest:
+  memoryLimit:
+  nodeSelectorLabel:
+  nodeSelectorValue:
 
 # Persistent volume claim storage resources
 storage:
-  pvcName: medical-meadow-pvc
   storageClassName: nfs-client
   resources: 50Gi
   pvcMountPath: /tmp/pvc-mount
-  dataAccessPodName: medical-meadow-dataaccess

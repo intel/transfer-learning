@@ -1,7 +1,7 @@
 apiVersion: "kubeflow.org/v1"
 kind: PyTorchJob
 metadata:
-  name: {{ .Values.metadata.name }}
+  name: {{ .Values.metadata.name }}-pytorchjob
   namespace: {{ .Values.metadata.namespace }}
 spec:
   elasticPolicy:
@@ -18,7 +18,7 @@ spec:
           containers:
             - name: pytorch
               image: {{ .Values.image.name }}:{{ .Values.image.tag }}
-              imagePullPolicy: Always
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
               command:
                 - torchrun
                 - {{ .Values.distributed.script }}
@@ -113,55 +113,86 @@ spec:
                 - --woq_algo
                 - "{{ .Values.distributed.quantize.woqAlgo }}"
               env:
+              {{- if .Values.envVars.ldPreload }}
               - name: LD_PRELOAD
                 value: "{{ .Values.envVars.ldPreload }}"
+              {{- end }}
+              {{- if .Values.envVars.httpProxy }}
               - name: http_proxy
                 value: "{{ .Values.envVars.httpProxy }}"
+              {{- end }}
+              {{- if .Values.envVars.httpsProxy }}
               - name: https_proxy
                 value: "{{ .Values.envVars.httpsProxy }}"
+              {{- end }}
+              {{- if .Values.envVars.noProxy }}
               - name: no_proxy
                 value: "{{ .Values.envVars.noProxy }}"
+              {{- end }}
+              {{- if .Values.envVars.ftpProxy }}
               - name: ftp_proxy
                 value: "{{ .Values.envVars.ftpProxy }}"
+              {{- end }}
+              {{- if .Values.envVars.socksProxy }}
               - name: socks_proxy
                 value: "{{ .Values.envVars.socksProxy }}"
+              {{- end }}
+              {{- if .Values.envVars.transformersCache }}
               - name: TRANSFORMERS_CACHE
                 value: "{{ .Values.envVars.transformersCache }}"
+              {{- end }}
+              {{- if .Values.envVars.hfDatasetsCache }}
               - name: HF_DATASETS_CACHE
                 value: "{{ .Values.envVars.hfDatasetsCache }}"
+              {{- end }}
+              {{- if .Values.envVars.logLevel }}
               - name: LOGLEVEL
                 value: "{{ .Values.envVars.logLevel }}"
+              {{- end }}
+              {{- if .Values.envVars.cclWorkerCount }}
               - name: CCL_WORKER_COUNT
                 value: "{{ .Values.envVars.cclWorkerCount }}"
+              {{- end }}
+              {{- if .Values.secret.encodedToken}}
               - name: HUGGING_FACE_HUB_TOKEN
                 valueFrom:
                   secretKeyRef:
-                    name: {{ .Values.secret.name }}
+                    name: {{ .Values.metadata.name }}-secret
                     key: username
+              {{- end }}
               resources:
+                {{- if or .Values.resources.cpuLimit .Values.resources.memoryLimit }}
                 limits:
+                  {{- if .Values.resources.cpuLimit }}
                   cpu: {{ .Values.resources.cpuLimit }}
+                  {{- end }}
+                  {{- if .Values.resources.memoryLimit }}
                   memory: {{ .Values.resources.memoryLimit }}
+                  {{- end }}
+                {{- end }}
+                {{- if or .Values.resources.cpuRequest .Values.resources.memoryRequest }}
                 requests:
+                  {{- if .Values.resources.cpuRequest }}
                   cpu: {{ .Values.resources.cpuRequest }}
+                  {{- end }}
+                  {{- if .Values.resources.memoryRequest }}
                   memory: {{ .Values.resources.memoryRequest }}
+                  {{- end }}
+                {{- end }}
               volumeMounts:
               - name: output-dir
                 mountPath: {{ .Values.storage.pvcMountPath }}
               - mountPath: /dev/shm
                 name: dshm
           restartPolicy: Never
+          {{- if .Values.resources.nodeSelectorLabel }}
           nodeSelector:
             {{ .Values.resources.nodeSelectorLabel }}: {{ .Values.resources.nodeSelectorValue }}
-          tolerations:
-            - key: "key"
-              operator: "Equal"
-              value: "value"
-              effect: "NoSchedule"
+          {{- end }}
           volumes:
           - name: output-dir
             persistentVolumeClaim:
-              claimName: {{ .Values.storage.pvcName }}
+              claimName: {{ .Values.metadata.name }}-pvc
           - name: dshm
             emptyDir:
               medium: Memory

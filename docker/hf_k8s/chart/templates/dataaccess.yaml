@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ .Values.storage.dataAccessPodName }}
+  name: {{ .Values.metadata.name }}-dataaccess
 spec:
   containers:
   - name: alpine
@@ -26,4 +26,4 @@ spec:
   volumes:
   - name: pvc-volume
     persistentVolumeClaim:
-      claimName: {{ .Values.storage.pvcName }}
+      claimName: {{ .Values.metadata.name }}-pvc

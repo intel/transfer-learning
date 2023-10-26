@@ -32,7 +32,7 @@ Client requirements:
 A Helm chart is used to package the resources needed to run the distributed training job. The helm chart in this
 directory includes the following components:
 * [PyTorchJob](chart/templates/pytorchjob.yaml), which launches a pod for each worker
-* [Kubernetes secret](https://kubernetes.io/docs/concepts/configuration/secret/) with your Hugging Face token used to
+* [Kubernetes secret](chart/templates/secret.yaml) with your Hugging Face token used to
   set the `HUGGING_FACE_HUB_TOKEN` environment variable for authentication to access to Llama 2 models.
 * [Persistent volume claim (PVC)](chart/templates/pvc.yaml) to provides a storage space for saving checkpoints,
   saved model files, etc.
@@ -114,17 +114,17 @@ docker build \
 > Prior to running the examples, ensure that your Kubernetes cluster meets the
 > [cluster requirements](#cluster-requirements) mentioned above.
 
-We have a couple of predefined use cases that can be used, or you can use the template and fill in parameters to use
-your own workload. There is a separate [Helm chart values file](https://helm.sh/docs/chart_template_guide/values_files/)
-that can be used for each of these usages:
+Select a predefined use cases (such as fine tuning using the [Medical Meadow](https://github.com/kbressem/medAlpaca)
+dataset), or use the template and fill in parameters to use your own workload. There are separate
+[Helm chart values files](https://helm.sh/docs/chart_template_guide/values_files/) that can be used for each of these
+usages:
 
 | Value file name | Description |
 |-----------------|-------------|
 | [`values.yaml`](chart/values.yaml) | Template for your own distributed fine tuning job. Fill in the fields for your workload and job parameters. |
-| `financial_chatbot_values.yaml` | Helm chart values for fine tuning a financial chatbot. |
 | [`medical_meadow_values.yaml`](chart/medical_meadow_values.yaml) | Helm chart values for fine tuning Llama 2 using the [Medical Meadow flashcards dataset](https://huggingface.co/datasets/medalpaca/medical_meadow_medical_flashcards) |
 
-Select one of the value files to use depending on your desired use case, and then follow the instructions below to
+Pick one of the value files to use depending on your desired use case, and then follow the instructions below to
 fine tune the model.
 
 ### Fine tuning Llama2 7b on a Kubernetes cluster
@@ -160,6 +160,8 @@ fine tune the model.
    * `resources.nodeSelectorLabel` and `resources.nodeSelectorValue` specify a node label key/value to indicate which
      type of nodes can be used for the worker pods. `kubectl get nodes` and `kubectl describe node <node name>` can be
      used to get information about the nodes on your cluster.
+   * `storage.storageClassName` should be set to your Kubernetes NFS storage class name (use `kubectl get storageclass`
+     to see a list of storage classes on  your cluster)
 
    See a complete list and descriptions of the available parameters in the [Helm chart values documentation](values.md).
 
@@ -172,9 +174,9 @@ fine tune the model.
    helm install --namespace kubeflow -f chart/<values file>.yaml llama2-distributed ./chart
    ```
 
-4. If a custom dataset is being used, the file needs to be uploaded to the persistent volume claim (PVC), so that it can
-   be accessed by the worker pods. If your values yaml file is using a Hugging Face dataset (such as `medical_meadow_values.yaml`
-   which uses `medalpaca/medical_meadow_medical_flashcards`), you can skip this step.
+4. (Optional) If a custom dataset is being used, the file needs to be uploaded to the persistent volume claim (PVC), so
+   that it can be accessed by the worker pods. If your values yaml file is using a Hugging Face dataset (such as
+   `medical_meadow_values.yaml` which uses `medalpaca/medical_meadow_medical_flashcards`), you can skip this step.
 
    The dataset can be uploaded to the PVC using the [`kubectl cp` command](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#cp).
    The destination path for the dataset needs to match the `train.dataFile` path in your values yaml file.
