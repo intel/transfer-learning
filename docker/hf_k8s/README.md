@@ -75,10 +75,10 @@ The container has the following major packages included:
 
 | Package Name | Version | Purpose |
 |--------------|---------|---------|
-| [PyTorch](https://pytorch.org/) | 2.0.1+cpu | Base framework to train models |
+| [PyTorch](https://pytorch.org/) | 2.0.1 | Base framework to train models |
 | [Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | 2.0.100 | Utilizes Intel®'s optimization |
 | [Intel® Neural Compressor](https://github.com/intel/neural-compressor) | 2.3 | Optimize model for inference post-training |
-| [Intel® oneAPI Collective Communications Library](https://github.com/oneapi-src/oneCCL) | 2.0.0+cpu | Deploy PyTorch jobs on multiple nodes |
+| [Intel® oneAPI Collective Communications Library](https://github.com/oneapi-src/oneCCL) | 2.0.0 | Deploy PyTorch jobs on multiple nodes |
 
 The container can be built with the default package versions using the following command:
 ```
@@ -89,10 +89,10 @@ The build arguments below that can be provided in order to install a different v
 
 | Argument | Default Value | Description |
 |----------|---------------|-------------|
-| TORCH_VER | 2.0.1+cpu | PyTorch Version |
+| TORCH_VER | 2.0.1 | PyTorch CPU Version |
 | IPEX_VER | 2.0.100 | Intel® Extension for PyTorch |
 | INC_VER | 2.3 | Intel® Neural Compressor Version |
-| ONECCL_VER | 2.0.0+cpu | Intel® oneAPI Collective Communications Library Version |
+| ONECCL_VER | 2.0.0 | Intel® oneAPI Collective Communications Library CPU Version |
 
 The updated command to build with the specific arguments then would be:
 ```

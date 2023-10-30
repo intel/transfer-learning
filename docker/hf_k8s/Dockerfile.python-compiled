@@ -25,35 +25,51 @@ RUN apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Base Image with Python and Pip
-FROM base as python-base
-ARG PYTHON=python
-ARG PYTHON_VER=3.9
+# Python image
+FROM base as python-dev
+
+ARG PYTHON=python3.9
+ARG PYTHON_VER=3.9.18
 
 RUN apt-get update && \
     apt-get install --no-install-recommends --fix-missing -y \
+      build-essential \
+      ca-certificates \
       curl \
-      gpg-agent \
-      software-properties-common && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive \
-    apt-get install --no-install-recommends --fix-missing -y \
-      python${PYTHON_VER} \
-      python${PYTHON_VER}-distutils && \
-    curl -s https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VER} && \
-    apt-get purge -y \
-      curl \
-      gpg-agent \
-      software-properties-common && \
-    apt-get autoclean && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
+      libbz2-dev \
+      libffi-dev \
+      libgdbm-dev \
+      liblzma-dev \
+      libncurses5-dev \
+      libnss3-dev \
+      libreadline-dev \
+      libsqlite3-dev \
+      libssl-dev \
+      make \
+      pkg-config \
+      zlib1g-dev
 
-RUN ln -sf $( which ${PYTHON}${PYTHON_VER} ) /usr/bin/python && \
-    ln -sf $( which ${PYTHON}${PYTHON_VER} ) /usr/bin/python3
+RUN curl https://www.python.org/ftp/python/${PYTHON_VER}/Python-${PYTHON_VER}.tar.xz -o /tmp/Python-${PYTHON_VER}.tar.xz && \
+     cd /tmp/ && \
+     tar -xf Python-${PYTHON_VER}.tar.xz && \
+     rm -rf Python-${PYTHON_VER}.tar.xz
 
-# Final image with Python, Pip and all other dependencies
+RUN cd /tmp/Python-${PYTHON_VER} && \
+    ./configure --enable-optimizations && \
+    make -s -j${nproc} && \
+    make altinstall && \
+    ldconfig /opt/Python${PYTHON_VER}
+
+RUN ln -sf /usr/local/bin/${PYTHON} /usr/local/bin/python && \
+    ln -sf /usr/local/bin/${PYTHON} /usr/local/bin/python3
+
+FROM base as python-base
+
+COPY --from=python-dev /usr/local/lib/python3.9 /usr/local/lib/python3.9
+COPY --from=python-dev /usr/local/bin/python3.9 /usr/local/bin/python3.9
+COPY --from=python-dev /usr/local/bin/python3 /usr/local/bin/python3
+COPY --from=python-dev /usr/local/bin/python /usr/local/bin/python
+
 FROM python-base as final
 
 SHELL ["/bin/bash", "-c"]
@@ -72,7 +88,8 @@ ARG IPEX_VER=2.0.100
 ARG INC_VER=2.3
 ARG OPTIMUM_VER=87da8b0eb2e99f7e80df2079e5956b19212b7c1b
 
-RUN mkdir /tmp/optimum-intel && \
+RUN python -m pip install --no-cache-dir install --upgrade pip setuptools wheel && \
+    mkdir /tmp/optimum-intel && \
     cd /tmp/optimum-intel && \
     curl -sSL --retry 5 https://github.com/huggingface/optimum-intel/tarball/${OPTIMUM_VER} | tar --strip-components=1 -xzf - && \
     python setup.py bdist_wheel && \
