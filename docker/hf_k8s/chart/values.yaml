@@ -6,8 +6,8 @@ secret:
   encodedToken:
 
 image:
- name: amr-registry.caas.intel.com/aiops/mlops         # TODO: Replace with the public image/tag when it's available
- tag: torch-2.0.1-huggingface-multinode-python-3.9     # TODO: Replace with the public image/tag when it's available
+ name: intel/ai-workflows  # Specify the image name that was pushed to docker hub or copied to the nodes
+ tag: torch-2.0.1-huggingface-multinode-py3.9  # Specify the image tag that was pushed to docker hub or copied to the nodes
  pullPolicy: IfNotPresent
 
 elasticPolicy:

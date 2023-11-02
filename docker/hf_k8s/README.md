@@ -80,34 +80,70 @@ The container has the following major packages included:
 | [Intel® Neural Compressor](https://github.com/intel/neural-compressor) | 2.3 | Optimize model for inference post-training |
 | [Intel® oneAPI Collective Communications Library](https://github.com/oneapi-src/oneCCL) | 2.0.0 | Deploy PyTorch jobs on multiple nodes |
 
-The container can be built with the default package versions using the following command:
-```
-docker build -t intel/torch-2.0.1-huggingface-multinode-python-3.9 .
-```
+#### Container Build
 
-The build arguments below that can be provided in order to install a different version of the packages:
+The container can be built either using the default package versions from the table above or by specifying your own
+package version using build arguments. Use one of these options to build the container:
 
-| Argument | Default Value | Description |
-|----------|---------------|-------------|
-| TORCH_VER | 2.0.1 | PyTorch CPU Version |
-| IPEX_VER | 2.0.100 | Intel® Extension for PyTorch |
-| INC_VER | 2.3 | Intel® Neural Compressor Version |
-| ONECCL_VER | 2.0.0 | Intel® oneAPI Collective Communications Library CPU Version |
+a. The container can be built with the default package versions using the following command:
+   ```
+   docker build -t intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9 .
+   ```
+b. The build arguments below that can be provided to install a different version of the packages:
 
-The updated command to build with the specific arguments then would be:
-```
-export ONECCL_VER=<ONECCL VERSION>
-export TORCH_VER=<TORCH VERSION>
-export IPEX_VER=<IPEX VERSION>
-export INC_VER=<INC VERSION>
+   | Argument | Default Value | Description |
+   |----------|---------------|-------------|
+   | TORCH_VER | 2.0.1 | PyTorch CPU Version |
+   | IPEX_VER | 2.0.100 | Intel® Extension for PyTorch |
+   | INC_VER | 2.3 | Intel® Neural Compressor Version |
+   | ONECCL_VER | 2.0.0 | Intel® oneAPI Collective Communications Library CPU Version |
 
-docker build \
-  --build-arg ONECCL_VER=${ONECCL_VER} \
-  --build-arg TORCH_VER=${TORCH_VER} \
-  --build-arg IPEX_VER=${IPEX_VER} \
-  --build-arg INC_VER=${INC_VER} \
-  -t intel/torch-${TORCH_VER}-huggingface-multinode-python-3.9 .
-```
+   The updated command to build with the specific arguments then would be:
+   ```
+   export ONECCL_VER=<ONECCL VERSION>
+   export TORCH_VER=<TORCH VERSION>
+   export IPEX_VER=<IPEX VERSION>
+   export INC_VER=<INC VERSION>
+
+   docker build \
+     --build-arg ONECCL_VER=${ONECCL_VER} \
+     --build-arg TORCH_VER=${TORCH_VER} \
+     --build-arg IPEX_VER=${IPEX_VER} \
+     --build-arg INC_VER=${INC_VER} \
+     -t intel/ai-workflows:torch-${TORCH_VER}-huggingface-multinode-py3.9 .
+   ```
+
+#### Container Push
+
+After you've built the Docker container using the instructions above, the container needs to be pushed for the
+Kubernetes cluster to have access to the image. If you have a Docker container registry (such as
+[DockerHub](https://hub.docker.com)), you can push the container to that registry. Otherwise, we have alternative
+instructions for getting the container distributed to the cluster nodes by saving the image and copying it to the nodes.
+Use one of these options to push the container:
+
+a. First, ensure that you are logged in with your container registry account using
+   [`docker login`](https://docs.docker.com/engine/reference/commandline/login/). Next,
+   [re-tag your image](https://docs.docker.com/engine/reference/commandline/tag/) and then
+   [push the image](https://docs.docker.com/engine/reference/commandline/push/) to the registry.
+   ```
+   # Retag the image by providing the source image and destination image
+   docker tag intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9 <image name>:<tag>
+
+   # Push the image to the registry
+   docker push <image name>:<tag>
+   ```
+b. If you don't have a container registry, use the commands below to save the container, copy it to the nodes on the
+   Kubernetes cluster, and then load it into Docker.
+   ```
+   # Save the image to a tar.gz file
+   docker save intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9 | gzip > hf_k8s.tar.gz
+
+   # Copy the tar file to every Kubernetes node that could be used to run the fine tuning job
+   scp hf_k8s.tar.gx <user>@<host>:/tmp/hf_k8s.tar.gz
+
+   # SSH to each of the Kubernetes nodes and load the image to Docker
+   docker load --input /tmp/hf_k8s.tar.gz
+   ```
 
 ## Running the distributed training job
 
@@ -129,6 +165,10 @@ fine tune the model.
 
 ### Fine tuning Llama2 7b on a Kubernetes cluster
 
+> Before running the fine tuning job on the cluster, the Docker image must be built and pushed to a container
+> registry or loaded into Docker on the cluster nodes. See the [container build](#container-build) and
+> [container push](#container-push) sections for instructions.
+
 1. Get a [Hugging Face token](https://huggingface.co/docs/hub/security-tokens) with read access and use your terminal
    to get the base64 encoding for your token using a terminal using `echo <your token> | base64`.
 
@@ -148,6 +188,9 @@ fine tune the model.
 
 2. Edit your values file based on the parameters that you would like to use and your cluster. Key parameters to look
    at and edit are:
+   * `image.name` based on the image that was pushed to the container registry or copied to the Kubernetes cluster nodes
+   * `image.tag` based on the image tag that was pushed to the container registry or copied to the Kubernetes cluster
+     nodes
    * `elasticPolicy.minReplicas` and `elasticPolicy.maxReplicas` based on the number of workers being used
    * `distributed.workers` should be set to the number of worker that will be used for the job
    * If you are using `chart/values.yaml` for your own workload, fill in either `train.datasetName` (the name of a
@@ -161,7 +204,7 @@ fine tune the model.
      type of nodes can be used for the worker pods. `kubectl get nodes` and `kubectl describe node <node name>` can be
      used to get information about the nodes on your cluster.
    * `storage.storageClassName` should be set to your Kubernetes NFS storage class name (use `kubectl get storageclass`
-     to see a list of storage classes on  your cluster)
+     to see a list of storage classes on your cluster)
 
    See a complete list and descriptions of the available parameters in the [Helm chart values documentation](values.md).
 

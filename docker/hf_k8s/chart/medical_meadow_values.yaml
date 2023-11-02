@@ -6,8 +6,8 @@ secret:
   encodedToken:
 
 image:
- name: amr-registry.caas.intel.com/aiops/mlops       # TODO: Replace with the public image/tag when it's available
- tag: torch-2.0.1-huggingface-multinode-python-3.9   # TODO: Replace with the public image/tag when it's available
+ name: intel/ai-workflows  # Specify the image name that was pushed to docker hub or copied to the nodes
+ tag: torch-2.0.1-huggingface-multinode-py3.9  # Specify the image tag that was pushed to docker hub or copied to the nodes
  pullPolicy: IfNotPresent
 
 elasticPolicy:
@@ -28,8 +28,8 @@ distributed:
   doQuantize: False
 
   train:
-    datasetName: medalpaca/medical_meadow_medical_flashcards # Name of the Hugging Face dataset to use. Leave blank if using a data file
-    dataFile: # Path to a dataset file. Leave blank if using a Hugging Face dataset.
+    datasetName: medalpaca/medical_meadow_medical_flashcards  # Name of the Hugging Face dataset to use. Leave blank if using a data file
+    dataFile:  # Path to a dataset file. Leave blank if using a Hugging Face dataset.
     datasetConcatenation: True
     promptWithInput: Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
     promptWithoutInput: Below is an instruction that describes a task. Write a response that appropriately completes the request.
