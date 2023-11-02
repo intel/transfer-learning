@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copyright (c) 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +16,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ .Values.metadata.name }}-pvc
-  namespace: {{ .Values.metadata.namespace }}
-spec:
-  storageClassName: {{ .Values.storage.storageClassName }}
-  accessModes:
-    - "ReadWriteMany"
-  resources:
-    requests:
-      storage: {{ .Values.storage.resources }}
+function gen_single_key()
+{
+    ALG_NAME=$1
+    if [[ ! -f /etc/ssh/ssh_host_${ALG_NAME}_key ]]
+    then
+        ssh-keygen -q -N "" -t ${ALG_NAME} -f /etc/ssh/ssh_host_${ALG_NAME}_key
+    fi
+}
+
+
+gen_single_key dsa
+gen_single_key rsa
+gen_single_key ecdsa
+gen_single_key ed25519

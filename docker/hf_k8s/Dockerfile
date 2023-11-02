@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
 
 
 ARG IMAGE_NAME=ubuntu
@@ -119,9 +121,9 @@ RUN mkdir -p /var/run/sshd && \
 
 COPY scripts /workspace/scripts/
 
-COPY generate_ssh_keys /workspace/generate_ssh_keys
+COPY generate_ssh_keys.sh /workspace/generate_ssh_keys.sh
 
-RUN cat /workspace/generate_ssh_keys >> ${HOME}/.bash_profile && \
-    cat /workspace/generate_ssh_keys >> ${HOME}/.bashrc
+RUN cat /workspace/generate_ssh_keys.sh >> ${HOME}/.bash_profile && \
+    cat /workspace/generate_ssh_keys.sh >> ${HOME}/.bashrc
 
 ENV BASH_ENV=${HOME}/.bash_profile
