@@ -30,4 +30,6 @@ This is a comprehensive list of public datasets used by this repository.
 | [MVTec](https://www.mvtec.com/company/research/datasets/mvtec-ad) |  PyTorch | Anomaly Detection |
 | [Code Alpaca](https://github.com/sahil280114/codealpaca) |  PyTorch | Text Generation |
 | [Dolly-15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k) |  PyTorch | Text Generation |
+| [finance-alpaca](https://huggingface.co/datasets/gbharti/finance-alpaca) |  HuggingFace | Text Generation |
+| [Medical Meadow](https://github.com/kbressem/medAlpaca) | PyTorch | Text Generation |
 | [RedPajama-Data](https://github.com/togethercomputer/RedPajama-Data) |  PyTorch | Text Generation |

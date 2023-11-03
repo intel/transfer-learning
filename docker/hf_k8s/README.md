@@ -159,6 +159,7 @@ usages:
 |-----------------|-------------|
 | [`values.yaml`](chart/values.yaml) | Template for your own distributed fine tuning job. Fill in the fields for your workload and job parameters. |
 | [`medical_meadow_values.yaml`](chart/medical_meadow_values.yaml) | Helm chart values for fine tuning Llama 2 using the [Medical Meadow flashcards dataset](https://huggingface.co/datasets/medalpaca/medical_meadow_medical_flashcards) |
+| [`financial_chatbot_values.yaml`](chart/financial_chatbot_values.yaml) | Helm chart values for fine tuning Llama 2 using a subset of [Financial alpaca dataaset](https://huggingface.co/datasets/gbharti/finance-alpaca) as a custom dataset |
 
 Pick one of the value files to use depending on your desired use case, and then follow the instructions below to
 fine tune the model.
@@ -222,13 +223,28 @@ fine tune the model.
    `medical_meadow_values.yaml` which uses `medalpaca/medical_meadow_medical_flashcards`), you can skip this step.
 
    The dataset can be uploaded to the PVC using the [`kubectl cp` command](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#cp).
-   The destination path for the dataset needs to match the `train.dataFile` path in your values yaml file.
+   The destination path for the dataset needs to match the `train.dataFile` path in your values yaml file.  Note that the worker pods would keep failing and restarting until you upload your dataset.
    ```
    # Copies a local "dataset" folder to the PVC at /tmp/pvc-mount/dataset
-   kubectl cp dataset dataaccess:/tmp/pvc-mount/dataset
+   kubectl cp dataset <dataaccess pod name>:/tmp/pvc-mount/dataset
 
    # Verify that the data file is at the expected path
-   kubectl exec dataaccess -- ls -l /tmp/pvc-mount/dataset
+   kubectl exec <dataaccess pod name> -- ls -l /tmp/pvc-mount/dataset
+   ```
+
+   For example:
+
+   The [`financial_chatbot_values.yaml`](chart/financial_chatbot_values.yaml) file requires this step for uploading the custom dataset to the cluster. Run the [`download_financial_dataset.sh`](scripts/download_financial_dataset.sh) script to create a custom dataset and copy it to the PVC, as mentioned below.
+
+   ```
+   # Set a location for the dataset to download
+   export DATASET_DIR=/tmp/dataset
+
+   # Run the download shell script 
+   bash scripts/download_financial_dataset.sh
+
+   # Copy the local "dataset" folder to the PVC at /tmp/pvc-mount/dataset
+   kubectl cp ${DATASET_DIR} financial-chatbot-dataaccess:/tmp/pvc-mount/dataset
    ```
 
 5. The training job can be monitored using by checking the status of the PyTorchJob using:
