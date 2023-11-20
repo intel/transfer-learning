@@ -71,7 +71,8 @@ The [Docker](https://www.docker.com) container used in this example includes all
 distributed PyTorch training using a Hugging Face model and a fine tuning script. This directory includes the
 [`Dockerfile`](Dockerfile) that was used to build the container.
 
-The container has the following major packages included:
+An image has been published to DockerHub (`intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9`) with
+the following major packages included:
 
 | Package Name | Version | Purpose |
 |--------------|---------|---------|
@@ -83,7 +84,10 @@ The container has the following major packages included:
 #### Container Build
 
 The container can be built either using the default package versions from the table above or by specifying your own
-package version using build arguments. Use one of these options to build the container:
+package version using build arguments. This section (and the ["Container Push" section](#container-push)) can be skipped if
+you are using the published `intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9` container.
+
+Use one of these options to build the container:
 
 a. The container can be built with the default package versions using the following command:
    ```
@@ -115,7 +119,7 @@ b. The build arguments below that can be provided to install a different version
 
 #### Container Push
 
-After you've built the Docker container using the instructions above, the container needs to be pushed for the
+If you are building your own Docker container using the instructions above, the container needs to be pushed for the
 Kubernetes cluster to have access to the image. If you have a Docker container registry (such as
 [DockerHub](https://hub.docker.com)), you can push the container to that registry. Otherwise, we have alternative
 instructions for getting the container distributed to the cluster nodes by saving the image and copying it to the nodes.
@@ -189,9 +193,8 @@ fine tune the model.
 
 2. Edit your values file based on the parameters that you would like to use and your cluster. Key parameters to look
    at and edit are:
-   * `image.name` based on the image that was pushed to the container registry or copied to the Kubernetes cluster nodes
-   * `image.tag` based on the image tag that was pushed to the container registry or copied to the Kubernetes cluster
-     nodes
+   * `image.name` if have built your own container, otherwise the default `intel/ai-workflows` image will be used
+   * `image.tag` if have built your own container, otherwise the default `torch-2.0.1-huggingface-multinode-py3.9` tag will be used
    * `elasticPolicy.minReplicas` and `elasticPolicy.maxReplicas` based on the number of workers being used
    * `distributed.workers` should be set to the number of worker that will be used for the job
    * If you are using `chart/values.yaml` for your own workload, fill in either `train.datasetName` (the name of a
