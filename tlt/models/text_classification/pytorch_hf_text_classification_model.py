@@ -820,7 +820,8 @@ class PyTorchHFTextClassificationModel(TextClassificationModel, HFModel, PyTorch
             # Load torch model
             PyTorchModel.load_from_directory(self, model_dir)
         elif os.path.exists(os.path.join(model_dir, 'config.json')) and \
-                os.path.exists(os.path.join(model_dir, 'pytorch_model.bin')):
+                (os.path.exists(os.path.join(model_dir, 'pytorch_model.bin')) or
+                 os.path.exists(os.path.join(model_dir, 'model.safetensors'))):
             # Load model using the transformers method
             self._model = AutoModelForSequenceClassification.from_pretrained(model_dir)
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
