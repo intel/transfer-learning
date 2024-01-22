@@ -1,4 +1,4 @@
-Pillow==10.1.0
+Pillow==10.2.0
 flake8==6.1.0
 mock==5.1.0
 pytest-cov==4.1.0
