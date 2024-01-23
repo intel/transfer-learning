@@ -53,7 +53,7 @@ def test_pyt_text_classification(model_name, dataset_name, extra_layers, correct
 
     # Preprocess the dataset
     dataset.preprocess(model_name, batch_size=32)
-    dataset.shuffle_split(train_pct=0.02, val_pct=0.01, seed=6)
+    dataset.shuffle_split(train_pct=0.1, val_pct=0.01, seed=6)
     assert dataset._validation_type == 'shuffle_split'
 
     # Evaluate before training
@@ -157,8 +157,7 @@ def test_pyt_text_classification_trainer(model_name, dataset_name):
         saved_model_dir = model.export(output_dir)
         assert os.path.isdir(saved_model_dir)
         assert os.path.isfile(os.path.join(saved_model_dir, "config.json"))
-        assert os.path.isfile(os.path.join(saved_model_dir, "pytorch_model.bin"))
-
+        assert os.path.isfile(os.path.join(saved_model_dir, "model.safetensors"))
         # Load the saved model using load_model and verify that a prediction matches the original model
         loaded_model = model_factory.load_model(model_name, saved_model_dir, framework,
                                                 'text_classification', model_hub='huggingface')
