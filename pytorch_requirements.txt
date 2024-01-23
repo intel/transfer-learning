@@ -7,4 +7,4 @@ protobuf==4.24.4
 python-dateutil==2.8.2
 torch==1.13.1
 torchvision==0.14.1
-transformers[torch]==4.34.0
+transformers[torch]==4.36.0

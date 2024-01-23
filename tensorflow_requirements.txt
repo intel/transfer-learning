@@ -4,4 +4,4 @@ numpy==1.23.5
 tensorflow-datasets==4.9.2; python_version=='3.8'
 tensorflow-datasets==4.9.3; python_version>'3.8'
 tensorflow-hub==0.15.0
-transformers[tensorflow]==4.34.0
+transformers[tensorflow]==4.36.0
