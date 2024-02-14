@@ -40,6 +40,7 @@ from tlt.datasets.image_classification.torchvision_image_classification_dataset 
     import TorchvisionImageClassificationDataset
 from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.types import FrameworkType, UseCaseType
+from tlt.utils.platform_util import PlatformUtil
 
 
 class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
@@ -67,6 +68,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         # placeholder for model definition
         self._model = None
         self._num_classes = None
+        self._enable_auto_mixed_precision = False
 
         use_case = kwargs.get('use_case', UseCaseType.IMAGE_CLASSIFICATION)
 
@@ -110,7 +112,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         """
         return self._num_classes
 
-    def _fit(self, output_dir, dataset, epochs, do_eval, early_stopping, lr_decay):
+    def _fit(self, output_dir, dataset, epochs, do_eval, early_stopping, lr_decay, enable_auto_mixed_precision):
         """Main PyTorch training loop"""
         since = time.time()
 
@@ -160,7 +162,12 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
                 # Forward and backward pass
                 with torch.set_grad_enabled(True):
-                    outputs = self._model(inputs)
+                    if enable_auto_mixed_precision:
+                        # Call model using the torch automatic mixed precision context when mixed precision is enabled
+                        with torch.cpu.amp.autocast(dtype=torch.bfloat16):
+                            outputs = self._model(inputs)
+                    else:
+                        outputs = self._model(inputs)
                     _, preds = torch.max(outputs, 1)
                     loss = self._loss(outputs, labels)
                     loss.backward()
@@ -325,7 +332,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, seed=None, ipex_optimize=True, distributed=False,
-              hostfile=None, nnodes=1, nproc_per_node=1, use_horovod=False, hvd_start_timeout=30):
+              hostfile=None, nnodes=1, nproc_per_node=1, use_horovod=False, hvd_start_timeout=30,
+              enable_auto_mixed_precision=None):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -350,12 +358,30 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
                 nproc_per_node (int): Number of processes to spawn per node to use for distributed training. Defaults
                     to 1.
+                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision
+                    uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
+                    It is recommended to enable auto mixed precision training when running on platforms that support
+                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                    does not support bfloat16, it can be detrimental to the training performance. If
+                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to
+                    None.
 
             Returns:
                 Trained PyTorch model object
         """
         self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints,
                                  distributed, hostfile)
+
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision training will be disabled.".format(str(e)))
+
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
 
         dataset_num_classes = len(dataset.class_names)
 
@@ -391,18 +417,28 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         else:
             # Call ipex.optimize
             if ipex_optimize:
-                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
-            self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
+                ipex_dtype = torch.bfloat16 if self._enable_auto_mixed_precision else None
+                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer, dtype=ipex_dtype)
+            self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay, enable_auto_mixed_precision)
 
         return self._history
 
-    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
+    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False, enable_auto_mixed_precision=None):
         """
         Evaluate the accuracy of the model on a dataset.
         If there is a validation set, evaluation will be done on it (by default) or on the test set
         (by setting use_test_set=True). Otherwise, the entire non-partitioned dataset will be
         used for evaluation.
         """
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision training will be disabled.".format(str(e)))
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
+
         if use_test_set:
             if dataset.test_subset:
                 eval_loader = dataset.test_loader
@@ -452,7 +488,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
         return [epoch_loss, epoch_acc]
 
-    def predict(self, input_samples, return_type='class'):
+    def predict(self, input_samples, return_type='class', enable_auto_mixed_precision=None):
         """
         Perform feed-forward inference and predict the classes of the input_samples.
 
@@ -471,6 +507,15 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         return_types = ['class', 'probabilities', 'scores']
         if not isinstance(return_type, str) or return_type not in return_types:
             raise ValueError('Invalid return_type ({}). Expected one of {}.'.format(return_type, return_types))
+
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision training will be disabled.".format(str(e)))
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
 
         self._model.eval()
         with torch.no_grad():
