@@ -115,6 +115,8 @@ ARG HOROVOD_WITH_PYTORCH=1
 ARG HOROVOD_WITHOUT_MXNET=1
 ARG HOROVOD_WITH_TENSORFLOW=1
 ARG HOROVOD_VERSION=0.28.1
+ARG ONECCL_VERSION=2.0.0
+ARG ONECCL_URL=https://developer.intel.com/ipex-whl-stable-cpu
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
@@ -126,18 +128,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python -m pip install --no-cache-dir horovod==${HOROVOD_VERSION}
-
-ARG ONECCL_VERSION=2.0.0
-ARG ONECCL_URL=https://developer.intel.com/ipex-whl-stable-cpu
-
-RUN python -m pip install --no-cache-dir oneccl_bind_pt==${ONECCL_VERSION} -f ${ONECCL_URL}
+RUN python -m pip install --no-cache-dir horovod==${HOROVOD_VERSION} && \
+    python -m pip install --no-cache-dir https://intel-extension-for-pytorch.s3.amazonaws.com/torch_ccl/cpu/oneccl_bind_pt-${ONECCL_VERSION}%2Bcpu-cp310-cp310-linux_x86_64.whl  # oneccl_bind_pt==${ONECCL_VERSION} -f ${ONECCL_URL}
 
 COPY . /tmp/intel-transfer-learning
 
 WORKDIR /tmp/intel-transfer-learning
 
 FROM tlt-mpi as tlt-dist-prod
+
+ARG PYTHON=python3.10
 
 COPY --from=tlt-dist-devel /usr/local/lib/${PYTHON}/dist-packages /usr/local/lib/python3.10/dist-packages
 COPY --from=tlt-dist-devel /usr/local/bin /usr/local/bin

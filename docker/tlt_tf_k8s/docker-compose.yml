@@ -50,7 +50,6 @@ services:
       args:
         HOROVOD_VERSION: 0.28.1
         ONECCL_VERSION: 2.0.0
-        ONECCL_URL: https://developer.intel.com/ipex-whl-stable-cpu
       target: tlt-dist-devel
     image: intel/ai-tools:tlt-dist-devel-latest
   tlt-dist-prod:

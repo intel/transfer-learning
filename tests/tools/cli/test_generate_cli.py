@@ -123,7 +123,7 @@ class TestTextGenerationCustomDataset:
         # Verify that the train command exit code is successful
         assert train_result.exit_code == 0
         saved_model_dir = os.path.join(self._output_dir, model_name, '1')
-        os.makedirs(os.path.join(saved_model_dir, 'adapter_model.bin'), exist_ok=True)
+        os.makedirs(os.path.join(saved_model_dir, 'training_args.bin'), exist_ok=True)
 
         # Generate a text completion
         result = runner.invoke(generate,

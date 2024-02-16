@@ -29,7 +29,7 @@ import numpy as np
 import tensorflow as tf
 
 from neural_compressor.experimental import Graph_Optimization
-from neural_compressor import quantization
+from neural_compressor import Metric, quantization
 from neural_compressor.config import BenchmarkConfig
 
 from tlt.models.model import BaseModel
@@ -375,15 +375,16 @@ class TFModel(BaseModel):
             kwargs['hub_name'] = self._hub_name
             kwargs['max_seq_length'] = self._max_seq_length
         calib_dataloader, eval_dataloader = dataset.get_inc_dataloaders(**kwargs)
+        top_metric = Metric(name="topk", k=1)
         quantized_model = quantization.fit(model=self._model, conf=config, calib_dataloader=calib_dataloader,
-                                           eval_dataloader=eval_dataloader)
+                                           eval_dataloader=eval_dataloader, eval_metric=top_metric)
 
         # If quantization was successful, save the model
         if quantized_model:
             quantized_model.save(output_dir)
 
     def benchmark(self, dataset, saved_model_dir=None, warmup=10, iteration=100, cores_per_instance=None,
-                  num_of_instance=None, inter_num_of_threads=None, intra_num_of_threads=None):
+                  num_of_instance=1, inter_num_of_threads=None, intra_num_of_threads=None):
         """
         Use Intel Neural Compressor to benchmark the model with the dataset argument. The dataset's validation or test
         subset will be used for benchmarking, if present. Otherwise, the full training dataset is used. The model to be
@@ -395,7 +396,7 @@ class TFModel(BaseModel):
             warmup (int): The number of iterations to perform before running performance tests, default is 10
             iteration (int): The number of iterations to run performance tests, default is 100
             cores_per_instance (int or None): The number of CPU cores to use per instance, default is None
-            num_of_instance (int or None): The number of instances to use for performance testing, default is None
+            num_of_instance (int): The number of instances to use for performance testing, default is 1
             inter_num_of_threads (int or None): The number of threads to use for inter-thread operations, default is
                                                 None
             intra_num_of_threads (int or None): The number of threads to use for intra-thread operations, default is

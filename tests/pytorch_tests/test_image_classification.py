@@ -163,7 +163,9 @@ def test_pyt_image_classification_custom_model():
     assert dataset._validation_type == 'shuffle_split'
 
     # Train
-    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, seed=10)
+    # TODO: ipex_optimize was set to False due to an issue with Quantizing IPEX Optimized Models.
+    # This is now a known issue and we are working with IPEX team on a fix.
+    model.train(dataset, output_dir=output_dir, epochs=1, do_eval=False, seed=10, ipex_optimize=False)
 
     # Evaluate
     trained_metrics = model.evaluate(dataset)
