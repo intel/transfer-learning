@@ -170,13 +170,6 @@ spec:
               - name: CCL_WORKER_COUNT
                 value: "{{ .Values.envVars.cclWorkerCount }}"
               {{- end }}
-              {{- if .Values.secret.encodedToken}}
-              - name: HUGGING_FACE_HUB_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ .Values.metadata.name }}-secret
-                    key: username
-              {{- end }}
               resources:
                 {{- if or .Values.resources.cpuLimit .Values.resources.memoryLimit }}
                 limits:
@@ -201,6 +194,11 @@ spec:
                 mountPath: {{ .Values.storage.pvcMountPath }}
               - mountPath: /dev/shm
                 name: dshm
+              {{- if .Values.secret.encodedToken}}
+              - name: secret-volume
+                mountPath: /root/.cache/huggingface
+                readOnly: true
+              {{- end }}
           restartPolicy: Never
           {{- if .Values.resources.nodeSelectorLabel }}
           nodeSelector:
@@ -213,3 +211,8 @@ spec:
           - name: dshm
             emptyDir:
               medium: Memory
+          {{- if .Values.secret.encodedToken}}
+          - name: secret-volume
+            secret:
+              secretName: {{ .Values.metadata.name }}-secret
+          {{- end }}

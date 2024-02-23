@@ -32,8 +32,8 @@ Client requirements:
 A Helm chart is used to package the resources needed to run the distributed training job. The helm chart in this
 directory includes the following components:
 * [PyTorchJob](chart/templates/pytorchjob.yaml), which launches a pod for each worker
-* [Kubernetes secret](chart/templates/secret.yaml) with your Hugging Face token used to
-  set the `HUGGING_FACE_HUB_TOKEN` environment variable for authentication to access to Llama 2 models.
+* [Kubernetes secret](chart/templates/secret.yaml) with your Hugging Face token for authentication to access Llama 2
+  models.
 * [Persistent volume claim (PVC)](chart/templates/pvc.yaml) to provides a storage space for saving checkpoints,
   saved model files, etc.
 * [Data access pod](chart/templates/dataaccess.yaml) is a dummy pod (running `sleep infinity`) with a volume mount to
@@ -51,10 +51,9 @@ pretrained model, the dataset, learning rate, the number of training epochs, etc
 Before using Llama 2 models you will need to [request access from Meta](https://ai.meta.com/resources/models-and-libraries/llama-downloads/)
 and [get access to the model from HuggingFace](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf). For this reason,
 authentication is required when fine tuning Llama 2 through the Kubernetes job. The helm chart includes a
-[Kubernetes secret](https://kubernetes.io/docs/concepts/configuration/secret/) which gets populated with the with the
-encoded Hugging Face token. The pods will use the secret to set an environment variable called
-[`HUGGING_FACE_HUB_TOKEN`](https://huggingface.co/docs/huggingface_hub/package_reference/environment_variables#huggingfacehubtoken),
-which will allow the scripts to use Llama 2 from Hugging Face.
+[Kubernetes secret](https://kubernetes.io/docs/concepts/configuration/secret/) which gets populated with the encoded
+Hugging Face token. The secret is mounted as a volume in the PyTorch Job containers at `~/.cache/huggingface/token` in
+order to authenticate your account to access gated models.
 
 ### Storage
 
