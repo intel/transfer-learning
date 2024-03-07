@@ -57,9 +57,7 @@ setup(name="intel-transfer-learning-tool",
       long_description_content_type='text/markdown',
       packages=find_packages(),
       install_requires= \
-        COMMON_PACKAGES + \
-        EXTRA_PACKAGES['pytorch'] + \
-        EXTRA_PACKAGES['tensorflow'],
+        COMMON_PACKAGES + EXTRA_PACKAGES['pytorch'],
       extras_require=EXTRA_PACKAGES,
       python_requires=">=3.8",
       entry_points={

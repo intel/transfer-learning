@@ -6,14 +6,15 @@ evaluate==0.4.0
 gin-config==0.5.0
 intel-extension-for-pytorch==2.2.0
 intel-tensorflow==2.14.0
-ipython-genutils==0.2.0
 ipython==8.12.3; python_version=='3.8'
 ipython==8.16.1; python_version>'3.8'
+ipython-genutils==0.2.0
 ipywidgets==8.1.1
 jmespath==1.0.1
-matplotlib-inline==0.1.6
 matplotlib==3.7.3; python_version=='3.8'
 matplotlib==3.8.0; python_version>'3.8'
+matplotlib-inline==0.1.6
+neural-compressor==2.4.1
 notebook==7.0.7
 numpy==1.24.3
 opencv-python==4.8.1.78

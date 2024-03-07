@@ -15,14 +15,14 @@
 # limitations under the License.
 #
 
-tf_notebooks=(
+tensorflow_notebooks=(
     "notebooks/image_classification/tf_image_classification/Image_Classification_Transfer_Learning.ipynb"
     "notebooks/question_answering/tfhub_question_answering/BERT_Question_Answering.ipynb"
     "notebooks/text_classification/tfhub_text_classification/BERT_Binary_Text_Classification.ipynb"
     "notebooks/text_classification/tfhub_text_classification/BERT_Multi_Text_Classification.ipynb"
 )
 
-pyt_notebooks=(
+pytorch_notebooks=(
     "notebooks/image_classification/pytorch_image_classification/PyTorch_Image_Classification_Transfer_Learning.ipynb"
     "notebooks/object_detection/pytorch_object_detection/PyTorch_Object_Detection_Transfer_Learning.ipynb"
     "notebooks/text_classification/pytorch_text_classification/PyTorch_Text_Classifier_fine_tuning.ipynb"
@@ -45,9 +45,9 @@ exit_code_summary=${SUCCESS}
 failed_notebooks=()
 
 if [[ $INPUT == "tensorflow" ]] ; then
-    notebooks=${tf_notebooks[*]}
+    notebooks=${tensorflow_notebooks[*]}
 elif [[ $INPUT == "pytorch" ]] ; then
-    notebooks=${pyt_notebooks[*]}
+    notebooks=${pytorch_notebooks[*]}
 else
     # Parse the filename from the path
     DIR=${INPUT%/*}
