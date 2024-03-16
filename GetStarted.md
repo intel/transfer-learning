@@ -3,7 +3,7 @@
 This is a guide for getting started with Intel® Transfer Learning Tool and will
 walk you through the steps to check system requirements, install, and then run
 the tool with a couple of examples showing no-code CLI and low-code API
-approaches.
+approaches. 
 
 <p align="center"><b>Intel Transfer Learning Tool Get Started Flow</b></p>
 
@@ -131,38 +131,31 @@ tlt list models --use-case image_classification
 
 **Train a Model**
 
-In this example, we'll use the `tlt train` command to retrain the TensorFlow
-ResNet50v1.5 model using a flowers dataset from the
-[TensorFlow Datasets catalog](https://www.tensorflow.org/datasets/catalog/tf_flowers).
+In this example, we'll use the `tlt train` command to retrain the PyTorch
+efficientnet_b0 model using a food101 dataset from the
+[PyTorch Datasets](https://pytorch.org/vision/stable/generated/torchvision.datasets.Food101.html).
 The `--dataset-dir` and `--output-dir` paths need to point to writable folders on your system.
 ```
-# Use the follow environment variable setting to reduce the warnings and log output from TensorFlow
-export TF_CPP_MIN_LOG_LEVEL="2"
 
-tlt train -f tensorflow --model-name resnet_v1_50 --dataset-name tf_flowers --dataset-dir "/tmp/data-${USER}" --output-dir "/tmp/output-${USER}"
+tlt train -f pytorch --model-name efficientnet_b0 --dataset-name Food101 --dataset-dir "/tmp/data-${USER}" --output-dir "/tmp/output-${USER}"
 ```
 ```
-Model name: resnet_v1_50
-Framework: tensorflow
-Dataset name: tf_flowers
+Model name: efficientnet_b0
+Framework: pytorch
+Dataset name: Food101
 Training epochs: 1
 Dataset dir: /tmp/data-user
 Output directory: /tmp/output-user
+
 ...
-Model: "sequential"
-_________________________________________________________________
-Layer (type)                Output Shape              Param #
-=================================================================
-keras_layer (KerasLayer)    (None, 2048)              23561152
-dense (Dense)               (None, 5)                 10245
-=================================================================
-Total params: 23,571,397
-Trainable params: 10,245
-Non-trainable params: 23,561,152
-_________________________________________________________________
-Checkpoint directory: /tmp/output-user/resnet_v1_50_checkpoints
-86/86 [==============================] - 24s 248ms/step - loss: 0.4600 - acc: 0.8438
-Saved model directory: /tmp/output-user/resnet_v1_50/1
+Epoch 1/1
+----------
+100%|██████████████████████████████████████████████████| 1776/1776 [27:02<00:00,  1.09it/s]                                       
+Performing Evaluation
+100%|██████████████████████████████████████████████████| 592/592 [08:33<00:00,  1.15it/s]                                         
+Loss: 2.7038 - Acc: 0.3854 - Val Loss: 2.1242 - Val Acc: 0.4880
+Training complete in 35m 37s
+Saved model directory: /tmp/output-user/efficientnet_b0/1
 ```
 
 After training completes, the `tlt train` command evaluates the model. The loss and
@@ -181,8 +174,8 @@ Find more examples in our list of [Examples](examples/README.md).
 
 ### b) Run Using the Low-Code API
 
-The following Python code example trains an image classification model with the TensorFlow
-flowers dataset using API calls from Python.  The model is
+The following Python code example trains an image classification model with the PyTorch
+RenderedSST2 dataset using API calls from Python.  The model is
 benchmarked and quantized to INT8 precision for improved inference performance.
 
 You can run the API example using a Jupyter notebook. See the [notebook setup
@@ -191,9 +184,6 @@ notebook environment.
 
 ```python
 import os
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.types import FrameworkType, UseCaseType
@@ -211,24 +201,52 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
 # Get the model
-model = model_factory.get_model(model_name="resnet_v1_50", framework=FrameworkType.TENSORFLOW)
+model = model_factory.get_model(model_name="efficientnet_b0", framework=FrameworkType.PYTORCH)
 
-# Download and preprocess the flowers dataset from the TensorFlow datasets catalog
+# Download and preprocess the RenderedSST2 dataset from the torchvision datasets catalog
 dataset = dataset_factory.get_dataset(dataset_dir=dataset_dir,
-                                      dataset_name='tf_flowers',
+                                      dataset_name='RenderedSST2',
                                       use_case=UseCaseType.IMAGE_CLASSIFICATION,
-                                      framework=FrameworkType.TENSORFLOW,
-                                      dataset_catalog='tf_datasets')
+                                      framework=FrameworkType.PYTORCH,
+                                      dataset_catalog='torchvision')
 dataset.preprocess(image_size=model.image_size, batch_size=32)
 dataset.shuffle_split(train_pct=.75, val_pct=.25)
 
 # Train the model using the dataset
-model.train(dataset, output_dir=output_dir, epochs=1)
+model.train(dataset, output_dir=output_dir, epochs=1, ipex_optimize=False)
 
-# Evaluate the trained model
-metrics = model.evaluate(dataset)
-for metric_name, metric_value in zip(model._model.metrics_names, metrics):
-    print("{}: {}".format(metric_name, metric_value))
+# Visualize the trained model result
+import matplotlib.pyplot as plt
+import numpy as np
+images, labels = dataset.get_batch()
+
+# Predict with a single batch
+predictions = model.predict(images)
+
+# Map the predicted ids to the class names
+predictions = [dataset.class_names[id] for id in predictions]
+
+# Display the results
+plt.figure(figsize=(16,16))
+plt.subplots_adjust(hspace=0.5)
+for n in range(min(batch_size, 30)):
+    plt.subplot(6,5,n+1)
+    inp = images[n]
+    inp = inp.numpy().transpose((1, 2, 0))
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+    inp = std * inp + mean
+    inp = np.clip(inp, 0, 1)
+    plt.imshow(inp)
+    correct_prediction = labels[n] == predictions[n]
+    color = "darkgreen" if correct_prediction else "crimson"
+    title = predictions[n].title() if correct_prediction else "{}\n({})".format(predictions[n], labels[n]) 
+    plt.title(title, fontsize=14, color=color)
+    plt.axis('off')
+_ = plt.suptitle("Model predictions", fontsize=16)
+plt.show()
+print("Correct predictions are shown in green")
+print("Incorrect predictions are shown in red with the actual label in parenthesis")
 
 # Export the model
 saved_model_dir = model.export(output_dir=output_dir)
@@ -239,10 +257,6 @@ model.quantize(quantization_output, dataset, overwrite_model=True)
 
 # Benchmark the trained model using the Intel Neural Compressor config file
 model.benchmark(dataset, saved_model_dir=quantization_output)
-
-# Do graph optimization on the trained model
-optimization_output = os.path.join(output_dir, "optimized_model")
-model.optimize_graph(optimization_output, overwrite_model=True)
 ```
 
 For more information on the API, see the [API Documentation](/api.md).
