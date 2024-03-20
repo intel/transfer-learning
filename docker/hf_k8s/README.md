@@ -52,8 +52,8 @@ Before using Llama 2 models you will need to [request access from Meta](https://
 and [get access to the model from HuggingFace](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf). For this reason,
 authentication is required when fine tuning Llama 2 through the Kubernetes job. The helm chart includes a
 [Kubernetes secret](https://kubernetes.io/docs/concepts/configuration/secret/) which gets populated with the encoded
-Hugging Face token. The secret is mounted as a volume in the PyTorch Job containers at `~/.cache/huggingface/token` in
-order to authenticate your account to access gated models.
+Hugging Face token. The secret is mounted as a volume in the PyTorch Job containers using the `HF_HOME` directory to
+authenticate your account to access gated models.
 
 ### Storage
 
@@ -209,6 +209,11 @@ fine tune the model.
    * `storage.storageClassName` should be set to your Kubernetes NFS storage class name (use `kubectl get storageclass`
      to see a list of storage classes on your cluster)
 
+   In the same values file, edit the security context parameters to have the containers run with a non-root user:
+   * `securityContext.runAsUser` should be set to your user ID (UID)
+   * `securityContext.runAsGroup` should be set to your group ID
+   * `securityContext.fsGroup` should be set to your file system group ID
+
    See a complete list and descriptions of the available parameters in the [Helm chart values documentation](values.md).
 
 3. Deploy the helm chart to the cluster using the `kubeflow` namespace:
@@ -262,13 +267,13 @@ fine tune the model.
 
 6. After the job completes, files can be copied from the persistent volume claim to your local system using the
    [`kubectl cp` command](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#cp) using the
-   `dataaccess` pod. The path to the trained model is in the values file field called `distributed.train.outputDir` and
+   data access pod. The path to the trained model is in the values file field called `distributed.train.outputDir` and
    if quantization was also done, the quanted model path is in the `distributed.quantize.outputDir` field.
 
    As an example, the trained model from the Medical Meadows use case can be copied from the
    `/tmp/pvc-mount/output/bf16` path to the local system using the following command:
    ```
-   kubectl cp --namespace kubeflow dataaccess:/tmp/pvc-mount/output/saved_model .
+   kubectl cp --namespace kubeflow <dataaccess pod name>:/tmp/pvc-mount/output/saved_model .
    ```
 7. Finally, the resources can be deleted from the cluster using the
    [`helm uninstall`](https://helm.sh/docs/helm/helm_uninstall/) command. For example:

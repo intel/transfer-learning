@@ -23,9 +23,15 @@ secret:
   encodedToken:
 
 image:
- name: intel/ai-workflows  # Specify the image name that was pushed to docker hub or copied to the nodes
- tag: torch-2.0.1-huggingface-multinode-py3.9  # Specify the image tag that was pushed to docker hub or copied to the nodes
- pullPolicy: IfNotPresent
+  name: intel/ai-workflows  # Specify the image name that was pushed to docker hub or copied to the nodes
+  tag: torch-2.0.1-huggingface-multinode-py3.9  # Specify the image tag that was pushed to docker hub or copied to the nodes
+  pullPolicy: IfNotPresent
+
+securityContext:
+  runAsUser:
+  runAsGroup:
+  fsGroup:
+  allowPrivilegeEscalation: false
 
 elasticPolicy:
   rdzvBackend: c10d
@@ -92,6 +98,7 @@ envVars:
   logLevel: INFO
   transformersCache: /tmp/pvc-mount/transformers_cache
   hfDatasetsCache: /tmp/pvc-mount/hf_dataset_cache
+  hfHome: /tmp/home
   cclWorkerCount: 1
   httpProxy:
   httpsProxy:

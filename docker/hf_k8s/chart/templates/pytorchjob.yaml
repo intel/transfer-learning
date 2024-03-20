@@ -32,6 +32,10 @@ spec:
       restartPolicy: OnFailure
       template:
         spec:
+          securityContext:
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            fsGroup: {{ .Values.securityContext.fsGroup }}
           containers:
             - name: pytorch
               image: {{ .Values.image.name }}:{{ .Values.image.tag }}
@@ -162,6 +166,10 @@ spec:
               - name: HF_DATASETS_CACHE
                 value: "{{ .Values.envVars.hfDatasetsCache }}"
               {{- end }}
+              {{- if .Values.envVars.hfHome }}
+              - name: HF_HOME
+                value: "{{ .Values.envVars.hfHome }}"
+              {{- end }}
               {{- if .Values.envVars.logLevel }}
               - name: LOGLEVEL
                 value: "{{ .Values.envVars.logLevel }}"
@@ -196,8 +204,12 @@ spec:
                 name: dshm
               {{- if .Values.secret.encodedToken}}
               - name: secret-volume
-                mountPath: /root/.cache/huggingface
+                mountPath: {{ .Values.envVars.hfHome }}
                 readOnly: true
+              {{- end }}
+              {{- if .Values.securityContext.allowPrivilegeEscalation }}
+              securityContext:
+                allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation }}
               {{- end }}
           restartPolicy: Never
           {{- if .Values.resources.nodeSelectorLabel }}
