@@ -127,6 +127,63 @@ class TestImageAnomalyDetectionCustomDataset:
         assert reload_threshold == threshold
         assert reload_auroc == auroc
 
+    @pytest.mark.parametrize('model_name,device',
+                             [['resnet18', 'hpu']])
+    def test_hpu_fail_workflow(self, model_name, device):
+        """
+        Tests the workflow for PYT image anomaly detection when "hpu" is specified but not available
+        """
+        framework = 'pytorch'
+        use_case = 'image_anomaly_detection'
+
+        # Get the dataset
+        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework,
+                                               shuffle_files=False)
+        assert ['tulips'] == dataset.defect_names
+        assert ['bad', 'good'] == dataset.class_names
+
+        # Get the model
+        model = model_factory.get_model(model_name, framework, use_case, device=device)
+
+        # Preprocess the dataset and split to get small subsets for training and validation
+        dataset.preprocess(model.image_size, 32)
+        dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
+
+        # Train for 1 epoch
+        pca_components, trained_model = model.train(dataset, self._output_dir,
+                                                    layer_name='layer3', seed=10, simsiam=False)
+        assert model._device == "cpu"
+
+        # Extract features
+        images, labels = dataset.get_batch(subset='validation')
+        features = extract_features(trained_model, images, layer_name='layer3', pooling=['avg', 2])
+        assert len(features) == 32
+
+        # Evaluate
+        threshold, auroc = model.evaluate(dataset)
+        assert model._device == "cpu"
+        assert isinstance(auroc, float)
+
+        # Predict with a batch
+        predictions = model.predict(images)
+        assert model._device == "cpu"
+        assert len(predictions) == 32
+
+        # Export the saved model
+        saved_model_dir = model.export(self._output_dir)
+        assert os.path.isdir(saved_model_dir)
+        assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
+
+        # Reload the saved model
+        reload_model = model_factory.get_model(model_name, framework, use_case, device=device)
+        reload_model.load_from_directory(saved_model_dir)
+
+        # Evaluate reloaded model
+        reload_threshold, reload_auroc = reload_model.evaluate(dataset)
+        assert model._device == "cpu"
+        assert reload_threshold == threshold
+        assert reload_auroc == auroc
+
     def test_custom_model_workflow(self):
         """
         Tests the workflow for PYT image anomaly detection using a custom model and custom dataset

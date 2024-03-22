@@ -28,7 +28,6 @@ import shutil
 from tqdm import tqdm
 
 import torch
-import intel_extension_for_pytorch as ipex
 
 from tlt.distributed import TLT_DISTRIBUTED_DIR
 from tlt.models.pytorch_model import PyTorchModel
@@ -417,6 +416,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         else:
             # Call ipex.optimize
             if ipex_optimize:
+                import intel_extension_for_pytorch as ipex
                 ipex_dtype = torch.bfloat16 if self._enable_auto_mixed_precision else None
                 self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer, dtype=ipex_dtype)
             self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay, enable_auto_mixed_precision)
