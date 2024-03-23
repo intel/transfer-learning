@@ -2,11 +2,11 @@
 
 conda install -y \
   'numpy==1.24.4' \
-  'pytorch==2.1.0' \
+  'pytorch==2.0.1' \
   'pyyaml==6.0.1' \
   'scikit-learn==1.2.2' \
-  'torchaudio==2.1.0' \
-  'torchvision==0.16.0 \
+  'torchaudio==2.0.2' \
+  'torchvision==0.15.2' \
   'tqdm==4.65.0' \
   cmake \
   cpuonly \

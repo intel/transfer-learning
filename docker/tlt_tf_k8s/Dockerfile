@@ -110,14 +110,28 @@ RUN mkdir -p /var/run/sshd && \
 # TLT target for with MPI, Horovod and all development tools
 FROM tlt-mpi as tlt-dist-devel
 
+ARG ONECCL_VERSION=2.1.0
+
+RUN python -m pip install --no-cache-dir https://intel-extension-for-pytorch.s3.amazonaws.com/torch_ccl/cpu/oneccl_bind_pt-${ONECCL_VERSION}%2Bcpu-cp310-cp310-linux_x86_64.whl
+
+FROM tlt-mpi as tlt-dist-prod
+
+ARG PYTHON=python3.10
+
+COPY --from=tlt-dist-devel /usr/local/lib/${PYTHON}/dist-packages /usr/local/lib/${PYTHON}/dist-packages
+COPY --from=tlt-dist-devel /usr/local/bin /usr/local/bin
+
+FROM tlt-mpi as tlt-dist-devel-hvd
+
 ARG PYTHON=python3
 ARG HOROVOD_WITH_PYTORCH=1
 ARG HOROVOD_WITHOUT_MXNET=1
 ARG HOROVOD_WITH_TENSORFLOW=1
 ARG HOROVOD_VERSION=0.28.1
-ARG ONECCL_VERSION=2.0.0
-ARG ONECCL_URL=https://developer.intel.com/ipex-whl-stable-cpu
-
+ARG TORCH_AUDIO_VERSION=2.0.2
+ARG TORCH_VERSION=2.0.1
+ARG TORCH_VISION_VERSION=0.15.2
+ARG TORCH_CPU_URL=https://download.pytorch.org/whl/cpu
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
     cmake \
@@ -128,16 +142,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python -m pip install --no-cache-dir horovod==${HOROVOD_VERSION} && \
-    python -m pip install --no-cache-dir https://intel-extension-for-pytorch.s3.amazonaws.com/torch_ccl/cpu/oneccl_bind_pt-${ONECCL_VERSION}%2Bcpu-cp310-cp310-linux_x86_64.whl  # oneccl_bind_pt==${ONECCL_VERSION} -f ${ONECCL_URL}
+COPY tensorflow_requirements.txt /tmp/tensorflow_requirements.txt
 
-COPY . /tmp/intel-transfer-learning
+RUN python -m pip install --no-cache-dir --extra-index-url ${TORCH_CPU_URL} \
+    torch==${TORCH_VERSION} \
+    torchaudio==${TORCH_AUDIO_VERSION} \
+    torchvision==${TORCH_VISION_VERSION} \
+    pip install --no-cache-dir -r /tmp/tensorflow_requirements.txt && \
+    python -m pip install --no-cache-dir horovod[mpi,pytorch,tensorflow]==${HOROVOD_VERSION}
 
-WORKDIR /tmp/intel-transfer-learning
-
-FROM tlt-mpi as tlt-dist-prod
+FROM tlt-mpi as tlt-dist-prod-hvd
 
 ARG PYTHON=python3.10
 
-COPY --from=tlt-dist-devel /usr/local/lib/${PYTHON}/dist-packages /usr/local/lib/python3.10/dist-packages
-COPY --from=tlt-dist-devel /usr/local/bin /usr/local/bin
+COPY --from=tlt-dist-devel-hvd /usr/local/lib/${PYTHON}/dist-packages /usr/local/lib/${PYTHON}/dist-packages
+COPY --from=tlt-dist-devel-hvd /usr/local/bin /usr/local/bin

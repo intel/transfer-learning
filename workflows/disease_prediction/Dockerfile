@@ -17,7 +17,7 @@
 #
 
 ARG IMAGE_NAME=intel/ai-tools
-ARG IMAGE_TAG=tlt-0.6.0
+ARG IMAGE_TAG=tlt-0.7.0
 FROM ${IMAGE_NAME}:${IMAGE_TAG}
 
 COPY . /workspace
