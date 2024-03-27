@@ -605,7 +605,13 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             _, predicted_ids = torch.max(predictions, 1)
             return predicted_ids
         elif return_type == 'probabilities':
-            return torch.nn.functional.softmax(predictions)
+            # logic from torch.nn.functional _get_softmax_dim()
+            dim = input_samples.dim()
+            if dim == 0 or dim == 1 or dim == 3:
+                dim = 0
+            else:
+                dim = 1
+            return torch.nn.functional.softmax(predictions, dim=dim)
         else:
             return predictions
 
