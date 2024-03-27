@@ -129,7 +129,7 @@ class TestImageAnomalyDetectionCustomDataset:
 
     @pytest.mark.parametrize('model_name,device',
                              [['resnet18', 'hpu']])
-    def test_hpu_fail_workflow(self, model_name, device):
+    def test_no_hpu_workflow(self, model_name, device):
         """
         Tests the workflow for PYT image anomaly detection when "hpu" is specified but not available
         """

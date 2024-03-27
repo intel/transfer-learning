@@ -41,6 +41,14 @@ from tlt.utils.file_utils import verify_directory, validate_model_name
 from tlt.utils.types import FrameworkType, UseCaseType
 from tlt.utils.platform_util import PlatformUtil
 
+try:
+    habana_import_error = None
+    import habana_frameworks.torch.core as htcore
+    is_hpu_available = True
+except Exception as e:
+    is_hpu_available = False
+    habana_import_error = str(e)
+
 
 class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
     """
@@ -60,7 +68,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         # extra properties that will become configurable in the future
         self._do_fine_tuning = False
         self._dropout_layer_rate = None
-        self._device = 'cpu'
+        self._device = kwargs.get("device", "cpu")
         self._lr_scheduler = None
         self._generate_checkpoints = True
 
@@ -163,14 +171,19 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 with torch.set_grad_enabled(True):
                     if enable_auto_mixed_precision:
                         # Call model using the torch automatic mixed precision context when mixed precision is enabled
-                        with torch.cpu.amp.autocast(dtype=torch.bfloat16):
+                        with torch.autocast(device_type=self._device, dtype=torch.bfloat16):
                             outputs = self._model(inputs)
                     else:
                         outputs = self._model(inputs)
                     _, preds = torch.max(outputs, 1)
                     loss = self._loss(outputs, labels)
                     loss.backward()
-                    self._optimizer.step()
+                    if is_hpu_available and device == "hpu":
+                        htcore.mark_step()
+                        self._optimizer.step()
+                        htcore.mark_step()
+                    else:
+                        self._optimizer.step()
 
                 # Statistics
                 running_loss += loss.item() * inputs.size(0)
@@ -184,6 +197,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             loss_acc_output = f'Loss: {train_epoch_loss:.4f} - Acc: {train_epoch_acc:.4f}'
 
             if do_eval and validation_data_loader is not None:
+                self._model = self._model.to(device)
                 self._model.eval()
                 running_loss = 0.0
                 running_corrects = 0
@@ -191,12 +205,17 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 with torch.no_grad():
                     print("Performing Evaluation")
                     for inputs, labels in tqdm(validation_data_loader, bar_format='{l_bar}{bar:50}{r_bar}{bar:-50b}'):
+                        inputs = inputs.to(device)
+                        labels = labels.to(device)
                         outputs = self._model(inputs)
                         _, preds = torch.max(outputs, 1)
                         loss = self._loss(outputs, labels)
 
                         running_loss += loss.item() * inputs.size(0)
                         running_corrects += torch.sum(preds == labels.data)
+
+                        if self._device == "hpu" and is_hpu_available:
+                            htcore.mark_step()
 
                 eval_epoch_loss = running_loss / validation_data_length
                 eval_epoch_acc = float(running_corrects) / validation_data_length
@@ -332,7 +351,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, seed=None, ipex_optimize=True, distributed=False,
               hostfile=None, nnodes=1, nproc_per_node=1, use_horovod=False, hvd_start_timeout=30,
-              enable_auto_mixed_precision=None):
+              enable_auto_mixed_precision=None, device=None):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -365,12 +384,34 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                     enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
                     running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to
                     None.
+                device (str): Enter "cpu" or "hpu" to specify which hardware device to run training on.
+                    If device="hpu" is specified, but no HPU hardware or installs are detected,
+                    CPU will be used. (default: "cpu")
 
             Returns:
                 Trained PyTorch model object
         """
         self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints,
                                  distributed, hostfile)
+
+        # Only change the device if one is passed in
+        if device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+        elif device == "hpu" and is_hpu_available:
+            self._device = device
+            # Gaudi is not compatible with IPEX
+            print("Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False")
+            ipex_optimize = False
+        elif device == "cpu":
+            self._device = device
+
+        # If No device is passed in, but model was initialized with hpu, must check if hpu is available
+        if self._device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
 
         if enable_auto_mixed_precision is None:
             try:
@@ -423,7 +464,8 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
         return self._history
 
-    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False, enable_auto_mixed_precision=None):
+    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False, enable_auto_mixed_precision=None,
+                 device=None):
         """
         Evaluate the accuracy of the model on a dataset.
         If there is a validation set, evaluation will be done on it (by default) or on the test set
@@ -455,10 +497,26 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         model = self._model
         optimizer = self._optimizer
 
-        # Do the evaluation
+        # Only change the device if one is passed in
+        if device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+        elif device == "hpu" and is_hpu_available:
+            self._device = device
+        elif device == "cpu":
+            self._device = device
+
+        # If No device is passed in, but model was initialized with hpu, must check if hpu is available
+        if self._device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+
         device = torch.device(self._device)
         model = model.to(device)
 
+        # Do the evaluation
         model.eval()
         running_loss = 0.0
         running_corrects = 0
@@ -481,6 +539,9 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data)
 
+            if self._device == "hpu" and is_hpu_available:
+                htcore.mark_step()
+
         epoch_loss = running_loss / data_length
         epoch_acc = float(running_corrects) / data_length
 
@@ -488,7 +549,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
 
         return [epoch_loss, epoch_acc]
 
-    def predict(self, input_samples, return_type='class', enable_auto_mixed_precision=None):
+    def predict(self, input_samples, return_type='class', enable_auto_mixed_precision=None, device=None):
         """
         Perform feed-forward inference and predict the classes of the input_samples.
 
@@ -497,6 +558,9 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             return_type (str): Using 'class' will return the highest scoring class (default), using 'scores' will
                                return the raw output/logits of the last layer of the network, using 'probabilities' will
                                return the output vector after applying a softmax function (so results sum to 1)
+            device (str): Enter "cpu" or "hpu" to specify which hardware device to run training on.
+                    If device="hpu" is specified, but no HPU hardware or installs are detected,
+                    CPU will be used. (default: "cpu")
 
         Returns:
             List of classes, probability vectors, or raw score vectors
@@ -517,8 +581,25 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                       "Mixed precision training will be disabled.".format(str(e)))
         self._enable_auto_mixed_precision = enable_auto_mixed_precision
 
+        # Only change the device if one is passed in
+        if device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+        elif device == "hpu" and is_hpu_available:
+            self._device = device
+        elif device == "cpu":
+            self._device = device
+
+        # If No device is passed in, but model was initialized with hpu, must check if hpu is available
+        if self._device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+
         self._model.eval()
         with torch.no_grad():
+            self._model = self._model.to(self._device)
             predictions = self._model(input_samples)
         if return_type == 'class':
             _, predicted_ids = torch.max(predictions, 1)

@@ -295,6 +295,45 @@ class TestImageClassificationCustomDataset:
             assert os.path.exists(os.path.join(inc_output_dir, "model.pt"))
             model.benchmark(saved_model_dir=inc_output_dir, dataset=dataset)
 
+    @pytest.mark.parametrize('model_name,device',
+                             [['efficientnet_b0', 'hpu']])
+    def test_no_hpu_workflow(self, model_name, device):
+        """
+        Tests the full workflow for PYT image classification using a custom dataset
+        """
+        framework = 'pytorch'
+        use_case = 'image_classification'
+
+        # Get the dataset
+        dataset = dataset_factory.load_dataset(self._dataset_dir, use_case=use_case, framework=framework,
+                                               shuffle_files=False)
+
+        # Get the model
+        model = model_factory.get_model(model_name, framework, device=device)
+
+        # Preprocess the dataset and split to get small subsets for training and validation
+        dataset.preprocess(model.image_size, 32)
+        dataset.shuffle_split(train_pct=0.1, val_pct=0.1, seed=10)
+
+        # Train for 1 epoch
+        model.train(dataset, output_dir=self._output_dir, epochs=1, do_eval=False, seed=10, ipex_optimize=False,
+                    device=device)
+        assert model._device == "cpu"
+
+        # Evaluate
+        model.evaluate(dataset)
+        assert model._device == "cpu"
+
+        # Predict with a batch
+        images, labels = dataset.get_batch()
+        predictions = model.predict(images)
+        assert len(predictions) == 32
+
+        # export the saved model
+        saved_model_dir = model.export(self._output_dir)
+        assert os.path.isdir(saved_model_dir)
+        assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
+
 
 @pytest.mark.integration
 @pytest.mark.pytorch

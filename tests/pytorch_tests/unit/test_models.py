@@ -479,7 +479,7 @@ def test_pytorch_tf_text_classification_trainer_mixed_precision(mock_downloader,
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.get_scheduler')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.cpu.amp.autocast')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.optim.AdamW')
-@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ipex.optimize')
+@patch('intel_extension_for_pytorch.optimize')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.PlatformUtil')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ModelDownloader')
 def test_pytorch_tf_text_classification_torch_mixed_precision(
@@ -584,9 +584,9 @@ def test_pytorch_tf_text_classification_invalid_mixed_precision_arg(mock_downloa
 @patch('tlt.models.image_classification.torchvision_image_classification_model.torch.nn.CrossEntropyLoss')
 @patch('tlt.models.image_classification.torchvision_image_classification_model.torch.save')
 @patch('tlt.models.image_classification.torchvision_image_classification_model.torch.optim.lr_scheduler.ReduceLROnPlateau')  # noqa E501
-@patch('tlt.models.image_classification.torchvision_image_classification_model.torch.cpu.amp.autocast')
+@patch('tlt.models.image_classification.torchvision_image_classification_model.torch.autocast')
 @patch('tlt.models.image_classification.torchvision_image_classification_model.torch.optim.Adam')
-@patch('tlt.models.image_classification.torchvision_image_classification_model.ipex.optimize')
+@patch('intel_extension_for_pytorch.optimize')
 @patch('tlt.models.image_classification.torchvision_image_classification_model.PlatformUtil')
 @patch('tlt.models.image_classification.torchvision_image_classification_model.ModelDownloader')
 def test_pytorch_image_classification_torch_mixed_precision(
@@ -626,7 +626,7 @@ def test_pytorch_image_classification_torch_mixed_precision(
 
     # Check that autocast was propery called during training
     if expected_bf16:
-        mock_autocast.assert_called_with(dtype=torch.bfloat16)
+        mock_autocast.assert_called_with(device_type=model._device, dtype=torch.bfloat16)
     else:
         assert not mock_autocast.called
 
@@ -637,7 +637,7 @@ def test_pytorch_image_classification_torch_mixed_precision(
     mock_autocast.reset_mock()
     model.evaluate(mock_dataset, enable_auto_mixed_precision=enable_auto_mixed_precision)
     if expected_bf16:
-        mock_autocast.assert_called_with(dtype=torch.bfloat16)
+        mock_autocast.assert_called_with(device_type=model._device, dtype=torch.bfloat16)
     else:
         assert not mock_autocast.called
 
@@ -645,6 +645,6 @@ def test_pytorch_image_classification_torch_mixed_precision(
     mock_autocast.reset_mock()
     model.predict(mock_dataset.validation_loader, enable_auto_mixed_precision=enable_auto_mixed_precision)
     if expected_bf16:
-        mock_autocast.assert_called_with(dtype=torch.bfloat16)
+        mock_autocast.assert_called_with(device_type=model._device, dtype=torch.bfloat16)
     else:
         assert not mock_autocast.called

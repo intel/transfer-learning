@@ -49,11 +49,12 @@ from tlt.models.image_anomaly_detection.cutpaste.cutpaste import CutPasteNormal,
 
 
 try:
+    habana_import_error = None
     import habana_frameworks.torch.core as htcore
     is_hpu_available = True
 except Exception as e:
-    print(e)
     is_hpu_available = False
+    habana_import_error = str(e)
 
 
 def extract_features(model, data, layer_name, pooling):
@@ -492,6 +493,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         # Only change the device if one is passed in
         if device == "hpu" and not is_hpu_available:
             print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
             self._device = "cpu"
         elif device == "hpu" and is_hpu_available:
             self._device = device
@@ -509,6 +511,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         # If No device is passed in, but model was initialized with hpu, must check if hpu is available
         if self._device == "hpu" and not is_hpu_available:
             print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
             self._device = "cpu"
 
         if self._device == "hpu" and ipex_optimize:
@@ -595,6 +598,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         # Only change the device if one is passed in
         if device == "hpu" and not is_hpu_available:
             print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
             self._device = "cpu"
         elif device == "hpu" and is_hpu_available:
             self._device = device
@@ -604,6 +608,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         # If No device is passed in, but model was initialized with hpu, must check if hpu is available
         if self._device == "hpu" and not is_hpu_available:
             print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
             self._device = "cpu"
 
         if pca_mats is None:
@@ -685,6 +690,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         # Only change the device if one is passed in
         if device == "hpu" and not is_hpu_available:
             print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
             self._device = "cpu"
         elif device == "hpu" and is_hpu_available:
             self._device = device
@@ -694,6 +700,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         # If No device is passed in, but model was initialized with hpu, must check if hpu is available
         if self._device == "hpu" and not is_hpu_available:
             print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
             self._device = "cpu"
 
         if pca_mats is None:

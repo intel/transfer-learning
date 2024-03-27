@@ -38,6 +38,8 @@ There are workflow-specific hardware and software setup requirements depending o
 | ---------------------------- | ---------- |
 | Intel® 4th Gen Xeon® Scalable Performance processors| BF16 |
 | Intel® 1st, 2nd, 3rd, and 4th Gen Xeon® Scalable Performance processors| FP32 |
+| Intel® Gaudi® AI accelerator| float32, bfloat16 |
+| Intel® Gaudi® 2 AI accelerator| float32, bfloat16 |
 
 To execute the reference solution presented here, use CPU for fine tuning.
 
