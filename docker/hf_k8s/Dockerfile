@@ -15,8 +15,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-ARG IMAGE_NAME=ubuntu
-ARG IMAGE_TAG=22.04
+ARG IMAGE_NAME=intel/intel-optimized-pytorch
+ARG IMAGE_TAG=2.2.0-pip-mulitnode
 
 # Base image to be used everywhere
 FROM ${IMAGE_NAME}:${IMAGE_TAG} as base
@@ -27,36 +27,9 @@ RUN apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Base Image with Python and Pip
-FROM base as python-base
+# Base Image has python installed
 ARG PYTHON=python
-ARG PYTHON_VER=3.9
-
-RUN apt-get update && \
-    apt-get install --no-install-recommends --fix-missing -y \
-      curl \
-      gpg-agent \
-      software-properties-common && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive \
-    apt-get install --no-install-recommends --fix-missing -y \
-      python${PYTHON_VER} \
-      python${PYTHON_VER}-distutils && \
-    curl -s https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VER} && \
-    apt-get purge -y \
-      curl \
-      gpg-agent \
-      software-properties-common && \
-    apt-get autoclean && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN ln -sf $( which ${PYTHON}${PYTHON_VER} ) /usr/bin/python && \
-    ln -sf $( which ${PYTHON}${PYTHON_VER} ) /usr/bin/python3
-
-# Final image with Python, Pip and all other dependencies
-FROM python-base as final
+ARG PYTHON_VER=3.10
 
 SHELL ["/bin/bash", "-c"]
 
@@ -66,28 +39,13 @@ RUN apt-get update -y && \
     google-perftools \
     libgl1 \
     libjemalloc2 \
+    libomp-dev \
     numactl
 
-ARG ONECCL_VER=2.0.0
-ARG TORCH_VER=2.0.1
-ARG IPEX_VER=2.0.100
-ARG INC_VER=2.3
-ARG OPTIMUM_VER=87da8b0eb2e99f7e80df2079e5956b19212b7c1b
-
-RUN mkdir /tmp/optimum-intel && \
-    cd /tmp/optimum-intel && \
-    curl -sSL --retry 5 https://github.com/huggingface/optimum-intel/tarball/${OPTIMUM_VER} | tar --strip-components=1 -xzf - && \
-    python setup.py bdist_wheel && \
-    python -m pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu \
-    dist/* \
-    https://intel-extension-for-pytorch.s3.amazonaws.com/ipex_stable/cpu/intel_extension_for_pytorch-${IPEX_VER}%2Bcpu-cp39-cp39-linux_x86_64.whl \
-    https://intel-extension-for-pytorch.s3.amazonaws.com/torch_ccl/cpu/oneccl_bind_pt-${ONECCL_VER}%2Bcpu-cp39-cp39-linux_x86_64.whl \
+RUN python -m pip install --no-cache-dir \
     'mkl-include==2023.2.0' \
     'mkl==2023.2.0' \
-    'onnx==1.13.0' \
-    'protobuf==3.20.3' \
-    neural-compressor==${INC_VER} \
-    torch==${TORCH_VER} \
+    'protobuf==4.24.4' \
     SentencePiece \
     accelerate \
     datasets \
@@ -100,8 +58,7 @@ RUN mkdir /tmp/optimum-intel && \
     psutil \
     py-cpuinfo \
     rouge_score \
-    tokenizers && \
-    rm -rf /tmp/optimum-intel
+    tokenizers
 
 # Install OpenSSH for MPI to communicate between containers
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
@@ -127,3 +84,8 @@ RUN cat /workspace/generate_ssh_keys.sh >> ${HOME}/.bash_profile && \
     cat /workspace/generate_ssh_keys.sh >> ${HOME}/.bashrc
 
 ENV BASH_ENV=${HOME}/.bash_profile
+
+# Set CCL env vars
+ENV PATH="/usr/local/lib/${PYTHON}${PYTHON_VER}/dist-packages/oneccl_bindings_for_pytorch/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/lib/${PYTHON}${PYTHON_VER}/dist-packages/oneccl_bindings_for_pytorch/lib:${LD_LIBRARY_PATH}"
+
