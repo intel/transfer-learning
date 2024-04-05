@@ -70,50 +70,50 @@ The [Docker](https://www.docker.com) container used in this example includes all
 distributed PyTorch training using a Hugging Face model and a fine tuning script. This directory includes the
 [`Dockerfile`](Dockerfile) that was used to build the container.
 
-An image has been published to DockerHub (`intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9`) with
+An image has been published to DockerHub (`intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10`) with
 the following major packages included:
 
 | Package Name | Version | Purpose |
 |--------------|---------|---------|
-| [PyTorch](https://pytorch.org/) | 2.0.1 | Base framework to train models |
-| [Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | 2.0.100 | Utilizes Intel®'s optimization |
-| [Intel® Neural Compressor](https://github.com/intel/neural-compressor) | 2.3 | Optimize model for inference post-training |
-| [Intel® oneAPI Collective Communications Library](https://github.com/oneapi-src/oneCCL) | 2.0.0 | Deploy PyTorch jobs on multiple nodes |
+| [PyTorch](https://pytorch.org/) | 2.2.0+cpu | Base framework to train models |
+| [Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | 2.2.0+cpu | Utilizes Intel®'s optimization |
+| [Intel® Neural Compressor](https://github.com/intel/neural-compressor) | 2.4.1 | Optimize model for inference post-training |
+| [Intel® oneAPI Collective Communications Library](https://github.com/oneapi-src/oneCCL) | 2.2.0+cpu | Deploy PyTorch jobs on multiple nodes |
 
 #### Container Build
 
 The container can be built either using the default package versions from the table above or by specifying your own
 package version using build arguments. This section (and the ["Container Push" section](#container-push)) can be skipped if
-you are using the published `intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9` container.
+you are using the published `intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10` container.
 
 Use one of these options to build the container:
 
 a. The container can be built with the default package versions using the following command:
    ```
-   docker build -t intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9 .
+   docker build -t intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10 .
    ```
-b. The build arguments below that can be provided to install a different version of the packages:
+b. The build arguments below can be changed to use a different base container:
 
    | Argument | Default Value | Description |
    |----------|---------------|-------------|
-   | TORCH_VER | 2.0.1 | PyTorch CPU Version |
-   | IPEX_VER | 2.0.100 | Intel® Extension for PyTorch |
-   | INC_VER | 2.3 | Intel® Neural Compressor Version |
-   | ONECCL_VER | 2.0.0 | Intel® oneAPI Collective Communications Library CPU Version |
+   | IMAGE_NAME | `intel/intel-optimized-pytorch` | Base image name |
+   | IMAGE_TAG | `2.2.0-pip-mulitnode` | Base image tag |
+   | PYTHON | `python` | The name for python used in the specified base container |
+   | PYTHON_VER | `3.10` | The version of python used in the specified base container |
 
    The updated command to build with the specific arguments then would be:
    ```
-   export ONECCL_VER=<ONECCL VERSION>
-   export TORCH_VER=<TORCH VERSION>
-   export IPEX_VER=<IPEX VERSION>
-   export INC_VER=<INC VERSION>
+   export IMAGE_NAME=<BASE IMAGE NAME>
+   export IMAGE_TAG=<BASE IMAGE TAG>
+   export PYTHON=<PYTHON>
+   export PYTHON_VER=<PYTHON VERSION>
 
    docker build \
-     --build-arg ONECCL_VER=${ONECCL_VER} \
-     --build-arg TORCH_VER=${TORCH_VER} \
-     --build-arg IPEX_VER=${IPEX_VER} \
-     --build-arg INC_VER=${INC_VER} \
-     -t intel/ai-workflows:torch-${TORCH_VER}-huggingface-multinode-py3.9 .
+     --build-arg IMAGE_NAME=${IMAGE_NAME} \
+     --build-arg IMAGE_TAG=${IMAGE_TAG} \
+     --build-arg PYTHON=${PYTHON} \
+     --build-arg PYTHON_VER=${PYTHON_VER} \
+     -t intel/ai-workflows:torch-2.2.0-huggingface-multinode-py${PYTHON_VER} .
    ```
 
 #### Container Push
@@ -130,7 +130,7 @@ a. First, ensure that you are logged in with your container registry account usi
    [push the image](https://docs.docker.com/engine/reference/commandline/push/) to the registry.
    ```
    # Retag the image by providing the source image and destination image
-   docker tag intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9 <image name>:<tag>
+   docker tag intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10 <image name>:<tag>
 
    # Push the image to the registry
    docker push <image name>:<tag>
@@ -139,7 +139,7 @@ b. If you don't have a container registry, use the commands below to save the co
    Kubernetes cluster, and then load it into Docker.
    ```
    # Save the image to a tar.gz file
-   docker save intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9 | gzip > hf_k8s.tar.gz
+   docker save intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10 | gzip > hf_k8s.tar.gz
 
    # Copy the tar file to every Kubernetes node that could be used to run the fine tuning job
    scp hf_k8s.tar.gx <user>@<host>:/tmp/hf_k8s.tar.gz
@@ -193,7 +193,7 @@ fine tune the model.
 2. Edit your values file based on the parameters that you would like to use and your cluster. Key parameters to look
    at and edit are:
    * `image.name` if have built your own container, otherwise the default `intel/ai-workflows` image will be used
-   * `image.tag` if have built your own container, otherwise the default `torch-2.0.1-huggingface-multinode-py3.9` tag will be used
+   * `image.tag` if have built your own container, otherwise the default `torch-2.2.0-huggingface-multinode-py3.10` tag will be used
    * `elasticPolicy.minReplicas` and `elasticPolicy.maxReplicas` based on the number of workers being used
    * `distributed.workers` should be set to the number of worker that will be used for the job
    * If you are using `chart/values.yaml` for your own workload, fill in either `train.datasetName` (the name of a

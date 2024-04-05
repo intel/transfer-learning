@@ -27,7 +27,7 @@ A Kubernetes secret is to store your Hugging Face token.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `image.name` | string | `intel/ai-workflow` | Name of the image to use for the PyTorch job. The container should include the fine tuning script and all the dependencies required to run the job. |
-| `image.tag` | string | `torch-2.0.1-huggingface-multinode-py3.9` | The image tag for the container that will be used to run the PyTorch job. The container should include the fine tuning script and all the dependencies required to run the job. |
+| `image.tag` | string | `torch-2.2.0-huggingface-multinode-py3.10` | The image tag for the container that will be used to run the PyTorch job. The container should include the fine tuning script and all the dependencies required to run the job. |
 | `image.pullPolicy` | string | `IfNotPresent` | Determines when the kubelet will pull the image to the worker nodes. Choose from: `IfNotPresent`, `Always`, or `Never`. If updates to the image have been made, use `Always` to ensure the newest image is used. |
 
 ## Security Context
