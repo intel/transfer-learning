@@ -1,0 +1,66 @@
+{   
+    "dinov2_vitg14": {
+        "model_hub": "pytorch_hub",
+        "repo": "facebookresearch/dinov2",
+        "pretrained_default": "False",
+        "classification_layer": ["head"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "dinov2_vits14": {
+        "model_hub": "pytorch_hub",
+        "repo": "facebookresearch/dinov2",
+        "pretrained_default": "True",
+        "classification_layer": ["head"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "dinov2_vitb14": {
+        "model_hub": "pytorch_hub",
+        "repo": "facebookresearch/dinov2",
+        "pretrained_default": "True",
+        "classification_layer": ["head"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "dinov2_vitl14": {
+        "model_hub": "pytorch_hub",
+        "repo": "facebookresearch/dinov2",
+        "pretrained_default": "True",
+        "classification_layer": ["head"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "dinov2_vits14_reg": {
+        "model_hub": "pytorch_hub",
+        "repo": "facebookresearch/dinov2",
+        "pretrained_default": "True",
+        "classification_layer": ["head"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "dinov2_vitg14_reg": {
+        "model_hub": "pytorch_hub",
+        "repo": "facebookresearch/dinov2",
+        "pretrained_default": "True",
+        "classification_layer": ["head"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "dinov2_vitl14_reg": {
+        "model_hub": "pytorch_hub",
+        "repo": "facebookresearch/dinov2",
+        "pretrained_default": "True",
+        "classification_layer": ["head"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    },
+    "dinov2_vitb14_reg": {
+        "model_hub": "pytorch_hub",
+        "repo": "facebookresearch/dinov2",
+        "pretrained_default": "True",
+        "classification_layer": ["head"],
+        "image_size": 224,
+        "original_dataset": "IMAGENET1K_V1"
+    }
+}

@@ -170,8 +170,74 @@
 
 | Model name | Framework | Model Hub |
 |------------|-----------|-----------|
+| alexnet | PyTorch | Torchvision |
+| convnext_base | PyTorch | Torchvision |
+| convnext_large | PyTorch | Torchvision |
+| convnext_small | PyTorch | Torchvision |
+| convnext_tiny | PyTorch | Torchvision |
+| densenet121 | PyTorch | Torchvision |
+| densenet161 | PyTorch | Torchvision |
+| densenet169 | PyTorch | Torchvision |
+| densenet201 | PyTorch | Torchvision |
+| dinov2_vitb14 | PyTorch | PyTorch Hub |
+| dinov2_vitb14_reg | PyTorch | PyTorch Hub |
+| dinov2_vitg14 | PyTorch | PyTorch Hub |
+| dinov2_vitg14_reg | PyTorch | PyTorch Hub |
+| dinov2_vitl14 | PyTorch | PyTorch Hub |
+| dinov2_vitl14_reg | PyTorch | PyTorch Hub |
+| dinov2_vits14 | PyTorch | PyTorch Hub |
+| dinov2_vits14_reg | PyTorch | PyTorch Hub |
+| efficientnet_b0 | PyTorch | Torchvision |
+| efficientnet_b1 | PyTorch | Torchvision |
+| efficientnet_b2 | PyTorch | Torchvision |
+| efficientnet_b3 | PyTorch | Torchvision |
+| efficientnet_b4 | PyTorch | Torchvision |
+| efficientnet_b5 | PyTorch | Torchvision |
+| efficientnet_b6 | PyTorch | Torchvision |
+| efficientnet_b7 | PyTorch | Torchvision |
+| googlenet | PyTorch | Torchvision |
+| mnasnet0_5 | PyTorch | Torchvision |
+| mnasnet1_0 | PyTorch | Torchvision |
+| mobilenet_v2 | PyTorch | Torchvision |
+| mobilenet_v3_large | PyTorch | Torchvision |
+| mobilenet_v3_small | PyTorch | Torchvision |
+| regnet_x_16gf | PyTorch | Torchvision |
+| regnet_x_1_6gf | PyTorch | Torchvision |
+| regnet_x_32gf | PyTorch | Torchvision |
+| regnet_x_3_2gf | PyTorch | Torchvision |
+| regnet_x_400mf | PyTorch | Torchvision |
+| regnet_x_800mf | PyTorch | Torchvision |
+| regnet_x_8gf | PyTorch | Torchvision |
+| regnet_y_16gf | PyTorch | Torchvision |
+| regnet_y_1_6gf | PyTorch | Torchvision |
+| regnet_y_32gf | PyTorch | Torchvision |
+| regnet_y_3_2gf | PyTorch | Torchvision |
+| regnet_y_400mf | PyTorch | Torchvision |
+| regnet_y_800mf | PyTorch | Torchvision |
+| regnet_y_8gf | PyTorch | Torchvision |
+| resnet101 | PyTorch | Torchvision |
+| resnet152 | PyTorch | Torchvision |
 | resnet18 | PyTorch | Torchvision |
+| resnet34 | PyTorch | Torchvision |
 | resnet50 | PyTorch | Torchvision |
+| resnext101_32x8d | PyTorch | Torchvision |
+| resnext50_32x4d | PyTorch | Torchvision |
+| shufflenet_v2_x0_5 | PyTorch | Torchvision |
+| shufflenet_v2_x1_0 | PyTorch | Torchvision |
+| vgg11 | PyTorch | Torchvision |
+| vgg11_bn | PyTorch | Torchvision |
+| vgg13 | PyTorch | Torchvision |
+| vgg13_bn | PyTorch | Torchvision |
+| vgg16 | PyTorch | Torchvision |
+| vgg16_bn | PyTorch | Torchvision |
+| vgg19 | PyTorch | Torchvision |
+| vgg19_bn | PyTorch | Torchvision |
+| vit_b_16 | PyTorch | Torchvision |
+| vit_b_32 | PyTorch | Torchvision |
+| vit_l_16 | PyTorch | Torchvision |
+| vit_l_32 | PyTorch | Torchvision |
+| wide_resnet101_2 | PyTorch | Torchvision |
+| wide_resnet50_2 | PyTorch | Torchvision |
 
 ## Text Generation
 

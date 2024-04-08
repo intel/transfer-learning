@@ -143,6 +143,7 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         self._pooling = 'avg'
         self._kernel_size = 2
         self._pca_mats = None
+        self._hub = 'torchvision'
         self._enable_auto_mixed_precision = False
         self._device = kwargs.get("device", "cpu")
 
@@ -164,11 +165,14 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         if not isinstance(pca_threshold, float) or pca_threshold <= 0.0 or pca_threshold >= 1.0:
             raise TypeError("The pca_threshold must be a float between 0 and 1  but found {}".format(pca_threshold))
 
-    def load_checkpoint_weights(self, model_name, checkpoint_dir, filename, feature_extractor=None):
+    def load_checkpoint_weights(self, model_name, checkpoint_dir, filename, feature_extractor=None, hub=None):
         """
         Load checkpoints from the given checkpoint directory based on feature extractor
         """
-        downloader = ModelDownloader(model_name, hub='torchvision', model_dir=None)
+        if hub is None:
+            hub = self._hub
+
+        downloader = ModelDownloader(model_name, hub=hub, model_dir=None)
         net = downloader.download()
 
         ckpt = torch.load(os.path.join(checkpoint_dir, filename), map_location=torch.device(self._device))
@@ -213,7 +217,8 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
     def train_simsiam(self, dataset, output_dir, epochs, feature_dim,
                       pred_dim, batch_size=64, initial_checkpoints=None,
-                      generate_checkpoints=False, ipex_optimize=True, precision='float32'):
+                      generate_checkpoints=False, ipex_optimize=True, precision='float32',
+                      hub=None):
         """
             Trains a SimSiam model using the specified dataset.
 
@@ -239,6 +244,9 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         self.epochs = epochs
         self.simsiam = True
 
+        if hub is None:
+            hub = self._hub
+
         dataset._dataset.transform = dataset._simsiam_transform
         dataloader = dataset._train_loader
 
@@ -247,7 +255,6 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         if initial_checkpoints:
             checkpoint = torch.load(initial_checkpoints, map_location='cpu')
             self._model.load_state_dict(checkpoint, strict=False)
-
         self._model = builder.SimSiam(self._model, feature_dim, pred_dim)
         self._model = self._model.to(self._device)
         init_lr = self.LR * self.batch_size / 256
@@ -311,14 +318,15 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
 
         print('No. Of Epochs=', self.epochs)
         print('Batch Size =', self.batch_size_ss)
-
         self._model = self.load_checkpoint_weights(self.model_name, checkpoint_dir,
-                                                   file_name_least_loss, feature_extractor='simsiam')
+                                                   file_name_least_loss, feature_extractor='simsiam',
+                                                   hub=hub)
         return self._model
 
     def train_cutpaste(self, dataset, output_dir, optim, epochs, freeze_resnet,
                        head_layer, cutpaste_type, initial_checkpoints=None,
-                       generate_checkpoints=False, ipex_optimize=True, precision='float32'):
+                       generate_checkpoints=False, ipex_optimize=True, precision='float32',
+                       hub=None):
         """
             Trains a CutPaste model using the specified dataset.
 
@@ -352,6 +360,9 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
         valid_model_name = validate_model_name(self.model_name)
         checkpoint_dir = os.path.join(output_dir, "{}_checkpoints".format(valid_model_name))
         verify_directory(checkpoint_dir)
+
+        if hub is None:
+            hub = self._hub
 
         if initial_checkpoints is None:
             print("=> creating CUT-PASTE feature extractor with the backbone of'{}'".format(self.model_name))
@@ -425,9 +436,9 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
                             'state_dict': model.state_dict(),
                         }, is_best=True, filename=file_name_least_loss,
                             loss=curr_loss, checkpoint_dir=checkpoint_dir)
-
             self._model = self.load_checkpoint_weights(self.model_name, checkpoint_dir,
-                                                       file_name_least_loss, feature_extractor='cutpaste')
+                                                       file_name_least_loss, feature_extractor='cutpaste',
+                                                       hub=hub)
         else:
             models = []
             for filename in os.listdir(initial_checkpoints):
@@ -437,7 +448,8 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
                     models.append(f)
             model_path = os.path.basename(max(models, key=os.path.getctime))
             self._model = self.load_checkpoint_weights(self.model_name, checkpoint_dir,
-                                                       model_path, feature_extractor='cutpaste')
+                                                       model_path, feature_extractor='cutpaste',
+                                                       hub=hub)
         return self._model
 
     def train(self, dataset: PyTorchCustomImageAnomalyDetectionDataset, output_dir, epochs=1,
@@ -534,12 +546,12 @@ class PyTorchImageAnomalyDetectionModel(PyTorchImageClassificationModel):
             model = self.train_simsiam(dataset, output_dir, epochs, feature_dim,
                                        pred_dim, batch_size, initial_checkpoints,
                                        generate_checkpoints=False, ipex_optimize=ipex_optimize,
-                                       precision=precision)
+                                       precision=precision, hub=self._hub)
         elif self.cutpaste:
             model = self.train_cutpaste(dataset, output_dir, optim, epochs, freeze_resnet,
                                         head_layer, cutpaste_type, initial_checkpoints,
                                         generate_checkpoints=False, ipex_optimize=ipex_optimize,
-                                        precision=precision)
+                                        precision=precision, hub=self._hub)
         else:
             model = self.load_pretrained_model()
             print("Loading '{}' model".format(self.model_name))

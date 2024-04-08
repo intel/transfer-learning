@@ -65,10 +65,11 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         self._num_classes = None
         self._distributed = False
         self._device = kwargs.get("device", "cpu")
+        self._hub = "torchvision"
         self._enable_auto_mixed_precision = None
 
     def _model_downloader(self, model_name):
-        downloader = ModelDownloader(model_name, hub='torchvision', model_dir=None, weights=self._original_dataset)
+        downloader = ModelDownloader(model_name, hub=self._hub, model_dir=None, weights=self._original_dataset)
         model = downloader.download()
         return model
 

@@ -26,11 +26,12 @@ import numpy as np
 
 
 try:
+    habana_import_error = None
     import habana_frameworks.torch.core as htcore
     is_hpu_available = True
 except Exception as e:
-    print(e)
     is_hpu_available = False
+    habana_import_error = str(e)
 
 
 class AverageMeter(object):
@@ -97,6 +98,8 @@ def _fit_simsiam(train_data_loader, model, criterion, optimizer, epoch, precisio
 
     # If Gaudi device is specified but not available, default to CPU
     if device == "hpu" and not is_hpu_available:
+        print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+        print(habana_import_error)
         device = "cpu"
 
     for i, (inputs, _) in enumerate(train_data_loader):
@@ -141,6 +144,8 @@ def _fit_cutpaste(train_data_loader, model, criterion, optimizer, epoch, freeze_
 
     # If Gaudi device is specified but not available, default to CPU
     if device == "hpu" and not is_hpu_available:
+        print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+        print(habana_import_error)
         device = "cpu"
 
     if epoch == freeze_resnet:

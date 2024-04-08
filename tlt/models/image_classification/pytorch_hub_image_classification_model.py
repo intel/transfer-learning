@@ -47,13 +47,13 @@ class PyTorchHubImageClassificationModel(TorchvisionImageClassificationModel):
         self._classification_layer = pytorch_hub_model_map[model_name]["classification_layer"]
         self._image_size = pytorch_hub_model_map[model_name]["image_size"]
         self._repo = pytorch_hub_model_map[model_name]["repo"]
-
+        self._hub = 'pytorch_hub'
         # placeholder for model definition
         self._model = None
         self._num_classes = None
         self._distributed = False
 
     def _model_downloader(self, model_name):
-        downloader = ModelDownloader(model_name, hub='pytorch_hub', model_dir=None)
+        downloader = ModelDownloader(model_name, hub=self._hub, model_dir=None)
         model = downloader.download()
         return model
