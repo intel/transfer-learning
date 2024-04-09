@@ -33,10 +33,6 @@ if [[ $SLURM_NNODES == 1 ]] && [[ $INSTANCES_PER_NODE == 1 ]]; then
   export CCL_WORKER_COUNT=0
   MPI_CMD=""
 else
-  # Source the oneCCL vars to get mpirun in the environment
-  oneccl_bindings_for_pytorch_path=$(python -c "from oneccl_bindings_for_pytorch import cwd; print(cwd)")
-  source $oneccl_bindings_for_pytorch_path/env/setvars.sh
-
   # Setup env variables for distributed jobs
   export MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
   export MASTER_PORT="${MASTER_PORT:-25679}"
@@ -52,9 +48,18 @@ else
   scontrol show hostname $SLURM_JOB_NODELIST | perl -ne 'chomb; print "$_"x1'> ${HOSTFILE_PATH}
 
   # Create mpirun command
+  BIND_TO="${BIND_TO:-socket}"
   MPI_CMD="mpirun --hostfile ${HOSTFILE_PATH} \
     -n $((${SLURM_NNODES} * ${INSTANCES_PER_NODE} )) \
-    -ppn $((${SLURM_NTASKS_PER_NODE} * ${INSTANCES_PER_NODE} ))"
+    --bind-to ${BIND_TO} \
+    -x MASTER_ADDR=${MASTER_ADDR} \
+    -x MASTER_PORT=${MASTER_PORT} \
+    -x WORLD_SIZE=${WORLD_SIZE} \
+    -x CCL_WORKER_COUNT=${CCL_WORKER_COUNT}"
+
+  if [[ ! -z "${MPI_ARGS}" ]]; then
+    MPI_CMD="${MPI_CMD} ${MPI_ARGS}"
+  fi
 fi
 
 # Generate the full command to run

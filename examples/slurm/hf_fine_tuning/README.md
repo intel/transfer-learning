@@ -12,10 +12,10 @@ Prerequisites:
 * Slurm cluster with Intel® Xeon® Scalable Processors
 
 On the cluster nodes, you will need:
-* The Slurm batch script (only on necessary on the controller node)
-* Python envrionment with dependencies installed (including MPI)
+* The Slurm batch script from this directory (`slurm_mpirun.sh`) - only necessary on the controller node
+* Python envrionment with dependencies installed
+* Open MPI
 * Fine tuning scripts
-* Intel MPI
 
 For this example, we will be running [Llama2 fine tuning scripts](/docker/hf_k8s/scripts). The instructions below will
 create a conda environment with the dependencies needed to run these scripts. This environment needs to exist on all of
@@ -23,40 +23,42 @@ the cluster nodes. If you are running a different script, your dependencies to i
 
 1. Create and activate a conda or virtual environment:
    ```
-   conda create --name=slurm_env python=3.9
-   conda activate slurm_env
+   python3 -m venv slurm_env
+   source slurm_env/bin/activate
    ```
 2. Install dependencies:
    ```
-   ONECCL_VER=2.0.0
-   TORCH_VER=2.0.1+cpu
-   IPEX_VER=2.0.100
-   INC_VER=2.3
+   IPEX_VERSION=2.2.0
+   PYTORCH_VERSION=2.2.0+cpu
+   ONECCL_VERSION=2.2.0+cpu
+   INC_VERSION=2.4.1
 
-   python -m pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu \
-          https://intel-extension-for-pytorch.s3.amazonaws.com/ipex_stable/cpu/intel_extension_for_pytorch-${IPEX_VER}%2Bcpu-cp39-cp39-linux_x86_64.whl \
-          https://intel-extension-for-pytorch.s3.amazonaws.com/torch_ccl/cpu/oneccl_bind_pt-${ONECCL_VER}%2Bcpu-cp39-cp39-linux_x86_64.whl \
-          'mkl-include==2023.2.0' \
-          'mkl==2023.2.0' \
-          'onnx==1.13.0' \
-          'protobuf==3.20.3' \
-          neural-compressor==${INC_VER} \
-          torch==${TORCH_VER} \
-          SentencePiece \
-          accelerate \
-          datasets \
-          einops \
-          evaluate \
-          nltk \
-          onnxruntime \
-          onnxruntime-extensions \
-          peft \
-          psutil \
-          py-cpuinfo \
-          rouge_score \
-          tokenizers
+   python -m pip install --no-cache-dir torch==${PYTORCH_VERSION} -f https://download.pytorch.org/whl/cpu/torch_stable.html
+
+   python -m pip install --no-cache-dir intel_extension_for_pytorch==${IPEX_VERSION}+cpu -f https://developer.intel.com/ipex-whl-stable-cpu
+
+   python -m pip install --no-cache-dir oneccl_bind_pt==${ONECCL_VERSION} \
+       -f https://developer.intel.com/ipex-whl-stable-cpu \
+       neural-compressor==${INC_VERSION}
+
+   python -m pip install --no-cache-dir  \
+       'mkl-include==2023.2.0' \
+       'mkl==2023.2.0' \
+       'protobuf==4.24.4' \
+       SentencePiece \
+       accelerate \
+       datasets \
+       einops \
+       evaluate \
+       nltk \
+       onnxruntime \
+       onnxruntime-extensions \
+       peft \
+       psutil \
+       py-cpuinfo \
+       rouge_score \
+       tokenizers
    ```
-
 
 ## Deploying the job
 
@@ -67,6 +69,8 @@ the cluster nodes. If you are running a different script, your dependencies to i
    |---------------------------|---------------|-------------|
    | `INSTANCES_PER_NODE`      | `1`           | The number of instances to run per node from mpirun. |
    | `MASTER_PORT`             | `25679`       | A free port to use for communication. Note that `MASTER_ADDR` is assigned in the Slurm batch script. |
+   | `BIND_TO`                 | `socket`      | Open MPI option to bind processes to a specified object. Supported options include slot, hwthread, core, l1cache, l2cache, l3cache, socket, numa, board, cpu-list, and none. |
+   | `MPI_ARGS`                | None          | Provide any extra [options](https://www.open-mpi.org/doc/current/man1/mpirun.1.php#sect6) to send to Open MPI. |
 
 1. Create a directory for output logs (on all nodes):
    ```
@@ -88,7 +92,7 @@ the cluster nodes. If you are running a different script, your dependencies to i
    For example, to do a demo run the [Llama2 fine tuning scripts](docker/hf_k8s/scripts) (limited to 10 steps) on 2
    nodes, the command would look like:
    ```
-   sbatch --nodes=2 --output=${LOG_DIR}/llama2_%A.log slurm_mpirun.sh finetune.py \
+   sbatch --nodes=2 --output=${LOG_DIR}/llama2_%A.log slurm_mpirun.sh ../../../docker/hf_k8s/scripts/finetune.py \
        --model_name_or_path "meta-llama/Llama-2-7b-hf" \
        --dataset_name "medalpaca/medical_meadow_medical_flashcards" \
        --dataset_concatenation "True" \
@@ -110,7 +114,8 @@ the cluster nodes. If you are running a different script, your dependencies to i
        --use_cpu "True" \
        --do_train "True" \
        --use_ipex "True" \
-       --ddp_backend "ccl"
+       --ddp_backend "ccl" \
+       --ddp_find_unused_parameters "False"
    ```
 1. Check the Slurm queue using `squeue` to see the status of your job:
    ```
