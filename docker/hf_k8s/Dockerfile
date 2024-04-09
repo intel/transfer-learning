@@ -16,7 +16,7 @@
 
 
 ARG IMAGE_NAME=intel/intel-optimized-pytorch
-ARG IMAGE_TAG=2.2.0-pip-mulitnode
+ARG IMAGE_TAG=2.2.0-pip-multinode
 
 # Base image to be used everywhere
 FROM ${IMAGE_NAME}:${IMAGE_TAG} as base
@@ -47,7 +47,7 @@ RUN python -m pip install --no-cache-dir \
     'mkl==2023.2.0' \
     'protobuf==4.24.4' \
     SentencePiece \
-    accelerate \
+    accelerate==0.28.0 \
     datasets \
     einops \
     evaluate \

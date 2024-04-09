@@ -97,7 +97,7 @@ b. The build arguments below can be changed to use a different base container:
    | Argument | Default Value | Description |
    |----------|---------------|-------------|
    | IMAGE_NAME | `intel/intel-optimized-pytorch` | Base image name |
-   | IMAGE_TAG | `2.2.0-pip-mulitnode` | Base image tag |
+   | IMAGE_TAG | `2.2.0-pip-multinode` | Base image tag |
    | PYTHON | `python` | The name for python used in the specified base container |
    | PYTHON_VER | `3.10` | The version of python used in the specified base container |
 
