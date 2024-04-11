@@ -1,0 +1,40 @@
+﻿tlt.models.text\_generation.text\_generation\_model.TextGenerationModel
+=======================================================================
+
+.. currentmodule:: tlt.models.text_generation.text_generation_model
+
+.. autoclass:: TextGenerationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TextGenerationModel.__init__
+      ~TextGenerationModel.benchmark
+      ~TextGenerationModel.evaluate
+      ~TextGenerationModel.export
+      ~TextGenerationModel.generate
+      ~TextGenerationModel.load_from_directory
+      ~TextGenerationModel.optimize_graph
+      ~TextGenerationModel.quantize
+      ~TextGenerationModel.train
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TextGenerationModel.framework
+      ~TextGenerationModel.learning_rate
+      ~TextGenerationModel.model_name
+      ~TextGenerationModel.preprocessor
+      ~TextGenerationModel.use_case
+   
+   

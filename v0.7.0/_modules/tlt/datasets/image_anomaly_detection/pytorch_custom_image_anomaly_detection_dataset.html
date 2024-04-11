@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2023 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span> <span class="k">as</span> <span class="n">loader</span>
+<span class="kn">from</span> <span class="nn">torchvision.datasets</span> <span class="kn">import</span> <span class="n">DatasetFolder</span>
+<span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">T</span>
+<span class="kn">from</span> <span class="nn">torchvision.datasets.folder</span> <span class="kn">import</span> <span class="n">default_loader</span><span class="p">,</span> <span class="n">IMG_EXTENSIONS</span>
+
+<span class="kn">from</span> <span class="nn">tlt.datasets.pytorch_dataset</span> <span class="kn">import</span> <span class="n">PyTorchDataset</span>
+<span class="kn">from</span> <span class="nn">tlt.models.image_anomaly_detection.simsiam</span> <span class="kn">import</span> <span class="n">loader</span> <span class="k">as</span> <span class="n">ssloader</span>
+<span class="kn">from</span> <span class="nn">tlt.models.image_anomaly_detection.cutpaste.cutpaste</span> <span class="kn">import</span> <span class="n">CutPasteNormal</span><span class="p">,</span> <span class="n">CutPasteScar</span><span class="p">,</span> \
+    <span class="n">CutPaste3Way</span><span class="p">,</span> <span class="n">CutPasteUnion</span><span class="p">,</span> <span class="n">get_cutpaste_transforms</span>
+
+
+<span class="k">class</span> <span class="nc">AnomalyImageFolder</span><span class="p">(</span><span class="n">DatasetFolder</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inherits from DatasetFolder.</span>
+
+<span class="sd">    This class overrides the find_classes() and make_dataset() methods of DatasetFolder to support filtering for</span>
+<span class="sd">    specific defect/class folders and searching the &#39;train&#39; and &#39;test&#39; subdirectories when using the optional</span>
+<span class="sd">    train/test image folder layout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">has_valid_file_extension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extensions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks if a file has a valid extension.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (string): path to a file</span>
+<span class="sd">            extensions (tuple of strings): extensions to consider (lowercase)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the filename ends with one of given extensions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">extensions</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extensions</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">extensions</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">find_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Finds the class folders in a dataset and assigns them to &#39;good&#39; and &#39;bad&#39;.</span>
+
+<span class="sd">        See :class:`DatasetFolder` for details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classes_to_find</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defects</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classes</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39;good&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_classes_to_find</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classes_to_find</span>
+        <span class="n">class_to_idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">cls_name</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">cls_name</span> <span class="o">==</span> <span class="s1">&#39;good&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">cls_name</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;bad&#39;</span><span class="p">,</span> <span class="s1">&#39;good&#39;</span><span class="p">],</span> <span class="n">class_to_idx</span>
+
+    <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">class_to_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">extensions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">is_valid_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates a list of samples of a form (path_to_sample, class).</span>
+
+<span class="sd">        See :class:`DatasetFolder` for details.</span>
+
+<span class="sd">        Note: The class_to_idx parameter is optional and will use the logic of the `find_classes` function by default.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">class_to_idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">class_to_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_classes</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">class_to_idx</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;class_to_index&#39; must have at least one entry to collect any samples.&quot;</span><span class="p">)</span>
+
+        <span class="n">both_none</span> <span class="o">=</span> <span class="n">extensions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_valid_file</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="n">both_something</span> <span class="o">=</span> <span class="n">extensions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_valid_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">both_none</span> <span class="ow">or</span> <span class="n">both_something</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Both extensions and is_valid_file cannot be None or not None at the same time&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">extensions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">is_valid_file</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_valid_file_extension</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">extensions</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+        <span class="n">is_valid_file</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">is_valid_file</span><span class="p">)</span>
+
+        <span class="n">instances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">available_classes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">target_class</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">class_to_idx</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">class_index</span> <span class="o">=</span> <span class="n">class_to_idx</span><span class="p">[</span><span class="n">target_class</span><span class="p">]</span>
+            <span class="c1"># This is the specific edit that supports nested train/test subdirs for Intel Transfer Learning Tool</span>
+            <span class="n">target_dirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">target_class</span><span class="p">),</span>
+                           <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="n">target_class</span><span class="p">),</span>
+                           <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">target_class</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">target_dir</span> <span class="ow">in</span> <span class="n">target_dirs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">target_dir</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">fnames</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">followlinks</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+                    <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">fnames</span><span class="p">):</span>
+                        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">is_valid_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                            <span class="n">item</span> <span class="o">=</span> <span class="n">path</span><span class="p">,</span> <span class="n">class_index</span>
+                            <span class="n">instances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+                            <span class="k">if</span> <span class="n">target_class</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_classes</span><span class="p">:</span>
+                                <span class="n">available_classes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">target_class</span><span class="p">)</span>
+
+        <span class="n">empty_classes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">class_to_idx</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="n">available_classes</span>
+        <span class="k">if</span> <span class="n">empty_classes</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Found no valid file for the classes </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">empty_classes</span><span class="p">))</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="k">if</span> <span class="n">extensions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Supported extensions are: &quot;</span> \
+                       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">extensions</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">extensions</span><span class="p">,</span><span class="w"> </span><span class="nb">str</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extensions</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">instances</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">target_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">loader</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_loader</span><span class="p">,</span>
+            <span class="n">is_valid_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">classes</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_classes_to_find</span> <span class="o">=</span> <span class="n">classes</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">root</span><span class="p">,</span>
+            <span class="n">loader</span><span class="p">,</span>
+            <span class="n">IMG_EXTENSIONS</span> <span class="k">if</span> <span class="n">is_valid_file</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+            <span class="n">target_transform</span><span class="o">=</span><span class="n">target_transform</span><span class="p">,</span>
+            <span class="n">is_valid_file</span><span class="o">=</span><span class="n">is_valid_file</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span>
+
+
+<div class="viewcode-block" id="PyTorchCustomImageAnomalyDetectionDataset">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.html#tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset">[docs]</a>
+<span class="k">class</span> <span class="nc">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">(</span><span class="n">PyTorchDataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A custom image anomaly detection dataset that can be used with PyTorch models. Note that the</span>
+<span class="sd">    directory of images is expected to be organized in one of two ways.</span>
+
+<span class="sd">    Method 1: With one subfolder named `good` and at least one other folder of defective examples. It does not matter</span>
+<span class="sd">    what the names of the other folders are or how many there are, as long as there is at least one. All of the images</span>
+<span class="sd">    in the non-good subfolders will be coded to `bad` and will only be used for validation/testing (not training).</span>
+
+<span class="sd">    .. code-block:: text</span>
+
+<span class="sd">        dataset_dir</span>
+<span class="sd">          ├── good</span>
+<span class="sd">          ├── defective_type_a</span>
+<span class="sd">          └── defective_type_b</span>
+
+<span class="sd">    Method 2: With subfolders named `train` and either `validation` or `test`. The `train` subdirectory should</span>
+<span class="sd">    contain a folder named `good` with training samples, and the `test`/`validation` subdirectory should contain</span>
+<span class="sd">    a folder named `good` and at least one other folder of defective examples for validation.</span>
+
+<span class="sd">    .. code-block:: text</span>
+
+<span class="sd">        dataset_dir</span>
+<span class="sd">          └── train</span>
+<span class="sd">              └── good</span>
+<span class="sd">          └── test</span>
+<span class="sd">              ├── good</span>
+<span class="sd">              ├── defective_type_a</span>
+<span class="sd">              └── defective_type_b</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset_dir (str): Directory where the data is located. It should contain subdirectories with images for</span>
+<span class="sd">                           each class.</span>
+<span class="sd">        dataset_name (str): optional; Name of the dataset. If no dataset name is given, the dataset_dir folder name</span>
+<span class="sd">                            will be used as the dataset name.</span>
+<span class="sd">        num_workers (int): optional; Number of processes to use for data loading, default is 56</span>
+<span class="sd">        shuffle_files (bool): optional; Whether to shuffle the data. Defaults to True.</span>
+<span class="sd">        defects (list[str]): Specific defects or category names to use for validation (default: None); if None, all</span>
+<span class="sd">                             subfolders in the dataset directory will be used.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError if dataset directory does not exist or if a subdirectory named `good` is not found</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PyTorchCustomImageAnomalyDetectionDataset.__init__">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.html#tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">56</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">defects</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class constructor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;The dataset directory (</span><span class="si">{}</span><span class="s2">) does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">))</span>
+
+        <span class="c1"># Determine which layout the images are in - category folders or train/test folders</span>
+        <span class="c1"># The validation_type will be None for the former and &quot;defined_split&quot; for the latter</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="s1">&#39;defined_split&#39;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;good&#39;</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find &#39;good&#39; folder in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">)):</span>
+                <span class="n">validation_dir</span> <span class="o">=</span> <span class="s1">&#39;validation&#39;</span>
+            <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)):</span>
+                <span class="n">validation_dir</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Found a &#39;train&#39; directory, but not a &#39;test&#39; or &#39;validation&#39; directory.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;good&#39;</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find &#39;good&#39; folder in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">))</span>
+
+        <span class="c1"># Inspect and validate defects</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">defect_directory</span> <span class="o">=</span> <span class="n">dataset_dir</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;defined_split&#39;</span><span class="p">:</span>
+            <span class="n">defect_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">validation_dir</span><span class="p">)</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">defect_directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()]</span>
+
+        <span class="k">if</span> <span class="n">defects</span><span class="p">:</span>
+            <span class="c1"># If the defects filter is being used, check that all the folders are present</span>
+            <span class="n">complement</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">defects</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">complement</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Some of the defects provided were not found in </span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">defect_directory</span><span class="p">,</span>
+                                                                                                <span class="n">complement</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Detect the defects if not provided by user</span>
+            <span class="n">defects</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classes</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39;good&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defects</span> <span class="o">=</span> <span class="n">defects</span>
+
+        <span class="c1"># The dataset name is only used for informational purposes. If one isn&#39;t given, use the directory name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dataset_name</span><span class="p">:</span>
+            <span class="n">dataset_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">)</span>
+
+        <span class="n">PyTorchDataset</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset_catalog</span><span class="o">=</span><span class="s1">&#39;custom_anomaly&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">dataset_name</span><span class="p">,</span>
+            <span class="s2">&quot;dataset_dir&quot;</span><span class="p">:</span> <span class="n">dataset_dir</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span> <span class="o">=</span> <span class="n">num_workers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_sampler</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_sampler</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_indices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">valid_classes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;good&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">defects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">AnomalyImageFolder</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">valid_classes</span><span class="p">)</span>
+
+        <span class="c1"># For the train/test layout, initialize indices for the train and test subsets</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;defined_split&#39;</span><span class="p">:</span>
+            <span class="n">train_img_string</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/train/&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">imgs</span><span class="p">)</span> <span class="k">if</span> <span class="n">train_img_string</span> <span class="ow">in</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">imgs</span><span class="p">)</span> <span class="k">if</span> <span class="n">train_img_string</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">:</span>
+                <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span><span class="p">)</span>
+                <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_subset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_subset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_subset</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_class_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">classes</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defects</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">_defects</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_pct</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_val_pct</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_pct</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simsiam_transform</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cutpaste_transform</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_transform</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_transform</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">class_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the list of class names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_class_names</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defect_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the list of class names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defects</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary of information about the dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;dataset_info&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">,</span> <span class="s1">&#39;preprocessing_info&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the framework dataset object (torch.utils.data.Dataset)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span>
+
+    <span class="k">def</span> <span class="nf">shuffle_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_pct</span><span class="o">=</span><span class="mf">.75</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">test_pct</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Randomly split the good examples into train, validation, and test subsets with a pseudo-random seed option.</span>
+<span class="sd">        All of the bad examples will be split into validation and test subsets with a similar proportion</span>
+<span class="sd">        to the val_pct and test_pct arguments.</span>
+
+
+<span class="sd">            Args:</span>
+<span class="sd">                train_pct (float): default .75, percentage of good examples to use for training</span>
+<span class="sd">                val_pct (float):  default .25, percentage of good examples to use for validation</span>
+<span class="sd">                test_pct (float): default 0.0, percentage of good examples to use for testing</span>
+<span class="sd">                shuffle_files (bool): default True, optionally control whether shuffling occurs</span>
+<span class="sd">                seed (None or int): default None, can be set for pseudo-randomization</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                ValueError if percentage input args are not floats or sum to greater than 1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">train_pct</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val_pct</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_pct</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Percentage arguments must be floats.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">train_pct</span> <span class="o">+</span> <span class="n">val_pct</span> <span class="o">+</span> <span class="n">test_pct</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sum of percentage arguments must be less than or equal to 1.&quot;</span><span class="p">)</span>
+
+        <span class="n">good_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span> <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">bad_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span> <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">good_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">good_indices</span><span class="p">)</span>
+        <span class="n">good_train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">train_pct</span> <span class="o">*</span> <span class="n">good_length</span><span class="p">)</span>
+        <span class="n">good_val_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val_pct</span> <span class="o">*</span> <span class="n">good_length</span><span class="p">)</span>
+
+        <span class="c1"># By default 100% of the bad samples will be used in the validation set. But if test_pct is positive,</span>
+        <span class="c1"># use the ratio of val_pct/test_pct to determine the split of bad samples</span>
+        <span class="n">bad_val_pct</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">test_pct</span><span class="p">:</span>
+            <span class="n">ratio</span> <span class="o">=</span> <span class="n">val_pct</span> <span class="o">/</span> <span class="n">test_pct</span>
+            <span class="n">bad_val_pct</span> <span class="o">=</span> <span class="n">ratio</span> <span class="o">/</span> <span class="p">(</span><span class="n">ratio</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">bad_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad_indices</span><span class="p">)</span>
+        <span class="n">bad_val_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bad_val_pct</span> <span class="o">*</span> <span class="n">bad_length</span><span class="p">)</span>
+
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">()</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="k">if</span> <span class="n">seed</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">shuffle_files</span><span class="p">:</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">good_indices</span><span class="p">)</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">bad_indices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span> <span class="o">=</span> <span class="n">good_indices</span><span class="p">[:</span><span class="n">good_train_size</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_indices</span> <span class="o">=</span> <span class="n">good_indices</span><span class="p">[</span><span class="n">good_train_size</span><span class="p">:</span><span class="n">good_train_size</span> <span class="o">+</span> <span class="n">good_val_size</span><span class="p">]</span> <span class="o">+</span> \
+            <span class="n">bad_indices</span><span class="p">[:</span><span class="n">bad_val_size</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">test_pct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span> <span class="o">=</span> <span class="n">good_indices</span><span class="p">[</span><span class="n">good_train_size</span> <span class="o">+</span> <span class="n">good_val_size</span><span class="p">:]</span> <span class="o">+</span> \
+                <span class="n">bad_indices</span><span class="p">[</span><span class="n">bad_val_size</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">=</span> <span class="s1">&#39;shuffle_split&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span> <span class="ow">and</span> <span class="s1">&#39;batch_size&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_data_loaders</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_make_data_loaders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make data loaders for the whole dataset and the subsets that have indices defined. Note that this only</span>
+<span class="sd">        concerns indices, not transforms. The transforms get applied when the dataloaders are used, not created, so</span>
+<span class="sd">        we need to switch transforms appropriately for train/val subsets when the data is ingested.&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">seed_worker</span><span class="p">(</span><span class="n">worker_id</span><span class="p">):</span>
+            <span class="n">worker_seed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">initial_seed</span><span class="p">()</span> <span class="o">%</span> <span class="mi">2</span><span class="o">**</span><span class="mi">32</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">:</span>
+            <span class="c1"># The data_loader for the whole dataset should only have the good samples</span>
+            <span class="n">good_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span> <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">good_samples</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Subset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">good_indices</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="n">good_samples</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                       <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">,</span>
+                                       <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_sampler</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_loader</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_indices</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                        <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">,</span>
+                                        <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_sampler</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_indices</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;defined_split&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_subset</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                             <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span>
+                                             <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_sampler</span><span class="p">,</span>
+                                             <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test_indices</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_type</span> <span class="o">==</span> <span class="s1">&#39;defined_split&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test_subset</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span> <span class="o">=</span> <span class="n">loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_subset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shuffle</span><span class="p">,</span>
+                                       <span class="n">num_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span><span class="p">,</span> <span class="n">worker_init_fn</span><span class="o">=</span><span class="n">seed_worker</span><span class="p">,</span>
+                                       <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_sampler</span><span class="p">,</span>
+                                       <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">simsiam_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_size</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform TwoCropsTransform and GaussianBlur on the dataset for SIMSIAM training.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_size (int): desired image size</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">augmentation</span> <span class="o">=</span> <span class="p">[</span><span class="n">T</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)),</span>
+                        <span class="n">T</span><span class="o">.</span><span class="n">RandomApply</span><span class="p">(</span>
+                            <span class="p">[</span><span class="n">T</span><span class="o">.</span><span class="n">ColorJitter</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)],</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.8</span><span class="p">),</span>
+                        <span class="n">T</span><span class="o">.</span><span class="n">RandomGrayscale</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+                        <span class="n">T</span><span class="o">.</span><span class="n">RandomApply</span><span class="p">(</span>
+                            <span class="p">[</span><span class="n">ssloader</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">([</span><span class="mf">.1</span><span class="p">,</span> <span class="mf">2.</span><span class="p">])],</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+                        <span class="n">T</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+                        <span class="n">T</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+                        <span class="n">T</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+                        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">ssloader</span><span class="o">.</span><span class="n">TwoCropsTransform</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span><span class="n">augmentation</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">add_aug</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutpaste_type</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Preprocess the dataset to resize, normalize, and batch the images. Apply augmentation</span>
+<span class="sd">        if specified.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                image_size (int or &#39;variable&#39;): desired square image size (if &#39;variable&#39;, does not alter image size)</span>
+<span class="sd">                batch_size (int): desired batch size (default 64)</span>
+<span class="sd">                add_aug (None or list[str]): choice of augmentations (&#39;hflip&#39;, &#39;rotate&#39;) to be</span>
+<span class="sd">                                             applied during training</span>
+<span class="sd">                cutpaste_type (str): choice of cutpaste variant (&#39;normal&#39;, &#39;scar&#39;, &#39;3way&#39;, &#39;union&#39;),</span>
+<span class="sd">                                     default is &#39;normal&#39;</span>
+<span class="sd">                kwargs: optional; additional keyword arguments for Resize and Normalize transforms</span>
+<span class="sd">            Raises:</span>
+<span class="sd">                ValueError if the dataset is not defined or has already been processed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to preprocess, because the dataset hasn&#39;t been defined.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data has already been preprocessed: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">batch_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;batch_size should be an positive integer&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">image_size</span> <span class="o">==</span> <span class="s1">&#39;variable&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">image_size</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input image_size must be either a positive int or &#39;variable&#39;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get the user-specified keyword arguments</span>
+        <span class="n">resize_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">Resize</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">}</span>
+        <span class="n">normalize_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">Normalize</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">}</span>
+
+        <span class="n">variant_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;normal&#39;</span><span class="p">:</span> <span class="n">CutPasteNormal</span><span class="p">,</span> <span class="s1">&#39;scar&#39;</span><span class="p">:</span> <span class="n">CutPasteScar</span><span class="p">,</span>
+                       <span class="s1">&#39;3way&#39;</span><span class="p">:</span> <span class="n">CutPaste3Way</span><span class="p">,</span> <span class="s1">&#39;union&#39;</span><span class="p">:</span> <span class="n">CutPasteUnion</span><span class="p">}</span>
+        <span class="n">variant</span> <span class="o">=</span> <span class="n">variant_map</span><span class="p">[</span><span class="n">cutpaste_type</span><span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">get_transform</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">add_aug</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;The train argument, if True, will add augmentation transforms, while if False, will add only the</span>
+<span class="sd">            Resize and Normalize transforms for validation.&quot;&quot;&quot;</span>
+            <span class="n">transforms</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">Resize</span><span class="p">([</span><span class="n">image_size</span><span class="p">,</span> <span class="n">image_size</span><span class="p">],</span> <span class="o">**</span><span class="n">resize_args</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">train</span> <span class="ow">and</span> <span class="n">add_aug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">aug_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;hflip&#39;</span><span class="p">:</span> <span class="n">T</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+                            <span class="s1">&#39;rotate&#39;</span><span class="p">:</span> <span class="n">T</span><span class="o">.</span><span class="n">RandomRotation</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)}</span>
+                <span class="n">aug_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hflip&#39;</span><span class="p">,</span> <span class="s1">&#39;rotate&#39;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">add_aug</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">option</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">aug_list</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported augmentation for PyTorch:</span><span class="si">{}</span><span class="s2">. </span><span class="se">\</span>
+<span class="s2">                        Supported augmentations are </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">aug_list</span><span class="p">))</span>
+                    <span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aug_dict</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">())</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">],</span> <span class="o">**</span><span class="n">normalize_args</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="n">T</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span><span class="n">transforms</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simsiam_transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simsiam_transform</span><span class="p">(</span><span class="n">image_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cutpaste_transform</span> <span class="o">=</span> <span class="n">get_cutpaste_transforms</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">variant</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_transform</span> <span class="o">=</span> <span class="n">get_transform</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">add_aug</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_transform</span> <span class="o">=</span> <span class="n">get_transform</span><span class="p">(</span><span class="n">image_size</span><span class="p">,</span> <span class="n">add_aug</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;image_size&#39;</span><span class="p">:</span> <span class="n">image_size</span><span class="p">,</span> <span class="s1">&#39;batch_size&#39;</span><span class="p">:</span> <span class="n">batch_size</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_data_loaders</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">simsiam</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cutpaste</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a single batch of images and labels from the dataset.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                subset (str): default &quot;all&quot;, can also be &quot;train&quot;, &quot;validation&quot;, or &quot;test&quot;</span>
+<span class="sd">                simsiam (bool): if preprocess() has been previously used on the dataset and this argument is True,</span>
+<span class="sd">                                the simsiam transform will be applied, otherwise it will not; default False</span>
+<span class="sd">                cutpaste (bool): if preprocess() has been previously used on the dataset and this argument is True,</span>
+<span class="sd">                                the cutpaste transform will be applied, otherwise it will not; default False</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                (examples, labels)</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                ValueError if the dataset is not defined yet or the given subset is not valid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">simsiam</span><span class="p">:</span>
+            <span class="c1"># SimSiam transform can be manually requested with any subset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simsiam_transform</span>
+        <span class="k">elif</span> <span class="n">cutpaste</span><span class="p">:</span>
+            <span class="c1"># CutPaste transform can be manually requested with any subset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cutpaste_transform</span>
+        <span class="k">elif</span> <span class="n">subset</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">]:</span>
+            <span class="c1"># For &quot;train&quot;/&quot;all&quot; subsets, if simsiam and cutpaste are False,</span>
+            <span class="c1"># the train transform (including augmentation) is applied</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_transform</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># For &quot;validation&quot;/&quot;test&quot; subsets, if simsiam and cutpaste are False,</span>
+            <span class="c1"># the validation transform (excluding augmentation) is applied</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_transform</span>
+
+        <span class="k">if</span> <span class="n">subset</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_loader</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">subset</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_loader</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">subset</span> <span class="o">==</span> <span class="s1">&#39;validation&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_loader</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">subset</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to return a batch, because the dataset or subset hasn&#39;t been defined.&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

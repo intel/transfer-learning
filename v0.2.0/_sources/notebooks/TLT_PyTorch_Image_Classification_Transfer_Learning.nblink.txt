@@ -1,3 +1,0 @@
-{
-    "path": "../../notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb"
-}

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.models.text_classification.tf_hf_text_classification_model &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tlt.models.text_classification.tf_hf_text_classification_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tlt.models.text_classification.tf_hf_text_classification_model</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2023 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">BertTokenizer</span>
+
+<span class="kn">from</span> <span class="nn">downloader.models</span> <span class="kn">import</span> <span class="n">ModelDownloader</span>
+<span class="kn">from</span> <span class="nn">tlt</span> <span class="kn">import</span> <span class="n">TLT_BASE_DIR</span>
+<span class="kn">from</span> <span class="nn">tlt.models.text_classification.tf_text_classification_model</span> <span class="kn">import</span> <span class="n">TFTextClassificationModel</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets.text_classification.text_classification_dataset</span> <span class="kn">import</span> <span class="n">TextClassificationDataset</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.dataset_utils</span> <span class="kn">import</span> <span class="n">prepare_huggingface_input_data</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">read_json_file</span>
+
+
+<div class="viewcode-block" id="TFHFTextClassificationModel">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel">[docs]</a>
+<span class="k">class</span> <span class="nc">TFHFTextClassificationModel</span><span class="p">(</span><span class="n">TFTextClassificationModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to represent a TensorFlow pretrained model from Hugging Face that can be used for binary text classification</span>
+<span class="sd">    fine tuning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TFHFTextClassificationModel.__init__">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">tfhub_model_map</span> <span class="o">=</span> <span class="n">read_json_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">TLT_BASE_DIR</span><span class="p">,</span> <span class="s2">&quot;models/configs/tf_hf_text_classification_models.json&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">model_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tfhub_model_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The specified TF hugging face text classification model (</span><span class="si">{}</span><span class="s2">) &quot;</span>
+                             <span class="s2">&quot;is not supported.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;max_seq_length&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;max_seq_length&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="mi">128</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span> <span class="o">=</span> <span class="n">tfhub_model_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s2">&quot;hub_name&quot;</span><span class="p">]</span>
+
+        <span class="c1"># extra properties that should become configurable in the future</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dropout_layer_rate</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span> <span class="o">=</span> <span class="mf">1e-08</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_checkpoints</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">TFTextClassificationModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hub_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Name of the model in Hugging Face &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span>
+
+    <span class="k">def</span> <span class="nf">_get_hub_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
+            <span class="n">tf_bert_downloader</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="s1">&#39;tf_bert_huggingface&#39;</span><span class="p">)</span>
+            <span class="n">bert_model</span> <span class="o">=</span> <span class="n">tf_bert_downloader</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+
+            <span class="n">input_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;input_ids&quot;</span><span class="p">)</span>
+            <span class="n">attention_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;attention_mask&#39;</span><span class="p">)</span>
+            <span class="n">bert_output</span> <span class="o">=</span> <span class="n">bert_model</span><span class="o">.</span><span class="n">bert</span><span class="p">(</span><span class="n">input_ids</span><span class="p">,</span> <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">extra_layers</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">layer_size</span> <span class="ow">in</span> <span class="n">extra_layers</span><span class="p">:</span>
+                    <span class="n">bert_output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">layer_size</span><span class="p">,</span> <span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">bert_output</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dropout_layer_rate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bert_output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dropout_layer_rate</span><span class="p">)(</span><span class="n">bert_output</span><span class="p">)</span>
+
+            <span class="n">dense_layer_dims</span> <span class="o">=</span> <span class="n">num_classes</span>
+
+            <span class="c1"># For binary classification we only need 1 dimension</span>
+            <span class="k">if</span> <span class="n">num_classes</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">dense_layer_dims</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">dense_layer_dims</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;classifier&#39;</span><span class="p">)(</span><span class="n">bert_output</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">input_ids</span><span class="p">,</span> <span class="n">attention_mask</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">print_fn</span><span class="o">=</span><span class="nb">print</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="n">num_classes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+
+<div class="viewcode-block" id="TFHFTextClassificationModel.train">
+<a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.train.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.train">[docs]</a>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">do_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">early_stopping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lr_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">distributed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hostfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">           Trains the model using the specified binary text classification dataset. If a path to initial checkpoints is</span>
+<span class="sd">           provided, those weights are loaded before training.</span>
+
+<span class="sd">           Args:</span>
+<span class="sd">               dataset (TextClassificationDataset): The dataset to use for training. If a train subset has been</span>
+<span class="sd">                                                    defined, that subset will be used to fit the model. Otherwise, the</span>
+<span class="sd">                                                    entire non-partitioned dataset will be used.</span>
+<span class="sd">               output_dir (str): A writeable output directory to write checkpoint files during training</span>
+<span class="sd">               epochs (int): The number of training epochs [default: 1]</span>
+<span class="sd">               initial_checkpoints (str): Path to checkpoint weights to load. If the path provided is a directory, the</span>
+<span class="sd">                    latest checkpoint will be used.</span>
+<span class="sd">               do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated</span>
+<span class="sd">                    at the end of each epoch.</span>
+<span class="sd">               early_stopping (bool): Enable early stopping if convergence is reached while training</span>
+<span class="sd">                    at the end of each epoch.</span>
+<span class="sd">               lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss</span>
+<span class="sd">                    is applied at the end of each epoch.</span>
+<span class="sd">               enable_auto_mixed_precision (bool or None): Enable auto mixed precision for training. Mixed precision</span>
+<span class="sd">                    uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.</span>
+<span class="sd">                    It is recommended to enable auto mixed precision training when running on platforms that support</span>
+<span class="sd">                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that</span>
+<span class="sd">                    does not support bfloat16, it can be detrimental to the training performance. If</span>
+<span class="sd">                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
+<span class="sd">                    running with Intel fourth generation Xeon processors, and disabled for other platforms.</span>
+<span class="sd">               shuffle_files (bool): Boolean specifying whether to shuffle the training data before each epoch.</span>
+<span class="sd">               extra_layers (list[int]): Optionally insert additional dense layers between the base model and output</span>
+<span class="sd">                    layer. This can help increase accuracy when fine-tuning a TFHub model. The input should be a list of</span>
+<span class="sd">                    integers representing the number and size of the layers, for example [1024, 512] will insert two</span>
+<span class="sd">                    dense layers, the first with 1024 neurons and the second with 512 neurons.</span>
+<span class="sd">               seed (int): Optionally set a seed for reproducibility.</span>
+
+<span class="sd">           Returns:</span>
+<span class="sd">               History object from the model.fit() call</span>
+
+<span class="sd">           Raises:</span>
+<span class="sd">               FileExistsError: if the output directory is a file</span>
+<span class="sd">               TypeError: if the dataset specified is not a TextClassificationDataset</span>
+<span class="sd">               TypeError: if the output_dir parameter is not a string</span>
+<span class="sd">               TypeError: if the epochs parameter is not a integer</span>
+<span class="sd">               TypeError: if the initial_checkpoints parameter is not a string</span>
+<span class="sd">               TypeError: if the extra_layers parameter is not a list of integers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_train_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">extra_layers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_layers</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The extra_layers parameter must be a list of ints but found </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="n">extra_layers</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">extra_layers</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;extra_layers must be a list of ints but found a list containing </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="nb">type</span><span class="p">(</span><span class="n">layer</span><span class="p">)))</span>
+
+        <span class="n">dataset_num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="c1"># Set auto mixed precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_auto_mixed_precision</span><span class="p">(</span><span class="n">enable_auto_mixed_precision</span><span class="p">)</span>
+
+        <span class="c1"># If the number of classes doesn&#39;t match what was used before, clear out the previous model</span>
+        <span class="k">if</span> <span class="n">dataset_num_classes</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_hub_model</span><span class="p">(</span><span class="n">dataset_num_classes</span><span class="p">,</span> <span class="n">extra_layers</span><span class="p">)</span>
+
+        <span class="n">callbacks</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">val_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_train_callbacks</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">,</span> <span class="n">do_eval</span><span class="p">,</span>
+                                                                    <span class="n">early_stopping</span><span class="p">,</span> <span class="n">lr_decay</span><span class="p">,</span> <span class="n">dataset_num_classes</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">distributed</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">saved_objects_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_for_distributed</span><span class="p">(</span>
+                    <span class="n">export_dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;tlt_saved_objects&quot;</span><span class="p">),</span>
+                    <span class="n">train_data</span><span class="o">=</span><span class="n">train_data</span><span class="p">,</span>
+                    <span class="n">val_data</span><span class="o">=</span><span class="n">val_data</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fit_distributed</span><span class="p">(</span><span class="n">saved_objects_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="p">,</span> <span class="n">hostfile</span><span class="p">,</span> <span class="n">nnodes</span><span class="p">,</span> <span class="n">nproc_per_node</span><span class="p">,</span>
+                                      <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_horovod&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_saved_objects_for_distributed</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tokenized_data</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">prepare_huggingface_input_data</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">val_data</span><span class="p">:</span>
+                <span class="n">tokenized_val_data</span><span class="p">,</span> <span class="n">val_labels</span> <span class="o">=</span> <span class="n">prepare_huggingface_input_data</span><span class="p">(</span><span class="n">val_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span><span class="p">,</span>
+                                                                                <span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span><span class="p">)</span>
+                <span class="n">val_data</span> <span class="o">=</span> <span class="p">([</span><span class="n">tokenized_val_data</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span> <span class="n">tokenized_val_data</span><span class="p">[</span><span class="s1">&#39;attention_mask&#39;</span><span class="p">]],</span>
+                            <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">val_labels</span><span class="p">))</span>
+
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_preprocessed</span> <span class="ow">and</span> \
+                <span class="s2">&quot;batch_size&quot;</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_preprocessed</span> <span class="k">else</span> <span class="kc">None</span>
+
+            <span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">tokenized_data</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span> <span class="n">tokenized_data</span><span class="p">[</span><span class="s1">&#39;attention_mask&#39;</span><span class="p">]],</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
+                <span class="n">validation_data</span><span class="o">=</span><span class="n">val_data</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">history</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span></div>
+
+
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">           If there is a validation set, evaluation will be done on it (by default) or on the test set (by setting</span>
+<span class="sd">           use_test_set=True). Otherwise, the entire non-partitioned dataset will be used for evaluation.</span>
+
+<span class="sd">           Args:</span>
+<span class="sd">               dataset (TextClassificationDataset): The dataset to use for evaluation.</span>
+<span class="sd">               enable_auto_mixed_precision (bool or None): Enable auto mixed precision for evaluate. Mixed precision</span>
+<span class="sd">                    uses both 16-bit and 32-bit floating point types to make evaluation run faster and use less memory.</span>
+<span class="sd">                    It is recommended to enable auto mixed precision when running on platforms that support</span>
+<span class="sd">                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that</span>
+<span class="sd">                    does not support bfloat16, it can be detrimental to the evaluation performance. If</span>
+<span class="sd">                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
+<span class="sd">                    running with Intel fourth generation Xeon processors, and disabled for other platforms.</span>
+<span class="sd">               use_test_set (bool): Specify if the test partition of the dataset should be used for evaluation.</span>
+<span class="sd">                                    [default: False)</span>
+
+<span class="sd">           Returns:</span>
+<span class="sd">               Dictionary with loss and accuracy metrics</span>
+
+<span class="sd">           Raises:</span>
+<span class="sd">               TypeError: if the dataset specified is not a TextClassificationDataset</span>
+<span class="sd">               ValueError: if the use_test_set=True and no test subset has been defined in the dataset.</span>
+<span class="sd">               ValueError: if the model has not been trained or loaded yet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">TextClassificationDataset</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The dataset must be a TextClassificationDataset but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+
+        <span class="c1"># Set auto mixed precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_auto_mixed_precision</span><span class="p">(</span><span class="n">enable_auto_mixed_precision</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">use_test_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test_subset</span><span class="p">:</span>
+                <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test_subset</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No test subset is defined&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span><span class="p">:</span>
+            <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dataset</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model must be trained or loaded before evaluation.&quot;</span><span class="p">)</span>
+
+        <span class="n">tokenized_data</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">prepare_huggingface_input_data</span><span class="p">(</span><span class="n">eval_dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">([</span><span class="n">tokenized_data</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span> <span class="n">tokenized_data</span><span class="p">[</span><span class="s1">&#39;attention_mask&#39;</span><span class="p">]],</span>
+                                    <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_samples</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">           Generates predictions for the specified input samples.</span>
+
+<span class="sd">           Args:</span>
+<span class="sd">               input_samples (str, list, numpy array, tensor, tf.data dataset or a generator keras.utils.Sequence):</span>
+<span class="sd">                    Input samples to use to predict. These will be sent to the tf.keras.Model predict() function.</span>
+<span class="sd">               enable_auto_mixed_precision (bool or None): Enable auto mixed precision for prediction. Mixed precision</span>
+<span class="sd">                    uses both 16-bit and 32-bit floating point types to make prediction run faster and use less memory.</span>
+<span class="sd">                    It is recommended to enable auto mixed precision when running on platforms that support</span>
+<span class="sd">                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that</span>
+<span class="sd">                    does not support bfloat16, it can be detrimental to the inference performance. If</span>
+<span class="sd">                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
+<span class="sd">                    running with Intel fourth generation Xeon processors, and disabled for other platforms.</span>
+
+<span class="sd">           Returns:</span>
+<span class="sd">               Numpy array of scores</span>
+
+<span class="sd">           Raises:</span>
+<span class="sd">               ValueError: if the model has not been trained or loaded yet.</span>
+<span class="sd">               ValueError: if there is a mismatch between the input_samples and the model&#39;s expected input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model must be trained or loaded before predicting.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set auto mixed precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_auto_mixed_precision</span><span class="p">(</span><span class="n">enable_auto_mixed_precision</span><span class="p">)</span>
+
+        <span class="c1"># If a single string is passed in, make it a list so that it&#39;s compatible with the keras model predict</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_samples</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">input_samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_samples</span><span class="p">]</span>
+
+        <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">BertTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">input_samples</span><span class="p">):</span>
+            <span class="n">converted_batch</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">input_samples</span><span class="p">:</span>
+                <span class="n">converted_batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))</span>
+            <span class="n">input_samples</span> <span class="o">=</span> <span class="n">converted_batch</span>
+
+        <span class="n">encoded_input</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">input_samples</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;max_length&#39;</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">max_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;tf&quot;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">encoded_input</span><span class="p">))</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

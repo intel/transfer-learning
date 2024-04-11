@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.models.tf_model &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tlt.models.tf_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tlt.models.tf_model</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">dill</span>  <span class="c1"># nosec: B403</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">neural_compressor.experimental</span> <span class="kn">import</span> <span class="n">Graph_Optimization</span>
+<span class="kn">from</span> <span class="nn">neural_compressor</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">quantization</span>
+<span class="kn">from</span> <span class="nn">neural_compressor.config</span> <span class="kn">import</span> <span class="n">BenchmarkConfig</span>
+
+<span class="kn">from</span> <span class="nn">tlt.models.model</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">tlt.models.text_classification.text_classification_model</span> <span class="kn">import</span> <span class="n">TextClassificationModel</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">verify_directory</span><span class="p">,</span> <span class="n">validate_model_name</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.platform_util</span> <span class="kn">import</span> <span class="n">PlatformUtil</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.inc_utils</span> <span class="kn">import</span> <span class="n">get_inc_config</span>
+
+
+<div class="viewcode-block" id="TFModel">
+<a class="viewcode-back" href="../../../_autosummary/tlt.models.tf_model.TFModel.html#tlt.models.tf_model.TFModel">[docs]</a>
+<span class="k">class</span> <span class="nc">TFModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class to represent a TF pretrained model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TFModel.__init__">
+<a class="viewcode-back" href="../../../_autosummary/tlt.models.tf_model.TFModel.html#tlt.models.tf_model.TFModel.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">use_case</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TF_ENABLE_ONEDNN_OPTS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_set_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PYTHONHASHSEED&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_train_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">):</span>
+        <span class="n">verify_directory</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The dataset must be a </span><span class="si">{}</span><span class="s2"> but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_type</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid type for the epochs arg. Expected an int but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">epochs</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="n">initial_checkpoints</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The initial_checkpoints parameter must be a string but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">type</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_check_optimizer_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span> <span class="ow">or</span>
+                                      <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Optimizer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmro</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The optimizer input must be a class (not an instance) of type &quot;</span>
+                            <span class="s2">&quot;tf.keras.optimizers.Optimizer or None but found a </span><span class="si">{}</span><span class="s2">. &quot;</span>
+                            <span class="s2">&quot;Example: tf.keras.optimizers.SGD&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">optimizer</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">loss</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span> <span class="ow">or</span>
+                                 <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Loss</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmro</span><span class="p">(</span><span class="n">loss</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The loss input must be class (not an instance) of type &quot;</span>
+                            <span class="s2">&quot;tf.keras.losses.Loss or None but found a </span><span class="si">{}</span><span class="s2">. &quot;</span>
+                            <span class="s2">&quot;Example: tf.keras.losses.BinaryCrossentropy&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">loss</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">load_from_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Loads a saved model from the specified directory</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                model_dir (str): Directory with a saved_model.pb or h5py file to load</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                None</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                TypeError: if model_dir is not a string</span>
+<span class="sd">                NotADirectoryError: if model_dir is not a directory</span>
+<span class="sd">                IOError: for an invalid model file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Verify that the model directory exists</span>
+        <span class="n">verify_directory</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">require_directory_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">print_fn</span><span class="o">=</span><span class="nb">print</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_auto_mixed_precision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable auto mixed precision for training. Mixed precision uses both 16-bit and 32-bit floating point types to</span>
+<span class="sd">        make training run faster and use less memory. If enable_auto_mixed_precision is set to None, auto mixed</span>
+<span class="sd">        precision will be enabled when running with Intel fourth generation Xeon processors, and disabled for other</span>
+<span class="sd">        platforms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">enable_auto_mixed_precision</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">enable_auto_mixed_precision</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid type for enable_auto_mixed_precision. Expected None or a bool.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get the TF version</span>
+        <span class="n">tf_major_version</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tf_minor_version</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">VERSION</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">VERSION</span><span class="p">:</span>
+            <span class="n">tf_version_list</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">VERSION</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tf_version_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">tf_major_version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tf_version_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">tf_minor_version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tf_version_list</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">auto_mixed_precision_supported</span> <span class="o">=</span> <span class="p">(</span><span class="n">tf_major_version</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">tf_minor_version</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tf_major_version</span> <span class="o">&gt;</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="n">enable_auto_mixed_precision</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Determine whether or not to enable this based on the CPU type</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Only enable auto mixed precision for SPR</span>
+                <span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="n">PlatformUtil</span><span class="p">()</span><span class="o">.</span><span class="n">cpu_type</span> <span class="o">==</span> <span class="s1">&#39;SPR&#39;</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">auto_mixed_precision_supported</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to determine the CPU type:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">auto_mixed_precision_supported</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Auto mixed precision requires TensorFlow 2.9.0 or later (found </span><span class="si">{}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">VERSION</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">auto_mixed_precision_supported</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">enable_auto_mixed_precision</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enabling auto_mixed_precision_mkl&quot;</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">set_experimental_options</span><span class="p">({</span><span class="s1">&#39;auto_mixed_precision_mkl&#39;</span><span class="p">:</span> <span class="n">enable_auto_mixed_precision</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">           Exports a trained model as a saved_model.pb file. The file will be written to the output directory in a</span>
+<span class="sd">           directory with the model&#39;s name, and a unique numbered directory (compatible with TF serving). The directory</span>
+<span class="sd">           number will increment each time the model is exported.</span>
+
+<span class="sd">           Args:</span>
+<span class="sd">               output_dir (str): A writeable output directory.</span>
+
+<span class="sd">           Returns:</span>
+<span class="sd">               The path to the numbered saved model directory</span>
+
+<span class="sd">           Raises:</span>
+<span class="sd">               TypeError: if the output_dir is not a string</span>
+<span class="sd">               FileExistsError: the specified output directory already exists as a file</span>
+<span class="sd">               ValueError: if the mode has not been loaded or trained yet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
+            <span class="c1"># Save the model in a format that can be served</span>
+            <span class="n">verify_directory</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">val_model_name</span> <span class="o">=</span> <span class="n">validate_model_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+            <span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">val_model_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)):</span>
+                <span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved model directory:&quot;</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">saved_model_dir</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to export the model, because it hasn&#39;t been loaded or trained yet&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">export_for_distributed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">train_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">val_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Exports the model, optimizer, loss, train data and validation data to the export_dir for distributed</span>
+<span class="sd">        script to access. Note that the export_dir must be accessible to all the nodes. For example: NFS shared</span>
+<span class="sd">        systems. Note that the export_dir is created using mkdtemp which reults in a unique dir name. For</span>
+<span class="sd">        example: &quot;&lt;export_dir_Am83Iw&quot;. If the export_dir is None, the default name is &quot;saved_objects&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            export_dir (str): Directory name to export the model, optimizer, loss, train data and validation</span>
+<span class="sd">                data. export_dir must be accessible to all the nodes. For example: NFS shared systems. export_dir</span>
+<span class="sd">                is created using mkdtemp which reults in a unique dir name. Forexample: &quot;&lt;export_dir_Am83Iw&quot;.</span>
+<span class="sd">                If the export_dir is None, the default name is &quot;saved_objects&quot;</span>
+<span class="sd">            train_data (TFDataset): Train dataset</span>
+<span class="sd">            val_data (TFDataset): Validation dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">temp_dir_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HOME&#39;</span><span class="p">],</span> <span class="s2">&quot;saved_objects_&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">export_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">export_dir</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">temp_dir_prefix</span><span class="p">)</span>
+
+        <span class="c1"># Save the model</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving the model...&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span>
+            <span class="n">filepath</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">include_optimizer</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Save the optimizer object</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving the optimizer...&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span><span class="p">,</span> <span class="s1">&#39;saved_optimizer&#39;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Save the loss class name and its args</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving the loss...&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span><span class="p">,</span> <span class="s1">&#39;saved_loss&#39;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">dill</span><span class="o">.</span><span class="n">dump</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_loss_class</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_args</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Save the dataset(s)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving the train data...&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">train_data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span><span class="p">,</span> <span class="s1">&#39;train_data&#39;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">val_data</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving the validation data...&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">val_data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span><span class="p">,</span> <span class="s1">&#39;val_data&#39;</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span>
+
+    <span class="k">def</span> <span class="nf">cleanup_saved_objects_for_distributed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cleaning saved objects...&#39;</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">ose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error while cleaning the saved obects: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ose</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_parse_hostfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hostfile</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Parses the hostfile and returns the required command. Contents of hostfile must contain IP addresses</span>
+<span class="sd">            (or) hostnames in any of the following forms. Note that all lines must be of the same form:</span>
+<span class="sd">                &quot;127.0.0.1&quot;</span>
+<span class="sd">                &quot;127.0.0.1 slots=2&quot;</span>
+<span class="sd">                &quot;127.0.0.1:2&quot;</span>
+<span class="sd">                &quot;hostname-example.com&quot;</span>
+<span class="sd">                &quot;hostname-example.com slots=2&quot;</span>
+<span class="sd">                &quot;hostname-example.com:2&quot;</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                hostfile (str): File path of the hostfile</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                hostfile_info dict containing ip_addresses and slots</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">socket</span>
+        <span class="n">valid_regexes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;valid_ip&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.)</span><span class="si">{3}</span><span class="s2">(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s1">&#39;valid_ip_with_slot&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.)</span><span class="si">{3}</span><span class="s2">(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]) slots=[0-9]{1,2}$&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s1">&#39;valid_ip_with_colon&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.)</span><span class="si">{3}</span><span class="s2">(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]):\d{1,2}$&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s1">&#39;valid_hostname&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s1">&#39;valid_hostname_with_slot&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]) slots=[0-9]{1,2}$&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s1">&#39;valid_hostname_with_colon&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]):\d{1,2}$&quot;</span>  <span class="c1"># noqa: E501</span>
+        <span class="p">}</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">hostfile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span>
+
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">valid_regexes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid line in the hostfile: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+
+        <span class="n">hostfile_info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;ip_addresses&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;slots&#39;</span><span class="p">:</span> <span class="p">[]</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">line</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">matches</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">match</span> <span class="o">==</span> <span class="s1">&#39;valid_ip&#39;</span><span class="p">:</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;ip_addresses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;slots&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">match</span> <span class="o">==</span> <span class="s1">&#39;valid_ip_with_slot&#39;</span><span class="p">:</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;ip_addresses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; slots=&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;slots&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; slots=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">match</span> <span class="o">==</span> <span class="s1">&#39;valid_ip_with_colon&#39;</span><span class="p">:</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;ip_addresses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;slots&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">match</span> <span class="o">==</span> <span class="s1">&#39;valid_hostname&#39;</span><span class="p">:</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;ip_addresses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;slots&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">match</span> <span class="o">==</span> <span class="s1">&#39;valid_hostname_with_slot&#39;</span><span class="p">:</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;ip_addresses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; slots=&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;slots&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; slots=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">match</span> <span class="o">==</span> <span class="s1">&#39;valid_hostname_with_colon&#39;</span><span class="p">:</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;ip_addresses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">hostfile_info</span><span class="p">[</span><span class="s1">&#39;slots&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">hostfile_info</span>
+
+    <span class="k">def</span> <span class="nf">optimize_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">overwrite_model</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs FP32 graph optimization using the Intel Neural Compressor on the model</span>
+<span class="sd">        and writes the inference-optimized model to the output_dir. Graph optimization includes converting</span>
+<span class="sd">        variables to constants, removing training-only operations like checkpoint saving, stripping out parts</span>
+<span class="sd">        of the graph that are never reached, removing debug operations like CheckNumerics, folding batch</span>
+<span class="sd">        normalization ops into the pre-calculated weights, and fusing common operations into unified versions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_dir (str): Writable output directory to save the optimized model</span>
+<span class="sd">            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists</span>
+<span class="sd">                                    (default: False)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileExistsError: if the output_dir already has a saved_model.pb file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Verify that the output directory doesn&#39;t already have a saved_model.pb file</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;saved_model.pb&quot;</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite_model</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s2">&quot;A saved model already exists at:&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;saved_model.pb&quot;</span><span class="p">))</span>
+
+        <span class="n">graph_optimizer</span> <span class="o">=</span> <span class="n">Graph_Optimization</span><span class="p">()</span>
+        <span class="n">graph_optimizer</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+        <span class="n">optimized_graph</span> <span class="o">=</span> <span class="n">graph_optimizer</span><span class="p">()</span>
+
+        <span class="c1"># If optimization was successful, save the model</span>
+        <span class="k">if</span> <span class="n">optimized_graph</span><span class="p">:</span>
+            <span class="n">optimized_graph</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">quantize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite_model</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</span>
+<span class="sd">        The dataset&#39;s training subset will be used as the calibration data and its validation or test subset will</span>
+<span class="sd">        be used for evaluation. The quantized model is written to the output directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_dir (str): Writable output directory to save the quantized model</span>
+<span class="sd">            dataset (ImageClassificationDataset): dataset to quantize with</span>
+<span class="sd">            config (PostTrainingQuantConfig): Optional, for customizing the quantization parameters</span>
+<span class="sd">            overwrite_model (bool): Specify whether or not to overwrite the output_dir, if it already exists</span>
+<span class="sd">                                    (default: False)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileExistsError: if the output_dir already has a saved_model.pb file</span>
+<span class="sd">            ValueError: if the dataset is not compatible for quantizing the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Verify that the output directory doesn&#39;t already have a saved_model.pb file</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;saved_model.pb&quot;</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite_model</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s2">&quot;A saved model already exists at:&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;saved_model.pb&quot;</span><span class="p">))</span>
+
+        <span class="c1"># Verify dataset is of the right type</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_compatible_dataset</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Quantization is compatible with datasets of type </span><span class="si">{}</span><span class="s1">, and type &#39;</span>
+                             <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> was found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_inc_compatible_dataset</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">get_inc_config</span><span class="p">(</span><span class="n">approach</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_quantization_approach</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TextClassificationModel</span><span class="p">):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;hub_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;max_seq_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span>
+        <span class="n">calib_dataloader</span><span class="p">,</span> <span class="n">eval_dataloader</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_inc_dataloaders</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">top_metric</span> <span class="o">=</span> <span class="n">Metric</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;topk&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">quantized_model</span> <span class="o">=</span> <span class="n">quantization</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">calib_dataloader</span><span class="o">=</span><span class="n">calib_dataloader</span><span class="p">,</span>
+                                           <span class="n">eval_dataloader</span><span class="o">=</span><span class="n">eval_dataloader</span><span class="p">,</span> <span class="n">eval_metric</span><span class="o">=</span><span class="n">top_metric</span><span class="p">)</span>
+
+        <span class="c1"># If quantization was successful, save the model</span>
+        <span class="k">if</span> <span class="n">quantized_model</span><span class="p">:</span>
+            <span class="n">quantized_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">benchmark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">warmup</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cores_per_instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">num_of_instance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inter_num_of_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intra_num_of_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use Intel Neural Compressor to benchmark the model with the dataset argument. The dataset&#39;s validation or test</span>
+<span class="sd">        subset will be used for benchmarking, if present. Otherwise, the full training dataset is used. The model to be</span>
+<span class="sd">        benchmarked can also be explicitly set to a saved_model_dir containing for example a quantized saved model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset (ImageClassificationDataset): Dataset to use for benchmarking</span>
+<span class="sd">            saved_model_dir (str): Optional, path to the directory where the saved model is located</span>
+<span class="sd">            warmup (int): The number of iterations to perform before running performance tests, default is 10</span>
+<span class="sd">            iteration (int): The number of iterations to run performance tests, default is 100</span>
+<span class="sd">            cores_per_instance (int or None): The number of CPU cores to use per instance, default is None</span>
+<span class="sd">            num_of_instance (int): The number of instances to use for performance testing, default is 1</span>
+<span class="sd">            inter_num_of_threads (int or None): The number of threads to use for inter-thread operations, default is</span>
+<span class="sd">                                                None</span>
+<span class="sd">            intra_num_of_threads (int or None): The number of threads to use for intra-thread operations, default is</span>
+<span class="sd">                                                None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Benchmarking results from Intel Neural Compressor</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotADirectoryError: if the saved_model_dir is not a directory</span>
+<span class="sd">            FileNotFoundError: if a saved_model.pb is not found in the saved_model_dir or if the inc_config_path file</span>
+<span class="sd">            is not found</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;NC_ENV_CONF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;True&quot;</span>
+
+        <span class="c1"># If provided, the saved model directory should exist and contain a saved_model.pb file</span>
+        <span class="k">if</span> <span class="n">saved_model_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span><span class="s2">&quot;The saved model directory (</span><span class="si">{}</span><span class="s2">) does not exist.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">,</span> <span class="s2">&quot;saved_model.pb&quot;</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;The saved model directory (</span><span class="si">{}</span><span class="s2">) should have a saved_model.pb file&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">saved_model_dir</span><span class="p">))</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">saved_model_dir</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TextClassificationModel</span><span class="p">):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;hub_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub_name</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;max_seq_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">eval_dataloader</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_inc_dataloaders</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">BenchmarkConfig</span><span class="p">(</span><span class="n">warmup</span><span class="o">=</span><span class="n">warmup</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">cores_per_instance</span><span class="o">=</span><span class="n">cores_per_instance</span><span class="p">,</span>
+                                 <span class="n">num_of_instance</span><span class="o">=</span><span class="n">num_of_instance</span><span class="p">,</span> <span class="n">inter_num_of_threads</span><span class="o">=</span><span class="n">inter_num_of_threads</span><span class="p">,</span>
+                                 <span class="n">intra_num_of_threads</span><span class="o">=</span><span class="n">intra_num_of_threads</span><span class="p">)</span>
+
+        <span class="kn">from</span> <span class="nn">neural_compressor.benchmark</span> <span class="kn">import</span> <span class="n">fit</span>
+
+        <span class="k">return</span> <span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">b_dataloader</span><span class="o">=</span><span class="n">eval_dataloader</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

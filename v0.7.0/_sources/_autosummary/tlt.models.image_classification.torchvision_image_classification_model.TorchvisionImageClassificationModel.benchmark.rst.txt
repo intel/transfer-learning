@@ -1,0 +1,6 @@
+﻿tlt.models.image\_classification.torchvision\_image\_classification\_model.TorchvisionImageClassificationModel.benchmark
+========================================================================================================================
+
+.. currentmodule:: tlt.models.image_classification.torchvision_image_classification_model
+
+.. automethod:: TorchvisionImageClassificationModel.benchmark

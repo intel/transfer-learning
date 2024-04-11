@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tlt-models-image-anomaly-detection-pytorch-image-anomaly-detection-model-pytorchimageanomalydetectionmodel-train">
+<h1>tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train<a class="headerlink" href="#tlt-models-image-anomaly-detection-pytorch-image-anomaly-detection-model-pytorchimageanomalydetectionmodel-train" title="Link to this heading">¶</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train">
+<span class="sig-prename descclassname"><span class="pre">PyTorchImageAnomalyDetectionModel.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.html#tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset" title="tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset"><span class="pre">PyTorchCustomImageAnomalyDetectionDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_checkpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_checkpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pooling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'avg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pca_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.99</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simsiam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpaste</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpaste_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'normal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freeze_resnet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sgd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'layer3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipex_optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_auto_mixed_precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_anomaly_detection/pytorch_image_anomaly_detection_model.html#PyTorchImageAnomalyDetectionModel.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train" title="Link to this definition">¶</a></dt>
+<dd><p>Trains the model using the specified image anomaly detection dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.html#tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset" title="tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset"><em>PyTorchCustomImageAnomalyDetectionDataset</em></a>) – Dataset to use when training the model</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – Path to a writeable directory for output files</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – batch size for every forward operation, default is 64</p></li>
+<li><p><strong>layer_name</strong> (<em>str</em>) – The layer name whose output is desired for the extracted features</p></li>
+<li><p><strong>feature_dim</strong> (<em>int</em>) – Feature dimension, default is 1000</p></li>
+<li><p><strong>pred_dim</strong> (<em>int</em>) – Hidden dimension of the predictor, default is 250</p></li>
+<li><p><strong>epochs</strong> (<em>int</em>) – Number of epochs to train the model</p></li>
+<li><p><strong>generate_checkpoints</strong> (<em>bool</em>) – Whether to save/preserve the best weights during
+SimSiam or CutPaste training, default is False.</p></li>
+<li><p><strong>initial_checkpoints</strong> (<em>str</em>) – Path to checkpoint weights to load</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Optional, set a seed for reproducibility</p></li>
+<li><p><strong>pooling</strong> (<em>str</em>) – Pooling to be applied on the extracted layer (‘avg’ or ‘max’), default is ‘avg’</p></li>
+<li><p><strong>kernel_size</strong> (<em>int</em>) – Kernel size in the pooling layer, default is 2</p></li>
+<li><p><strong>pca_threshold</strong> (<em>float</em>) – Threshold to apply to PCA model, default is 0.99</p></li>
+<li><p><strong>simsiam</strong> (<em>bool</em>) – Boolean option to enable/disable simsiam training, default is False</p></li>
+<li><p><strong>cutpaste</strong> (<em>bool</em>) – Boolean option to enable/disable cutpaste training, default is False</p></li>
+<li><p><strong>cutpaste_type</strong> (<em>str</em>) – cutpaste variant to use, default is normal</p></li>
+<li><p><strong>freeze_resnet</strong> (<em>int</em>) – Epochs up to which we freeze ResNet layers and only train
+the new header with FC layers, default is 20</p></li>
+<li><p><strong>head_layer</strong> (<em>int</em>) – number of layers in the projection head, default is 2</p></li>
+<li><p><strong>optim</strong> (<em>str</em>) – Choice of optimizer to use for training, default is sgd</p></li>
+<li><p><strong>ipex_optimize</strong> (<em>bool</em>) – Use Intel Extension for PyTorch (IPEX). Defaults to True.</p></li>
+<li><p><strong>enable_auto_mixed_precision</strong> (<em>bool</em><em> or </em><em>None</em>) – Enable auto mixed precision for training. Mixed precision
+uses both 16-bit and 32-bit floating point types to make training run faster and use less memory.
+It is recommended to enable auto mixed precision training when running on platforms that support
+bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+does not support bfloat16, it can be detrimental to the training performance. If
+enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to
+None.</p></li>
+<li><p><strong>device</strong> (<em>str</em>) – Enter “cpu” or “hpu” to specify which hardware device to run training on.
+If device=”hpu” is specified, but no HPU hardware or installs are detected,
+CPU will be used. (default: “cpu”)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Fitted principal components and PyTorch feature extraction model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

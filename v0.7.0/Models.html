@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intel® Transfer Learning Tool Supported Models &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Legal Information" href="Legal.html" />
+    <link rel="prev" title="tlt.models.model.BaseModel" href="_autosummary/tlt.models.model.BaseModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Supported Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#image-classification">Image Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#text-classification">Text Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#image-anomaly-detection">Image Anomaly Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#text-generation">Text Generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Intel® Transfer Learning Tool Supported Models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="intel-transfer-learning-tool-supported-models">
+<h1>Intel® Transfer Learning Tool Supported Models<a class="headerlink" href="#intel-transfer-learning-tool-supported-models" title="Link to this heading">¶</a></h1>
+<section id="image-classification">
+<h2>Image Classification<a class="headerlink" href="#image-classification" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model name</p></th>
+<th class="head"><p>Framework</p></th>
+<th class="head"><p>Model Hub</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>alexnet</p></td>
+<td><p>PyTorch*</p></td>
+<td><p>Torchvision*</p></td>
+</tr>
+<tr class="row-odd"><td><p>convnext_base</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>convnext_large</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>convnext_small</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>convnext_tiny</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>densenet121</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>densenet161</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>densenet169</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>densenet201</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnetv2-b0</p></td>
+<td><p>TensorFlow*</p></td>
+<td><p>TensorFlow Hub*</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnetv2-b1</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnetv2-b2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnetv2-b3</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnetv2-s</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b0</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b0</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b1</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b1</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b3</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b3</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b4</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b4</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b5</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b5</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b6</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b6</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b7</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b7</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>googlenet</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>inception_v3</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>mnasnet0_5</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>mnasnet1_0</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>mobilenet_v2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>mobilenet_v2_100_224</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>mobilenet_v3_large</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>mobilenet_v3_small</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>nasnet_large</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>proxyless_cpu</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub*</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_x_16gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_x_1_6gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_x_32gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_x_3_2gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_x_400mf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_x_800mf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_x_8gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_y_16gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_y_1_6gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_y_32gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_y_3_2gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_y_400mf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_y_800mf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_y_8gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet101</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet152</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet18</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet18_ssl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet18_swsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet34</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet50</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet50_ssl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet50_swsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet_v1_50</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet_v2_101</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet_v2_50</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>TensorFlow Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>resnext101_32x16d_ssl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnext101_32x16d_swsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>resnext101_32x16d_wsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnext101_32x32d_wsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>resnext101_32x48d_wsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnext101_32x4d_ssl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>resnext101_32x4d_swsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnext101_32x8d</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>resnext101_32x8d_ssl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnext101_32x8d_swsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>resnext101_32x8d_wsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnext50_32x4d</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>resnext50_32x4d_ssl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnext50_32x4d_swsl</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>shufflenet_v2_x0_5</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>shufflenet_v2_x1_0</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vgg11</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vgg11_bn</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vgg13</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vgg13_bn</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vgg16</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vgg16_bn</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vgg19</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vgg19_bn</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vit_b_16</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vit_b_32</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vit_l_16</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vit_l_32</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>wide_resnet101_2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>wide_resnet50_2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>ConvNeXtBase</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras*</p></td>
+</tr>
+<tr class="row-odd"><td><p>ConvNeXtLarge</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>ConvNeXtSmall</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>ConvNeXtTiny</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>ConvNeXtXLarge</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>DenseNet121</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>DenseNet169</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>DenseNet201</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>EfficientNetV2B0</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>EfficientNetV2B1</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>EfficientNetV2B2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>EfficientNetV2B3</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>EfficientNetV2L</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>EfficientNetV2M</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>EfficientNetV2S</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>InceptionResNetV2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>InceptionV3</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>MobileNet</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>MobileNetV2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>NASNetLarge</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>NASNetMobile</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>ResNet101</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>ResNet101V2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>ResNet152</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>ResNet152V2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>ResNet50</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>ResNet50V2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>VGG16</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-even"><td><p>VGG19</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+<tr class="row-odd"><td><p>Xception</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Keras</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="text-classification">
+<h2>Text Classification<a class="headerlink" href="#text-classification" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model name</p></th>
+<th class="head"><p>Framework</p></th>
+<th class="head"><p>Model Hub</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bert-base-cased</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face*</p></td>
+</tr>
+<tr class="row-odd"><td><p>bert-base-uncased</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>bert-large-uncased</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>bert-large-uncased</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>clinical-bert</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>distilbert-base-uncased</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-10_H-128_A-2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-10_H-256_A-4</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-10_H-512_A-8</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-10_H-768_A-12</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-12_H-128_A-2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-12_H-256_A-4</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-12_H-512_A-8</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-12_H-768_A-12</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-2_H-128_A-2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-2_H-256_A-4</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-2_H-512_A-8</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-2_H-768_A-12</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-4_H-128_A-2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-4_H-256_A-4</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-4_H-512_A-8</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-4_H-768_A-12</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-6_H-128_A-2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-6_H-256_A-4</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-6_H-512_A-8</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-6_H-768_A-12</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-8_H-128_A-2</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-8_H-256_A-4</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>google_bert_uncased_L-8_H-512_A-8</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>google_bert_uncased_L-8_H-768_A-12</p></td>
+<td><p>TensorFlow</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="image-anomaly-detection">
+<h2>Image Anomaly Detection<a class="headerlink" href="#image-anomaly-detection" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model name</p></th>
+<th class="head"><p>Framework</p></th>
+<th class="head"><p>Model Hub</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>alexnet</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>convnext_base</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>convnext_large</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>convnext_small</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>convnext_tiny</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>densenet121</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>densenet161</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>densenet169</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>densenet201</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>dinov2_vitb14</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>dinov2_vitb14_reg</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>dinov2_vitg14</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>dinov2_vitg14_reg</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>dinov2_vitl14</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>dinov2_vitl14_reg</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>dinov2_vits14</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>dinov2_vits14_reg</p></td>
+<td><p>PyTorch</p></td>
+<td><p>PyTorch Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b0</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b1</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b3</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b4</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b5</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>efficientnet_b6</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>efficientnet_b7</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>googlenet</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>mnasnet0_5</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>mnasnet1_0</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>mobilenet_v2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>mobilenet_v3_large</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>mobilenet_v3_small</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_x_16gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_x_1_6gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_x_32gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_x_3_2gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_x_400mf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_x_800mf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_x_8gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_y_16gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_y_1_6gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_y_32gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_y_3_2gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_y_400mf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>regnet_y_800mf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>regnet_y_8gf</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet101</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet152</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet18</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>resnet34</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnet50</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>resnext101_32x8d</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>resnext50_32x4d</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>shufflenet_v2_x0_5</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>shufflenet_v2_x1_0</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vgg11</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vgg11_bn</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vgg13</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vgg13_bn</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vgg16</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vgg16_bn</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vgg19</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vgg19_bn</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vit_b_16</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vit_b_32</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>vit_l_16</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>vit_l_32</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-even"><td><p>wide_resnet101_2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+<tr class="row-odd"><td><p>wide_resnet50_2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Torchvision</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="text-generation">
+<h2>Text Generation<a class="headerlink" href="#text-generation" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model name</p></th>
+<th class="head"><p>Framework</p></th>
+<th class="head"><p>Model Hub</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bloom-560m</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>bloomz-3b</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>bloomz-560m</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>distilgpt2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-even"><td><p>gpt-j-6b</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+<tr class="row-odd"><td><p>gpt2</p></td>
+<td><p>PyTorch</p></td>
+<td><p>Hugging Face</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="_autosummary/tlt.models.model.BaseModel.html" class="btn btn-neutral float-left" title="tlt.models.model.BaseModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Legal.html" class="btn btn-neutral float-right" title="Legal Information" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

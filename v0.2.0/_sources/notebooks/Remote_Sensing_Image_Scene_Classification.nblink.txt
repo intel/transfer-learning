@@ -1,3 +1,0 @@
-{
-    "path": "../../notebooks/image_classification/e2e_workflows/Remote_Sensing_Image_Scene_Classification.ipynb"
-}

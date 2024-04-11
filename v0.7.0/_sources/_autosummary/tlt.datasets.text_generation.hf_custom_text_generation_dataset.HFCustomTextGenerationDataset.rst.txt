@@ -1,0 +1,43 @@
+﻿tlt.datasets.text\_generation.hf\_custom\_text\_generation\_dataset.HFCustomTextGenerationDataset
+=================================================================================================
+
+.. currentmodule:: tlt.datasets.text_generation.hf_custom_text_generation_dataset
+
+.. autoclass:: HFCustomTextGenerationDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HFCustomTextGenerationDataset.__init__
+      ~HFCustomTextGenerationDataset.get_batch
+      ~HFCustomTextGenerationDataset.get_inc_dataloaders
+      ~HFCustomTextGenerationDataset.get_text
+      ~HFCustomTextGenerationDataset.preprocess
+      ~HFCustomTextGenerationDataset.shuffle_split
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HFCustomTextGenerationDataset.dataset
+      ~HFCustomTextGenerationDataset.dataset_catalog
+      ~HFCustomTextGenerationDataset.dataset_dir
+      ~HFCustomTextGenerationDataset.dataset_name
+      ~HFCustomTextGenerationDataset.info
+      ~HFCustomTextGenerationDataset.test_loader
+      ~HFCustomTextGenerationDataset.test_subset
+      ~HFCustomTextGenerationDataset.train_loader
+      ~HFCustomTextGenerationDataset.train_subset
+      ~HFCustomTextGenerationDataset.validation_loader
+      ~HFCustomTextGenerationDataset.validation_subset
+   
+   

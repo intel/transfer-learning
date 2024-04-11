@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text Classification fine tuning using TensorFlow and the Intel® Transfer Learning Tool API &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tlt-custom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Text Classification fine tuning using TensorFlow and the Intel® Transfer Learning Tool API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/TLT_TF_Text_Classification_Transfer_Learning.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Text-Classification-fine-tuning-using-TensorFlow-and-the-Intel®-Transfer-Learning-Tool-API">
+<h1>Text Classification fine tuning using TensorFlow and the Intel® Transfer Learning Tool API<a class="headerlink" href="#Text-Classification-fine-tuning-using-TensorFlow-and-the-Intel®-Transfer-Learning-Tool-API" title="Link to this heading">¶</a></h1>
+<p>This notebook uses the <code class="docutils literal notranslate"><span class="pre">tlt</span></code> library to fine tune a TensorFlow pretrained model from Hugging Face for text classification.</p>
+<section id="1.-Import-dependencies-and-setup-parameters">
+<h2>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Link to this heading">¶</a></h2>
+<p>This notebook assumes that you have already followed the instructions to setup a TensorFlow environment with all the dependencies required to run the notebook.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="c1"># tlt imports</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">download_and_extract_zip_file</span>
+
+<span class="c1"># Specify a directory for the dataset to be downloaded</span>
+<span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+
+<span class="c1"># Specify a directory for output</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OUTPUT_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;OUTPUT_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dataset directory:&quot;</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output directory:&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Get-the-model">
+<h2>2. Get the model<a class="headerlink" href="#2.-Get-the-model" title="Link to this heading">¶</a></h2>
+<p>In this step, we call the Intel Transfer Learning Tool model factory to list supported TensorFlow image classification models. This is a list of pretrained models from Hugging Face that we tested with our API. Optionally, the <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> argument can be added to the <code class="docutils literal notranslate"><span class="pre">print_supported_models</span></code> function call to get more information about each model (such as the model hub, the original dataset, etc).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># See a list of available text classification models</span>
+<span class="n">model_factory</span><span class="o">.</span><span class="n">print_supported_models</span><span class="p">(</span><span class="n">use_case</span><span class="o">=</span><span class="s1">&#39;text_classification&#39;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s1">&#39;tensorflow&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Use the Intel Transfer Learning Tool model factory to get one of the models listed in the previous cell. The <code class="docutils literal notranslate"><span class="pre">get_model</span></code> function returns a TLT model object that will later be used for training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;google_bert_uncased_L-2_H-128_A-2&quot;</span>
+<span class="n">framework</span> <span class="o">=</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model name:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Framework:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">framework</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Use case:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">use_case</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="3.-Get-the-dataset">
+<h2>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Link to this heading">¶</a></h2>
+<section id="Option-A:-Use-your-own-dataset">
+<h3>Option A: Use your own dataset<a class="headerlink" href="#Option-A:-Use-your-own-dataset" title="Link to this heading">¶</a></h3>
+<p>This option allows for using your own text classification dataset from a .csv file. The dataset factory will expect text classification .csv files to have two columns where the first column is the label and the second column is the text/sentence to classify.</p>
+<p>For example, the contents of a comma separated value file should look similar to this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;label&gt;,&lt;text&gt;
+&lt;label&gt;,&lt;text&gt;
+&lt;label&gt;,&lt;text&gt;
+</pre></div>
+</div>
+<p>If the .csv has more columns, the <code class="docutils literal notranslate"><span class="pre">select_cols</span></code> or <code class="docutils literal notranslate"><span class="pre">exclude_cols</span></code> parameters can be used to filter out which columns are parsed.</p>
+<p>This example is downloading the <a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/sms+spam+collection">SMS Spam Collection</a> dataset, which has a tab separated value file in the .zip file. This dataset has labeled SMS text messages that are either being classified as <code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>. The first column in the data file has the label (<code class="docutils literal notranslate"><span class="pre">ham</span></code> or <code class="docutils literal notranslate"><span class="pre">spam</span></code>) and the second column is the text of the SMS mesage. (Note: Please see this dataset’s applicable license for terms and conditions. Intel Corporation
+does not own the rights to this data set and does not confer any rights to it.)</p>
+<p>When using your own dataset, update the path to your dataset directory, as well the other variables with properties about the dataset like the csv file name, class names, delimiter, header, and the map function (if string labels need to be translated into numerical values).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">zip_file_url</span> <span class="o">=</span> <span class="s2">&quot;https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip&quot;</span>
+<span class="n">sms_data_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s2">&quot;sms_spam_collection&quot;</span><span class="p">)</span>
+<span class="n">csv_file_name</span> <span class="o">=</span> <span class="s2">&quot;SMSSpamCollection&quot;</span>
+
+<span class="c1"># If the SMS Spam collection csv file is not found, download and extract the file:</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sms_data_directory</span><span class="p">,</span> <span class="n">csv_file_name</span><span class="p">)):</span>
+    <span class="c1"># Download the zip file with the SMS Spam collection dataset</span>
+    <span class="n">download_and_extract_zip_file</span><span class="p">(</span><span class="n">zip_file_url</span><span class="p">,</span> <span class="n">sms_data_directory</span><span class="p">)</span>
+
+    <span class="c1"># Print list of files that we have in our dataset directory</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">sms_data_directory</span><span class="p">))</span>
+
+<span class="c1"># Specify the class names for the dataset being used</span>
+<span class="n">class_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ham&quot;</span><span class="p">,</span> <span class="s2">&quot;spam&quot;</span><span class="p">]</span>
+
+<span class="c1"># Specify the delimiter for the csv file</span>
+<span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+
+<span class="c1"># Specify if the csv file has a header row that should be skipped when parsing the dataset</span>
+<span class="n">header</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># Function to map the string label from the dataset to a numerical value</span>
+<span class="k">def</span> <span class="nf">label_map_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;spam&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>After the dataset has been downloaded and extracted, use the dataset factory to load the dataset. The <code class="docutils literal notranslate"><span class="pre">load_dataset</span></code> method has parameters with information used to load the dataset.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">sms_data_directory</span><span class="p">,</span> <span class="s2">&quot;text_classification&quot;</span><span class="p">,</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">,</span>
+                                       <span class="n">csv_file_name</span><span class="o">=</span><span class="n">csv_file_name</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="n">class_names</span><span class="p">,</span>
+                                       <span class="n">label_map_func</span><span class="o">=</span><span class="n">label_map_func</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Class names:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Skip to the next step <a class="reference internal" href="#4.-Prepare-the-dataset"><span class="std std-ref">4. Prepare the dataset</span></a> to continue using your own dataset.</p>
+</section>
+<section id="Option-B:-Use-the-TensorFlow-datasets-catalog">
+<h3>Option B: Use the TensorFlow datasets catalog<a class="headerlink" href="#Option-B:-Use-the-TensorFlow-datasets-catalog" title="Link to this heading">¶</a></h3>
+<p>Option B allows for using a dataset from the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview">TensorFlow datasets catalog</a>. The dataset factory currently supports the following TFDS text classification datasets: <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/imdb_reviews">imdb_reviews</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluesst2">glue/sst2</a>, <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/glue#gluecola_default_config">glue/cola</a>, and
+<a class="reference external" href="https://www.tensorflow.org/datasets/catalog/ag_news_subset">ag_news_subset</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Supported datasets: imdb_reviews, glue/sst2, glue/cola, ag_news_subset</span>
+<span class="n">dataset_name</span> <span class="o">=</span> <span class="s2">&quot;ag_news_subset&quot;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">use_case</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span>
+                                      <span class="n">dataset_catalog</span><span class="o">=</span><span class="s2">&quot;tf_datasets&quot;</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Class names:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="4.-Prepare-the-dataset">
+<h2>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Link to this heading">¶</a></h2>
+<p>Once you have your dataset from Option A or Option B above, use the following cells to split and preprocess the data. We split them into training and validation subsets, then resize the images to match the selected models, and then batch the images.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create splits for training and validation and batch the dataset</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="5.-Fine-tuning">
+<h2>5. Fine tuning<a class="headerlink" href="#5.-Fine-tuning" title="Link to this heading">¶</a></h2>
+<p>The TLT model’s train function is called with the dataset that was just prepared, along with an output directory for checkpoints, and the number of training epochs.</p>
+<p>Mixed precision uses both 16-bit and 32-bit floating point types to make training run faster and use less memory. It is recommended to enable auto mixed precision training when running on platforms that support bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that does not support bfloat16, it can be detrimental to the training performance.</p>
+<p>With the do_eval paramter set to True by default, this step will also show how the model can be evaluated. The model’s evaluate function returns a list of metrics calculated from the dataset’s validation subset.</p>
+<section id="Arguments">
+<h3>Arguments<a class="headerlink" href="#Arguments" title="Link to this heading">¶</a></h3>
+<section id="Required">
+<h4>Required<a class="headerlink" href="#Required" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>dataset</strong> (ImageClassificationDataset, required): Dataset to use when training the model</p></li>
+<li><p><strong>output_dir</strong> (str): Path to a writeable directory for checkpoint files</p></li>
+<li><p><strong>epochs</strong> (int): Number of epochs to train the model (default: 1)</p></li>
+</ul>
+</section>
+<section id="Optional">
+<h4>Optional<a class="headerlink" href="#Optional" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>initial_checkpoints</strong> (str): Path to checkpoint weights to load. If the path provided is a directory, the latest checkpoint will be used.</p></li>
+<li><p><strong>early_stopping</strong> (bool): Enable early stopping if convergence is reached while training at the end of each epoch. (default: False)</p></li>
+<li><p><strong>lr_decay</strong> (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at the end of each epoch.</p></li>
+<li><p><strong>enable_auto_mixed_precision</strong> (bool or None): Enable auto mixed precision for training. Mixed precision uses both 16-bit and 32-bit floating point types to make training run faster and use less memory. It is recommended to enable auto mixed precision training when running on platforms that support bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that does not support bfloat16, it can be detrimental to the training performance. If
+enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when running with Intel fourth generation Xeon processors, and disabled for other platforms.</p></li>
+<li><p><strong>extra_layers</strong> (list[int]): Optionally insert additional dense layers between the base model and output layer. This can help increase accuracy when fine-tuning a TFHub model. The input should be a list of integers representing the number and size of the layers, for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the second with 512 neurons.</p></li>
+</ul>
+<p>Note: refer to release documentation for an up-to-date list of train arguments and their current descriptions</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># If enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when running</span>
+<span class="c1"># with Intel fourth generation Xeon processors, and disabled for other platforms.</span>
+<span class="n">enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="n">enable_auto_mixed_precision</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Evaluate the trained model:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">metrics_names</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">metrics_names</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric_value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">metrics_names</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metric_name</span><span class="p">,</span> <span class="n">metric_value</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="6.-Predict">
+<h2>6. Predict<a class="headerlink" href="#6.-Predict" title="Link to this heading">¶</a></h2>
+<p>The model’s predict function can be called with a batch of data from the dataset.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get a single batch from the dataset object</span>
+<span class="n">data_batch</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_batch</span><span class="p">()</span>
+
+<span class="c1"># Call predict using the batch</span>
+<span class="n">batch_predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data_batch</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="n">enable_auto_mixed_precision</span><span class="p">)</span>
+
+<span class="c1"># Maximum number of rows to show in the data frame</span>
+<span class="n">max_items</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">)</span>
+<span class="c1"># Collect the sentence text, score, and actual label for the batch</span>
+<span class="n">prediction_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">actual_label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">data_batch</span><span class="p">,</span> <span class="n">labels</span><span class="p">)):</span>
+    <span class="n">sentence</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">batch_predictions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">num_classes</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+
+    <span class="n">prediction_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sentence</span><span class="p">,</span>
+                            <span class="nb">max</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_static_value</span><span class="p">(</span><span class="n">score</span><span class="p">)),</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">get_str_label</span><span class="p">(</span><span class="n">prediction</span><span class="p">),</span>
+                            <span class="n">dataset</span><span class="o">.</span><span class="n">get_str_label</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">actual_label</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))])</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="n">max_items</span><span class="p">:</span>
+        <span class="k">break</span>
+
+<span class="c1"># Display the results using a data frame</span>
+<span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">prediction_list</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Input Text&quot;</span><span class="p">,</span> <span class="s2">&quot;Prediction Score&quot;</span><span class="p">,</span> <span class="s2">&quot;Prediction&quot;</span><span class="p">,</span> <span class="s2">&quot;Actual Label&quot;</span><span class="p">])</span>
+<span class="c1"># Center the column headers and hide the index</span>
+<span class="n">result_df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">set_table_styles</span><span class="p">([{</span><span class="s1">&#39;selector&#39;</span><span class="p">:</span> <span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="s1">&#39;props&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="s1">&#39;text-align&#39;</span><span class="p">,</span> <span class="s1">&#39;center&#39;</span><span class="p">)]}])</span><span class="o">.</span><span class="n">hide</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Raw text can also be passed to the predict function.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">score</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="s2">&quot;Awesome movie!&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">num_classes</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted score:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted label:&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_str_label</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="7.-Export-the-saved-model">
+<h2>7. Export the saved model<a class="headerlink" href="#7.-Export-the-saved-model" title="Link to this heading">¶</a></h2>
+<p>Lastly, we can call the Intel Transfer Learning Tool model export function to generate a <code class="docutils literal notranslate"><span class="pre">saved_model.pb</span></code>. The model is saved in a format that is ready to use with <a class="reference external" href="https://github.com/tensorflow/serving">TensorFlow Serving</a>. Each time the model is exported, a new numbered directory is created, which allows serving to pick up the latest model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="8.-Quantization">
+<h2>8. Quantization<a class="headerlink" href="#8.-Quantization" title="Link to this heading">¶</a></h2>
+<p>In this section, the Intel Transfer Learning Tool API uses Intel® Neural Compressor (INC) to quantize the model to get optimal inference performance.</p>
+<p>We use the Intel Neural Compressor config to benchmark the full precision model to see how it performs, as our baseline.</p>
+<blockquote>
+<div><p>Note that there is a known issue when running Intel Neural Compressor from a notebook that you may sometimes see the error <code class="docutils literal notranslate"><span class="pre">zmq.error.ZMQError:</span> <span class="pre">Address</span> <span class="pre">already</span> <span class="pre">in</span> <span class="pre">use</span></code>. If you see this error, rerun the cell again.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next we use Intel Neural Compressor to automatically search for the optimal quantization recipe for low-precision model inference. Running post training quantization may take several minutes.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inc_output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;quantized_models&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                                       <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">inc_output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let’s benchmark using the quantized model, so that we can compare the performance to the full precision model that was originally benchmarked.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">quantized_results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="o">=</span><span class="n">inc_output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let’s also inspect the disk size of the pre- and post-quantization model files:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The size of the un-compressed model:&#39;</span><span class="p">)</span>
+<span class="o">!</span>du<span class="w"> </span>-h<span class="w"> </span><span class="o">{</span>saved_model_dir<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The size of the compressed model:&#39;</span><span class="p">)</span>
+<span class="o">!</span>du<span class="w"> </span>-h<span class="w"> </span><span class="o">{</span>inc_output_dir<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Citations">
+<h2>Citations<a class="headerlink" href="#Citations" title="Link to this heading">¶</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@InProceedings{maas-EtAl:2011:ACL-HLT2011,
+  author    = {Maas, Andrew L.  and  Daly, Raymond E.  and  Pham, Peter T.  and  Huang, Dan  and  Ng, Andrew Y.  and  Potts, Christopher},
+  title     = {Learning Word Vectors for Sentiment Analysis},
+  booktitle = {Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics: Human Language Technologies},
+  month     = {June},
+  year      = {2011},
+  address   = {Portland, Oregon, USA},
+  publisher = {Association for Computational Linguistics},
+  pages     = {142--150},
+  url       = {http://www.aclweb.org/anthology/P11-1015}
+}
+
+@misc{zhang2015characterlevel,
+    title={Character-level Convolutional Networks for Text Classification},
+    author={Xiang Zhang and Junbo Zhao and Yann LeCun},
+    year={2015},
+    eprint={1509.01626},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
+}
+
+@misc{misc_sms_spam_collection_228,
+  author       = {Almeida, Tiago},
+  title        = {{SMS Spam Collection}},
+  year         = {2012},
+  howpublished = {UCI Machine Learning Repository}
+}
+</pre></div>
+</div>
+<p>Please see this dataset’s applicable license for terms and conditions. Intel Corporation does not own the rights to this data set and does not confer any rights to it.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

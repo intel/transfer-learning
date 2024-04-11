@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building Documentation &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Building Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/docbuild.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="building-documentation">
+<h1>Building Documentation<a class="headerlink" href="#building-documentation" title="Link to this heading">¶</a></h1>
+<section id="sphinx-documentation">
+<h2>Sphinx Documentation<a class="headerlink" href="#sphinx-documentation" title="Link to this heading">¶</a></h2>
+<p>Install <code class="docutils literal notranslate"><span class="pre">tlt</span></code> and its dependencies for developers as described the <a class="reference internal" href="GetStarted.html"><span class="doc std std-doc">Get Started</span></a> guide.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run these commands from root of the project</span>
+python3<span class="w"> </span>-m<span class="w"> </span>virtualenv<span class="w"> </span>tlt_dev_venv
+<span class="nb">source</span><span class="w"> </span>tlt_dev_venv/bin/activate
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+<p>Install Pandoc, Sphinx and a few other tools required to build docs</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>pandoc
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>docs/requirements-docs.txt
+</pre></div>
+</div>
+<p>Navigate to the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory and run the doctests to ensure all tests pass:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># run this command from within docs directory</span>
+make<span class="w"> </span>doctest
+</pre></div>
+</div>
+<p>This should produce output similiar to:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Doctest<span class="w"> </span><span class="nv">summary</span>
+<span class="o">===============</span>
+<span class="w">    </span><span class="m">6</span><span class="w"> </span>tests
+<span class="w">    </span><span class="m">0</span><span class="w"> </span>failures<span class="w"> </span><span class="k">in</span><span class="w"> </span>tests
+<span class="w">    </span><span class="m">0</span><span class="w"> </span>failures<span class="w"> </span><span class="k">in</span><span class="w"> </span>setup<span class="w"> </span>code
+<span class="w">    </span><span class="m">0</span><span class="w"> </span>failures<span class="w"> </span><span class="k">in</span><span class="w"> </span>cleanup<span class="w"> </span>code
+build<span class="w"> </span>succeeded.
+</pre></div>
+</div>
+<p>Finally generate the html docs (from within <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>clean<span class="w"> </span>html
+</pre></div>
+</div>
+<p>The output HTML files will be located in <code class="docutils literal notranslate"><span class="pre">transfer-learning/docs/_build/html</span></code>.</p>
+<p>To start a local HTTP server and view the docs locally, try:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>serve
+Serving<span class="w"> </span>HTTP<span class="w"> </span>on<span class="w"> </span><span class="m">127</span>.0.1.1<span class="w"> </span>port<span class="w"> </span><span class="m">9999</span><span class="w"> </span><span class="o">(</span>http://127.0.1.1:9999/<span class="o">)</span><span class="w"> </span>...
+</pre></div>
+</div>
+<p>If you need to view the docs from another machine, please try either port forwarding or
+provide appropriate values for <code class="docutils literal notranslate"><span class="pre">LISTEN_IP/LISTEN_PORT</span></code> arguments.
+For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">LISTEN_IP</span><span class="o">=</span><span class="m">0</span>.0.0.0<span class="w"> </span>make<span class="w"> </span>serve
+Serving<span class="w"> </span>HTTP<span class="w"> </span>on<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>port<span class="w"> </span><span class="m">9999</span><span class="w"> </span><span class="o">(</span>http://0.0.0.0:9999/<span class="o">)</span><span class="w"> </span>...
+</pre></div>
+</div>
+<p>runs the docs server on the host while listening to all hosts.
+Now you can navigate to <code class="docutils literal notranslate"><span class="pre">HOSTNAME:9999</span></code> to view the docs.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

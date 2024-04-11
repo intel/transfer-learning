@@ -1,0 +1,6 @@
+﻿tlt.models.text\_classification.pytorch\_hf\_text\_classification\_model.PyTorchHFTextClassificationModel.train
+===============================================================================================================
+
+.. currentmodule:: tlt.models.text_classification.pytorch_hf_text_classification_model
+
+.. automethod:: PyTorchHFTextClassificationModel.train

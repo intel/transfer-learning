@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Anomaly Detection Intel® Transfer Learning Tool CLI Example &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Intel® Transfer Learning Tool API Notebook Examples" href="../../notebooks/README.html" />
+    <link rel="prev" title="Text Classification Intel® Transfer Learning Tool CLI Example" href="text_classification.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="README.html">Beyond Get Started CLI Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_classification.html">Image Classification CLI Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text_classification.html">Text Classification CLI Example</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Vision Anomaly Detection CLI Example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#transfer-learning-using-cutpaste-feature-extraction-and-your-own-dataset">Transfer Learning Using CutPaste Feature Extraction and your Own Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transfer-learning-using-simsiam-feature-extraction-and-your-own-dataset">Transfer Learning Using SimSiam Feature Extraction and your Own Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#citations">Citations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/README.html">Jupyter Notebook API Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples.html">Examples</a></li>
+      <li class="breadcrumb-item active">Image Anomaly Detection Intel® Transfer Learning Tool CLI Example</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/cli/image_anomaly_detection.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-anomaly-detection-intel-transfer-learning-tool-cli-example">
+<h1>Image Anomaly Detection Intel® Transfer Learning Tool CLI Example<a class="headerlink" href="#image-anomaly-detection-intel-transfer-learning-tool-cli-example" title="Link to this heading">¶</a></h1>
+<section id="transfer-learning-using-cutpaste-feature-extraction-and-your-own-dataset">
+<h2>Transfer Learning Using CutPaste Feature Extraction and your Own Dataset<a class="headerlink" href="#transfer-learning-using-cutpaste-feature-extraction-and-your-own-dataset" title="Link to this heading">¶</a></h2>
+<p>The example below shows how the Intel Transfer Learning Tool CLI can be used for image anomaly detection transfer
+learning using your own dataset. The dataset is expected to be organized with subfolders for the “good” (non-defective)
+images and any number of “bad” (or defective) classes. Or, the category folders can be arranged in subfolders named
+“train” and “test”. Either way, each subfolder should contain .jpg images for the class.</p>
+<p>This example assumes you have downloaded the <a class="reference external" href="https://www.mvtec.com/company/research/datasets/mvtec-ad">MVTec dataset</a>,
+which has images of hazelnuts belonging to 5 classes: crack, cut, good, hole, and print. The extracted
+dataset is already formatted in the expected format with subfolders for each class.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set dataset and output directories</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATASET_DIR</span><span class="o">=</span>/tmp/data/mvtec/hazelnut
+<span class="nb">export</span><span class="w"> </span><span class="nv">OUTPUT_DIR</span><span class="o">=</span>/tmp/output
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="si">${</span><span class="nv">OUTPUT_DIR</span><span class="si">}</span>
+
+<span class="c1"># Fine-tune a resnet50 feature extractor for anomaly detection using CutPaste and the hazelnut photos directory</span>
+tlt<span class="w"> </span>train<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-f<span class="w"> </span>pytorch<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model-name<span class="w"> </span>resnet50<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use-case<span class="w"> </span>image_anomaly_detection<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset-dir<span class="w"> </span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-dir<span class="w"> </span><span class="si">${</span><span class="nv">OUTPUT_DIR</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--epochs<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--cutpaste
+
+<span class="c1"># Evaluate the model exported after training</span>
+<span class="c1"># Note that your --model-dir path may vary, since each training run creates a new directory</span>
+tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model-dir<span class="w"> </span>/tmp/output/resnet50/1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset-dir<span class="w"> </span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span>
+</pre></div>
+</div>
+</section>
+<section id="transfer-learning-using-simsiam-feature-extraction-and-your-own-dataset">
+<h2>Transfer Learning Using SimSiam Feature Extraction and your Own Dataset<a class="headerlink" href="#transfer-learning-using-simsiam-feature-extraction-and-your-own-dataset" title="Link to this heading">¶</a></h2>
+<p>This example shows the Intel Transfer Learning Tool CLI being used for image anomaly detection feature extraction
+and fine-tuning using the SimSiam method with manually downloaded weights and the bottle subset from
+<a class="reference external" href="https://www.mvtec.com/company/research/datasets/mvtec-ad">MVTec</a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set dataset and output directories</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATASET_DIR</span><span class="o">=</span>/tmp/data/mvtec/bottle
+<span class="nb">export</span><span class="w"> </span><span class="nv">OUTPUT_DIR</span><span class="o">=</span>/tmp/output
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="si">${</span><span class="nv">OUTPUT_DIR</span><span class="si">}</span>
+
+<span class="c1"># Download the starting checkpoints for the SimSiam feature extractor</span>
+wget<span class="w"> </span>https://dl.fbaipublicfiles.com/simsiam/models/100ep-256bs/pretrain/checkpoint_0099.pth.tar<span class="w"> </span>-P<span class="w"> </span><span class="si">${</span><span class="nv">OUTPUT_DIR</span><span class="si">}</span>
+
+<span class="c1"># Fine-tune a resnet18 feature extractor for anomaly detection using SimSiam and the bottle photos directory</span>
+tlt<span class="w"> </span>train<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-f<span class="w"> </span>pytorch<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model-name<span class="w"> </span>resnet18<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use-case<span class="w"> </span>image_anomaly_detection<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset-dir<span class="w"> </span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-dir<span class="w"> </span><span class="si">${</span><span class="nv">OUTPUT_DIR</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--epochs<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--init-checkpoints<span class="w"> </span><span class="si">${</span><span class="nv">OUTPUT_DIR</span><span class="si">}</span>/checkpoint_0099.pth.tar<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--simsiam
+
+<span class="c1"># Evaluate the model exported after training</span>
+<span class="c1"># Note that your --model-dir path may vary, since each training run creates a new directory</span>
+tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model-dir<span class="w"> </span><span class="si">${</span><span class="nv">OUTPUT_DIR</span><span class="si">}</span>/resnet18/1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset-dir<span class="w"> </span><span class="si">${</span><span class="nv">DATASET_DIR</span><span class="si">}</span>
+</pre></div>
+</div>
+</section>
+<section id="citations">
+<h2>Citations<a class="headerlink" href="#citations" title="Link to this heading">¶</a></h2>
+<p>Paul Bergmann, Kilian Batzner, Michael Fauser, David Sattlegger, Carsten Steger: The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection; in: International Journal of Computer Vision 129(4):1038-1059, 2021, DOI: 10.1007/s11263-020-01400-4.</p>
+<p>Paul Bergmann, Michael Fauser, David Sattlegger, Carsten Steger: MVTec AD — A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection; in: IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 9584-9592, 2019, DOI: 10.1109/CVPR.2019.00982.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="text_classification.html" class="btn btn-neutral float-left" title="Text Classification Intel® Transfer Learning Tool CLI Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../notebooks/README.html" class="btn btn-neutral float-right" title="Intel® Transfer Learning Tool API Notebook Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

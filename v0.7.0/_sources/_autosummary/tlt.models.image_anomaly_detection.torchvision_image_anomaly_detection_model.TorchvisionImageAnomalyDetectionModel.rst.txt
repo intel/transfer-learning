@@ -1,0 +1,53 @@
+﻿tlt.models.image\_anomaly\_detection.torchvision\_image\_anomaly\_detection\_model.TorchvisionImageAnomalyDetectionModel
+========================================================================================================================
+
+.. currentmodule:: tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model
+
+.. autoclass:: TorchvisionImageAnomalyDetectionModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TorchvisionImageAnomalyDetectionModel.__init__
+      ~TorchvisionImageAnomalyDetectionModel.benchmark
+      ~TorchvisionImageAnomalyDetectionModel.cleanup_saved_objects_for_distributed
+      ~TorchvisionImageAnomalyDetectionModel.evaluate
+      ~TorchvisionImageAnomalyDetectionModel.export
+      ~TorchvisionImageAnomalyDetectionModel.export_for_distributed
+      ~TorchvisionImageAnomalyDetectionModel.freeze_layer
+      ~TorchvisionImageAnomalyDetectionModel.list_layers
+      ~TorchvisionImageAnomalyDetectionModel.load_checkpoint_weights
+      ~TorchvisionImageAnomalyDetectionModel.load_from_directory
+      ~TorchvisionImageAnomalyDetectionModel.load_pretrained_model
+      ~TorchvisionImageAnomalyDetectionModel.optimize_graph
+      ~TorchvisionImageAnomalyDetectionModel.predict
+      ~TorchvisionImageAnomalyDetectionModel.quantize
+      ~TorchvisionImageAnomalyDetectionModel.train
+      ~TorchvisionImageAnomalyDetectionModel.train_cutpaste
+      ~TorchvisionImageAnomalyDetectionModel.train_simsiam
+      ~TorchvisionImageAnomalyDetectionModel.unfreeze_layer
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TorchvisionImageAnomalyDetectionModel.do_fine_tuning
+      ~TorchvisionImageAnomalyDetectionModel.dropout_layer_rate
+      ~TorchvisionImageAnomalyDetectionModel.framework
+      ~TorchvisionImageAnomalyDetectionModel.image_size
+      ~TorchvisionImageAnomalyDetectionModel.learning_rate
+      ~TorchvisionImageAnomalyDetectionModel.model_name
+      ~TorchvisionImageAnomalyDetectionModel.num_classes
+      ~TorchvisionImageAnomalyDetectionModel.preprocessor
+      ~TorchvisionImageAnomalyDetectionModel.use_case
+   
+   

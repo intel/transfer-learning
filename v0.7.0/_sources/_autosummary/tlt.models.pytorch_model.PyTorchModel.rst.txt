@@ -1,0 +1,42 @@
+﻿tlt.models.pytorch\_model.PyTorchModel
+======================================
+
+.. currentmodule:: tlt.models.pytorch_model
+
+.. autoclass:: PyTorchModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PyTorchModel.__init__
+      ~PyTorchModel.benchmark
+      ~PyTorchModel.evaluate
+      ~PyTorchModel.export
+      ~PyTorchModel.freeze_layer
+      ~PyTorchModel.list_layers
+      ~PyTorchModel.load_from_directory
+      ~PyTorchModel.optimize_graph
+      ~PyTorchModel.quantize
+      ~PyTorchModel.train
+      ~PyTorchModel.unfreeze_layer
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PyTorchModel.framework
+      ~PyTorchModel.learning_rate
+      ~PyTorchModel.model_name
+      ~PyTorchModel.preprocessor
+      ~PyTorchModel.use_case
+   
+   

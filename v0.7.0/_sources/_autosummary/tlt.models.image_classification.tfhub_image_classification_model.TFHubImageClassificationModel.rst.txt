@@ -1,0 +1,49 @@
+﻿tlt.models.image\_classification.tfhub\_image\_classification\_model.TFHubImageClassificationModel
+==================================================================================================
+
+.. currentmodule:: tlt.models.image_classification.tfhub_image_classification_model
+
+.. autoclass:: TFHubImageClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TFHubImageClassificationModel.__init__
+      ~TFHubImageClassificationModel.benchmark
+      ~TFHubImageClassificationModel.cleanup_saved_objects_for_distributed
+      ~TFHubImageClassificationModel.evaluate
+      ~TFHubImageClassificationModel.export
+      ~TFHubImageClassificationModel.export_for_distributed
+      ~TFHubImageClassificationModel.load_from_directory
+      ~TFHubImageClassificationModel.optimize_graph
+      ~TFHubImageClassificationModel.predict
+      ~TFHubImageClassificationModel.quantize
+      ~TFHubImageClassificationModel.set_auto_mixed_precision
+      ~TFHubImageClassificationModel.train
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TFHubImageClassificationModel.do_fine_tuning
+      ~TFHubImageClassificationModel.dropout_layer_rate
+      ~TFHubImageClassificationModel.feature_vector_url
+      ~TFHubImageClassificationModel.framework
+      ~TFHubImageClassificationModel.image_size
+      ~TFHubImageClassificationModel.learning_rate
+      ~TFHubImageClassificationModel.model_name
+      ~TFHubImageClassificationModel.model_url
+      ~TFHubImageClassificationModel.num_classes
+      ~TFHubImageClassificationModel.preprocessor
+      ~TFHubImageClassificationModel.use_case
+   
+   

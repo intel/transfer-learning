@@ -1,0 +1,53 @@
+﻿tlt.models.image\_anomaly\_detection.pytorch\_image\_anomaly\_detection\_model.PyTorchImageAnomalyDetectionModel
+================================================================================================================
+
+.. currentmodule:: tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model
+
+.. autoclass:: PyTorchImageAnomalyDetectionModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PyTorchImageAnomalyDetectionModel.__init__
+      ~PyTorchImageAnomalyDetectionModel.benchmark
+      ~PyTorchImageAnomalyDetectionModel.cleanup_saved_objects_for_distributed
+      ~PyTorchImageAnomalyDetectionModel.evaluate
+      ~PyTorchImageAnomalyDetectionModel.export
+      ~PyTorchImageAnomalyDetectionModel.export_for_distributed
+      ~PyTorchImageAnomalyDetectionModel.freeze_layer
+      ~PyTorchImageAnomalyDetectionModel.list_layers
+      ~PyTorchImageAnomalyDetectionModel.load_checkpoint_weights
+      ~PyTorchImageAnomalyDetectionModel.load_from_directory
+      ~PyTorchImageAnomalyDetectionModel.load_pretrained_model
+      ~PyTorchImageAnomalyDetectionModel.optimize_graph
+      ~PyTorchImageAnomalyDetectionModel.predict
+      ~PyTorchImageAnomalyDetectionModel.quantize
+      ~PyTorchImageAnomalyDetectionModel.train
+      ~PyTorchImageAnomalyDetectionModel.train_cutpaste
+      ~PyTorchImageAnomalyDetectionModel.train_simsiam
+      ~PyTorchImageAnomalyDetectionModel.unfreeze_layer
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PyTorchImageAnomalyDetectionModel.do_fine_tuning
+      ~PyTorchImageAnomalyDetectionModel.dropout_layer_rate
+      ~PyTorchImageAnomalyDetectionModel.framework
+      ~PyTorchImageAnomalyDetectionModel.image_size
+      ~PyTorchImageAnomalyDetectionModel.learning_rate
+      ~PyTorchImageAnomalyDetectionModel.model_name
+      ~PyTorchImageAnomalyDetectionModel.num_classes
+      ~PyTorchImageAnomalyDetectionModel.preprocessor
+      ~PyTorchImageAnomalyDetectionModel.use_case
+   
+   

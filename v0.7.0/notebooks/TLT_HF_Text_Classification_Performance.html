@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance Comparison: Text Classification Transfer Learning with Hugging Face* and the Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tlt-custom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Performance Comparison: Text Classification Transfer Learning with Hugging Face* and the Intel® Transfer Learning Tool</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/TLT_HF_Text_Classification_Performance.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Performance-Comparison:-Text-Classification-Transfer-Learning-with-Hugging-Face*-and-the-Intel®-Transfer-Learning-Tool">
+<h1>Performance Comparison: Text Classification Transfer Learning with Hugging Face* and the Intel® Transfer Learning Tool<a class="headerlink" href="#Performance-Comparison:-Text-Classification-Transfer-Learning-with-Hugging-Face*-and-the-Intel®-Transfer-Learning-Tool" title="Link to this heading">¶</a></h1>
+<p>This notebook uses the Hugging Face Trainer to do transfer learning with a text classification model with PyTorch<em>. The model is trained, evaluated, and exported. The same sequence is also done using the Intel Transfer Learning Tool. The Intel Transfer Learning Tool has a flag to control whether the Hugging Face Trainer is used under the hood, or if just PyTorch libraries are used. Training and evaluation are run both ways, giving us three combinations to compare:</em> Using the Hugging Face
+Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer * Using the Intel Transfer Learning Tool with torch</p>
+<p>After all of the models have been trained and evaluated, charts are displayed to visually compare the training and evaluation metrics.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;TF_CPP_MIN_LOG_LEVEL&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;TOKENIZERS_PARALLELISM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;false&#39;</span>
+
+<span class="kn">import</span> <span class="nn">datasets</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.ticker</span> <span class="k">as</span> <span class="nn">mtick</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">transformers</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">DataCollatorWithPadding</span><span class="p">,</span> <span class="n">Trainer</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span> <span class="k">as</span> <span class="n">loader</span>
+
+<span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.platform_util</span> <span class="kn">import</span> <span class="n">CPUInfo</span><span class="p">,</span> <span class="n">OptimizedPlatformUtil</span><span class="p">,</span> <span class="n">PlatformUtil</span>
+
+<span class="c1"># Specify the the default dataset directory</span>
+<span class="n">dataset_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+
+<span class="c1"># Specify a directory for output (saved models and checkpoints)</span>
+<span class="n">output_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OUTPUT_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;OUTPUT_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+
+<span class="c1"># Location where Hugging Face will locally store data</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HF_HOME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataset_directory</span>
+
+<span class="n">datasets</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">datasets</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+<span class="c1"># Data Frame styles</span>
+<span class="n">table_styles</span> <span class="o">=</span><span class="p">[{</span>
+    <span class="s1">&#39;selector&#39;</span><span class="p">:</span> <span class="s1">&#39;caption&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;props&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;text-align&#39;</span><span class="p">,</span> <span class="s1">&#39;center&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;font-size&#39;</span><span class="p">,</span> <span class="s1">&#39;16px&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">}]</span>
+
+<span class="c1"># Colors used in charts</span>
+<span class="n">blue</span> <span class="o">=</span> <span class="s1">&#39;#0071c5&#39;</span>
+<span class="n">dark_blue</span> <span class="o">=</span> <span class="s1">&#39;#003c71&#39;</span>
+<span class="n">yellow</span> <span class="o">=</span> <span class="s1">&#39;#ffcc4d&#39;</span>
+</pre></div>
+</div>
+</div>
+<section id="1.-Display-Platform-Information">
+<h2>1. Display Platform Information<a class="headerlink" href="#1.-Display-Platform-Information" title="Link to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get and display CPU/platform information</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">cpu_info</span> <span class="o">=</span> <span class="n">CPUInfo</span><span class="p">()</span>
+    <span class="n">platform_util</span> <span class="o">=</span> <span class="n">PlatformUtil</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> CPU Information </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU family:&quot;</span><span class="p">,</span> <span class="n">platform_util</span><span class="o">.</span><span class="n">cpu_family</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU model:&quot;</span><span class="p">,</span> <span class="n">platform_util</span><span class="o">.</span><span class="n">cpu_model</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CPU type:&quot;</span><span class="p">,</span> <span class="n">platform_util</span><span class="o">.</span><span class="n">cpu_type</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Physical cores per socket:&quot;</span><span class="p">,</span> <span class="n">cpu_info</span><span class="o">.</span><span class="n">cores_per_socket</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total physical cores:&quot;</span><span class="p">,</span> <span class="n">cpu_info</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span>
+    <span class="n">cpufreq</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_freq</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Max Frequency:&quot;</span><span class="p">,</span> <span class="n">cpufreq</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Min Frequency:&quot;</span><span class="p">,</span> <span class="n">cpufreq</span><span class="o">.</span><span class="n">min</span><span class="p">)</span>
+    <span class="n">cpu_socket_count</span> <span class="o">=</span> <span class="n">cpu_info</span><span class="o">.</span><span class="n">sockets</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Socket Number:&quot;</span><span class="p">,</span> <span class="n">cpu_socket_count</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning, Unable to parse CPU information. It is recommended to use a Xeon machine. Without a Xeon machine, behavior is unknown&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{0}</span><span class="s2"> Memory Information </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">))</span>
+<span class="n">svmem</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total: &quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">svmem</span><span class="o">.</span><span class="n">total</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)),</span> <span class="s2">&quot;GB&quot;</span><span class="p">)</span>
+
+<span class="c1"># Display Hugging Face version information</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{0}</span><span class="s2"> Hugging Face Information </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hugging Face Transformers version:&quot;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hugging Face Datasets version:&quot;</span><span class="p">,</span> <span class="n">datasets</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+
+<span class="c1"># Display PyTorch version information</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{0}</span><span class="s2"> PyTorch Information </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PyTorch version:&quot;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation">
+<h2>2. Select a model and define parameters to use during training and evaluation<a class="headerlink" href="#2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation" title="Link to this heading">¶</a></h2>
+<section id="Select-a-model">
+<h3>Select a model<a class="headerlink" href="#Select-a-model" title="Link to this heading">¶</a></h3>
+<p>See the list of supported PyTorch text classification models from Hugging Face in the Intel Transfer Learning Tool.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">framework</span> <span class="o">=</span> <span class="s1">&#39;pytorch&#39;</span>
+<span class="n">use_case</span> <span class="o">=</span> <span class="s1">&#39;text_classification&#39;</span>
+<span class="n">model_hub</span> <span class="o">=</span> <span class="s1">&#39;huggingface&#39;</span>
+<span class="n">supported_models</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">use_case</span><span class="p">)</span>
+<span class="n">supported_models</span> <span class="o">=</span> <span class="n">supported_models</span><span class="p">[</span><span class="n">use_case</span><span class="p">]</span>
+
+<span class="c1"># Filter to only get relevant models</span>
+<span class="n">supported_models</span> <span class="o">=</span> <span class="p">{</span> <span class="n">key</span><span class="p">:</span><span class="n">value</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">supported_models</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="n">framework</span><span class="p">][</span><span class="s1">&#39;model_hub&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">model_hub</span><span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Supported </span><span class="si">{}</span><span class="s2"> models for </span><span class="si">{}</span><span class="s2"> from </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">use_case</span><span class="p">,</span> <span class="n">model_hub</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">supported_models</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Set the <code class="docutils literal notranslate"><span class="pre">model_name</span></code> to the model that will be used during this experiment.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select a model</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;bert-base-cased&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Select-a-dataset">
+<h3>Select a dataset<a class="headerlink" href="#Select-a-dataset" title="Link to this heading">¶</a></h3>
+<p>For these experiments, we will be using text classification datasets from the <a class="reference external" href="https://huggingface.co/datasets?task_categories=task_categories:text-classification&amp;sort=downloads">Hugging Face Datasets catalog</a>. Specify the name of the dataset to use with the <code class="docutils literal notranslate"><span class="pre">dataset_name</span></code> variable in the next cell.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;imdb&#39;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-parameters">
+<h3>Define parameters<a class="headerlink" href="#Define-parameters" title="Link to this heading">¶</a></h3>
+<p>For consistency between the model training experiments using Hugging Face and the Intel Transfer Learning Tool, the next cell defines parameters that will be used by both methods.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Number of training epochs</span>
+<span class="n">training_epochs</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Shuffle the files after each training epoch</span>
+<span class="n">shuffle_files</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Define the name of the split to use for validation (i.e. &#39;validation&#39; or &#39;test&#39;)</span>
+<span class="n">eval_split</span><span class="o">=</span><span class="kc">None</span>
+<span class="c1"># If eval_split=None, split the &#39;train&#39; dataset</span>
+<span class="n">validation_split</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">training_split</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="c1"># Set seed for consistency between runs (or None)</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># List of batch size(s) to compare (maximum of 4 batch sizes to try)</span>
+<span class="n">batch_size_list</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span> <span class="p">]</span>
+
+<span class="n">learning_rate</span><span class="o">=</span><span class="mf">3e-5</span>
+
+<span class="c1"># Text preprocessing</span>
+<span class="n">max_sequence_length</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">padding</span> <span class="o">=</span> <span class="s1">&#39;max_length&#39;</span>
+<span class="n">truncation</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Use the Intel Extension for PyTorch</span>
+<span class="n">use_ipex</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Enable bfloatf16 mixed precision training. It is recommended to enable mixed precision training when running on</span>
+<span class="c1"># platforms that support bfloat16 (Intel third or fourth generation Xeon processors).</span>
+<span class="n">bf16</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+<p>Validate parameter values and then print out the parameters.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">training_epochs</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The training_epochs parameter should be an integer, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">training_epochs</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="n">training_epochs</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The training_epochs parameter should not be less than 1.&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shuffle_files</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The shuffle_files parameter should be a bool, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shuffle_files</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">eval_split</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">validation_split</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The validation_split parameter should be a float, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">validation_split</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">training_split</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The training_split parameter should be a float, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">training_split</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="n">validation_split</span> <span class="o">+</span> <span class="n">training_split</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The sum of validation_split and training_split should not be greater than 1.&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">seed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The seed parameter should be a integer or None, but found a </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">seed</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The batch_size_list should have at most 4 values, but found </span><span class="si">{}</span><span class="s2"> values (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">),</span> <span class="n">batch_size_list</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of training epochs:&quot;</span><span class="p">,</span> <span class="n">training_epochs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shuffle files:&quot;</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training split: </span><span class="si">{}</span><span class="s2">%&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;train&#39;</span> <span class="k">if</span> <span class="n">eval_split</span> <span class="k">else</span> <span class="n">training_split</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation split: </span><span class="si">{}</span><span class="s2">%&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">eval_split</span> <span class="k">if</span> <span class="n">eval_split</span> <span class="k">else</span> <span class="n">validation_split</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Seed:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Batch size list:&quot;</span><span class="p">,</span> <span class="n">batch_size_list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="3.-Train-and-evaluate-the-models">
+<h2>3. Train and evaluate the models<a class="headerlink" href="#3.-Train-and-evaluate-the-models" title="Link to this heading">¶</a></h2>
+<p>In this section, we will compare the time that it takes to fine tune the text classification model using the dataset that was selected in the previous section.</p>
+<p>The fine tuning will be done in two different ways: * Using the Hugging Face python libraries * Using the Intel Transfer Learning Tool</p>
+<section id="Fine-tuning-using-the-Hugging-Face-libraries">
+<h3>Fine tuning using the Hugging Face libraries<a class="headerlink" href="#Fine-tuning-using-the-Hugging-Face-libraries" title="Link to this heading">¶</a></h3>
+<p>First, we download and prepare the dataset.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transformers</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+<span class="c1"># Determine the splits to load</span>
+<span class="n">split</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">eval_split</span><span class="p">:</span>
+    <span class="n">split</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eval_split</span><span class="p">)</span>
+
+<span class="c1"># Load the dataset from the Hugging Face dataset catalog</span>
+<span class="n">hf_dataset</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">dataset_directory</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">)</span>
+
+<span class="c1"># Load the tokenizer based on our selected model</span>
+<span class="n">hf_tokenizer</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="n">output_directory</span><span class="p">)</span>
+
+<span class="n">text_column_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">col_name</span> <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">hf_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">column_names</span> <span class="k">if</span> <span class="n">col_name</span> <span class="o">!=</span> <span class="s1">&#39;label&#39;</span> <span class="ow">and</span>
+                     <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">hf_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">col_name</span><span class="p">])]</span>
+
+<span class="c1"># Tokenize the dataset</span>
+<span class="k">def</span> <span class="nf">tokenize_function</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="n">text_column_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">text_column_name</span> <span class="ow">in</span> <span class="n">text_column_names</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hf_tokenizer</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">max_sequence_length</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="n">truncation</span><span class="p">)</span>
+
+<span class="n">tokenized_hf_dataset</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tokenize_function</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">hf_dataset</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">tokenized</span> <span class="ow">in</span> <span class="n">tokenized_hf_dataset</span><span class="p">:</span>
+    <span class="n">tokenized</span><span class="o">.</span><span class="n">set_format</span><span class="p">(</span><span class="s1">&#39;torch&#39;</span><span class="p">)</span>
+
+<span class="c1"># If eval_split is defined, that split will be used for validation. Otherwise, the &#39;train&#39; dataset split will be</span>
+<span class="c1"># split by the defined percentage to use for training and evaluation.</span>
+<span class="n">hf_train_dataset</span> <span class="o">=</span> <span class="n">tokenized_hf_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">eval_split</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using &#39;train&#39; and &#39;</span><span class="si">{}</span><span class="s2">&#39; dataset splits&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">eval_split</span><span class="p">))</span>
+    <span class="n">hf_train_subset</span> <span class="o">=</span> <span class="n">hf_train_dataset</span>
+    <span class="n">hf_eval_subset</span> <span class="o">=</span> <span class="n">tokenized_hf_dataset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">dataset_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hf_train_dataset</span><span class="p">)</span>
+    <span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">training_split</span> <span class="o">*</span> <span class="n">dataset_length</span><span class="p">)</span>
+    <span class="n">eval_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">validation_split</span> <span class="o">*</span> <span class="n">dataset_length</span><span class="p">)</span>
+    <span class="n">generator</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">()</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">dataset_indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">dataset_length</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="n">shuffle_files</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="n">dataset_length</span><span class="p">)</span>
+    <span class="n">train_indices</span> <span class="o">=</span> <span class="n">dataset_indices</span><span class="p">[:</span><span class="n">train_size</span><span class="p">]</span>
+    <span class="n">eval_indices</span> <span class="o">=</span> <span class="n">dataset_indices</span><span class="p">[</span><span class="n">train_size</span><span class="p">:</span><span class="n">train_size</span> <span class="o">+</span> <span class="n">eval_size</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using </span><span class="si">{}% f</span><span class="s2">or training and </span><span class="si">{}% f</span><span class="s2">or validation&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">training_split</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">validation_split</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total dataset size:&quot;</span><span class="p">,</span> <span class="n">dataset_length</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Train size:&quot;</span><span class="p">,</span> <span class="n">train_size</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Eval size:&quot;</span><span class="p">,</span> <span class="n">eval_size</span><span class="p">)</span>
+    <span class="n">hf_train_subset</span> <span class="o">=</span> <span class="n">hf_train_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">train_indices</span><span class="p">)</span>
+    <span class="n">hf_eval_subset</span> <span class="o">=</span> <span class="n">hf_train_dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">eval_indices</span><span class="p">)</span>
+
+<span class="c1"># Get the number of classes from the train dataset features (either called &#39;label&#39; or &#39;labels&#39;)</span>
+<span class="n">class_names</span> <span class="o">=</span> <span class="n">hf_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="s1">&#39;label&#39;</span> <span class="ow">in</span> <span class="n">hf_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">features</span> <span class="k">else</span> \
+    <span class="n">hf_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">names</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Class names: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_names</span><span class="p">))</span>
+
+<span class="n">hf_train_dataset_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hf_train_subset</span><span class="p">)</span>
+<span class="n">hf_eval_dataset_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hf_eval_subset</span><span class="p">)</span>
+
+<span class="c1"># Define function to compute accuracy to pass to the Hugging Face Trainer</span>
+<span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">transformers</span><span class="o">.</span><span class="n">EvalPrediction</span><span class="p">):</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">predictions</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="n">p</span><span class="o">.</span><span class="n">predictions</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">preds</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">label_ids</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()}</span>
+</pre></div>
+</div>
+</div>
+<p>Next, we iterate through our list of batch sizes to train the model for each configuration with the dataset that was prepared in the previous cell. After training is complete, the model is evaluated and exported. The training and evaluation metrics are saved to lists.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hf_saved_model_paths</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">hf_training_metrics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">hf_eval_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Training using batch size: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+
+    <span class="c1"># Get the model from pretrained</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">num_labels</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">class_names</span><span class="p">))</span>
+
+    <span class="c1"># Set model in training mode</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+    <span class="c1"># Setup a directory to save the model output</span>
+    <span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="s1">&#39;HF_model_bs</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+
+    <span class="c1"># Note: Even when setting do_eval=False, an error gets thrown if a eval_dataset is not provided</span>
+    <span class="n">training_args</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TrainingArguments</span><span class="p">(</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="n">saved_model_dir</span><span class="p">,</span>
+        <span class="n">do_eval</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">do_train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
+        <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">num_train_epochs</span><span class="o">=</span><span class="n">training_epochs</span><span class="p">,</span>
+        <span class="n">evaluation_strategy</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">,</span>
+        <span class="n">push_to_hub</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">no_cuda</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">overwrite_output_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+        <span class="n">data_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+        <span class="n">use_ipex</span><span class="o">=</span><span class="n">use_ipex</span><span class="p">,</span>
+        <span class="n">bf16</span><span class="o">=</span><span class="n">bf16</span>
+    <span class="p">)</span>
+
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">training_args</span><span class="p">,</span>
+        <span class="n">train_dataset</span><span class="o">=</span><span class="n">hf_train_subset</span><span class="p">,</span>
+        <span class="n">eval_dataset</span><span class="o">=</span><span class="n">hf_eval_subset</span><span class="p">,</span>
+        <span class="n">compute_metrics</span><span class="o">=</span><span class="n">compute_metrics</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="o">=</span><span class="n">hf_tokenizer</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Train the model</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+    <span class="c1"># Evaluate the model</span>
+    <span class="n">eval_results</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+
+    <span class="c1"># Export the trained model</span>
+    <span class="n">trainer</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)</span>
+
+    <span class="c1"># Save objects and metrics</span>
+    <span class="n">hf_training_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">history</span><span class="p">)</span>
+    <span class="n">hf_eval_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eval_results</span><span class="p">)</span>
+    <span class="n">hf_saved_model_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Using-the-Intel-Transfer-Learning-tool-API">
+<h3>Using the Intel Transfer Learning tool API<a class="headerlink" href="#Using-the-Intel-Transfer-Learning-tool-API" title="Link to this heading">¶</a></h3>
+<p>Next, we train the same model using the same parameters using the Intel Transfer Learning Tool. The Intel Transfer Learning Tool training method has an argument called <code class="docutils literal notranslate"><span class="pre">use_trainer</span></code> to determine if the Hugging Face Trainer will be used. If <code class="docutils literal notranslate"><span class="pre">use_trainer=False</span></code>, the torch libraries will be used to train the model. The next section will do the training with and without the Hugging Face Trainer, so that we can gather metrics both ways. After the model is trained, it is evaluted. Again, we save
+the training and evaluation metrics to lists.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Intel Transfer Learning Tool using the Hugging Face Trainer</span>
+<span class="n">tlt_trainer_saved_model_paths</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_trainer_training_metrics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_trainer_eval_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Intel Transfer Learning Tool training using torch libraries</span>
+<span class="n">tlt_torch_saved_model_paths</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_torch_training_metrics</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tlt_torch_eval_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">split_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">eval_split</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="n">eval_split</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Training using batch size: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+
+    <span class="c1"># Get the dataset</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_directory</span><span class="p">,</span> <span class="n">use_case</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span>
+                                          <span class="n">dataset_catalog</span><span class="o">=</span><span class="s2">&quot;huggingface&quot;</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="n">shuffle_files</span><span class="p">,</span>
+                                          <span class="n">split</span><span class="o">=</span><span class="n">split_names</span><span class="p">)</span>
+
+    <span class="c1"># Batch and tokenize the dataset</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">max_sequence_length</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+                       <span class="n">truncation</span><span class="o">=</span><span class="n">truncation</span><span class="p">)</span>
+
+    <span class="c1"># If the dataset doesn&#39;t have a defined split, then split it by percentages</span>
+    <span class="k">if</span> <span class="n">eval_split</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="n">training_split</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="n">validation_split</span><span class="p">)</span>
+
+    <span class="n">tlt_train_dataset_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">train_subset</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">eval_split</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span>
+        <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test_subset</span>
+        <span class="n">tlt_eval_dataset_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">eval_dataset</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">validation_subset</span>
+        <span class="n">tlt_eval_dataset_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">eval_dataset</span><span class="p">)</span>
+
+    <span class="c1"># Verify dataset length between the experiments</span>
+    <span class="k">assert</span> <span class="n">tlt_train_dataset_length</span> <span class="o">==</span> <span class="n">hf_train_dataset_length</span>
+    <span class="k">assert</span> <span class="n">tlt_eval_dataset_length</span> <span class="o">==</span> <span class="n">hf_eval_dataset_length</span>
+
+    <span class="k">for</span> <span class="n">use_trainer</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Training using Hugging Face Trainer: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">use_trainer</span><span class="p">))</span>
+
+        <span class="c1"># Get the model</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="p">)</span>
+
+        <span class="c1"># Train the model</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_directory</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">training_epochs</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="n">use_ipex</span><span class="p">,</span>
+                              <span class="n">use_trainer</span><span class="o">=</span><span class="n">use_trainer</span><span class="p">,</span> <span class="n">do_eval</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+                              <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="n">bf16</span><span class="p">)</span>
+
+        <span class="n">eval_metrics</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">eval_dataset</span><span class="p">)</span>
+
+        <span class="c1"># Save the model</span>
+        <span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">output_directory</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">use_trainer</span><span class="p">:</span>
+            <span class="n">tlt_trainer_training_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">history</span><span class="p">)</span>
+            <span class="n">tlt_trainer_saved_model_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)</span>
+            <span class="n">tlt_trainer_eval_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eval_metrics</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tlt_torch_training_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">history</span><span class="p">)</span>
+            <span class="n">tlt_torch_saved_model_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">)</span>
+            <span class="n">tlt_torch_eval_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eval_metrics</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="4.-Compare-metrics">
+<h2>4. Compare metrics<a class="headerlink" href="#4.-Compare-metrics" title="Link to this heading">¶</a></h2>
+<p>This section compares metrics for training and evaluating the model for the following experiments: * Using the Hugging Face Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer * Using the Intel Transfer Learning Tool with torch</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display_df</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Display training metrics</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s1">&#39;Hugging Face Trainer&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">hf_training_metrics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_loss&#39;</span><span class="p">],</span> <span class="n">hf_training_metrics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_samples_per_second&#39;</span><span class="p">],</span> <span class="n">hf_training_metrics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_runtime&#39;</span><span class="p">]],</span>
+        <span class="s1">&#39;Intel Transfer Learning Tool&lt;br&gt;using the HF Trainer&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">tlt_trainer_training_metrics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_loss&#39;</span><span class="p">],</span> <span class="n">tlt_trainer_training_metrics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_samples_per_second&#39;</span><span class="p">],</span> <span class="n">tlt_trainer_training_metrics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_runtime&#39;</span><span class="p">]],</span>
+        <span class="s1">&#39;Intel Transfer Learning Tool&lt;br&gt;using Torch&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">tlt_torch_training_metrics</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;Loss&#39;</span><span class="p">],</span> <span class="n">tlt_torch_training_metrics</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;train_samples_per_second&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">tlt_torch_training_metrics</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;train_runtime&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]],</span>
+    <span class="p">},</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Loss&#39;</span><span class="p">,</span> <span class="s1">&#39;Samples per second&#39;</span><span class="p">,</span> <span class="s1">&#39;Train Runtime&#39;</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">set_table_styles</span><span class="p">(</span><span class="n">table_styles</span><span class="p">)</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="s2">&quot;Training metrics with batch size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="n">display_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="c1"># Display evaluation metrics</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s1">&#39;Eval using the&lt;br&gt;Hugging Face Trainer&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{0:.2%}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hf_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_accuracy&#39;</span><span class="p">]),</span> <span class="n">hf_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_loss&#39;</span><span class="p">],</span> <span class="n">hf_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_samples_per_second&#39;</span><span class="p">],</span> <span class="n">hf_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_runtime&#39;</span><span class="p">]],</span>
+        <span class="s1">&#39;Intel Transfer Learning Tool&lt;br&gt;eval using the HF Trainer&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{0:.2%}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlt_trainer_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_accuracy&#39;</span><span class="p">]),</span> <span class="n">tlt_trainer_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_loss&#39;</span><span class="p">],</span> <span class="n">tlt_trainer_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_samples_per_second&#39;</span><span class="p">],</span> <span class="n">tlt_trainer_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_runtime&#39;</span><span class="p">]],</span>
+        <span class="s1">&#39;Intel Transfer Learning Tool&lt;br&gt;eval using Torch&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{0:.2%}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlt_torch_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_accuracy&#39;</span><span class="p">]),</span> <span class="n">tlt_torch_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_loss&#39;</span><span class="p">],</span> <span class="n">tlt_torch_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_samples_per_second&#39;</span><span class="p">],</span> <span class="n">tlt_torch_eval_results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;eval_runtime&#39;</span><span class="p">]],</span>
+    <span class="p">},</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Eval accuracy&#39;</span><span class="p">,</span> <span class="s1">&#39;Eval Loss&#39;</span><span class="p">,</span> <span class="s1">&#39;Samples per second&#39;</span><span class="p">,</span> <span class="s1">&#39;Train Runtime&#39;</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">set_table_styles</span><span class="p">(</span><span class="n">table_styles</span><span class="p">)</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="s2">&quot;Training metrics with batch size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="n">display_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">display_df</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Training-metrics">
+<h3>Training metrics<a class="headerlink" href="#Training-metrics" title="Link to this heading">¶</a></h3>
+<p>Generate charts to compare the time that it took to train the model in each experiment (lower is better) and the thoughput (higher is better).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Bar chart group labels</span>
+<span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;batch size = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span> <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">batch_size_list</span><span class="p">]</span>
+
+<span class="n">hf_train_runtime</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_runtime&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">hf_training_metrics</span><span class="p">]</span>
+<span class="n">tlt_trainer_train_runtime</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_runtime&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_trainer_training_metrics</span><span class="p">]</span>
+<span class="n">tlt_torch_train_runtime</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;train_runtime&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_torch_training_metrics</span><span class="p">]</span>
+
+<span class="n">hf_train_throughput</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_samples_per_second&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">hf_training_metrics</span><span class="p">]</span>
+<span class="n">tlt_trainer_train_throughput</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;train_samples_per_second&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_trainer_training_metrics</span><span class="p">]</span>
+<span class="n">tlt_torch_train_thoughput</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;train_samples_per_second&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_torch_training_metrics</span><span class="p">]</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1"># the width of the bars</span>
+<span class="n">multiplier</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1"># Setup bars for training run times</span>
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">hf_train_runtime</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;HF trained&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">yellow</span><span class="p">)</span>
+<span class="n">rects_tlt_trainer</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">tlt_trainer_train_runtime</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT using Trainer&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">rects_tlt_torch</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">tlt_torch_train_runtime</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT using Torch&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">dark_blue</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_trainer</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_torch</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Seconds&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Training Runtime&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">width</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Setup bars for throughput</span>
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">hf_train_throughput</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;HF trained&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">yellow</span><span class="p">)</span>
+<span class="n">rects_tlt_trainer</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">tlt_trainer_train_throughput</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT using Trainer&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">rects_tlt_torch</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">tlt_torch_train_thoughput</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT using Torch&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">dark_blue</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_trainer</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_torch</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Samples per second&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Training Throughput&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">width</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Evaluation-Metrics">
+<h3>Evaluation Metrics<a class="headerlink" href="#Evaluation-Metrics" title="Link to this heading">¶</a></h3>
+<p>Next, we generate charts to compare the evaluation metrics for the same three experiments that were used for training the model. We have a charts with the validation accuracy, total evaluation time (lower is better), and evaluation throughput (higher is better).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Decimals used for rounding</span>
+<span class="n">decimals</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Get the evaluation metrics</span>
+<span class="n">hf_eval_acc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;eval_accuracy&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">hf_eval_results</span><span class="p">]</span>
+<span class="n">tlt_trainer_eval_acc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;eval_accuracy&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_trainer_eval_results</span><span class="p">]</span>
+<span class="n">tlt_torch_eval_acc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;eval_accuracy&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_torch_eval_results</span><span class="p">]</span>
+
+<span class="n">hf_eval_runtime</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;eval_runtime&#39;</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">hf_eval_results</span><span class="p">]</span>
+<span class="n">tlt_trainer_eval_runtime</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;eval_runtime&#39;</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_trainer_eval_results</span><span class="p">]</span>
+<span class="n">tlt_torch_eval_runtime</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;eval_runtime&#39;</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_torch_eval_results</span><span class="p">]</span>
+
+<span class="n">hf_eval_throughput</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;eval_samples_per_second&#39;</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">hf_eval_results</span><span class="p">]</span>
+<span class="n">tlt_trainer_eval_throughput</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;eval_samples_per_second&#39;</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_trainer_eval_results</span><span class="p">]</span>
+<span class="n">tlt_torch_eval_thoughput</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;eval_samples_per_second&#39;</span><span class="p">],</span> <span class="n">decimals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tlt_torch_eval_results</span><span class="p">]</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1"># the width of the bars</span>
+<span class="n">multiplier</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1"># Setup bars for training run times</span>
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">hf_eval_acc</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;HF evaluated&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">yellow</span><span class="p">)</span>
+<span class="n">rects_tlt_trainer</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">tlt_trainer_eval_acc</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT eval using Trainer&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">rects_tlt_torch</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">tlt_torch_eval_acc</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT eval using Torch&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">dark_blue</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_trainer</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_torch</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Percentage (%)&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Evaluation Accuracy&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">width</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">hf_eval_runtime</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;HF evaluated&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">yellow</span><span class="p">)</span>
+<span class="n">rects_tlt_trainer</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">tlt_trainer_eval_runtime</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT eval using Trainer&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">rects_tlt_torch</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">tlt_torch_eval_runtime</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT eval using Torch&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">dark_blue</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_trainer</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_torch</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Seconds&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Evaluation Runtime&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">width</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Setup bars for throughput</span>
+<span class="n">rects_tf</span> <span class="o">=</span> <span class="n">ax3</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">hf_eval_throughput</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;HF evaluated&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">yellow</span><span class="p">)</span>
+<span class="n">rects_tlt_trainer</span> <span class="o">=</span> <span class="n">ax3</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="n">tlt_trainer_eval_throughput</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT eval using Trainer&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">blue</span><span class="p">)</span>
+<span class="n">rects_tlt_torch</span> <span class="o">=</span> <span class="n">ax3</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">tlt_torch_eval_thoughput</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TLT eval using Torch&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">dark_blue</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tf</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_trainer</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">rects_tlt_torch</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Add labels, title, and legend</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Samples per second&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Evaluation Throughput&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">width</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_ymargin</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Next-Steps">
+<h2>Next Steps<a class="headerlink" href="#Next-Steps" title="Link to this heading">¶</a></h2>
+<p>This concludes our performance comparison using a Hugging Face model with the Hugging Face <code class="docutils literal notranslate"><span class="pre">Trainer</span></code> and the Intel Transfer Learning Tool. All of the models trained during these experiments have been saved to your output directory. Any of these can be loaded back to perform further experiments.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch_size_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Using batch size </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">25</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model trained using the Hugging Face Trainer:</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">hf_saved_model_paths</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model trained using the Intel Transfer Learning tool and the Hugging Face Trainer:</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tlt_trainer_saved_model_paths</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model trained using the Intel Transfer Learning tool and the PyTorch libraries:</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tlt_torch_saved_model_paths</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Citations">
+<h2>Citations<a class="headerlink" href="#Citations" title="Link to this heading">¶</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@misc{devlin2019bert,
+      title={BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding},
+      author={Jacob Devlin and Ming-Wei Chang and Kenton Lee and Kristina Toutanova},
+      year={2019},
+      eprint={1810.04805},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@InProceedings{maas-EtAl:2011:ACL-HLT2011,
+  author    = {Maas, Andrew L.  and  Daly, Raymond E.  and  Pham, Peter T.  and  Huang, Dan  and  Ng, Andrew Y.  and  Potts, Christopher},
+  title     = {Learning Word Vectors for Sentiment Analysis},
+  booktitle = {Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics: Human Language Technologies},
+  month     = {June},
+  year      = {2011},
+  address   = {Portland, Oregon, USA},
+  publisher = {Association for Computational Linguistics},
+  pages     = {142--150},
+  url       = {http://www.aclweb.org/anthology/P11-1015}
+}
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

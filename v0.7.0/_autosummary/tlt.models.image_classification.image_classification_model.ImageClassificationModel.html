@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.models.image_classification.image_classification_model.ImageClassificationModel &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel" href="tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.html" />
+    <link rel="prev" title="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel" href="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#datasets">Datasets</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#models">Models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../api.html#id1">Factory Methods</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../api.html#id2">Class Reference</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../api.html#id3">Image Classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api.html#id4">Image Anomaly Detection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api.html#id5">Text Classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api.html#id6">Text Generation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api.html#id7">Base Classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API Reference</a></li>
+      <li class="breadcrumb-item active">tlt.models.image_classification.image_classification_model.ImageClassificationModel</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/tlt.models.image_classification.image_classification_model.ImageClassificationModel.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tlt-models-image-classification-image-classification-model-imageclassificationmodel">
+<h1>tlt.models.image_classification.image_classification_model.ImageClassificationModel<a class="headerlink" href="#tlt-models-image-classification-image-classification-model-imageclassificationmodel" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="tlt.models.image_classification.image_classification_model.ImageClassificationModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlt.models.image_classification.image_classification_model.</span></span><span class="sig-name descname"><span class="pre">ImageClassificationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_fine_tuning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_layer_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrameworkType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UseCaseType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_classification/image_classification_model.html#ImageClassificationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_classification.image_classification_model.ImageClassificationModel" title="Link to this definition">¶</a></dt>
+<dd><p>Base class to represent a pretrained model for image classification</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tlt.models.image_classification.image_classification_model.ImageClassificationModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_fine_tuning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_layer_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">framework</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrameworkType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UseCaseType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_classification/image_classification_model.html#ImageClassificationModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_classification.image_classification_model.ImageClassificationModel.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Class constructor</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tlt.models.image_classification.image_classification_model.ImageClassificationModel.__init__" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(image_size, do_fine_tuning, ...)</p></td>
+<td><p>Class constructor</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tlt.models.image_classification.image_classification_model.ImageClassificationModel.benchmark.html#tlt.models.image_classification.image_classification_model.ImageClassificationModel.benchmark" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel.benchmark"><code class="xref py py-obj docutils literal notranslate"><span class="pre">benchmark</span></code></a>(dataset[, saved_model_dir, ...])</p></td>
+<td><p>Use Intel Neural Compressor to benchmark the model with the dataset argument.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code>(dataset)</p></td>
+<td><p>Evaluate the model using the specified dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code>(output_dir)</p></td>
+<td><p>Export the serialized model to an output directory</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_directory</span></code>(model_dir)</p></td>
+<td><p>Load a model from a directory</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_graph</span></code>(output_dir[, overwrite_model])</p></td>
+<td><p>Performs FP32 graph optimization using the Intel Neural Compressor on the model and writes the inference-optimized model to the output_dir.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(input_samples)</p></td>
+<td><p>Generates predictions for the input samples.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tlt.models.image_classification.image_classification_model.ImageClassificationModel.quantize.html#tlt.models.image_classification.image_classification_model.ImageClassificationModel.quantize" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantize</span></code></a>(output_dir, dataset[, config, ...])</p></td>
+<td><p>Performs post training quantization using the Intel Neural Compressor on the model using the dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tlt.models.image_classification.image_classification_model.ImageClassificationModel.train.html#tlt.models.image_classification.image_classification_model.ImageClassificationModel.train" title="tlt.models.image_classification.image_classification_model.ImageClassificationModel.train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train</span></code></a>(dataset, output_dir[, epochs, ...])</p></td>
+<td><p>Train the model using the specified dataset</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">do_fine_tuning</span></code></p></td>
+<td><p>When True, the weights in all of the model's layers will be trainable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dropout_layer_rate</span></code></p></td>
+<td><p>The probability of any one node being dropped when a dropout layer is used</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">framework</span></code></p></td>
+<td><p>Framework with which the model is compatible</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_size</span></code></p></td>
+<td><p>The fixed image size that the pretrained model expects as input, in pixels with equal width and height</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">learning_rate</span></code></p></td>
+<td><p>Learning rate for the model</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_name</span></code></p></td>
+<td><p>Name of the model</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_classes</span></code></p></td>
+<td><p>The number of output neurons in the model; equal to the number of classes in the dataset</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessor</span></code></p></td>
+<td><p>Preprocessor for the model</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_case</span></code></p></td>
+<td><p>Use case (or category) to which the model belongs</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.html" class="btn btn-neutral float-left" title="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.html" class="btn btn-neutral float-right" title="tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

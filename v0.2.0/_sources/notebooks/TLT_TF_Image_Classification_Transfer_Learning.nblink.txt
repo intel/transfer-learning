@@ -1,3 +1,0 @@
-{
-    "path": "../../notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb"
-}

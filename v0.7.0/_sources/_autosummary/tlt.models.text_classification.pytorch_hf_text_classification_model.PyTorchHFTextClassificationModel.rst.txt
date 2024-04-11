@@ -1,0 +1,47 @@
+﻿tlt.models.text\_classification.pytorch\_hf\_text\_classification\_model.PyTorchHFTextClassificationModel
+=========================================================================================================
+
+.. currentmodule:: tlt.models.text_classification.pytorch_hf_text_classification_model
+
+.. autoclass:: PyTorchHFTextClassificationModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PyTorchHFTextClassificationModel.__init__
+      ~PyTorchHFTextClassificationModel.benchmark
+      ~PyTorchHFTextClassificationModel.cleanup_saved_objects_for_distributed
+      ~PyTorchHFTextClassificationModel.evaluate
+      ~PyTorchHFTextClassificationModel.export
+      ~PyTorchHFTextClassificationModel.export_for_distributed
+      ~PyTorchHFTextClassificationModel.freeze_layer
+      ~PyTorchHFTextClassificationModel.list_layers
+      ~PyTorchHFTextClassificationModel.load_from_directory
+      ~PyTorchHFTextClassificationModel.optimize_graph
+      ~PyTorchHFTextClassificationModel.predict
+      ~PyTorchHFTextClassificationModel.quantize
+      ~PyTorchHFTextClassificationModel.train
+      ~PyTorchHFTextClassificationModel.unfreeze_layer
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PyTorchHFTextClassificationModel.dropout_layer_rate
+      ~PyTorchHFTextClassificationModel.framework
+      ~PyTorchHFTextClassificationModel.learning_rate
+      ~PyTorchHFTextClassificationModel.model_name
+      ~PyTorchHFTextClassificationModel.num_classes
+      ~PyTorchHFTextClassificationModel.preprocessor
+      ~PyTorchHFTextClassificationModel.use_case
+   
+   

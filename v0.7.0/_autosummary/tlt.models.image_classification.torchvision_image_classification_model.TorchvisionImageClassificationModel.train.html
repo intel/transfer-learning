@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tlt-custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tlt-models-image-classification-torchvision-image-classification-model-torchvisionimageclassificationmodel-train">
+<h1>tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train<a class="headerlink" href="#tlt-models-image-classification-torchvision-image-classification-model-torchvisionimageclassificationmodel-train" title="Link to this heading">¶</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train">
+<span class="sig-prename descclassname"><span class="pre">TorchvisionImageClassificationModel.</span></span><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset.html#tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset" title="tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset"><span class="pre">ImageClassificationDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_checkpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_eval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">early_stopping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipex_optimize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distributed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hostfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nnodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nproc_per_node</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_horovod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hvd_start_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_auto_mixed_precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_classification/torchvision_image_classification_model.html#TorchvisionImageClassificationModel.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel.train" title="Link to this definition">¶</a></dt>
+<dd><p>Trains the model using the specified image classification dataset. The first time training is called, it
+will get the model from torchvision and add on a fully-connected dense layer with linear activation
+based on the number of classes in the specified dataset. The model and optimizer are defined and trained
+for the specified number of epochs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset.html#tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset" title="tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset"><em>ImageClassificationDataset</em></a>) – Dataset to use when training the model</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – Path to a writeable directory for output files</p></li>
+<li><p><strong>epochs</strong> (<em>int</em>) – Number of epochs to train the model (default: 1)</p></li>
+<li><p><strong>initial_checkpoints</strong> (<em>str</em>) – Path to checkpoint weights to load. If the path provided is a directory, the
+latest checkpoint will be used.</p></li>
+<li><p><strong>do_eval</strong> (<em>bool</em>) – If do_eval is True and the dataset has a validation subset, the model will be evaluated
+at the end of each epoch.</p></li>
+<li><p><strong>early_stopping</strong> (<em>bool</em>) – Enable early stopping if convergence is reached while training</p></li>
+<li><p><strong>enable_auto_mixed_precision</strong> (<em>bool</em><em> or </em><em>None</em>) – Enable auto mixed precision for evaluate. Mixed precision
+uses both 16-bit and 32-bit floating point types to make evaluation run faster and use less memory.
+It is recommended to enable auto mixed precision when running on platforms that support
+bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+does not support bfloat16, it can be detrimental to the evaluation performance. If
+enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+running with Intel fourth generation Xeon processors, and disabled for other platforms.</p></li>
+<li><p><strong>lr_decay</strong> (<em>bool</em>) – If lr_decay is True and do_eval is True, learning rate decay on the validation loss
+is applied at the end of each epoch.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Optionally set a seed for reproducibility.</p></li>
+<li><p><strong>extra_layers</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Optionally insert additional dense layers between the base model and output
+layer. This can help increase accuracy when fine-tuning a PyTorch model.
+The input should be a list of integers representing the number and size of the layers,
+for example [1024, 512] will insert two dense layers, the first with 1024 neurons and the
+second with 512 neurons.</p></li>
+<li><p><strong>ipex_optimize</strong> (<em>bool</em>) – Use Intel Extension for PyTorch (IPEX). Defaults to True.</p></li>
+<li><p><strong>distributed</strong> (<em>bool</em>) – Boolean flag to use distributed training. Defaults to False.</p></li>
+<li><p><strong>hostfile</strong> (<em>str</em>) – Name of the hostfile for distributed training. Defaults to None.</p></li>
+<li><p><strong>nnodes</strong> (<em>int</em>) – Number of nodes to use for distributed training. Defaults to 1.</p></li>
+<li><p><strong>nproc_per_node</strong> (<em>int</em>) – Number of processes to spawn per node to use for distributed training. Defaults
+to 1.</p></li>
+<li><p><strong>device</strong> (<em>str</em>) – Enter “cpu” or “hpu” to specify which hardware device to run training on.
+If device=”hpu” is specified, but no HPU hardware or installs are detected,
+CPU will be used. (default: “cpu”)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Trained PyTorch model object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Anomaly Detection with PyTorch using Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tlt-custom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon-intel-32x32.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Intel® Transfer Learning Tool
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GetStarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Models.html">Supported Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Legal.html">Legal Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool">GitHub Repository</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Intel® Transfer Learning Tool</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Image Anomaly Detection with PyTorch using Intel® Transfer Learning Tool</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/TLT_PyTorch_Anomly_Detection.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Image-Anomaly-Detection-with-PyTorch-using-Intel®-Transfer-Learning-Tool">
+<h1>Image Anomaly Detection with PyTorch using Intel® Transfer Learning Tool<a class="headerlink" href="#Image-Anomaly-Detection-with-PyTorch-using-Intel®-Transfer-Learning-Tool" title="Link to this heading">¶</a></h1>
+<p>This notebook demonstrates anomaly detection using the Intel Transfer Learning Toolkit. It performs defect analysis with the MVTec dataset using PyTorch. The workflow uses a pretrained ResNet50 v1.5 model from torchvision.</p>
+<section id="Intel®-Gaudi®-AI-accelerator">
+<h2>Intel® Gaudi® AI accelerator<a class="headerlink" href="#Intel®-Gaudi®-AI-accelerator" title="Link to this heading">¶</a></h2>
+<p>To use HPU training and inference with Gaudi, follow these steps to install required HPU drivers and software from <a class="reference external" href="/notebooks/image_anomaly_detection/tlt_api_pyt_anomaly_detection/README.md">README</a> or the official <a class="reference external" href="https://docs.habana.ai/en/latest/Installation_Guide/SW_Verification.html">Habana Docs</a></p>
+<section id="1.-Import-dependencies-and-setup-parameters">
+<h3>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Link to this heading">¶</a></h3>
+<p>This notebook assumes that you have already followed the instructions to setup a PyTorch environment with all the dependencies required to run the notebook.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">PIL.Image</span> <span class="k">as</span> <span class="nn">Image</span>
+<span class="kn">import</span> <span class="nn">torch</span><span class="o">,</span> <span class="nn">torchvision</span>
+<span class="kn">from</span> <span class="nn">torchvision.transforms.functional</span> <span class="kn">import</span> <span class="n">InterpolationMode</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="c1"># tlt imports</span>
+<span class="kn">from</span> <span class="nn">tlt.datasets</span> <span class="kn">import</span> <span class="n">dataset_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
+<span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">download_and_extract_tar_file</span><span class="p">,</span> <span class="n">download_file</span>
+
+<span class="c1"># Specify a directory for the dataset to be downloaded</span>
+<span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+
+<span class="c1"># Specify a directory for output</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OUTPUT_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;OUTPUT_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dataset directory:&quot;</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output directory:&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Get-or-load-the-model">
+<h3>2. Get or load the model<a class="headerlink" href="#2.-Get-or-load-the-model" title="Link to this heading">¶</a></h3>
+<p>In this step, we use the model factory to get the desired model. The <code class="docutils literal notranslate"><span class="pre">get_model</span></code> function returns a pretrained model object from a public model hub, while the <code class="docutils literal notranslate"><span class="pre">load_model</span></code> function loads a pretrained model from a checkpoint on your local disk or in memory.</p>
+<p>Here we are getting the pretrained <code class="docutils literal notranslate"><span class="pre">resnet50</span></code> model from Torchvision:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_factory</span><span class="o">.</span><span class="n">print_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="o">=</span><span class="s2">&quot;pytorch&quot;</span><span class="p">,</span> <span class="n">use_case</span><span class="o">=</span><span class="s2">&quot;anomaly_detection&quot;</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                           <span class="n">markdown</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set device=&quot;hpu&quot; to use Gaudi. If no HPU hardware or installs are detected, device will default to &quot;cpu&quot;</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">model_factory</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;resnet50&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s2">&quot;pytorch&quot;</span><span class="p">,</span> <span class="n">use_case</span><span class="o">=</span><span class="s1">&#39;anomaly_detection&#39;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To load a previously trained model from a file, use this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>model = model_factory.load_model(model_name=&quot;resnet50&quot;, model=&lt;PATH_TO_MODEL_FILE&gt;, framework=&quot;pytorch&quot;,
+                                 use_case=&#39;anomaly_detection&#39;)
+</pre></div>
+</div>
+</section>
+<section id="3.-Get-the-dataset">
+<h3>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Link to this heading">¶</a></h3>
+<p>To use <a class="reference external" href="https://www.mvtec.com/company/research/datasets/mvtec-ad">MVTec</a> or your own image dataset for anomaly detection, your image files (<code class="docutils literal notranslate"><span class="pre">.jpg</span></code> or <code class="docutils literal notranslate"><span class="pre">.png</span></code>) should be arranged in one of two ways.</p>
+</section>
+</section>
+<section id="Method-1:-Category-Folders">
+<h2>Method 1: Category Folders<a class="headerlink" href="#Method-1:-Category-Folders" title="Link to this heading">¶</a></h2>
+<p>Arrange them in folders in the root dataset directory like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>hazelnut
+  └── crack
+  └── cut
+  └── good
+  └── hole
+  └── print
+</pre></div>
+</div>
+<p>IMPORTANT: There must be a subfolder named <code class="docutils literal notranslate"><span class="pre">good</span></code> and at least one other folder of defective examples. It does not matter what the names of the other folders are or how many there, as long as there is at least one. This would also be an acceptable Method 1 layout:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>toothbrush
+  └── defective
+  └── good
+</pre></div>
+</div>
+<p>TLT will encode all of the non-good images as “bad” and use the “good” images in the training set and a mix of good and bad images in the validation set.</p>
+</section>
+<section id="Method-2:-Train-&amp;-Test-Folders-with-Category-Subfolders">
+<h2>Method 2: Train &amp; Test Folders with Category Subfolders<a class="headerlink" href="#Method-2:-Train-&-Test-Folders-with-Category-Subfolders" title="Link to this heading">¶</a></h2>
+<p>Arrange them in folders in the root dataset directory like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>hazelnut
+  └── train
+      └── good
+  └── test
+      └── crack
+      └── cut
+      └── good
+      └── hole
+      └── print
+</pre></div>
+</div>
+<p>When using this layout, TLT will use the exact defined split for train and validation subsets unless you use the <code class="docutils literal notranslate"><span class="pre">shuffle_split</span></code> method to re-shuffle and split up the “good” images with certain percentages.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">img_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;hazelnut&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset_factory</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">img_dir</span><span class="p">,</span>
+                                       <span class="n">use_case</span><span class="o">=</span><span class="s1">&#39;image_anomaly_detection&#39;</span><span class="p">,</span>
+                                       <span class="n">framework</span><span class="o">=</span><span class="s2">&quot;pytorch&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Class names:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Defect names:&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">defect_names</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Note: The defects argument can be used to filter the validation set to use only a subset of defect types. For example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dataset = dataset_factory.load_dataset(img_dir,
+                                       use_case=&#39;image_anomaly_detection&#39;,
+                                       framework=&quot;pytorch&quot;,
+                                       defects=[&#39;crack&#39;, &#39;hole&#39;])
+</pre></div>
+</div>
+<section id="4.-Prepare-the-dataset">
+<h3>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Link to this heading">¶</a></h3>
+<p>Once you have your dataset, use the following cells to split and preprocess the data. We split them into training and test subsets, then resize the images to match the selected model, and then batch the images. Pass in optional arguments to customize the <a class="reference external" href="https://pytorch.org/vision/main/generated/torchvision.transforms.Resize.html">Resize</a> or <a class="reference external" href="https://pytorch.org/vision/main/generated/torchvision.transforms.Normalize.html">Normalize</a> transforms. Data augmentation can be applied to the
+training set by specifying the augmentations to be applied in the <code class="docutils literal notranslate"><span class="pre">add_aug</span></code> parameter. Supported augmentations are given below: 1. hflip - RandomHorizontalFlip 2. rotate - RandomRotate</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># If using Method 1 layout, split the dataset into training and test subsets.</span>
+<span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_validation_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">shuffle_split</span><span class="p">(</span><span class="n">train_pct</span><span class="o">=</span><span class="mf">.75</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">test_pct</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>For <strong>cutpaste</strong> feature extractor, cutpaste_type can be specified in the dataset.preprocess() method as follows. The option available are - <em>normal</em>, <em>scar</em>, <em>3way</em> and <em>union</em>. Default is <em>normal</em>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dataset.preprocess(224, batch_size=batch_size, interpolation=InterpolationMode.LANCZOS, cutpaste_type=&#39;normal&#39;)
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Preprocess with an image size that matches the model, batch size 32, and the desired interpolation method</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">cutpaste_type</span> <span class="o">=</span> <span class="s1">&#39;normal&#39;</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">image_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">InterpolationMode</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">,</span> <span class="n">cutpaste_type</span><span class="o">=</span><span class="n">cutpaste_type</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="5.-Visualize-samples-from-the-dataset">
+<h3>5. Visualize samples from the dataset<a class="headerlink" href="#5.-Visualize-samples-from-the-dataset" title="Link to this heading">¶</a></h3>
+<p>We get a single batch from our training and test subsets and visualize the images as a sanity check.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_images</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sup_title</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">14</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">30</span><span class="p">)):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">])</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="n">std</span> <span class="o">*</span> <span class="n">inp</span> <span class="o">+</span> <span class="n">mean</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">predictions</span><span class="p">:</span>
+            <span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">==</span> <span class="n">predictions</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;darkgreen&quot;</span> <span class="k">if</span> <span class="n">correct_prediction</span> <span class="k">else</span> <span class="s2">&quot;crimson&quot;</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">if</span> <span class="n">correct_prediction</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">good_sample</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;good&#39;</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;darkgreen&quot;</span> <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;good&#39;</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;crimson&quot;</span> <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;bad&#39;</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">sup_title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot some images from the training set</span>
+<span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_batch</span><span class="p">()</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+<span class="n">plot_images</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="s1">&#39;Training Samples&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot some images from the test set</span>
+<span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">class_names</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+<span class="n">plot_images</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="s1">&#39;Test Samples&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="6.-Training-and-Evaluation">
+<h3>6. Training and Evaluation<a class="headerlink" href="#6.-Training-and-Evaluation" title="Link to this heading">¶</a></h3>
+<p>This step calls the model’s train function with the dataset that was just prepared. The training function will get the torchvision feature extractor for the user’s desired layer and extract features from the training set. The extracted features are used to perform a <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html">principal component analysis</a>. The model’s evaluate function returns the AUROC metric (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.auc.html">area
+under</a> the <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_curve.html">roc curve</a>) calculated from the dataset’s test subset.</p>
+</section>
+<section id="Feature-Extraction">
+<h3>Feature Extraction<a class="headerlink" href="#Feature-Extraction" title="Link to this heading">¶</a></h3>
+<p>There are three feature extractor options available within the <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> function. 1. <strong>No fine-tuning</strong> - To use a pretrained ResNet50/ResNet18 model for feature extraction, simply do not change the default <code class="docutils literal notranslate"><span class="pre">simsiam=False</span></code> input argument. 2. <a class="reference external" href="https://arxiv.org/abs/2011.10566">SimSiam</a> - A self-supervised neural network based on Siamese networks. It learns a meaningful representation of dataset without using any labels. If selected, SimSiam generates quality features that can help
+differentiate between regular and anomaly images in a given context. SimSiam produces two different augmented images from one underlying image. The end goal is to train the network to produce the same features for both images. It takes a ResNet model as the backbone and fine-tunes the model on the augmented dataset to get a better feature embedding. To use this feature extractor, download the SimSiam weights based on ResNet50 -
+<a class="reference external" href="https://dl.fbaipublicfiles.com/simsiam/models/100ep-256bs/pretrain/checkpoint_0099.pth.tar">https://dl.fbaipublicfiles.com/simsiam/models/100ep-256bs/pretrain/checkpoint_0099.pth.tar</a> - set <code class="docutils literal notranslate"><span class="pre">simsiam=True</span></code>, and set <code class="docutils literal notranslate"><span class="pre">initial_checkpoints</span></code> to the path of the downloaded checkpoints in the <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> function. 3. <a class="reference external" href="https://arxiv.org/abs/2104.04015#">Cut-paste</a> - A self-supervised method for Anomaly Detection and Localization that takes ResNet50/ ResNet18 model as backbone and fine-tune the model on custom dataset to get better feature embedding. data augmentation strategy that
+cuts an image patch and pastes at a random location of a large image. To use this feature extractor, set <code class="docutils literal notranslate"><span class="pre">cutpaste=True</span></code> in the <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> function.</p>
+</section>
+</section>
+<section id="Optional:-The-SimSiam-TwoCropTransform">
+<h2>Optional: The SimSiam TwoCropTransform<a class="headerlink" href="#Optional:-The-SimSiam-TwoCropTransform" title="Link to this heading">¶</a></h2>
+<p>To train a Simsiam model, it is required to apply a TwoCropTransform augmentation technique on the dataset used for training. You can preview this augmentation on a sample batch after preprocessing by using <code class="docutils literal notranslate"><span class="pre">get_batch(simsiam=True)</span></code> and then use them for simsiam training by using <code class="docutils literal notranslate"><span class="pre">simsiam=True</span></code> in <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> also.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get a batch of training data with the simsiam transform applied to it</span>
+<span class="n">simsiam_images</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">simsiam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Plot the &quot;A&quot; samples showing the first set of augmented images</span>
+<span class="n">plot_images</span><span class="p">(</span><span class="n">simsiam_images</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">A&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)],</span> <span class="s1">&#39;SimSiam &quot;A&quot; Samples&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Now plot the &quot;B&quot; samples showing the second set of augmented images based on the same underlying originals</span>
+<span class="n">plot_images</span><span class="p">(</span><span class="n">simsiam_images</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">B&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)],</span> <span class="s1">&#39;SimSiam &quot;B&quot; Samples&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Optional:-The-Cut-paste-Transforms">
+<h2>Optional: The Cut-paste Transforms<a class="headerlink" href="#Optional:-The-Cut-paste-Transforms" title="Link to this heading">¶</a></h2>
+<p>To train a model with Cut-paste , it is required to apply one of the four augmentations - <strong>CutPasteNormal, CutPasteScar, CutPaste3Way, CutPasteUnion</strong> on the dataset used for training. You can preview this augmentation on a sample batch after preprocessing by using <code class="docutils literal notranslate"><span class="pre">get_batch(cutpaste=True)</span></code> and then use them for cutpaste training by using <code class="docutils literal notranslate"><span class="pre">cutpaste=True</span></code> in <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> also.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get a batch of training data with the cutpaste transform applied to it</span>
+<span class="n">cutpaste_images</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">cutpaste</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Plot the &quot;A&quot; samples showing the first set of augmented images</span>
+<span class="n">plot_images</span><span class="p">(</span><span class="n">cutpaste_images</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">A&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)],</span> <span class="s1">&#39;CutPaste &quot;A&quot; Samples&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">cutpaste_type</span> <span class="o">==</span> <span class="s1">&#39;3way&#39;</span><span class="p">:</span>
+    <span class="c1"># Now plot the &quot;B&quot; samples showing the third set of augmented images based on the same underlying originals</span>
+    <span class="n">plot_images</span><span class="p">(</span><span class="n">cutpaste_images</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">B&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)],</span> <span class="s1">&#39;CutPaste &quot;B&quot; Samples&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>There is no fine-tuning being demonstrated here, but you can use <code class="docutils literal notranslate"><span class="pre">simsiam</span></code> or <code class="docutils literal notranslate"><span class="pre">cutpaste</span></code> if desired.</p>
+<p>To use simsiam, set <code class="docutils literal notranslate"><span class="pre">simsiam=True</span></code> and pass the checkpoint file to <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> as follows</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pca_components, trained_model = model.train(dataset, output_dir, epochs=2, feature_dim=1000,
+                         pred_dim=250, initial_checkpoints=&lt;PATH_TO_CHECKPOINTS_FILE&gt;,
+                         pooling=&#39;avg&#39;, kernel_size=2, pca_threshold=0.99, simsiam=True,
+                         generate_checkpoints=False, precision=&#39;float32&#39;)
+</pre></div>
+</div>
+<p>To use cutpaste, set <code class="docutils literal notranslate"><span class="pre">cutpaste=True</span></code>. Optionally, to load a pretrained checkpoint pass the checkpoint file to <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> as follows.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pca_components, trained_model = model.train(dataset, output_dir, optim=&#39;sgd&#39;, epochs=2, freeze_resnet=20,
+                         head_layer=2, cutpaste_type=&#39;normal&#39;, initial_checkpoints=&lt;PATH_TO_CHECKPOINTS_FILE&gt;,
+                         pooling=&#39;avg&#39;, kernel_size=2, pca_threshold=0.99, cutpaste=True,
+                         generate_checkpoints=False, precision=&#39;float32&#39;)
+</pre></div>
+</div>
+<section id="Train-Arguments">
+<h3>Train Arguments<a class="headerlink" href="#Train-Arguments" title="Link to this heading">¶</a></h3>
+<section id="Required">
+<h4>Required<a class="headerlink" href="#Required" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>dataset</strong> (ImageAnomalyDetectionDataset, required): Dataset to use when training the model</p></li>
+<li><p><strong>output_dir</strong> (str): Path to a writeable directory</p></li>
+</ul>
+</section>
+<section id="Optional">
+<h4>Optional<a class="headerlink" href="#Optional" title="Link to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>generate_checkpoints</strong> (bool): Whether to save/preserve the best weights during SimSiam training (default: True)</p></li>
+<li><p><strong>initial_checkpoints</strong> (str): The path to a starting weights file</p></li>
+<li><p><strong>layer_name</strong> (str): The layer name whose output is desired for the extracted features</p></li>
+<li><p><strong>pooling</strong> (str): Pooling to be applied on the extracted layer (‘avg’ or ‘max’) (default: ‘avg’)</p></li>
+<li><p><strong>kernel_size</strong> (int): Kernel size in the pooling layer (default: 2)</p></li>
+<li><p><strong>pca_threshold</strong> (float): Threshold to apply to PCA model (default: 0.99)</p></li>
+<li><p><strong>ipex_optimize</strong> (bool): Use Intel Extension for PyTorch for fine-turning (default: True)</p></li>
+<li><p><strong>enable_auto_mixed_precision</strong> (bool or None): Enable auto mixed precision for fine-tuning. Mixed precision uses both 16-bit and 32-bit floating point types to make training run faster and use less memory. It is recommended to enable auto mixed precision training when running on platforms that support bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that does not support bfloat16, it can be detrimental to the training performance. If
+enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when running with Intel fourth generation Xeon processors, and disabled for other platforms. (default: None)</p></li>
+<li><p><strong>device</strong> (str): Enter <code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;hpu&quot;</span></code> to specify which hardware device to run training on. If <code class="docutils literal notranslate"><span class="pre">device=&quot;hpu&quot;</span></code> is specified, but no HPU hardware or installs are detected, CPU will be used. (default: “cpu”)</p></li>
+</ul>
+<p>Note: refer to release documentation for an up-to-date list of train arguments and their current descriptions</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Examine the model&#39;s layers and decide which to use for feature extraction</span>
+<span class="n">model</span><span class="o">.</span><span class="n">list_layers</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">layer</span> <span class="o">=</span> <span class="s1">&#39;layer3&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pca_components</span><span class="p">,</span> <span class="n">trained_model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="n">layer</span><span class="p">,</span>
+                                           <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pooling</span><span class="o">=</span><span class="s1">&#39;avg&#39;</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pca_threshold</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">threshold</span><span class="p">,</span> <span class="n">auroc</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">pca_components</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="7.-Predict">
+<h3>7. Predict<a class="headerlink" href="#7.-Predict" title="Link to this heading">¶</a></h3>
+<p>Using the same batch of test samples from above, get and view the model’s predictions.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">pca_components</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_images</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="s1">&#39;Predictions&#39;</span><span class="p">,</span> <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Correct predictions are shown in green&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Incorrect predictions are shown in red&quot;</span><span class="p">)</span>
+
+<span class="n">accuracy</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">if</span> <span class="n">p</span><span class="o">==</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">predictions</span><span class="p">)])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Accuracy: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">accuracy</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="8.-Export">
+<h3>8. Export<a class="headerlink" href="#8.-Export" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">saved_model_dir</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;anomaly&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="9.-Post-training-quantization">
+<h3>9. Post-training quantization<a class="headerlink" href="#9.-Post-training-quantization" title="Link to this heading">¶</a></h3>
+<p>In this section, the <code class="docutils literal notranslate"><span class="pre">tlt</span></code> API uses <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor (INC)</a> to benchmark and quantize the feature extraction model to get optimal inference performance.</p>
+<p>Please note that Benchmark and Quantization is only compatible with CPU models at this time, due to the IPEX backend</p>
+<p>We use the Intel Neural Compressor to benchmark the full precision model to see how it performs, as our baseline.</p>
+<blockquote>
+<div><p>Note that there is a known issue when running Intel Neural Compressor from a notebook that you may sometimes see the error <code class="docutils literal notranslate"><span class="pre">zmq.error.ZMQError:</span> <span class="pre">Address</span> <span class="pre">already</span> <span class="pre">in</span> <span class="pre">use</span></code>. If you see this error, rerun the cell again.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next we use Intel Neural Compressor to automatically search for the optimal quantization recipe for low-precision model inference. Running post-training quantization may take several minutes, depending on your hardware.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inc_output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;quantized_models&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                                       <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">saved_model_dir</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">quantize</span><span class="p">(</span><span class="n">inc_output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let’s benchmark using the quantized model, so that we can compare the performance to the full precision model that was originally benchmarked.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">quantized_results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="o">=</span><span class="n">inc_output_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Dataset-Citations">
+<h3>Dataset Citations<a class="headerlink" href="#Dataset-Citations" title="Link to this heading">¶</a></h3>
+<p>Paul Bergmann, Kilian Batzner, Michael Fauser, David Sattlegger, Carsten Steger: The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection; in: International Journal of Computer Vision 129(4):1038-1059, 2021, DOI: 10.1007/s11263-020-01400-4.</p>
+<p>Paul Bergmann, Michael Fauser, David Sattlegger, Carsten Steger: MVTec AD — A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection; in: IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 9584-9592, 2019, DOI: 10.1109/CVPR.2019.00982.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 10, 2024.
+      </span></p>
+  </div>
+
+  
+*Other names and brands may be claimed as the property of others.
+<a href="http://www.intel.com/content/www/us/en/legal/trademarks.html">Trademarks</a>
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
