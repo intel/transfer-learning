@@ -12,10 +12,13 @@
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -107,9 +110,7 @@
 <span class="kn">from</span> <span class="nn">tlt.utils.inc_utils</span> <span class="kn">import</span> <span class="n">INCTFDataLoader</span>
 
 
-<div class="viewcode-block" id="TFCustomTextClassificationDataset">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.html#tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset">[docs]</a>
-<span class="k">class</span> <span class="nc">TFCustomTextClassificationDataset</span><span class="p">(</span><span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">TFDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="TFCustomTextClassificationDataset"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.html#tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset">[docs]</a><span class="k">class</span> <span class="nc">TFCustomTextClassificationDataset</span><span class="p">(</span><span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">TFDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A custom text classification dataset that can be used with TensorFlow models.</span>
 <span class="sd">    Note that this dataset class expects a .csv file with two columns where the first column is the label and</span>
@@ -157,9 +158,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="TFCustomTextClassificationDataset.__init__">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.html#tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">csv_file_name</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="p">[],</span> <span class="n">label_map_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="TFCustomTextClassificationDataset.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.html#tlt.datasets.text_classification.tf_custom_text_classification_dataset.TFCustomTextClassificationDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">csv_file_name</span><span class="p">,</span> <span class="n">class_names</span><span class="o">=</span><span class="p">[],</span> <span class="n">label_map_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">defaults</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">],</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">select_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -227,7 +226,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_validation_subset</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_test_subset</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">class_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -289,7 +287,6 @@
         <span class="n">eval_dataloader</span> <span class="o">=</span> <span class="n">INCTFDataLoader</span><span class="p">(</span><span class="n">eval_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_preprocessed</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">calib_dataloader</span><span class="p">,</span> <span class="n">eval_dataloader</span></div>
-
 </pre></div>
 
            </div>

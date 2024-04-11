@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CLI Reference &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -13,10 +13,13 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -98,14 +101,14 @@
            <div itemprop="articleBody">
              
   <section id="cli-reference">
-<h1>CLI Reference<a class="headerlink" href="#cli-reference" title="Link to this heading">¶</a></h1>
+<h1>CLI Reference<a class="headerlink" href="#cli-reference" title="Permalink to this heading">¶</a></h1>
 <section id="tlt">
-<h2>tlt<a class="headerlink" href="#tlt" title="Link to this heading">¶</a></h2>
+<h2>tlt<a class="headerlink" href="#tlt" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
 <section id="tlt-benchmark">
-<h3>benchmark<a class="headerlink" href="#tlt-benchmark" title="Link to this heading">¶</a></h3>
+<h3>benchmark<a class="headerlink" href="#tlt-benchmark" title="Permalink to this heading">¶</a></h3>
 <p>Uses the Intel Neural Compressor to benchmark a trained model</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span>benchmark<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
@@ -113,34 +116,34 @@
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-benchmark-model-dir">
-<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-model-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-model-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Model directory to reload for benchmarking. The model directory should contain a saved_model.pb for TensorFlow models or a model.pt file for PyTorch models.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-benchmark-dataset-dir">
-<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-dataset-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-dataset-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Dataset directory for a custom dataset. Benchmarking is not supported with dataset catalogs at this time.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-benchmark-dataset-file">
-<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-dataset-file" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-dataset-file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of a file in the dataset directory to load. Used for loading a .csv file for text classification fine tuning.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-benchmark-delimiter">
-<span class="sig-name descname"><span class="pre">--delimiter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;delimiter&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-delimiter" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--delimiter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;delimiter&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-delimiter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delimiter used when loading a dataset from a csv file. [default: ,]</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-benchmark-batch-size">
-<span class="sig-name descname"><span class="pre">--batch-size</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--batch_size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;batch_size&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-batch-size" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--batch-size</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--batch_size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;batch_size&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-batch-size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Batch size used for benchmarking, if an INC config file is not provided. If an INC config file is provided, the batch size from the config file will be used.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">32</span></code></p>
 </dd>
 </dl>
@@ -148,13 +151,13 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-benchmark-output-dir">
-<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-output-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-benchmark-output-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>A writeable output directory. The output directory will be used as a location to write the INC config file, if a config file is not provided. If no output directory is provided, a temporary folder will be created and then deleted after benchmarking has completed.</p>
 </dd></dl>
 
 </section>
 <section id="tlt-eval">
-<h3>eval<a class="headerlink" href="#tlt-eval" title="Link to this heading">¶</a></h3>
+<h3>eval<a class="headerlink" href="#tlt-eval" title="Permalink to this heading">¶</a></h3>
 <p>Evaluates a model that has already been trained</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
@@ -162,52 +165,52 @@
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-model-dir">
-<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-model-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-model-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Model directory to reload and evaluate a previously exported model.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-model-name">
-<span class="sig-name descname"><span class="pre">--model-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-model-name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--model-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-model-name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the model to evaluate. If a model name is not provided, the CLI will try to get the model name from the model directory path. For example, if the model directory is /tmp/efficientnet_b0/10, it will use ‘efficientnet_b0’ as the model name.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-dataset-dir">
-<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Dataset directory for a custom dataset, or if a dataset name and catalog are being provided, the dataset directory is the location where the dataset will be downloaded.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-dataset-file">
-<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-file" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of a file in the dataset directory to load. Used for loading a .csv file for text classification evaluation.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-delimiter">
-<span class="sig-name descname"><span class="pre">--delimiter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;delimiter&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-delimiter" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--delimiter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;delimiter&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-delimiter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delimiter used when loading a dataset from a csv file. [default: ,]</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-class-names">
-<span class="sig-name descname"><span class="pre">--class-names</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--class_names</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;class_names&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-class-names" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--class-names</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--class_names</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;class_names&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-class-names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Comma separated string of class names for a text classification dataset being loaded from .csv</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-dataset-name">
-<span class="sig-name descname"><span class="pre">--dataset-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the dataset to use from a dataset catalog.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-dataset-catalog">
-<span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-catalog" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-dataset-catalog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface). If a dataset name is provided and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>tf_datasets | torchvision | huggingface</p>
 </dd>
 </dl>
@@ -215,25 +218,25 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-0">
-<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-0" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of a file in the dataset directory to load. Used for loading a .csv file for text classification fine tuning, or a json / txt file for text generation</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-prompt-with-context">
-<span class="sig-name descname"><span class="pre">--prompt-with-context</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--prompt_with_context</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt_with_context&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-prompt-with-context" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--prompt-with-context</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--prompt_with_context</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt_with_context&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-prompt-with-context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prompt with added context used to build the prompt dictionary</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-eval-prompt-without-context">
-<span class="sig-name descname"><span class="pre">--prompt-without-context</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--prompt_without_context</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt_without_context&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-prompt-without-context" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--prompt-without-context</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--prompt_without_context</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt_without_context&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-eval-prompt-without-context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prompt without added context used to build the prompt dictionary</p>
 </dd></dl>
 
 </section>
 <section id="tlt-generate">
-<h3>generate<a class="headerlink" href="#tlt-generate" title="Link to this heading">¶</a></h3>
+<h3>generate<a class="headerlink" href="#tlt-generate" title="Permalink to this heading">¶</a></h3>
 <p>Generates text from the model</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span>generate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
@@ -241,74 +244,74 @@
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-generate-model-name">
-<span class="sig-name descname"><span class="pre">--model-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-model-name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--model-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-model-name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the model to use</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-generate-model-dir">
-<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-model-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-model-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model directory to reload a previously exported model.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-generate-prompt">
-<span class="sig-name descname"><span class="pre">--prompt</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-prompt" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--prompt</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-prompt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prompt with added context used to build the prompt dictionary</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-generate-temperature">
-<span class="sig-name descname"><span class="pre">--temperature</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;temperature&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-temperature" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--temperature</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;temperature&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>The value used to modulate the next token probabilities (default: 1.0)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-generate-top-p">
-<span class="sig-name descname"><span class="pre">--top-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--top_p</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;top_p&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-top-p" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--top-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--top_p</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;top_p&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-top-p" title="Permalink to this definition">¶</a></dt>
 <dd><p>If set to float &lt; 1, only the smallest set of most probable tokens with probabilities that add up to top_p or higher are kept for generation (default: 0.75)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-generate-top-k">
-<span class="sig-name descname"><span class="pre">--top-k</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--top_k</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;top_k&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-top-k" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--top-k</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--top_k</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;top_k&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-top-k" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of highest probability vocabulary tokens to keep for top-k-filtering (default: 40)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-generate-repetition-penalty">
-<span class="sig-name descname"><span class="pre">--repetition-penalty</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--repetition_penalty</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;repetition_penalty&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-repetition-penalty" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--repetition-penalty</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--repetition_penalty</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;repetition_penalty&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-repetition-penalty" title="Permalink to this definition">¶</a></dt>
 <dd><p>The parameter for repetition penalty. 1.0 means no penalty. (default: 1.0)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-generate-num-beams">
-<span class="sig-name descname"><span class="pre">--num-beams</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--num_beams</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;num_beams&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-num-beams" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--num-beams</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--num_beams</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;num_beams&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-num-beams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of beams for beam search. 1 means no beam search. (default: 4)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-generate-max-new-tokens">
-<span class="sig-name descname"><span class="pre">--max-new-tokens</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max_new_tokens</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_new_tokens&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-max-new-tokens" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--max-new-tokens</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max_new_tokens</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_new_tokens&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-generate-max-new-tokens" title="Permalink to this definition">¶</a></dt>
 <dd><p>The maximum number of new tokens generated (default: 128)</p>
 </dd></dl>
 
 </section>
 <section id="tlt-list">
-<h3>list<a class="headerlink" href="#tlt-list" title="Link to this heading">¶</a></h3>
+<h3>list<a class="headerlink" href="#tlt-list" title="Permalink to this heading">¶</a></h3>
 <p>Lists the available frameworks, use cases, or models</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
 <section id="tlt-list-frameworks">
-<h4>frameworks<a class="headerlink" href="#tlt-list-frameworks" title="Link to this heading">¶</a></h4>
+<h4>frameworks<a class="headerlink" href="#tlt-list-frameworks" title="Permalink to this heading">¶</a></h4>
 <p>List the available frameworks</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span>list<span class="w"> </span>frameworks<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
 </section>
 <section id="tlt-list-models">
-<h4>models<a class="headerlink" href="#tlt-list-models" title="Link to this heading">¶</a></h4>
+<h4>models<a class="headerlink" href="#tlt-list-models" title="Permalink to this heading">¶</a></h4>
 <p>List the available models</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span>list<span class="w"> </span>models<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
@@ -316,25 +319,25 @@
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-list-models-f">
-<span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--framework</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;framework&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-list-models-f" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--framework</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;framework&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-list-models-f" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter the list of models by framework.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-list-models-use-case">
-<span class="sig-name descname"><span class="pre">--use-case</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use_case</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;use_case&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-list-models-use-case" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--use-case</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use_case</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;use_case&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-list-models-use-case" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter the list of models to a single use case</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-list-models-verbose">
-<span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-list-models-verbose" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-list-models-verbose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Verbose output with extra information about each model</p>
 </dd></dl>
 
 </section>
 <section id="tlt-list-use-cases">
-<h4>use_cases<a class="headerlink" href="#tlt-list-use-cases" title="Link to this heading">¶</a></h4>
+<h4>use_cases<a class="headerlink" href="#tlt-list-use-cases" title="Permalink to this heading">¶</a></h4>
 <p>List the available use cases</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span>list<span class="w"> </span>use_cases<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
@@ -342,7 +345,7 @@
 </section>
 </section>
 <section id="tlt-optimize">
-<h3>optimize<a class="headerlink" href="#tlt-optimize" title="Link to this heading">¶</a></h3>
+<h3>optimize<a class="headerlink" href="#tlt-optimize" title="Permalink to this heading">¶</a></h3>
 <p>Uses the Intel Neural Compressor to perform graph optimization on a trained model</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span>optimize<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
@@ -350,19 +353,19 @@
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-optimize-model-dir">
-<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-optimize-model-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-optimize-model-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Model directory to reload for graph optimization. The model directory should contain a saved_model.pb TensorFlow model.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-optimize-output-dir">
-<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-optimize-output-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-optimize-output-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> A writeable output directory. The output directory will be used as a location to save the optimized model.</p>
 </dd></dl>
 
 </section>
 <section id="tlt-quantize">
-<h3>quantize<a class="headerlink" href="#tlt-quantize" title="Link to this heading">¶</a></h3>
+<h3>quantize<a class="headerlink" href="#tlt-quantize" title="Permalink to this heading">¶</a></h3>
 <p>Uses the Intel Neural Compressor to perform post-training quantization on a trained model</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span>quantize<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
@@ -370,34 +373,34 @@
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-model-dir">
-<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-model-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--model-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-model-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Model directory to reload for quantization. The model directory should contain a saved_model.pb for TensorFlow models or a model.pt file for PyTorch models.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-dataset-dir">
-<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-dataset-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-dataset-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Dataset directory for a custom dataset. Quantization is not supported with dataset catalogs at this time.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-dataset-file">
-<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-dataset-file" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-dataset-file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of a file in the dataset directory to load. Used for loading a .csv file for text classification fine tuning.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-delimiter">
-<span class="sig-name descname"><span class="pre">--delimiter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;delimiter&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-delimiter" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--delimiter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;delimiter&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-delimiter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delimiter used when loading a dataset from a csv file. [default: ,]</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-batch-size">
-<span class="sig-name descname"><span class="pre">--batch-size</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--batch_size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;batch_size&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-batch-size" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--batch-size</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--batch_size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;batch_size&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-batch-size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Batch size used during quantization, if an INC config file is not provided. If an INC config file is provided, the batch size from the config file will be used.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">32</span></code></p>
 </dd>
 </dl>
@@ -405,13 +408,13 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-approach">
-<span class="sig-name descname"><span class="pre">--approach</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;approach&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-approach" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--approach</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;approach&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-approach" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specify to use static or dynamic quantization. Generally, static is recommended for image models and dynamic is recommended for text models.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">static</span></code></p>
 </dd>
-<dt class="field-even">Options<span class="colon">:</span></dt>
+<dt class="field-even">Options</dt>
 <dd class="field-even"><p>static | dynamic</p>
 </dd>
 </dl>
@@ -419,10 +422,10 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-accuracy-criterion">
-<span class="sig-name descname"><span class="pre">--accuracy-criterion</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--accuracy_criterion</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;accuracy_criterion&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-accuracy-criterion" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--accuracy-criterion</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--accuracy_criterion</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;accuracy_criterion&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-accuracy-criterion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Relative accuracy loss to allow (for example, a value of 0.01 allows for a relative accuracy loss of 1%), if an INC config file is not provided. If an INC config file is provided, the accuracy criterion from the config file will be used.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.01</span></code></p>
 </dd>
 </dl>
@@ -430,10 +433,10 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-timeout">
-<span class="sig-name descname"><span class="pre">--timeout</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;timeout&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-timeout" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--timeout</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;timeout&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-timeout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tuning timeout in seconds, if an INC config file is not provided. If an INC config file is provided, the timeout from the config file will be used. Tuning processing finishes when the timeout or max trials is reached. A tuning timeout of 0 means that the tuning phase stops when the accuracy criterion is met.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p>
 </dd>
 </dl>
@@ -441,10 +444,10 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-max-trials">
-<span class="sig-name descname"><span class="pre">--max-trials</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max_trials</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_trials&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-max-trials" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--max-trials</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--max_trials</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_trials&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-max-trials" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of tuning trials, if an INC config file is not provided. If an INC config file is provided, the number of max trials from the config file will be used. Tuning processing finishes when the timeout or max trials is reached.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dt class="field-odd">Default</dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">50</span></code></p>
 </dd>
 </dl>
@@ -452,13 +455,13 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-quantize-output-dir">
-<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-output-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-quantize-output-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> A writeable output directory. The output directory will be used as a location to save the quantized model, the tuning workspace, and the INC config file, if a config file is not provided.</p>
 </dd></dl>
 
 </section>
 <section id="tlt-train">
-<h3>train<a class="headerlink" href="#tlt-train" title="Link to this heading">¶</a></h3>
+<h3>train<a class="headerlink" href="#tlt-train" title="Permalink to this heading">¶</a></h3>
 <p>Trains the model</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tlt<span class="w"> </span>train<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
@@ -466,10 +469,10 @@
 <p class="rubric">Options</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-f">
-<span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--framework</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;framework&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-f" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--framework</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;framework&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-f" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deep learning framework [default: tensorflow]</p>
 <dl class="field-list simple">
-<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>tensorflow | pytorch</p>
 </dd>
 </dl>
@@ -477,16 +480,16 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-model-name">
-<span class="sig-name descname"><span class="pre">--model-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-model-name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--model-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--model_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-model-name" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Name of the model to use</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-use-case">
-<span class="sig-name descname"><span class="pre">--use-case</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use_case</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;use_case&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-use-case" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--use-case</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use_case</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;use_case&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-use-case" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specify the use case if the model is supported by multiple use cases</p>
 <dl class="field-list simple">
-<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>image_classification | anomaly_detection | image_anomaly_detection | text_classification | text_generation</p>
 </dd>
 </dl>
@@ -494,46 +497,46 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-output-dir">
-<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-output-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-output-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Output directory for saved models, logs, checkpoints, etc</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-dataset-dir">
-<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-dir" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-dir</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_dir&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-dir" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Required</strong> Dataset directory for a custom dataset, or if a dataset name and catalog are being provided, the dataset directory is the location where the dataset will be downloaded.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-dataset-file">
-<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-file" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-file</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_file&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of a file in the dataset directory to load. Used for loading a .csv file for text classification fine tuning, or a json / txt file for text generation</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-delimiter">
-<span class="sig-name descname"><span class="pre">--delimiter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;delimiter&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-delimiter" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--delimiter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;delimiter&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-delimiter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delimiter used when loading a dataset from a csv file. [default: ,]</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-class-names">
-<span class="sig-name descname"><span class="pre">--class-names</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--class_names</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;class_names&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-class-names" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--class-names</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--class_names</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;class_names&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-class-names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Comma separated string of class names for a text classification dataset being loaded from .csv</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-dataset-name">
-<span class="sig-name descname"><span class="pre">--dataset-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-name</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_name&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the dataset to use from a dataset catalog. Not yet supported for Text Generation.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-dataset-catalog">
-<span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-catalog" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--dataset-catalog</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dataset_catalog</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;dataset_catalog&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-dataset-catalog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of a dataset catalog for a named dataset (Options: tf_datasets, torchvision, huggingface). If a dataset name is provided and no dataset catalog is given, it will default to use tf_datasets for a TensorFlow model, torchvision for PyTorch CV models, and huggingface datasets for HuggingFace models. Not yet supported for Text Generation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>tf_datasets | torchvision | huggingface</p>
 </dd>
 </dl>
@@ -541,22 +544,22 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-epochs">
-<span class="sig-name descname"><span class="pre">--epochs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;epochs&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-epochs" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--epochs</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;epochs&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-epochs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of training epochs [default: 1]</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-init-checkpoints">
-<span class="sig-name descname"><span class="pre">--init-checkpoints</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--init_checkpoints</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;init_checkpoints&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-init-checkpoints" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--init-checkpoints</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--init_checkpoints</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;init_checkpoints&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-init-checkpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optional path to checkpoint weights to load to resume training. If the path provided is a directory, the latest checkpoint from the directory will be used.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-add-aug">
-<span class="sig-name descname"><span class="pre">--add-aug</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--add_aug</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;add_aug&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-add-aug" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--add-aug</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--add_aug</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;add_aug&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-add-aug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choice of data augmentation to be applied during training.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>hvflip | hflip | vflip | rotate | zoom</p>
 </dd>
 </dl>
@@ -564,115 +567,115 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-ipex_optimize">
-<span class="sig-name descname"><span class="pre">--ipex_optimize</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--ipex-optimize</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-ipex_optimize" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--ipex_optimize</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--ipex-optimize</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-ipex_optimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Boolean option to optimize model with Intel Extension for PyTorch.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-d">
-<span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--distributed</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-d" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--distributed</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Boolean option to trigger a distributed training job.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-nnodes">
-<span class="sig-name descname"><span class="pre">--nnodes</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;nnodes&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-nnodes" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--nnodes</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;nnodes&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-nnodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of nodes to run the training job [default: 1]</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-nproc_per_node">
-<span class="sig-name descname"><span class="pre">--nproc_per_node</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--nproc-per-node</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;nproc_per_node&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-nproc_per_node" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--nproc_per_node</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--nproc-per-node</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;nproc_per_node&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-nproc_per_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of processes per node for the distributed training job [default: 1]</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-hostfile">
-<span class="sig-name descname"><span class="pre">--hostfile</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hostfile&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-hostfile" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--hostfile</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hostfile&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-hostfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>hostfile with a list of nodes to run distributed training.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-early-stopping">
-<span class="sig-name descname"><span class="pre">--early-stopping</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--early_stopping</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-early-stopping" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--early-stopping</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--early_stopping</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-early-stopping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enable early stopping if convergence is reached while training (bool)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-lr-decay">
-<span class="sig-name descname"><span class="pre">--lr-decay</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--lr_decay</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-lr-decay" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--lr-decay</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--lr_decay</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-lr-decay" title="Permalink to this definition">¶</a></dt>
 <dd><p>If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at the end of each epoch.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-use-horovod">
-<span class="sig-name descname"><span class="pre">--use-horovod</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use_horovod</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-use-horovod" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--use-horovod</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use_horovod</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-use-horovod" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use horovod instead of default MPI</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-hvd-start-timeout">
-<span class="sig-name descname"><span class="pre">--hvd-start-timeout</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--hvd_start_timeout</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hvd_start_timeout&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-hvd-start-timeout" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--hvd-start-timeout</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--hvd_start_timeout</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;hvd_start_timeout&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-hvd-start-timeout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Horovodrun has to perform all the checks and start the processes before the specified timeout. The default value is 30 seconds.  Alternatively, The environment variable HOROVOD_START_TIMEOUT can also be used to specify the initialization timeout. Currently only supports PyTorch.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-simsiam">
-<span class="sig-name descname"><span class="pre">--simsiam</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-simsiam" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--simsiam</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-simsiam" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use SimSiam anomaly detection</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-cutpaste">
-<span class="sig-name descname"><span class="pre">--cutpaste</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-cutpaste" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--cutpaste</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-tlt-train-cutpaste" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use CutPaste anomaly detection</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-instruction-key">
-<span class="sig-name descname"><span class="pre">--instruction-key</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--instruction_key</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;instruction_key&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-instruction-key" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--instruction-key</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--instruction_key</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;instruction_key&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-instruction-key" title="Permalink to this definition">¶</a></dt>
 <dd><p>The instruction key from the dataset file used to determine the dataset schema</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-context-key">
-<span class="sig-name descname"><span class="pre">--context-key</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--context_key</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;context_key&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-context-key" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--context-key</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--context_key</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;context_key&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-context-key" title="Permalink to this definition">¶</a></dt>
 <dd><p>The context key from the dataset file used to determine the dataset schema</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-response-key">
-<span class="sig-name descname"><span class="pre">--response-key</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--response_key</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;response_key&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-response-key" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--response-key</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--response_key</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;response_key&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-response-key" title="Permalink to this definition">¶</a></dt>
 <dd><p>The response key from the dataset file used to determine the dataset schema</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-prompt-with-context">
-<span class="sig-name descname"><span class="pre">--prompt-with-context</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--prompt_with_context</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt_with_context&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-prompt-with-context" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--prompt-with-context</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--prompt_with_context</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt_with_context&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-prompt-with-context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prompt with added context used to build the prompt dictionary</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-prompt-without-context">
-<span class="sig-name descname"><span class="pre">--prompt-without-context</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--prompt_without_context</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt_without_context&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-prompt-without-context" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--prompt-without-context</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--prompt_without_context</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;prompt_without_context&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-prompt-without-context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prompt without added context used to build the prompt dictionary</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-lora-rank">
-<span class="sig-name descname"><span class="pre">--lora-rank</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--lora_rank</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lora_rank&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-lora-rank" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--lora-rank</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--lora_rank</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lora_rank&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-lora-rank" title="Permalink to this definition">¶</a></dt>
 <dd><p>LoRA rank parameter (default: 8)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-lora-alpha">
-<span class="sig-name descname"><span class="pre">--lora-alpha</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--lora_alpha</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lora_alpha&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-lora-alpha" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--lora-alpha</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--lora_alpha</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lora_alpha&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-lora-alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p>LoRA alpha parameter (default: 32)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-tlt-train-lora-dropout">
-<span class="sig-name descname"><span class="pre">--lora-dropout</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--lora_dropout</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lora_dropout&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-lora-dropout" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">--lora-dropout</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--lora_dropout</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lora_dropout&gt;</span></span><a class="headerlink" href="#cmdoption-tlt-train-lora-dropout" title="Permalink to this definition">¶</a></dt>
 <dd><p>LoRA dropout parameter (default: 0.05)</p>
 </dd></dl>
 

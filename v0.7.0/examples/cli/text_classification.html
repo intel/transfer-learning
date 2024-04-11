@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Text Classification Intel® Transfer Learning Tool CLI Example &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -13,10 +13,13 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -95,9 +98,9 @@
            <div itemprop="articleBody">
              
   <section id="text-classification-intel-transfer-learning-tool-cli-example">
-<h1>Text Classification Intel® Transfer Learning Tool CLI Example<a class="headerlink" href="#text-classification-intel-transfer-learning-tool-cli-example" title="Link to this heading">¶</a></h1>
+<h1>Text Classification Intel® Transfer Learning Tool CLI Example<a class="headerlink" href="#text-classification-intel-transfer-learning-tool-cli-example" title="Permalink to this heading">¶</a></h1>
 <section id="fine-tuning-using-your-own-dataset">
-<h2>Fine Tuning Using Your Own Dataset<a class="headerlink" href="#fine-tuning-using-your-own-dataset" title="Link to this heading">¶</a></h2>
+<h2>Fine Tuning Using Your Own Dataset<a class="headerlink" href="#fine-tuning-using-your-own-dataset" title="Permalink to this heading">¶</a></h2>
 <p>The example below shows how to fine tune a TensorFlow text classification model using your own
 dataset in the .csv format. The .csv file is expected to have 2 columns: a numerical class label
 and the text/sentence to classify. Note that although the TLT API is more flexible and allows for
@@ -155,7 +158,7 @@ tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><
 </div>
 </section>
 <section id="fine-tuning-using-a-dataset-from-the-tfds-catalog">
-<h2>Fine Tuning Using a Dataset from the TFDS Catalog<a class="headerlink" href="#fine-tuning-using-a-dataset-from-the-tfds-catalog" title="Link to this heading">¶</a></h2>
+<h2>Fine Tuning Using a Dataset from the TFDS Catalog<a class="headerlink" href="#fine-tuning-using-a-dataset-from-the-tfds-catalog" title="Permalink to this heading">¶</a></h2>
 <p>This example demonstrates using the Intel Transfer Learning Tool CLI to fine tune a text classification model using a
 dataset from the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/overview">TensorFlow Datasets (TFDS) catalog</a>.
 Intel Transfer Learning Tool supports the following text classification datasets from TFDS:
@@ -191,7 +194,7 @@ tlt<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><
 </div>
 </section>
 <section id="distributed-transfer-learning-using-a-dataset-from-hugging-face">
-<h2>Distributed Transfer Learning Using a Dataset from Hugging Face<a class="headerlink" href="#distributed-transfer-learning-using-a-dataset-from-hugging-face" title="Link to this heading">¶</a></h2>
+<h2>Distributed Transfer Learning Using a Dataset from Hugging Face<a class="headerlink" href="#distributed-transfer-learning-using-a-dataset-from-hugging-face" title="Permalink to this heading">¶</a></h2>
 <p>This example runs a distributed PyTorch training job using the TLT CLI. It fine tunes a text classification model
 for document-level sentiment analysis using a dataset from the <a class="reference external" href="https://huggingface.co/datasets">Hugging Face catalog</a>.
 Intel Transfer Learning Tool supports the following text classification datasets from Hugging Face:</p>
@@ -202,7 +205,7 @@ Intel Transfer Learning Tool supports the following text classification datasets
 <li><p><a class="reference external" href="https://huggingface.co/datasets/ag_news">ag_news</a></p></li>
 <li><p><a class="reference external" href="https://huggingface.co/datasets/sst2">sst2</a></p></li>
 </ul>
-<p>Follow <a class="reference internal" href="#/tlt/distributed/README.md"><span class="xref myst">these instructions</span></a> to set up your machines for distributed training with PyTorch. This will
+<p>Follow <a class="reference internal" href="../../tlt/distributed/README.html"><span class="doc std std-doc">these instructions</span></a> to set up your machines for distributed training with PyTorch. This will
 ensure your environment has the right prerequisites, package dependencies, and hostfile configuration. When
 you have successfully run the sanity check, the following commands will fine-tune <code class="docutils literal notranslate"><span class="pre">bert-large-uncased</span></code> with sst2 for
 one epoch using 2 nodes and 2 processes per node.</p>
@@ -230,7 +233,7 @@ tlt<span class="w"> </span>train<span class="w"> </span><span class="se">\</span
 </div>
 </section>
 <section id="citations">
-<h2>Citations<a class="headerlink" href="#citations" title="Link to this heading">¶</a></h2>
+<h2>Citations<a class="headerlink" href="#citations" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@InProceedings</span><span class="p">{</span><span class="n">maas</span><span class="o">-</span><span class="n">EtAl</span><span class="p">:</span><span class="mi">2011</span><span class="p">:</span><span class="n">ACL</span><span class="o">-</span><span class="n">HLT2011</span><span class="p">,</span>
   <span class="n">author</span>    <span class="o">=</span> <span class="p">{</span><span class="n">Maas</span><span class="p">,</span> <span class="n">Andrew</span> <span class="n">L</span><span class="o">.</span>  <span class="ow">and</span>  <span class="n">Daly</span><span class="p">,</span> <span class="n">Raymond</span> <span class="n">E</span><span class="o">.</span>  <span class="ow">and</span>  <span class="n">Pham</span><span class="p">,</span> <span class="n">Peter</span> <span class="n">T</span><span class="o">.</span>  <span class="ow">and</span>  <span class="n">Huang</span><span class="p">,</span> <span class="n">Dan</span>  <span class="ow">and</span>  <span class="n">Ng</span><span class="p">,</span> <span class="n">Andrew</span> <span class="n">Y</span><span class="o">.</span>  <span class="ow">and</span>  <span class="n">Potts</span><span class="p">,</span> <span class="n">Christopher</span><span class="p">},</span>
   <span class="n">title</span>     <span class="o">=</span> <span class="p">{</span><span class="n">Learning</span> <span class="n">Word</span> <span class="n">Vectors</span> <span class="k">for</span> <span class="n">Sentiment</span> <span class="n">Analysis</span><span class="p">},</span>

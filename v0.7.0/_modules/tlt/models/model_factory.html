@@ -12,10 +12,13 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -162,9 +165,7 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="load_model">
-<a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.load_model">[docs]</a>
-<span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                <span class="n">model_hub</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A factory method for loading an existing model.</span>
 
@@ -206,10 +207,7 @@
     <span class="k">return</span> <span class="n">model_class</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="get_model">
-<a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.get_model">[docs]</a>
-<span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="get_model"><a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.get_model">[docs]</a><span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A factory method for creating models.</span>
 
 <span class="sd">        Args:</span>
@@ -281,10 +279,7 @@
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented yet: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_framework_str</span><span class="p">,</span> <span class="n">model_name</span><span class="p">))</span></div>
 
 
-
-<div class="viewcode-block" id="get_supported_models">
-<a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.get_supported_models">[docs]</a>
-<span class="k">def</span> <span class="nf">get_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="get_supported_models"><a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.get_supported_models">[docs]</a><span class="k">def</span> <span class="nf">get_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a dictionary of supported models organized by use case, model name, and framework.</span>
 <span class="sd">    The leaf items in the dictionary are attributes about the pretrained model.</span>
@@ -354,10 +349,7 @@
     <span class="k">return</span> <span class="n">models</span></div>
 
 
-
-<div class="viewcode-block" id="print_supported_models">
-<a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.print_supported_models">[docs]</a>
-<span class="k">def</span> <span class="nf">print_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="print_supported_models"><a class="viewcode-back" href="../../../api.html#tlt.models.model_factory.print_supported_models">[docs]</a><span class="k">def</span> <span class="nf">print_supported_models</span><span class="p">(</span><span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                            <span class="n">markdown</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prints a list of the supported models, categorized by use case. The results can be filtered to only show a given</span>
@@ -430,7 +422,6 @@
 
         <span class="c1"># Empty line between use cases</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
-
 
 
 <span class="k">def</span> <span class="nf">get_model_info</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_case</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

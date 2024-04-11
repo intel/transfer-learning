@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Text Classification fine tuning using Pytorch and the Intel® Transfer Learning Tool API &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -14,10 +14,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -82,10 +85,10 @@
            <div itemprop="articleBody">
              
   <section id="Text-Classification-fine-tuning-using-Pytorch-and-the-Intel®-Transfer-Learning-Tool-API">
-<h1>Text Classification fine tuning using Pytorch and the Intel® Transfer Learning Tool API<a class="headerlink" href="#Text-Classification-fine-tuning-using-Pytorch-and-the-Intel®-Transfer-Learning-Tool-API" title="Link to this heading">¶</a></h1>
+<h1>Text Classification fine tuning using Pytorch and the Intel® Transfer Learning Tool API<a class="headerlink" href="#Text-Classification-fine-tuning-using-Pytorch-and-the-Intel®-Transfer-Learning-Tool-API" title="Permalink to this heading">¶</a></h1>
 <p>This notebook uses the <code class="docutils literal notranslate"><span class="pre">tlt</span></code> library to fine tune a Hugging Face pretrained model for text classification.</p>
 <section id="1.-Import-dependencies-and-setup-parameters">
-<h2>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Link to this heading">¶</a></h2>
+<h2>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Permalink to this heading">¶</a></h2>
 <p>This notebook assumes that you have already followed the instructions to setup a Pytorch environment with all the dependencies required to run the notebook.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -115,7 +118,7 @@
 </div>
 </section>
 <section id="2.-Get-the-model">
-<h2>2. Get the model<a class="headerlink" href="#2.-Get-the-model" title="Link to this heading">¶</a></h2>
+<h2>2. Get the model<a class="headerlink" href="#2.-Get-the-model" title="Permalink to this heading">¶</a></h2>
 <p>In this step, we call the Intel Transfer Learning Tool model factory to list supported Hugging Face text classification models. This is a list of pretrained models from Hugging Face that we tested with our API. Optionally, the <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code> argument can be added to the <code class="docutils literal notranslate"><span class="pre">print_supported_models()</span></code> function call to get more information about each model (such as the links to Huggingface, the original dataset, etc).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -144,9 +147,9 @@
 </div>
 </section>
 <section id="3.-Get-the-dataset">
-<h2>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Link to this heading">¶</a></h2>
+<h2>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Permalink to this heading">¶</a></h2>
 <section id="Option-A:-Use-your-own-dataset">
-<h3>Option A: Use your own dataset<a class="headerlink" href="#Option-A:-Use-your-own-dataset" title="Link to this heading">¶</a></h3>
+<h3>Option A: Use your own dataset<a class="headerlink" href="#Option-A:-Use-your-own-dataset" title="Permalink to this heading">¶</a></h3>
 <p>This option allows for using your own text classification dataset from a <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file. The dataset factory will expect text classification .csv files to have two columns where the first column is the label and the second column is the text/sentence to classify.</p>
 <p>For example, the contents of a comma separated value file should look similar to this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;label&gt;,&lt;text&gt;
@@ -200,7 +203,7 @@ does not own the rights to this data set and does not confer any rights to it.)<
 <p>Skip to the next step <a class="reference internal" href="#4.-Prepare-the-dataset"><span class="std std-ref">4. Prepare the dataset</span></a> to continue using your own dataset.</p>
 </section>
 <section id="Option-B:-Use-the-HuggingFace-catalog">
-<h3>Option B: Use the HuggingFace catalog<a class="headerlink" href="#Option-B:-Use-the-HuggingFace-catalog" title="Link to this heading">¶</a></h3>
+<h3>Option B: Use the HuggingFace catalog<a class="headerlink" href="#Option-B:-Use-the-HuggingFace-catalog" title="Permalink to this heading">¶</a></h3>
 <p>Option B allows for using a dataset from the <a class="reference external" href="https://huggingface.co/datasets">HuggingFace datasets catalog</a>. Current supported datasets: - <strong>imdb</strong> - <strong>tweet_eval/</strong> – emoji, emotion, hate, irony, offensive, sentiment, stance_abortion, stance_atheism, stance_climate, stance_feminist, stance_hillary - <strong>rotten_tomatoes</strong> - <strong>ag_news</strong> - <strong>sst2</strong></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -218,7 +221,7 @@ does not own the rights to this data set and does not confer any rights to it.)<
 </section>
 </section>
 <section id="4.-Prepare-the-dataset">
-<h2>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Link to this heading">¶</a></h2>
+<h2>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Permalink to this heading">¶</a></h2>
 <p>Once you have your dataset from Option A or Option B above, use the following cell to preprocess the dataset. The dataset is batched and then split into subsets for training and validation.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -232,13 +235,13 @@ does not own the rights to this data set and does not confer any rights to it.)<
 </div>
 </section>
 <section id="5.-Fine-tuning">
-<h2>5. Fine tuning<a class="headerlink" href="#5.-Fine-tuning" title="Link to this heading">¶</a></h2>
+<h2>5. Fine tuning<a class="headerlink" href="#5.-Fine-tuning" title="Permalink to this heading">¶</a></h2>
 <p>The Intel Transfer Learning Tool model’s train function is called with the dataset that was just prepared, along with an output directory for checkpoints, and the number of training epochs.</p>
 <p>With the do_eval parameter set to True by default, this step will also show how the model can be evaluated. The model’s evaluate function returns a list of metrics calculated from the dataset’s validation subset.</p>
 <section id="Arguments">
-<h3>Arguments<a class="headerlink" href="#Arguments" title="Link to this heading">¶</a></h3>
+<h3>Arguments<a class="headerlink" href="#Arguments" title="Permalink to this heading">¶</a></h3>
 <section id="Required">
-<h4>Required<a class="headerlink" href="#Required" title="Link to this heading">¶</a></h4>
+<h4>Required<a class="headerlink" href="#Required" title="Permalink to this heading">¶</a></h4>
 <ul class="simple">
 <li><p><strong>dataset</strong> (ImageClassificationDataset, required): Dataset to use when training the model</p></li>
 <li><p><strong>output_dir</strong> (str): Path to a writeable directory for checkpoint files</p></li>
@@ -246,7 +249,7 @@ does not own the rights to this data set and does not confer any rights to it.)<
 </ul>
 </section>
 <section id="Optional">
-<h4>Optional<a class="headerlink" href="#Optional" title="Link to this heading">¶</a></h4>
+<h4>Optional<a class="headerlink" href="#Optional" title="Permalink to this heading">¶</a></h4>
 <ul class="simple">
 <li><p><strong>initial_checkpoints</strong> (str): Path to checkpoint weights to load. If the path provided is a directory, the latest checkpoint will be used.</p></li>
 <li><p><strong>early_stopping</strong> (bool): Enable early stopping if convergence is reached while training at the end of each epoch. (default: False)</p></li>
@@ -290,7 +293,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </section>
 </section>
 <section id="6.-Predict">
-<h2>6. Predict<a class="headerlink" href="#6.-Predict" title="Link to this heading">¶</a></h2>
+<h2>6. Predict<a class="headerlink" href="#6.-Predict" title="Permalink to this heading">¶</a></h2>
 <p>The model’s predict function can be called with a batch of data from the dataset.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -323,7 +326,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </div>
 </div>
 <section id="Predict-on-Text">
-<h3>Predict on Text<a class="headerlink" href="#Predict-on-Text" title="Link to this heading">¶</a></h3>
+<h3>Predict on Text<a class="headerlink" href="#Predict-on-Text" title="Permalink to this heading">¶</a></h3>
 <p>Raw text can also be passed to the predict function.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -339,7 +342,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </section>
 </section>
 <section id="7.-Export-the-saved-model">
-<h2>7. Export the saved model<a class="headerlink" href="#7.-Export-the-saved-model" title="Link to this heading">¶</a></h2>
+<h2>7. Export the saved model<a class="headerlink" href="#7.-Export-the-saved-model" title="Permalink to this heading">¶</a></h2>
 <p>Lastly, we can call the model export function to generate a saved_model.pb. Each time the model is exported, a new numbered directory is created, which allows serving to pick up the latest model.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -351,7 +354,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </div>
 </section>
 <section id="8.-Quantization">
-<h2>8. Quantization<a class="headerlink" href="#8.-Quantization" title="Link to this heading">¶</a></h2>
+<h2>8. Quantization<a class="headerlink" href="#8.-Quantization" title="Permalink to this heading">¶</a></h2>
 <p>In this section, the Intel Transfer Learning Tool API uses Intel® Neural Compressor (INC) to quantize the model to get optimal inference performance.</p>
 <p>We use the Intel Neural Compressor config to benchmark the full precision model to see how it performs, as our baseline.</p>
 <blockquote>
@@ -407,7 +410,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </div>
 </section>
 <section id="Citations">
-<h2>Citations<a class="headerlink" href="#Citations" title="Link to this heading">¶</a></h2>
+<h2>Citations<a class="headerlink" href="#Citations" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@InProceedings{maas-EtAl:2011:ACL-HLT2011,
   author    = {Maas, Andrew L.  and  Daly, Raymond E.  and  Pham, Peter T.  and  Huang, Dan  and  Ng, Andrew Y.  and  Potts, Christopher},
   title     = {Learning Word Vectors for Sentiment Analysis},

@@ -12,10 +12,13 @@
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -232,9 +235,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">imgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span>
 
 
-<div class="viewcode-block" id="PyTorchCustomImageAnomalyDetectionDataset">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.html#tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset">[docs]</a>
-<span class="k">class</span> <span class="nc">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">(</span><span class="n">PyTorchDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="PyTorchCustomImageAnomalyDetectionDataset"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.html#tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset">[docs]</a><span class="k">class</span> <span class="nc">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">(</span><span class="n">PyTorchDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A custom image anomaly detection dataset that can be used with PyTorch models. Note that the</span>
 <span class="sd">    directory of images is expected to be organized in one of two ways.</span>
@@ -279,9 +280,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PyTorchCustomImageAnomalyDetectionDataset.__init__">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.html#tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">56</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">defects</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PyTorchCustomImageAnomalyDetectionDataset.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.html#tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset.PyTorchCustomImageAnomalyDetectionDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">56</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">defects</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class constructor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -369,7 +368,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cutpaste_transform</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_train_transform</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validation_transform</span> <span class="o">=</span> <span class="kc">None</span></div>
-
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">class_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -619,7 +617,6 @@
             <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_loader</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to return a batch, because the dataset or subset hasn&#39;t been defined.&quot;</span><span class="p">)</span></div>
-
 </pre></div>
 
            </div>

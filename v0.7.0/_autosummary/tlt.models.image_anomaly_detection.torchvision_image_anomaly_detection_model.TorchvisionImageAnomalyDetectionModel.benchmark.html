@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.benchmark &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -13,10 +13,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -79,15 +82,15 @@
            <div itemprop="articleBody">
              
   <section id="tlt-models-image-anomaly-detection-torchvision-image-anomaly-detection-model-torchvisionimageanomalydetectionmodel-benchmark">
-<h1>tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.benchmark<a class="headerlink" href="#tlt-models-image-anomaly-detection-torchvision-image-anomaly-detection-model-torchvisionimageanomalydetectionmodel-benchmark" title="Link to this heading">¶</a></h1>
+<h1>tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.benchmark<a class="headerlink" href="#tlt-models-image-anomaly-detection-torchvision-image-anomaly-detection-model-torchvisionimageanomalydetectionmodel-benchmark" title="Permalink to this heading">¶</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.benchmark">
-<span class="sig-prename descclassname"><span class="pre">TorchvisionImageAnomalyDetectionModel.</span></span><span class="sig-name descname"><span class="pre">benchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_model_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores_per_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_of_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inter_num_of_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intra_num_of_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.benchmark" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">TorchvisionImageAnomalyDetectionModel.</span></span><span class="sig-name descname"><span class="pre">benchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_model_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores_per_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_of_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inter_num_of_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intra_num_of_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model.TorchvisionImageAnomalyDetectionModel.benchmark" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use Intel Neural Compressor to benchmark the model with the dataset argument. The dataset’s validation or test
 subset will be used for benchmarking, if present. Otherwise, the full training dataset is used. The model to be
 benchmarked can also be explicitly set to a saved_model_dir containing for example a quantized saved model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset</strong> (<a class="reference internal" href="tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset.html#tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset" title="tlt.datasets.image_classification.image_classification_dataset.ImageClassificationDataset"><em>ImageClassificationDataset</em></a>) – Dataset to use for benchmarking</p></li>
 <li><p><strong>saved_model_dir</strong> (<em>str</em>) – Optional, path to the directory where the saved model is located</p></li>
@@ -101,10 +104,10 @@ None</p></li>
 None</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Benchmarking results from Intel Neural Compressor</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Raises</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>NotADirectoryError</strong> – if the saved_model_dir is not None or a valid directory</p></li>
 <li><p><strong>FileNotFoundError</strong> – if a model.pt is not found in the saved_model_dir or if the inc_config_path file</p></li>

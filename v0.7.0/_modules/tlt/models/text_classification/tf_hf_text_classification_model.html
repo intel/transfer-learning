@@ -12,10 +12,13 @@
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -111,17 +114,13 @@
 <span class="kn">from</span> <span class="nn">tlt.utils.file_utils</span> <span class="kn">import</span> <span class="n">read_json_file</span>
 
 
-<div class="viewcode-block" id="TFHFTextClassificationModel">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel">[docs]</a>
-<span class="k">class</span> <span class="nc">TFHFTextClassificationModel</span><span class="p">(</span><span class="n">TFTextClassificationModel</span><span class="p">):</span>
+<div class="viewcode-block" id="TFHFTextClassificationModel"><a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel">[docs]</a><span class="k">class</span> <span class="nc">TFHFTextClassificationModel</span><span class="p">(</span><span class="n">TFTextClassificationModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to represent a TensorFlow pretrained model from Hugging Face that can be used for binary text classification</span>
 <span class="sd">    fine tuning.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="TFHFTextClassificationModel.__init__">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TFHFTextClassificationModel.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">tfhub_model_map</span> <span class="o">=</span> <span class="n">read_json_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">TLT_BASE_DIR</span><span class="p">,</span> <span class="s2">&quot;models/configs/tf_hf_text_classification_models.json&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">model_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tfhub_model_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -137,7 +136,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_generate_checkpoints</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="n">TFTextClassificationModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hub_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -178,9 +176,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_classes</span> <span class="o">=</span> <span class="n">num_classes</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
 
-<div class="viewcode-block" id="TFHFTextClassificationModel.train">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.train.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.train">[docs]</a>
-    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="TFHFTextClassificationModel.train"><a class="viewcode-back" href="../../../../_autosummary/tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.train.html#tlt.models.text_classification.tf_hf_text_classification_model.TFHFTextClassificationModel.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
               <span class="n">do_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">early_stopping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lr_decay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
               <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extra_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">distributed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hostfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nnodes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
               <span class="n">nproc_per_node</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -288,7 +284,6 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span></div>
 
-
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">TextClassificationDataset</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">           If there is a validation set, evaluation will be done on it (by default) or on the test set (by setting</span>
@@ -382,7 +377,6 @@
                                        <span class="n">max_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_seq_length</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;tf&quot;</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">encoded_input</span><span class="p">))</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
-
 </pre></div>
 
            </div>

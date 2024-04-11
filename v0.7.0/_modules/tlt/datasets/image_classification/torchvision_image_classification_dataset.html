@@ -12,10 +12,13 @@
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -107,16 +110,12 @@
 <span class="n">DATASETS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CIFAR10&quot;</span><span class="p">,</span> <span class="s2">&quot;Food101&quot;</span><span class="p">,</span> <span class="s2">&quot;Country211&quot;</span><span class="p">,</span> <span class="s2">&quot;DTD&quot;</span><span class="p">,</span> <span class="s2">&quot;FGVCAircraft&quot;</span><span class="p">,</span> <span class="s2">&quot;RenderedSST2&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="TorchvisionImageClassificationDataset">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset.html#tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset">[docs]</a>
-<span class="k">class</span> <span class="nc">TorchvisionImageClassificationDataset</span><span class="p">(</span><span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">PyTorchDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="TorchvisionImageClassificationDataset"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset.html#tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset">[docs]</a><span class="k">class</span> <span class="nc">TorchvisionImageClassificationDataset</span><span class="p">(</span><span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">PyTorchDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An image classification dataset from the torchvision catalog</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="TorchvisionImageClassificationDataset.__init__">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset.html#tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">],</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="viewcode-block" id="TorchvisionImageClassificationDataset.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset.html#tlt.datasets.image_classification.torchvision_image_classification_dataset.TorchvisionImageClassificationDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">],</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class constructor</span>
@@ -191,7 +190,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">),</span> <span class="s1">&#39;distributed&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distributed</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_data_loaders</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">class_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -212,7 +210,6 @@
 <span class="sd">        Returns the framework dataset object (torch.utils.data.Dataset)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span></div>
-
 </pre></div>
 
            </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Image Anomaly Detection with PyTorch using Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -14,10 +14,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -82,13 +85,13 @@
            <div itemprop="articleBody">
              
   <section id="Image-Anomaly-Detection-with-PyTorch-using-Intel®-Transfer-Learning-Tool">
-<h1>Image Anomaly Detection with PyTorch using Intel® Transfer Learning Tool<a class="headerlink" href="#Image-Anomaly-Detection-with-PyTorch-using-Intel®-Transfer-Learning-Tool" title="Link to this heading">¶</a></h1>
+<h1>Image Anomaly Detection with PyTorch using Intel® Transfer Learning Tool<a class="headerlink" href="#Image-Anomaly-Detection-with-PyTorch-using-Intel®-Transfer-Learning-Tool" title="Permalink to this heading">¶</a></h1>
 <p>This notebook demonstrates anomaly detection using the Intel Transfer Learning Toolkit. It performs defect analysis with the MVTec dataset using PyTorch. The workflow uses a pretrained ResNet50 v1.5 model from torchvision.</p>
 <section id="Intel®-Gaudi®-AI-accelerator">
-<h2>Intel® Gaudi® AI accelerator<a class="headerlink" href="#Intel®-Gaudi®-AI-accelerator" title="Link to this heading">¶</a></h2>
+<h2>Intel® Gaudi® AI accelerator<a class="headerlink" href="#Intel®-Gaudi®-AI-accelerator" title="Permalink to this heading">¶</a></h2>
 <p>To use HPU training and inference with Gaudi, follow these steps to install required HPU drivers and software from <a class="reference external" href="/notebooks/image_anomaly_detection/tlt_api_pyt_anomaly_detection/README.md">README</a> or the official <a class="reference external" href="https://docs.habana.ai/en/latest/Installation_Guide/SW_Verification.html">Habana Docs</a></p>
 <section id="1.-Import-dependencies-and-setup-parameters">
-<h3>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Link to this heading">¶</a></h3>
+<h3>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Permalink to this heading">¶</a></h3>
 <p>This notebook assumes that you have already followed the instructions to setup a PyTorch environment with all the dependencies required to run the notebook.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -124,7 +127,7 @@
 </div>
 </section>
 <section id="2.-Get-or-load-the-model">
-<h3>2. Get or load the model<a class="headerlink" href="#2.-Get-or-load-the-model" title="Link to this heading">¶</a></h3>
+<h3>2. Get or load the model<a class="headerlink" href="#2.-Get-or-load-the-model" title="Permalink to this heading">¶</a></h3>
 <p>In this step, we use the model factory to get the desired model. The <code class="docutils literal notranslate"><span class="pre">get_model</span></code> function returns a pretrained model object from a public model hub, while the <code class="docutils literal notranslate"><span class="pre">load_model</span></code> function loads a pretrained model from a checkpoint on your local disk or in memory.</p>
 <p>Here we are getting the pretrained <code class="docutils literal notranslate"><span class="pre">resnet50</span></code> model from Torchvision:</p>
 <div class="nbinput nblast docutils container">
@@ -152,12 +155,12 @@
 </div>
 </section>
 <section id="3.-Get-the-dataset">
-<h3>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Link to this heading">¶</a></h3>
+<h3>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Permalink to this heading">¶</a></h3>
 <p>To use <a class="reference external" href="https://www.mvtec.com/company/research/datasets/mvtec-ad">MVTec</a> or your own image dataset for anomaly detection, your image files (<code class="docutils literal notranslate"><span class="pre">.jpg</span></code> or <code class="docutils literal notranslate"><span class="pre">.png</span></code>) should be arranged in one of two ways.</p>
 </section>
 </section>
 <section id="Method-1:-Category-Folders">
-<h2>Method 1: Category Folders<a class="headerlink" href="#Method-1:-Category-Folders" title="Link to this heading">¶</a></h2>
+<h2>Method 1: Category Folders<a class="headerlink" href="#Method-1:-Category-Folders" title="Permalink to this heading">¶</a></h2>
 <p>Arrange them in folders in the root dataset directory like this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>hazelnut
   └── crack
@@ -176,7 +179,7 @@
 <p>TLT will encode all of the non-good images as “bad” and use the “good” images in the training set and a mix of good and bad images in the validation set.</p>
 </section>
 <section id="Method-2:-Train-&amp;-Test-Folders-with-Category-Subfolders">
-<h2>Method 2: Train &amp; Test Folders with Category Subfolders<a class="headerlink" href="#Method-2:-Train-&-Test-Folders-with-Category-Subfolders" title="Link to this heading">¶</a></h2>
+<h2>Method 2: Train &amp; Test Folders with Category Subfolders<a class="headerlink" href="#Method-2:-Train-&-Test-Folders-with-Category-Subfolders" title="Permalink to this heading">¶</a></h2>
 <p>Arrange them in folders in the root dataset directory like this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>hazelnut
   └── train
@@ -220,7 +223,7 @@
 </pre></div>
 </div>
 <section id="4.-Prepare-the-dataset">
-<h3>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Link to this heading">¶</a></h3>
+<h3>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Permalink to this heading">¶</a></h3>
 <p>Once you have your dataset, use the following cells to split and preprocess the data. We split them into training and test subsets, then resize the images to match the selected model, and then batch the images. Pass in optional arguments to customize the <a class="reference external" href="https://pytorch.org/vision/main/generated/torchvision.transforms.Resize.html">Resize</a> or <a class="reference external" href="https://pytorch.org/vision/main/generated/torchvision.transforms.Normalize.html">Normalize</a> transforms. Data augmentation can be applied to the
 training set by specifying the augmentations to be applied in the <code class="docutils literal notranslate"><span class="pre">add_aug</span></code> parameter. Supported augmentations are given below: 1. hflip - RandomHorizontalFlip 2. rotate - RandomRotate</p>
 <div class="nbinput nblast docutils container">
@@ -250,7 +253,7 @@ training set by specifying the augmentations to be applied in the <code class="d
 </div>
 </section>
 <section id="5.-Visualize-samples-from-the-dataset">
-<h3>5. Visualize samples from the dataset<a class="headerlink" href="#5.-Visualize-samples-from-the-dataset" title="Link to this heading">¶</a></h3>
+<h3>5. Visualize samples from the dataset<a class="headerlink" href="#5.-Visualize-samples-from-the-dataset" title="Permalink to this heading">¶</a></h3>
 <p>We get a single batch from our training and test subsets and visualize the images as a sanity check.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -307,12 +310,12 @@ training set by specifying the augmentations to be applied in the <code class="d
 </div>
 </section>
 <section id="6.-Training-and-Evaluation">
-<h3>6. Training and Evaluation<a class="headerlink" href="#6.-Training-and-Evaluation" title="Link to this heading">¶</a></h3>
+<h3>6. Training and Evaluation<a class="headerlink" href="#6.-Training-and-Evaluation" title="Permalink to this heading">¶</a></h3>
 <p>This step calls the model’s train function with the dataset that was just prepared. The training function will get the torchvision feature extractor for the user’s desired layer and extract features from the training set. The extracted features are used to perform a <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html">principal component analysis</a>. The model’s evaluate function returns the AUROC metric (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.auc.html">area
 under</a> the <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_curve.html">roc curve</a>) calculated from the dataset’s test subset.</p>
 </section>
 <section id="Feature-Extraction">
-<h3>Feature Extraction<a class="headerlink" href="#Feature-Extraction" title="Link to this heading">¶</a></h3>
+<h3>Feature Extraction<a class="headerlink" href="#Feature-Extraction" title="Permalink to this heading">¶</a></h3>
 <p>There are three feature extractor options available within the <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> function. 1. <strong>No fine-tuning</strong> - To use a pretrained ResNet50/ResNet18 model for feature extraction, simply do not change the default <code class="docutils literal notranslate"><span class="pre">simsiam=False</span></code> input argument. 2. <a class="reference external" href="https://arxiv.org/abs/2011.10566">SimSiam</a> - A self-supervised neural network based on Siamese networks. It learns a meaningful representation of dataset without using any labels. If selected, SimSiam generates quality features that can help
 differentiate between regular and anomaly images in a given context. SimSiam produces two different augmented images from one underlying image. The end goal is to train the network to produce the same features for both images. It takes a ResNet model as the backbone and fine-tunes the model on the augmented dataset to get a better feature embedding. To use this feature extractor, download the SimSiam weights based on ResNet50 -
 <a class="reference external" href="https://dl.fbaipublicfiles.com/simsiam/models/100ep-256bs/pretrain/checkpoint_0099.pth.tar">https://dl.fbaipublicfiles.com/simsiam/models/100ep-256bs/pretrain/checkpoint_0099.pth.tar</a> - set <code class="docutils literal notranslate"><span class="pre">simsiam=True</span></code>, and set <code class="docutils literal notranslate"><span class="pre">initial_checkpoints</span></code> to the path of the downloaded checkpoints in the <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> function. 3. <a class="reference external" href="https://arxiv.org/abs/2104.04015#">Cut-paste</a> - A self-supervised method for Anomaly Detection and Localization that takes ResNet50/ ResNet18 model as backbone and fine-tune the model on custom dataset to get better feature embedding. data augmentation strategy that
@@ -320,7 +323,7 @@ cuts an image patch and pastes at a random location of a large image. To use thi
 </section>
 </section>
 <section id="Optional:-The-SimSiam-TwoCropTransform">
-<h2>Optional: The SimSiam TwoCropTransform<a class="headerlink" href="#Optional:-The-SimSiam-TwoCropTransform" title="Link to this heading">¶</a></h2>
+<h2>Optional: The SimSiam TwoCropTransform<a class="headerlink" href="#Optional:-The-SimSiam-TwoCropTransform" title="Permalink to this heading">¶</a></h2>
 <p>To train a Simsiam model, it is required to apply a TwoCropTransform augmentation technique on the dataset used for training. You can preview this augmentation on a sample batch after preprocessing by using <code class="docutils literal notranslate"><span class="pre">get_batch(simsiam=True)</span></code> and then use them for simsiam training by using <code class="docutils literal notranslate"><span class="pre">simsiam=True</span></code> in <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> also.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -345,7 +348,7 @@ cuts an image patch and pastes at a random location of a large image. To use thi
 </div>
 </section>
 <section id="Optional:-The-Cut-paste-Transforms">
-<h2>Optional: The Cut-paste Transforms<a class="headerlink" href="#Optional:-The-Cut-paste-Transforms" title="Link to this heading">¶</a></h2>
+<h2>Optional: The Cut-paste Transforms<a class="headerlink" href="#Optional:-The-Cut-paste-Transforms" title="Permalink to this heading">¶</a></h2>
 <p>To train a model with Cut-paste , it is required to apply one of the four augmentations - <strong>CutPasteNormal, CutPasteScar, CutPaste3Way, CutPasteUnion</strong> on the dataset used for training. You can preview this augmentation on a sample batch after preprocessing by using <code class="docutils literal notranslate"><span class="pre">get_batch(cutpaste=True)</span></code> and then use them for cutpaste training by using <code class="docutils literal notranslate"><span class="pre">cutpaste=True</span></code> in <code class="docutils literal notranslate"><span class="pre">model.train()</span></code> also.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -385,16 +388,16 @@ cuts an image patch and pastes at a random location of a large image. To use thi
 </pre></div>
 </div>
 <section id="Train-Arguments">
-<h3>Train Arguments<a class="headerlink" href="#Train-Arguments" title="Link to this heading">¶</a></h3>
+<h3>Train Arguments<a class="headerlink" href="#Train-Arguments" title="Permalink to this heading">¶</a></h3>
 <section id="Required">
-<h4>Required<a class="headerlink" href="#Required" title="Link to this heading">¶</a></h4>
+<h4>Required<a class="headerlink" href="#Required" title="Permalink to this heading">¶</a></h4>
 <ul class="simple">
 <li><p><strong>dataset</strong> (ImageAnomalyDetectionDataset, required): Dataset to use when training the model</p></li>
 <li><p><strong>output_dir</strong> (str): Path to a writeable directory</p></li>
 </ul>
 </section>
 <section id="Optional">
-<h4>Optional<a class="headerlink" href="#Optional" title="Link to this heading">¶</a></h4>
+<h4>Optional<a class="headerlink" href="#Optional" title="Permalink to this heading">¶</a></h4>
 <ul class="simple">
 <li><p><strong>generate_checkpoints</strong> (bool): Whether to save/preserve the best weights during SimSiam training (default: True)</p></li>
 <li><p><strong>initial_checkpoints</strong> (str): The path to a starting weights file</p></li>
@@ -438,7 +441,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </section>
 </section>
 <section id="7.-Predict">
-<h3>7. Predict<a class="headerlink" href="#7.-Predict" title="Link to this heading">¶</a></h3>
+<h3>7. Predict<a class="headerlink" href="#7.-Predict" title="Permalink to this heading">¶</a></h3>
 <p>Using the same batch of test samples from above, get and view the model’s predictions.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -463,7 +466,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </div>
 </section>
 <section id="8.-Export">
-<h3>8. Export<a class="headerlink" href="#8.-Export" title="Link to this heading">¶</a></h3>
+<h3>8. Export<a class="headerlink" href="#8.-Export" title="Permalink to this heading">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -474,7 +477,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </div>
 </section>
 <section id="9.-Post-training-quantization">
-<h3>9. Post-training quantization<a class="headerlink" href="#9.-Post-training-quantization" title="Link to this heading">¶</a></h3>
+<h3>9. Post-training quantization<a class="headerlink" href="#9.-Post-training-quantization" title="Permalink to this heading">¶</a></h3>
 <p>In this section, the <code class="docutils literal notranslate"><span class="pre">tlt</span></code> API uses <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor (INC)</a> to benchmark and quantize the feature extraction model to get optimal inference performance.</p>
 <p>Please note that Benchmark and Quantization is only compatible with CPU models at this time, due to the IPEX backend</p>
 <p>We use the Intel Neural Compressor to benchmark the full precision model to see how it performs, as our baseline.</p>
@@ -511,7 +514,7 @@ enable_auto_mixed_precision is set to None, auto mixed precision will be automat
 </div>
 </section>
 <section id="Dataset-Citations">
-<h3>Dataset Citations<a class="headerlink" href="#Dataset-Citations" title="Link to this heading">¶</a></h3>
+<h3>Dataset Citations<a class="headerlink" href="#Dataset-Citations" title="Permalink to this heading">¶</a></h3>
 <p>Paul Bergmann, Kilian Batzner, Michael Fauser, David Sattlegger, Carsten Steger: The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection; in: International Journal of Computer Vision 129(4):1038-1059, 2021, DOI: 10.1007/s11263-020-01400-4.</p>
 <p>Paul Bergmann, Michael Fauser, David Sattlegger, Carsten Steger: MVTec AD — A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection; in: IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 9584-9592, 2019, DOI: 10.1109/CVPR.2019.00982.</p>
 </section>
