@@ -19,8 +19,9 @@ conda install -y \
   -c pytorch -c intel -c conda-forge
 
 pip install \
+  'accelerate==0.28.0' \
   'datasets==2.14.5' \
   'intel_extension_for_pytorch==2.2.0' \
-  'transformers[torch]==4.36.0'
+  'transformers[torch]==4.38.0'
 
 bash deploy/install_torch_ccl.sh
