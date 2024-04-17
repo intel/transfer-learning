@@ -402,8 +402,9 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
         elif device == "hpu" and is_hpu_available:
             self._device = device
             # Gaudi is not compatible with IPEX
-            print("Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False")
-            ipex_optimize = False
+            if ipex_optimize:
+                print("Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False")
+                ipex_optimize = False
         elif device == "cpu":
             self._device = device
 
@@ -412,6 +413,10 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
             print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
             print(habana_import_error)
             self._device = "cpu"
+        elif self._device == "hpu" and is_hpu_available:
+            if ipex_optimize:
+                print("Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False")
+                ipex_optimize = False
 
         if enable_auto_mixed_precision is None:
             try:

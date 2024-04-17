@@ -190,6 +190,10 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
             print(habana_import_error)
             self._device = "cpu"
+        elif self._device == "hpu" and is_hpu_available:
+            if ipex_optimize:
+                print("Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False")
+                ipex_optimize = False
 
         if enable_auto_mixed_precision is None:
             try:
