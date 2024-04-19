@@ -178,7 +178,7 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                     _, preds = torch.max(outputs, 1)
                     loss = self._loss(outputs, labels)
                     loss.backward()
-                    if is_hpu_available and device == "hpu":
+                    if is_hpu_available and self._device == "hpu":
                         htcore.mark_step()
                         self._optimizer.step()
                         htcore.mark_step()
@@ -189,8 +189,12 @@ class PyTorchImageClassificationModel(ImageClassificationModel, PyTorchModel):
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
 
-            train_epoch_loss = running_loss / data_length
-            train_epoch_acc = float(running_corrects) / data_length
+            if data_length == 0:
+                train_epoch_loss = 0
+                train_epoch_acc = 0
+            else:
+                train_epoch_loss = running_loss / data_length
+                train_epoch_acc = float(running_corrects) / data_length
             self._update_history('Loss', train_epoch_loss)
             self._update_history('Acc', train_epoch_acc)
 

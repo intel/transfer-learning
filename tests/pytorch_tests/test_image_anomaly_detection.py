@@ -29,12 +29,14 @@ import os
 import pytest
 import shutil
 import tempfile
+from unittest.mock import patch, MagicMock
 
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
 
 try:
+    from tlt.datasets.image_anomaly_detection.pytorch_custom_image_anomaly_detection_dataset import PyTorchCustomImageAnomalyDetectionDataset  # noqa: E501
     from tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model import extract_features
 except ModuleNotFoundError:
     print("WARNING: Unable to import torch. Torch may not be installed")
@@ -183,6 +185,59 @@ class TestImageAnomalyDetectionCustomDataset:
         assert model._device == "cpu"
         assert reload_threshold == threshold
         assert reload_auroc == auroc
+
+    @pytest.mark.parametrize('model_name,device',
+                             [['resnet18', 'hpu']])
+    @patch('tlt.models.image_anomaly_detection.utils.htcore', create=True, new_callable=lambda: MagicMock(name='htcore'))  # noqa: E501
+    @patch("tlt.models.image_anomaly_detection.utils.torch")
+    @patch("tlt.models.image_anomaly_detection.utils.ProgressMeter")
+    @patch("tlt.models.image_anomaly_detection.utils.is_hpu_available")
+    @patch("tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.is_hpu_available")
+    @patch("tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.load_checkpoint_weights")  # noqa: E501
+    @patch("tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.torch")
+    @patch("tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.nn")
+    @patch("tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.builder")
+    @patch("tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.pca")
+    @patch("tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.get_feature_extraction_model")
+    def test_hpu_workflow(self, mock_extraction, mock_pca, mock_builder, mock_nn, mock_torch, mock_load_ckpt,
+                          mock_model_hpu_available, mock_hpu_available, mock_prog, mock_utils_torch, mock_habana,
+                          model_name, device):
+        """
+        Tests the workflow for PYT image anomaly detection when "hpu" is the selected device and is available
+        """
+        framework = 'pytorch'
+        use_case = 'image_anomaly_detection'
+
+        # Mock out the model downloader since we aren't doing a real train, we don't need a real model
+        mock_model = MagicMock()
+        mock_model.__call__ = MagicMock(return_value=(1, 2, 3, 4))
+        mock_model.to = MagicMock()
+        mock_model.to.return_value = MagicMock(return_value=(1, 2, 3, 4))
+        mock_load_ckpt.return_value = mock_model
+        mock_builder.SimSiam = MagicMock()
+        mock_builder.SimSiam.return_value = mock_model
+
+        # Get the model
+        model = model_factory.get_model(model_name, framework, use_case, device=device)
+        model.load_pretrained_model = MagicMock()
+
+        # Create a mock dataset, since we aren't really training
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = PyTorchCustomImageAnomalyDetectionDataset
+        mock_dataset.get_batch.return_value = MagicMock(content=[1, 2]), MagicMock(content=[1, 2])
+        mock_dataset._train_loader = MagicMock()
+        mock_inputs = MagicMock()
+        data_loader_data = [(mock_inputs, 0), (mock_inputs, 0)]
+        mock_dataset._train_loader.__iter__ = MagicMock(return_value=iter(data_loader_data))
+
+        # Train for 1 epoch
+        model.train(mock_dataset, self._output_dir, layer_name='layer3', seed=10, simsiam=True)
+
+        if device == 'hpu':
+            # mark_step is called before and after each step
+            assert mock_habana.mark_step.call_count == len(data_loader_data) * 2
+        else:
+            mock_habana.mark_step.assert_not_called()
 
     def test_custom_model_workflow(self):
         """

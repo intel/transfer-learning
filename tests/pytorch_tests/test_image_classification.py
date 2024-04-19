@@ -23,6 +23,7 @@ import numpy as np
 import pytest
 import shutil
 import tempfile
+from unittest.mock import patch, MagicMock
 
 try:
     import torch
@@ -35,6 +36,11 @@ except ModuleNotFoundError:
 from tlt.datasets import dataset_factory
 from tlt.models import model_factory
 from tlt.utils.file_utils import download_and_extract_tar_file
+
+try:
+    from tlt.datasets.image_classification.pytorch_custom_image_classification_dataset import PyTorchCustomImageClassificationDataset  # noqa: E501
+except ModuleNotFoundError:
+    print("WARNING: Unable to import torch. Torch may not be installed")
 
 
 @pytest.mark.skip(reason='TODO: Solve test fails with urllib.error.HTTPError: HTTP Error 403: rate limit exceeded')
@@ -333,6 +339,53 @@ class TestImageClassificationCustomDataset:
         saved_model_dir = model.export(self._output_dir)
         assert os.path.isdir(saved_model_dir)
         assert os.path.isfile(os.path.join(saved_model_dir, "model.pt"))
+
+    @pytest.mark.parametrize('model_name,device',
+                             [['resnet18', 'hpu']])
+    @patch('tlt.models.image_classification.pytorch_image_classification_model.torch.max')
+    @patch("tlt.models.image_classification.torchvision_image_classification_model.TorchvisionImageClassificationModel._model_downloader")  # noqa: E501
+    @patch('tlt.models.image_classification.pytorch_image_classification_model.htcore', create=True, new_callable=lambda: MagicMock(name='htcore'))  # noqa: E501
+    @patch("tlt.models.image_classification.torchvision_image_classification_model.torch")
+    @patch("tlt.models.image_classification.torchvision_image_classification_model.is_hpu_available")
+    @patch("tlt.models.image_classification.pytorch_image_classification_model.is_hpu_available")
+    @patch("tlt.models.image_classification.pytorch_image_classification_model.torch")
+    def test_hpu_workflow(self, mock_torch, mock_model_hpu_available, mock_hpu_available,
+                          mock_utils_torch, mock_habana, mock_down, mock_max, model_name, device):
+        """
+        Tests the workflow for PYT image anomaly detection when "hpu" is the selected device and is available
+        """
+        framework = 'pytorch'
+        use_case = 'image_classification'
+
+        # Mock out the model downloader since we aren't doing a real train, we don't need a real model
+        mock_model = MagicMock()
+        mock_model.__call__ = MagicMock(return_value=(1, 2, 3, 4))
+        mock_model.to = MagicMock()
+        mock_model.to.return_value = MagicMock(return_value=(1, 2, 3, 4))
+
+        # Get the model
+        model = model_factory.get_model(model_name, framework, use_case, device=device)
+        model.load_pretrained_model = MagicMock()
+
+        # Create a mock dataset, since we aren't really training
+        # Create a mock dataset, since we aren't really training
+        mock_dataset = MagicMock()
+        mock_dataset.__class__ = PyTorchCustomImageClassificationDataset
+        mock_dataset.get_batch.return_value = MagicMock(content=[1, 2]), MagicMock(content=[1, 2])
+        mock_dataset.train_loader = MagicMock()
+        mock_inputs = MagicMock(spec=torch.Tensor)
+        mock_labels = MagicMock()
+        data_loader_data = [(mock_inputs, mock_labels), (mock_inputs, mock_labels)]
+        mock_dataset.train_loader.__iter__ = MagicMock(return_value=iter(data_loader_data))
+        mock_max.return_value = 1, torch.tensor([1])
+
+        model.train(mock_dataset, output_dir=self._output_dir, epochs=1, do_eval=False, seed=10, ipex_optimize=False)  # noqa: E501
+
+        if device == 'hpu':
+            # mark_step is called before and after each step
+            assert mock_habana.mark_step.call_count == len(data_loader_data) * 2
+        else:
+            mock_habana.mark_step.assert_not_called()
 
 
 @pytest.mark.integration
