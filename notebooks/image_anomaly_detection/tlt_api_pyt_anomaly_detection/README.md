@@ -1,7 +1,7 @@
-# Transfer Learning for PyTorch Image Classification using the Intel® Transfer Learning Tool API
+# Transfer Learning for PyTorch Image Anomaly Classification using the Intel® Transfer Learning Tool API
 
 This notebook demonstrates how to use the Intel Transfer Learning Tool API to do transfer learning for
-image classification using PyTorch.
+image anomaly detection using PyTorch.
 
 The notebook performs the following steps:
 1. Import dependencies and setup parameters
@@ -9,9 +9,10 @@ The notebook performs the following steps:
 1. Get the dataset
 1. Prepare the dataset
 1. Predict using the original model
-1. Transfer learning
+1. Finetuning / Feature Extraction
 1. Predict
 1. Export
+1. Post-Training Quantization
 
 ## Running the notebook
 
@@ -44,41 +45,10 @@ sudo apt-get update
 
 See [Habana Docs](https://docs.habana.ai/en/latest/Installation_Guide/SW_Verification.html) for detailed installation instructions
 
-## References
-
-Dataset citations
+## Dataset Citations
 ```
-@ONLINE {tfflowers,
-author = "The TensorFlow Team",
-title = "Flowers",
-month = "jan",
-year = "2019",
-url = "http://download.tensorflow.org/example_images/flower_photos.tgz" }
-
-@ONLINE {CIFAR10,
-author = "Alex Krizhevsky",
-title = "CIFAR-10",
-year = "2009",
-url = "http://www.cs.toronto.edu/~kriz/cifar.html" }
-
-@article{openimages,
-  title={OpenImages: A public dataset for large-scale multi-label and multi-class image classification.},
-  author={Krasin, Ivan and Duerig, Tom and Alldrin, Neil and Veit, Andreas and Abu-El-Haija, Sami
-    and Belongie, Serge and Cai, David and Feng, Zheyun and Ferrari, Vittorio and Gomes, Victor
-    and Gupta, Abhinav and Narayanan, Dhyanesh and Sun, Chen and Chechik, Gal and Murphy, Kevin},
-  journal={Dataset available from https://github.com/openimages},
-  year={2016}
-}
+Paul Bergmann, Kilian Batzner, Michael Fauser, David Sattlegger, Carsten Steger: The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection; in: International Journal of Computer Vision 129(4):1038-1059, 2021, DOI: 10.1007/s11263-020-01400-4.
 ```
-Model citations
 ```
-@misc{yalniz2019billionscale,
-    title={Billion-scale semi-supervised learning for image classification},
-    author={I. Zeki Yalniz and Hervé Jégou and Kan Chen and Manohar Paluri and Dhruv Mahajan},
-    year={2019},
-    eprint={1905.00546},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
-}
+Paul Bergmann, Michael Fauser, David Sattlegger, Carsten Steger: MVTec AD — A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection; in: IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 9584-9592, 2019, DOI: 10.1109/CVPR.2019.00982.
 ```
-

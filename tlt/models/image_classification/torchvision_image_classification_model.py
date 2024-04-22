@@ -22,13 +22,21 @@ import os
 from tqdm import tqdm
 
 import torch
-import intel_extension_for_pytorch as ipex
 
 from downloader.models import ModelDownloader
 from tlt import TLT_BASE_DIR
 from tlt.models.image_classification.pytorch_image_classification_model import PyTorchImageClassificationModel
 from tlt.datasets.image_classification.image_classification_dataset import ImageClassificationDataset
 from tlt.utils.file_utils import read_json_file
+from tlt.utils.platform_util import PlatformUtil
+
+try:
+    habana_import_error = None
+    import habana_frameworks.torch.core as htcore
+    is_hpu_available = True
+except Exception as e:
+    is_hpu_available = False
+    habana_import_error = str(e)
 
 
 class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
@@ -56,9 +64,12 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         self._model = None
         self._num_classes = None
         self._distributed = False
+        self._device = kwargs.get("device", "cpu")
+        self._hub = "torchvision"
+        self._enable_auto_mixed_precision = None
 
     def _model_downloader(self, model_name):
-        downloader = ModelDownloader(model_name, hub='torchvision', model_dir=None, weights=self._original_dataset)
+        downloader = ModelDownloader(model_name, hub=self._hub, model_dir=None, weights=self._original_dataset)
         model = downloader.download()
         return model
 
@@ -104,13 +115,17 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             self._optimizer = self._optimizer_class(self._model.parameters(), lr=self._learning_rate)
 
             if ipex_optimize and not self._distributed:
-                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+                import intel_extension_for_pytorch as ipex
+                ipex_dtype = torch.bfloat16 if self._enable_auto_mixed_precision else None
+                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer, dtype=ipex_dtype)
+
         self._num_classes = num_classes
         return self._model, self._optimizer
 
     def train(self, dataset: ImageClassificationDataset, output_dir, epochs=1, initial_checkpoints=None,
               do_eval=True, early_stopping=False, lr_decay=True, seed=None, extra_layers=None, ipex_optimize=True,
-              distributed=False, hostfile=None, nnodes=1, nproc_per_node=1, use_horovod=False, hvd_start_timeout=30):
+              distributed=False, hostfile=None, nnodes=1, nproc_per_node=1, use_horovod=False, hvd_start_timeout=30,
+              enable_auto_mixed_precision=None, device=None):
         """
             Trains the model using the specified image classification dataset. The first time training is called, it
             will get the model from torchvision and add on a fully-connected dense layer with linear activation
@@ -126,6 +141,13 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 do_eval (bool): If do_eval is True and the dataset has a validation subset, the model will be evaluated
                     at the end of each epoch.
                 early_stopping (bool): Enable early stopping if convergence is reached while training
+                enable_auto_mixed_precision (bool or None): Enable auto mixed precision for evaluate. Mixed precision
+                    uses both 16-bit and 32-bit floating point types to make evaluation run faster and use less memory.
+                    It is recommended to enable auto mixed precision when running on platforms that support
+                    bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                    does not support bfloat16, it can be detrimental to the evaluation performance. If
+                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                    running with Intel fourth generation Xeon processors, and disabled for other platforms.
                 lr_decay (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss
                     is applied at the end of each epoch.
                 seed (int): Optionally set a seed for reproducibility.
@@ -140,12 +162,48 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 nnodes (int): Number of nodes to use for distributed training. Defaults to 1.
                 nproc_per_node (int): Number of processes to spawn per node to use for distributed training. Defaults
                     to 1.
+                device (str): Enter "cpu" or "hpu" to specify which hardware device to run training on.
+                    If device="hpu" is specified, but no HPU hardware or installs are detected,
+                    CPU will be used. (default: "cpu")
 
             Returns:
                 Trained PyTorch model object
         """
         self._check_train_inputs(output_dir, dataset, ImageClassificationDataset, epochs, initial_checkpoints,
                                  distributed, hostfile)
+
+        # Only change the device if one is passed in
+        if device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+        elif device == "hpu" and is_hpu_available:
+            self._device = device
+            # Gaudi is not compatible with IPEX
+            print("Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False")
+            ipex_optimize = False
+        elif device == "cpu":
+            self._device = device
+
+        # If No device is passed in, but model was initialized with hpu, must check if hpu is available
+        if self._device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+        elif self._device == "hpu" and is_hpu_available:
+            if ipex_optimize:
+                print("Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False")
+                ipex_optimize = False
+
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision training will be disabled.".format(str(e)))
+
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
 
         self._distributed = distributed
 
@@ -182,7 +240,9 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
             # Call ipex.optimize now, since we didn't call it from _get_hub_model()
             if ipex_optimize and not distributed:
-                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer)
+                import intel_extension_for_pytorch as ipex
+                ipex_dtype = torch.bfloat16 if self._enable_auto_mixed_precision else None
+                self._model, self._optimizer = ipex.optimize(self._model, optimizer=self._optimizer, dtype=ipex_dtype)
 
         if distributed:
             try:
@@ -200,18 +260,55 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
                 self.cleanup_saved_objects_for_distributed()
         else:
             self._model.train()
-            self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay)
+            self._fit(output_dir, dataset, epochs, do_eval, early_stopping, lr_decay, enable_auto_mixed_precision)
 
         return self._history
 
-    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False):
+    def evaluate(self, dataset: ImageClassificationDataset, use_test_set=False, enable_auto_mixed_precision=None,
+                 device=None):
         """
         Evaluate the accuracy of the model on a dataset.
 
-        If there is a validation set, evaluation will be done on it (by default) or on the test set
-        (by setting use_test_set=True). Otherwise, the entire non-partitioned dataset will be
-        used for evaluation.
+        Args:
+            enable_auto_mixed_precision (bool or None): Enable auto mixed precision for evaluate. Mixed precision
+                uses both 16-bit and 32-bit floating point types to make evaluation run faster and use less memory.
+                It is recommended to enable auto mixed precision when running on platforms that support
+                bfloat16 (Intel third or fourth generation Xeon processors). If it is enabled on a platform that
+                does not support bfloat16, it can be detrimental to the evaluation performance. If
+                enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when
+                running with Intel fourth generation Xeon processors, and disabled for other platforms.
+            use_test_set (bool): If there is a validation subset, evaluation will be done on it (by default) or on
+                the test set (by setting use_test_set=True). Otherwise, the entire non-partitioned dataset will be
+                used for evaluation.
+            device (str): Enter "cpu" or "hpu" to specify which hardware device to run training on.
+                    If device="hpu" is specified, but no HPU hardware or installs are detected,
+                    CPU will be used. (default: "cpu")
         """
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision training will be disabled.".format(str(e)))
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
+
+        # Only change the device if one is passed in
+        if device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+        elif device == "hpu" and is_hpu_available:
+            self._device = device
+        elif device == "cpu":
+            self._device = device
+
+        # If No device is passed in, but model was initialized with hpu, must check if hpu is available
+        if self._device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+
         if use_test_set:
             if dataset.test_subset:
                 eval_loader = dataset.test_loader
@@ -253,14 +350,22 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             optimizer.zero_grad()
 
             # Forward pass
-            with torch.set_grad_enabled(False):
-                outputs = model(inputs)
-                _, preds = torch.max(outputs, 1)
-                loss = self._loss(outputs, labels)
+            with torch.set_grad_enabled(True):
+                if enable_auto_mixed_precision:
+                    # Call model using the torch automatic mixed precision context when mixed precision is enabled
+                    with torch.autocast(device_type=self._device, dtype=torch.bfloat16):
+                        outputs = model(inputs)
+                else:
+                    outputs = model(inputs)
+            _, preds = torch.max(outputs, 1)
+            loss = self._loss(outputs, labels)
 
             # Statistics
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data)
+
+            if self._device == "hpu" and is_hpu_available:
+                htcore.mark_step()
 
         epoch_loss = running_loss / data_length
         epoch_acc = float(running_corrects) / data_length
@@ -269,7 +374,7 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
 
         return [epoch_loss, epoch_acc]
 
-    def predict(self, input_samples, return_type='class'):
+    def predict(self, input_samples, return_type='class', enable_auto_mixed_precision=None, device=None):
         """
         Perform feed-forward inference and predict the classes of the input_samples.
 
@@ -278,6 +383,9 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
             return_type (str): Using 'class' will return the highest scoring class (default), using 'scores' will
                                return the raw output/logits of the last layer of the network, using 'probabilities' will
                                return the output vector after applying a softmax function (so results sum to 1)
+            device (str): Enter "cpu" or "hpu" to specify which hardware device to run training on.
+                    If device="hpu" is specified, but no HPU hardware or installs are detected,
+                    CPU will be used. (default: "cpu")
 
         Returns:
             List of classes, probability vectors, or raw score vectors
@@ -289,18 +397,56 @@ class TorchvisionImageClassificationModel(PyTorchImageClassificationModel):
         if not isinstance(return_type, str) or return_type not in return_types:
             raise ValueError('Invalid return_type ({}). Expected one of {}.'.format(return_type, return_types))
 
+        if enable_auto_mixed_precision is None:
+            try:
+                # Only automatically enable auto mixed precision for SPR
+                enable_auto_mixed_precision = PlatformUtil().cpu_type == 'SPR'
+            except Exception as e:
+                print("Unable to determine the CPU type: {}.\n"
+                      "Mixed precision training will be disabled.".format(str(e)))
+        self._enable_auto_mixed_precision = enable_auto_mixed_precision
+
+        # Only change the device if one is passed in
+        if device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
+        elif device == "hpu" and is_hpu_available:
+            self._device = device
+        elif device == "cpu":
+            self._device = device
+
+        # If No device is passed in, but model was initialized with hpu, must check if hpu is available
+        if self._device == "hpu" and not is_hpu_available:
+            print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+            print(habana_import_error)
+            self._device = "cpu"
         if self._model is None:
             print("The model has not been trained yet, so predictions are being done using the original model")
             model = self._model_downloader(self._model_name)
+            model = model.to(self._device)
             predictions = model(input_samples)
         else:
             self._model.eval()
             with torch.no_grad():
-                predictions = self._model(input_samples)
+                if enable_auto_mixed_precision:
+                    # Call model using the torch automatic mixed precision context when mixed precision is enabled
+                    with torch.autocast(device_type=self._device, dtype=torch.bfloat16):
+                        self._model = self._model.to(self._device)
+                        predictions = self._model(input_samples)
+                else:
+                    self._model = self._model.to(self._device)
+                    predictions = self._model(input_samples)
         if return_type == 'class':
             _, predicted_ids = torch.max(predictions, 1)
             return predicted_ids
         elif return_type == 'probabilities':
-            return torch.nn.functional.softmax(predictions)
+            # logic from torch.nn.functional _get_softmax_dim()
+            dim = input_samples.dim()
+            if dim == 0 or dim == 1 or dim == 3:
+                dim = 0
+            else:
+                dim = 1
+            return torch.nn.functional.softmax(predictions, dim=dim)
         else:
             return predictions

@@ -28,7 +28,7 @@ jobs:
         - /tf_dataset/dataset/transfer_learning:/tmp/data
         - /localdisk/tlt_cached_models/torch:/tmp/tlt_cached_models/torch
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
       - name: Run Unit Test
         shell: bash
         continue-on-error: false

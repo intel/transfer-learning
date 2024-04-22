@@ -27,8 +27,20 @@ A Kubernetes secret is to store your Hugging Face token.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `image.name` | string | `intel/ai-workflow` | Name of the image to use for the PyTorch job. The container should include the fine tuning script and all the dependencies required to run the job. |
-| `image.tag` | string | `torch-2.0.1-huggingface-multinode-py3.9` | The image tag for the container that will be used to run the PyTorch job. The container should include the fine tuning script and all the dependencies required to run the job. |
+| `image.tag` | string | `torch-2.2.0-huggingface-multinode-py3.10` | The image tag for the container that will be used to run the PyTorch job. The container should include the fine tuning script and all the dependencies required to run the job. |
 | `image.pullPolicy` | string | `IfNotPresent` | Determines when the kubelet will pull the image to the worker nodes. Choose from: `IfNotPresent`, `Always`, or `Never`. If updates to the image have been made, use `Always` to ensure the newest image is used. |
+
+## Security Context
+
+Set the security context parameters for the containers to run with a non-root user. If left empty, Kubernetes will run
+the containers as root.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `securityContext.runAsUser` | integer | `` | User ID |
+| `securityContext.runAsGroup` | integer | `` | Group ID |
+| `securityContext.fsGroup` | integer | `` | File syetem group ID |
+| `allowPrivilegeEscalation` | bool | `false` | Boolean indicating if a process can gain more privileges than its parent process. |
 
 ## Elastic policy
 
@@ -132,6 +144,7 @@ The table below lists environment variables that will get set in the worker pods
 | envVars.logLevel | string | `INFO` | Value set to the LOG_LEVEL environment variable. |
 | envVars.transformersCache | string | `/tmp/pvc-mount/transformers_cache` | Location for the Transformers cache (using the TRANSFORMERS_CACHE environment variable). |
 | envVars.hfDatasetsCache | string | `/tmp/pvc-mount/dataset_cache` | Path to a directory used to cache Hugging Face datasets using the HF_DATASETS_CACHE environment variable. |
+| envVars.hfHome | string | `/tmp/home` | Sets the `HF_HOME` environment variable and is used as the volume mount location for your Hugging Face token. |
 | envVars.cclWorkerCount | string | `1` | Value for the CCL_WORKER_COUNT environment variable. Must be >1 to use the CCL DDP backend. |
 | envVars.httpProxy | string | None | Set the http_proxy environment variable. |
 | envVars.httpsProxy | string | None | Set the https_proxy environment variable. |

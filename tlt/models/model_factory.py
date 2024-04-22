@@ -68,6 +68,8 @@ model_map = {
         {
             "torchvision": {"module": "tlt.models.image_anomaly_detection.torchvision_image_anomaly_detection_model",
                             "class": "TorchvisionImageAnomalyDetectionModel"},
+            "pytorch_hub": {"module": "tlt.models.image_anomaly_detection.pytorch_hub_image_anomaly_detection_model",
+                            "class": "PyTorchHubImageAnomalyDetectionModel"},
             "Custom": {"module": "tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model",
                        "class": "PyTorchImageAnomalyDetectionModel"}
         },

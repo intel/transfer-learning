@@ -32,8 +32,8 @@ Client requirements:
 A Helm chart is used to package the resources needed to run the distributed training job. The helm chart in this
 directory includes the following components:
 * [PyTorchJob](chart/templates/pytorchjob.yaml), which launches a pod for each worker
-* [Kubernetes secret](chart/templates/secret.yaml) with your Hugging Face token used to
-  set the `HUGGING_FACE_HUB_TOKEN` environment variable for authentication to access to Llama 2 models.
+* [Kubernetes secret](chart/templates/secret.yaml) with your Hugging Face token for authentication to access Llama 2
+  models.
 * [Persistent volume claim (PVC)](chart/templates/pvc.yaml) to provides a storage space for saving checkpoints,
   saved model files, etc.
 * [Data access pod](chart/templates/dataaccess.yaml) is a dummy pod (running `sleep infinity`) with a volume mount to
@@ -51,10 +51,9 @@ pretrained model, the dataset, learning rate, the number of training epochs, etc
 Before using Llama 2 models you will need to [request access from Meta](https://ai.meta.com/resources/models-and-libraries/llama-downloads/)
 and [get access to the model from HuggingFace](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf). For this reason,
 authentication is required when fine tuning Llama 2 through the Kubernetes job. The helm chart includes a
-[Kubernetes secret](https://kubernetes.io/docs/concepts/configuration/secret/) which gets populated with the with the
-encoded Hugging Face token. The pods will use the secret to set an environment variable called
-[`HUGGING_FACE_HUB_TOKEN`](https://huggingface.co/docs/huggingface_hub/package_reference/environment_variables#huggingfacehubtoken),
-which will allow the scripts to use Llama 2 from Hugging Face.
+[Kubernetes secret](https://kubernetes.io/docs/concepts/configuration/secret/) which gets populated with the encoded
+Hugging Face token. The secret is mounted as a volume in the PyTorch Job containers using the `HF_HOME` directory to
+authenticate your account to access gated models.
 
 ### Storage
 
@@ -71,50 +70,50 @@ The [Docker](https://www.docker.com) container used in this example includes all
 distributed PyTorch training using a Hugging Face model and a fine tuning script. This directory includes the
 [`Dockerfile`](Dockerfile) that was used to build the container.
 
-An image has been published to DockerHub (`intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9`) with
+An image has been published to DockerHub (`intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10`) with
 the following major packages included:
 
 | Package Name | Version | Purpose |
 |--------------|---------|---------|
-| [PyTorch](https://pytorch.org/) | 2.0.1 | Base framework to train models |
-| [Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | 2.0.100 | Utilizes Intel®'s optimization |
-| [Intel® Neural Compressor](https://github.com/intel/neural-compressor) | 2.3 | Optimize model for inference post-training |
-| [Intel® oneAPI Collective Communications Library](https://github.com/oneapi-src/oneCCL) | 2.0.0 | Deploy PyTorch jobs on multiple nodes |
+| [PyTorch](https://pytorch.org/) | 2.2.0+cpu | Base framework to train models |
+| [Intel® Extension for PyTorch](https://github.com/intel/intel-extension-for-pytorch) | 2.2.0+cpu | Utilizes Intel®'s optimization |
+| [Intel® Neural Compressor](https://github.com/intel/neural-compressor) | 2.4.1 | Optimize model for inference post-training |
+| [Intel® oneAPI Collective Communications Library](https://github.com/oneapi-src/oneCCL) | 2.2.0+cpu | Deploy PyTorch jobs on multiple nodes |
 
 #### Container Build
 
 The container can be built either using the default package versions from the table above or by specifying your own
 package version using build arguments. This section (and the ["Container Push" section](#container-push)) can be skipped if
-you are using the published `intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9` container.
+you are using the published `intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10` container.
 
 Use one of these options to build the container:
 
 a. The container can be built with the default package versions using the following command:
    ```
-   docker build -t intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9 .
+   docker build -t intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10 .
    ```
-b. The build arguments below that can be provided to install a different version of the packages:
+b. The build arguments below can be changed to use a different base container:
 
    | Argument | Default Value | Description |
    |----------|---------------|-------------|
-   | TORCH_VER | 2.0.1 | PyTorch CPU Version |
-   | IPEX_VER | 2.0.100 | Intel® Extension for PyTorch |
-   | INC_VER | 2.3 | Intel® Neural Compressor Version |
-   | ONECCL_VER | 2.0.0 | Intel® oneAPI Collective Communications Library CPU Version |
+   | IMAGE_NAME | `intel/intel-optimized-pytorch` | Base image name |
+   | IMAGE_TAG | `2.2.0-pip-multinode` | Base image tag |
+   | PYTHON | `python` | The name for python used in the specified base container |
+   | PYTHON_VER | `3.10` | The version of python used in the specified base container |
 
    The updated command to build with the specific arguments then would be:
    ```
-   export ONECCL_VER=<ONECCL VERSION>
-   export TORCH_VER=<TORCH VERSION>
-   export IPEX_VER=<IPEX VERSION>
-   export INC_VER=<INC VERSION>
+   export IMAGE_NAME=<BASE IMAGE NAME>
+   export IMAGE_TAG=<BASE IMAGE TAG>
+   export PYTHON=<PYTHON>
+   export PYTHON_VER=<PYTHON VERSION>
 
    docker build \
-     --build-arg ONECCL_VER=${ONECCL_VER} \
-     --build-arg TORCH_VER=${TORCH_VER} \
-     --build-arg IPEX_VER=${IPEX_VER} \
-     --build-arg INC_VER=${INC_VER} \
-     -t intel/ai-workflows:torch-${TORCH_VER}-huggingface-multinode-py3.9 .
+     --build-arg IMAGE_NAME=${IMAGE_NAME} \
+     --build-arg IMAGE_TAG=${IMAGE_TAG} \
+     --build-arg PYTHON=${PYTHON} \
+     --build-arg PYTHON_VER=${PYTHON_VER} \
+     -t intel/ai-workflows:torch-2.2.0-huggingface-multinode-py${PYTHON_VER} .
    ```
 
 #### Container Push
@@ -131,7 +130,7 @@ a. First, ensure that you are logged in with your container registry account usi
    [push the image](https://docs.docker.com/engine/reference/commandline/push/) to the registry.
    ```
    # Retag the image by providing the source image and destination image
-   docker tag intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9 <image name>:<tag>
+   docker tag intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10 <image name>:<tag>
 
    # Push the image to the registry
    docker push <image name>:<tag>
@@ -140,7 +139,7 @@ b. If you don't have a container registry, use the commands below to save the co
    Kubernetes cluster, and then load it into Docker.
    ```
    # Save the image to a tar.gz file
-   docker save intel/ai-workflows:torch-2.0.1-huggingface-multinode-py3.9 | gzip > hf_k8s.tar.gz
+   docker save intel/ai-workflows:torch-2.2.0-huggingface-multinode-py3.10 | gzip > hf_k8s.tar.gz
 
    # Copy the tar file to every Kubernetes node that could be used to run the fine tuning job
    scp hf_k8s.tar.gx <user>@<host>:/tmp/hf_k8s.tar.gz
@@ -194,7 +193,7 @@ fine tune the model.
 2. Edit your values file based on the parameters that you would like to use and your cluster. Key parameters to look
    at and edit are:
    * `image.name` if have built your own container, otherwise the default `intel/ai-workflows` image will be used
-   * `image.tag` if have built your own container, otherwise the default `torch-2.0.1-huggingface-multinode-py3.9` tag will be used
+   * `image.tag` if have built your own container, otherwise the default `torch-2.2.0-huggingface-multinode-py3.10` tag will be used
    * `elasticPolicy.minReplicas` and `elasticPolicy.maxReplicas` based on the number of workers being used
    * `distributed.workers` should be set to the number of worker that will be used for the job
    * If you are using `chart/values.yaml` for your own workload, fill in either `train.datasetName` (the name of a
@@ -209,6 +208,11 @@ fine tune the model.
      used to get information about the nodes on your cluster.
    * `storage.storageClassName` should be set to your Kubernetes NFS storage class name (use `kubectl get storageclass`
      to see a list of storage classes on your cluster)
+
+   In the same values file, edit the security context parameters to have the containers run with a non-root user:
+   * `securityContext.runAsUser` should be set to your user ID (UID)
+   * `securityContext.runAsGroup` should be set to your group ID
+   * `securityContext.fsGroup` should be set to your file system group ID
 
    See a complete list and descriptions of the available parameters in the [Helm chart values documentation](values.md).
 
@@ -263,13 +267,13 @@ fine tune the model.
 
 6. After the job completes, files can be copied from the persistent volume claim to your local system using the
    [`kubectl cp` command](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#cp) using the
-   `dataaccess` pod. The path to the trained model is in the values file field called `distributed.train.outputDir` and
+   data access pod. The path to the trained model is in the values file field called `distributed.train.outputDir` and
    if quantization was also done, the quanted model path is in the `distributed.quantize.outputDir` field.
 
    As an example, the trained model from the Medical Meadows use case can be copied from the
    `/tmp/pvc-mount/output/bf16` path to the local system using the following command:
    ```
-   kubectl cp --namespace kubeflow dataaccess:/tmp/pvc-mount/output/saved_model .
+   kubectl cp --namespace kubeflow <dataaccess pod name>:/tmp/pvc-mount/output/saved_model .
    ```
 7. Finally, the resources can be deleted from the cluster using the
    [`helm uninstall`](https://helm.sh/docs/helm/helm_uninstall/) command. For example:

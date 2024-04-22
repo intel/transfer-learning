@@ -81,7 +81,7 @@ def generate(model_dir, model_name, prompt, temperature, top_p, top_k, repetitio
         model_name = get_model_name_from_path(model_dir)
 
     if model_dir:
-        if not os.path.exists(os.path.join(model_dir, 'adapter_model.bin')):
+        if not os.path.exists(os.path.join(model_dir, 'training_args.bin')):
             sys.exit("The Generate command is only supported for Pytorch Text Generation models")
 
     # Get the model

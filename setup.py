@@ -48,7 +48,7 @@ EXTRA_PACKAGES = {
 
 setup(name="intel-transfer-learning-tool",
       description="Intel® Transfer Learning Tool",
-      version="0.6.0",
+      version="0.7.0",
       url='https://github.com/IntelAI/transfer-learning',
       license='Apache 2.0',
       author='IntelAI',
@@ -57,9 +57,7 @@ setup(name="intel-transfer-learning-tool",
       long_description_content_type='text/markdown',
       packages=find_packages(),
       install_requires= \
-        COMMON_PACKAGES + \
-        EXTRA_PACKAGES['pytorch'] + \
-        EXTRA_PACKAGES['tensorflow'],
+        COMMON_PACKAGES + EXTRA_PACKAGES['pytorch'],
       extras_require=EXTRA_PACKAGES,
       python_requires=">=3.8",
       entry_points={

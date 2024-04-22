@@ -23,7 +23,7 @@ docker compose build
 ```
 OR
 ```bash
-docker pull intel/ai-tools:tlt-0.6.0
+docker pull intel/ai-tools:tlt-0.7.0
 ```
 
 ## Use Docker Image

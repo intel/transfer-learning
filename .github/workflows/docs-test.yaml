@@ -27,7 +27,7 @@ jobs:
       volumes:
         - /tf_dataset/dataset/transfer_learning:/tmp/data
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4.1.1
     # Test the docs
     - name: Run documentation tests
       run: |

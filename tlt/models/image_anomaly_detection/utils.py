@@ -25,6 +25,15 @@ import math
 import numpy as np
 
 
+try:
+    habana_import_error = None
+    import habana_frameworks.torch.core as htcore
+    is_hpu_available = True
+except Exception as e:
+    is_hpu_available = False
+    habana_import_error = str(e)
+
+
 class AverageMeter(object):
     """
     Computes and stores the average and current value
@@ -73,7 +82,7 @@ class ProgressMeter(object):
         return '[' + fmt + '/' + fmt.format(num_batches) + ']'
 
 
-def _fit_simsiam(train_data_loader, model, criterion, optimizer, epoch, precision):
+def _fit_simsiam(train_data_loader, model, criterion, optimizer, epoch, precision, device):
     """
     Main PyTorch Simsiam training loop
     """
@@ -87,19 +96,31 @@ def _fit_simsiam(train_data_loader, model, criterion, optimizer, epoch, precisio
     model.train()
     end = time.time()
 
+    # If Gaudi device is specified but not available, default to CPU
+    if device == "hpu" and not is_hpu_available:
+        print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+        print(habana_import_error)
+        device = "cpu"
+
     for i, (inputs, _) in enumerate(train_data_loader):
         optimizer.zero_grad()
-
         data_time.update(time.time() - end)
-        inputs[0] = inputs[0].to('cpu')
-        inputs[1] = inputs[1].to('cpu')
-        with torch.cpu.amp.autocast(enabled=(precision == 'bfloat16')):
+        inputs[0] = inputs[0].to(device)
+        inputs[1] = inputs[1].to(device)
+
+        with torch.autocast(device_type=device, dtype=torch.bfloat16 if precision == 'bfloat16' else torch.float32):
             p1, p2, z1, z2 = model(x1=inputs[0], x2=inputs[1])
             loss = -(criterion(p1, z2).mean() + criterion(p2, z1).mean()) * 0.5
 
         losses.update(loss.item(), inputs[0].size(0))
         loss.backward()
-        optimizer.step()
+
+        if is_hpu_available and device == "hpu":
+            htcore.mark_step()
+            optimizer.step()
+            htcore.mark_step()
+        else:
+            optimizer.step()
 
         batch_time.update(time.time() - end)
         end = time.time()
@@ -108,7 +129,7 @@ def _fit_simsiam(train_data_loader, model, criterion, optimizer, epoch, precisio
     return curr_loss
 
 
-def _fit_cutpaste(train_data_loader, model, criterion, optimizer, epoch, freeze_resnet, scheduler, precision):
+def _fit_cutpaste(train_data_loader, model, criterion, optimizer, epoch, freeze_resnet, scheduler, precision, device):
     """
     Main PyTorch CutPaste training loop
     """
@@ -121,7 +142,12 @@ def _fit_cutpaste(train_data_loader, model, criterion, optimizer, epoch, freeze_
         [batch_time, data_time, losses],
         prefix="Epoch: [{}]".format(epoch))
 
-    device = 'cpu'
+    # If Gaudi device is specified but not available, default to CPU
+    if device == "hpu" and not is_hpu_available:
+        print("No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs")
+        print(habana_import_error)
+        device = "cpu"
+
     if epoch == freeze_resnet:
         print(epoch)
         model.unfreeze()
@@ -138,14 +164,21 @@ def _fit_cutpaste(train_data_loader, model, criterion, optimizer, epoch, freeze_
         y = torch.arange(len(xs), device=device)
         y = y.repeat_interleave(xs[0].size(0))
 
-        with torch.cpu.amp.autocast(enabled=(precision == 'bfloat16')):
+        with torch.autocast(device_type=device, dtype=torch.bfloat16 if precision == 'bfloat16' else torch.float32):
             embeds, logits = model(xc)
             loss = criterion(logits, y)
 
         losses.update(loss.item(), len(data))
         # regulize weights:
         loss.backward()
-        optimizer.step()
+
+        if is_hpu_available and device == "hpu":
+            # Gaudi
+            htcore.mark_step()
+            optimizer.step()
+            htcore.mark_step()
+        else:
+            optimizer.step()
         batch_time.update(time.time() - end)
         end = time.time()
 

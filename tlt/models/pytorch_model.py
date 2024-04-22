@@ -25,7 +25,7 @@ import numpy
 import random
 import torch
 
-from neural_compressor import quantization
+from neural_compressor import Metric, quantization
 from neural_compressor.config import BenchmarkConfig
 
 from tlt.models.model import BaseModel
@@ -235,9 +235,10 @@ class PyTorchModel(BaseModel):
         config = config if config is not None else get_inc_config(approach=self._quantization_approach)
 
         calib_dataloader, eval_dataloader = dataset.get_inc_dataloaders()
+        top_metric = Metric(name="topk", k=1)
         config.backend = 'ipex'
         quantized_model = quantization.fit(model=self._model, conf=config, calib_dataloader=calib_dataloader,
-                                           eval_dataloader=eval_dataloader)
+                                           eval_dataloader=eval_dataloader, eval_metric=top_metric)
 
         # If quantization was successful, save the model
         if quantized_model:
@@ -249,7 +250,7 @@ class PyTorchModel(BaseModel):
             raise RuntimeError("There was an error with quantization")
 
     def benchmark(self, dataset, saved_model_dir=None, warmup=10, iteration=100, cores_per_instance=None,
-                  num_of_instance=None, inter_num_of_threads=None, intra_num_of_threads=None):
+                  num_of_instance=1, inter_num_of_threads=None, intra_num_of_threads=None):
         """
         Use Intel Neural Compressor to benchmark the model with the dataset argument. The dataset's validation or test
         subset will be used for benchmarking, if present. Otherwise, the full training dataset is used. The model to be
@@ -261,7 +262,7 @@ class PyTorchModel(BaseModel):
             warmup (int): The number of iterations to perform before running performance tests, default is 10
             iteration (int): The number of iterations to run performance tests, default is 100
             cores_per_instance (int or None): The number of CPU cores to use per instance, default is None
-            num_of_instance (int or None): The number of instances to use for performance testing, default is None
+            num_of_instance (int): The number of instances to use for performance testing, default is 1
             inter_num_of_threads (int or None): The number of threads to use for inter-thread operations, default is
                                                 None
             intra_num_of_threads (int or None): The number of threads to use for intra-thread operations, default is

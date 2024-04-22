@@ -16,7 +16,7 @@ jobs:
         password: ${{ secrets.REGISTRY_TOKEN }}
     runs-on: [ xai-tlt ] # Runner Label
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4.1.1
       with:
         submodules: true
         set-safe-directory: true

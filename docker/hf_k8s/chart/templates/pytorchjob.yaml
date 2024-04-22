@@ -32,6 +32,10 @@ spec:
       restartPolicy: OnFailure
       template:
         spec:
+          securityContext:
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            fsGroup: {{ .Values.securityContext.fsGroup }}
           containers:
             - name: pytorch
               image: {{ .Values.image.name }}:{{ .Values.image.tag }}
@@ -162,6 +166,10 @@ spec:
               - name: HF_DATASETS_CACHE
                 value: "{{ .Values.envVars.hfDatasetsCache }}"
               {{- end }}
+              {{- if .Values.envVars.hfHome }}
+              - name: HF_HOME
+                value: "{{ .Values.envVars.hfHome }}"
+              {{- end }}
               {{- if .Values.envVars.logLevel }}
               - name: LOGLEVEL
                 value: "{{ .Values.envVars.logLevel }}"
@@ -169,13 +177,6 @@ spec:
               {{- if .Values.envVars.cclWorkerCount }}
               - name: CCL_WORKER_COUNT
                 value: "{{ .Values.envVars.cclWorkerCount }}"
-              {{- end }}
-              {{- if .Values.secret.encodedToken}}
-              - name: HUGGING_FACE_HUB_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ .Values.metadata.name }}-secret
-                    key: username
               {{- end }}
               resources:
                 {{- if or .Values.resources.cpuLimit .Values.resources.memoryLimit }}
@@ -201,6 +202,15 @@ spec:
                 mountPath: {{ .Values.storage.pvcMountPath }}
               - mountPath: /dev/shm
                 name: dshm
+              {{- if .Values.secret.encodedToken}}
+              - name: secret-volume
+                mountPath: {{ .Values.envVars.hfHome }}
+                readOnly: true
+              {{- end }}
+              {{- if .Values.securityContext.allowPrivilegeEscalation }}
+              securityContext:
+                allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation }}
+              {{- end }}
           restartPolicy: Never
           {{- if .Values.resources.nodeSelectorLabel }}
           nodeSelector:
@@ -213,3 +223,8 @@ spec:
           - name: dshm
             emptyDir:
               medium: Memory
+          {{- if .Values.secret.encodedToken}}
+          - name: secret-volume
+            secret:
+              secretName: {{ .Values.metadata.name }}-secret
+          {{- end }}

@@ -35,7 +35,10 @@ class TextClassificationModel(BaseModel):
 
         # Default learning rate for text models
         self._learning_rate = 3e-5
-        self._quantization_approach = 'dynamic'
+        if framework == FrameworkType.TENSORFLOW:
+            self._quantization_approach = 'static'
+        else:
+            self._quantization_approach = 'dynamic'
 
     @property
     @abc.abstractmethod
