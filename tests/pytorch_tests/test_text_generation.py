@@ -99,7 +99,7 @@ class TestTextGenerationCustomDataset:
         # export the saved model
         saved_model_dir = model.export(self._output_dir)
         assert os.path.isdir(saved_model_dir)
-        assert os.path.isfile(os.path.join(saved_model_dir, "adapter_model.bin"))
+        assert os.path.isfile(os.path.join(saved_model_dir, "training_args.bin"))
 
         # Reload the saved model
         reload_model = model_factory.get_model(model_name, framework)

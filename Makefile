@@ -18,58 +18,118 @@
 
 # Note: These are just placeholders for future additions to Makefile.
 # You can remove these comments later.
-ACTIVATE_TLT_VENV = "tlt_dev_venv/bin/activate"
-ACTIVATE_NOTEBOOK_VENV = "tlt_notebook_venv/bin/activate"
-ACTIVATE_TEST_VENV = "tlt_test_venv/bin/activate"
-ACTIVATE_DOCS_VENV = $(ACTIVATE_TEST_VENV)
+DOCS_VENV = ".venv/docs"
+NOTEBOOKS_VENV = ".venv/notebooks"
+PYTORCH_VENV = ".venv/pytorch"
+TENSORFLOW_VENV = ".venv/tensorflow"
+TEST_VENV = ".venv/test"
+RELEASE_VENV = ".venv/releases"
+LATEST_RELEASE=$(RELEASE_VENV)/$(shell date +"%Y-%m-%d-%H-%M-%S")
+
+ACTIVATE_DOCS_VENV = $(DOCS_VENV)/bin/activate
+ACTIVATE_NOTEBOOKS_VENV = $(NOTEBOOKS_VENV)/bin/activate
+ACTIVATE_PYTORCH_VENV = $(PYTORCH_VENV)/bin/activate
+ACTIVATE_TENSORFLOW_VENV = ${TENSORFLOW_VENV}/bin/activate
+ACTIVATE_TEST_VENV = "$(TEST_VENV)/bin/activate"
+ACTIVATE_RELEASE_VENV = "$(RELEASE_VENV)/bin/activate"
 
 # Customize sample test run commands
 # PY_TEST_EXTRA_ARGS="'-vvv -k test_platform_util_with_no_args'" make test
 # PY_TEST_EXTRA_ARGS="'--collect-only'" make test
 PY_TEST_EXTRA_ARGS ?= "--durations=0"
 
-tlt_test_venv: $(CURDIR)/tests/requirements-test.txt
-	@echo "Creating a virtualenv tlt_test_venv..."
-	@test -d tlt_test_venv || virtualenv -p python3 tlt_test_venv
-
-	@echo "Building the TLT API in tlt_test_venv env..."
-	@. $(ACTIVATE_TEST_VENV) && pip install --extra-index-url https://download.pytorch.org/whl/cpu .
-
+test_venv:
+	@echo "Creating a virtualenv for testing..."
+	@test -d $(TEST_VENV) || virtualenv -p python3 $(TEST_VENV)
 	@echo "Installing test dependencies..."
 	@. $(ACTIVATE_TEST_VENV) && pip install -r $(CURDIR)/tests/requirements-test.txt
 
-tlt_notebook_venv: $(CURDIR)/notebooks/requirements.txt
-	@echo "Creating a virtualenv tlt_notebook_venv..."
-	@test -d tlt_notebook_venv || virtualenv -p python3 tlt_notebook_venv
+pytorch_venv:
+	@echo "Creating a virtualenv for testing pytorch..."
+	@test -d $(PYTORCH_VENV) || virtualenv -p python3 $(PYTORCH_VENV)
+	@echo "Installing test dependencies..."
+	@. $(ACTIVATE_PYTORCH_VENV) && \
+		pip install -r $(CURDIR)/tests/requirements-test.txt && \
+		echo "Building the TLT API in pytorch env..." && \
+		pip install --extra-index-url https://download.pytorch.org/whl/cpu .[pytorch]
 
-	@echo "Installing TF & PYT notebook dependencies..."
-	@. $(ACTIVATE_NOTEBOOK_VENV) && pip install --extra-index-url https://download.pytorch.org/whl/cpu -r $(CURDIR)/notebooks/requirements.txt
+tensorflow_venv: test_venv
+	@echo "Creating a virtualenv for testing tensorflow..."
+	@test -d $(TENSORFLOW_VENV) || virtualenv -p python3 $(TENSORFLOW_VENV)
+	@echo "Installing test dependencies..." && \
+		. $(ACTIVATE_TENSORFLOW_VENV) && \
+		pip install -r $(CURDIR)/tests/requirements-test.txt && \
+		echo "Building the TLT API in tensorflow env..." && \
+		pip install --extra-index-url https://download.pytorch.org/whl/cpu .[tensorflow]
 
-test: unittest integration
+notebooks_venv:
+	@echo "Creating a virtualenv for notebook testing..."
+	@test -d $(NOTEBOOKS_VENV) || virtualenv -p python3 $(NOTEBOOKS_VENV)
+	@echo "Installing TF & PYT notebook dependencies..." && \
+		. $(ACTIVATE_NOTEBOOKS_VENV) && \
+		pip install --extra-index-url https://download.pytorch.org/whl/cpu -r $(CURDIR)/notebooks/requirements.txt
 
-unittest: tlt_test_venv
-	@echo "Testing unit test API..."
-	@. $(ACTIVATE_TEST_VENV) && PYTHONPATH=$(CURDIR)/tests py.test -vvv -s $(PY_TEST_EXTRA_ARGS) "-k not integration and not skip"
-
-integration: tlt_test_venv
-	@echo "Testing integration test API..."
-	@. $(ACTIVATE_TEST_VENV) && PYTHONPATH=$(CURDIR)/tests py.test -vvv -s $(PY_TEST_EXTRA_ARGS) "-k integration and not skip"
-
-lint: tlt_test_venv
+lint: test_venv
 	@echo "Style checks..."
 	@. $(ACTIVATE_TEST_VENV) && \
-        	flake8 tlt tests downloader docker && \
+		flake8 tlt tests downloader docker && \
 		flake8 notebooks && \
 		flake8 docs
 
-clean:
-	rm -rf tlt_test_venv
+pytorch_unittest: pytorch_venv
+	@echo "Testing pytorch unit test API..." && \
+		. $(ACTIVATE_PYTORCH_VENV) && \
+		py.test --ignore=tests/tensorflow_tests -vvv -s $(PY_TEST_EXTRA_ARGS) "-k not integration and not skip and not tensorflow"
 
-tlt_docs_venv: tlt_test_venv $(CURDIR)/docs/requirements-docs.txt
-	@echo "Installing docs dependencies..."
-	@. $(ACTIVATE_DOCS_VENV) && pip install -r $(CURDIR)/docs/requirements-docs.txt
+tensorflow_unittest: tensorflow_venv
+	@echo "Testing tensorflow unit test API..." && \
+		. $(ACTIVATE_TENSORFLOW_VENV) && \
+		py.test --ignore=tests/pytorch_tests -vvv -s $(PY_TEST_EXTRA_ARGS) "-k not integration and not skip and not pytorch"
 
-html: tlt_docs_venv
+unittest: pytorch_unittest tensorflow_unittest
+
+pytorch_integration: pytorch_venv
+	@echo "Testing pytorch  unit test API..." && \
+		. $(ACTIVATE_PYTORCH_VENV) && \
+		py.test --ignore=tests/tensorflow_tests -vvv -s $(PY_TEST_EXTRA_ARGS) "-k integration and not skip and not tensorflow"
+
+tensorflow_integration: tensorflow_venv
+	@echo "Testing tensorflow  unit test API..." && \
+		. $(ACTIVATE_TENSORFLOW_VENV) && \
+		py.test --ignore=tests/pytorch_tests -vvv -s $(PY_TEST_EXTRA_ARGS) "-k integration and not skip and not pytorch"
+
+integration: pytorch_integration tensorflow_integration
+
+pytorch_test: pytorch_unittest pytorch_integration
+
+tensorflow_test: tensorflow_unittest tensorflow_integration
+
+test: pytorch_test tensorflow_test
+
+clean_pytorch:
+	rm -rf $(PYTORCH_VENV)
+
+clean_tensorflow:
+	rm -rf $(TENSORFLOW_VENV)
+
+clean_notebooks:
+	rm -rf $(NOTEBOOKS_VENV)
+
+clean_docs:
+	rm -rf $(DOCS_VENV)
+
+clean: clean_docs clean_notebooks clean_pytorch clean_tensorflow
+
+docs_venv:
+	@echo "Creating a virtualenv for build and test docs..."
+	@test -d $(DOCS_VENV) || virtualenv -p python3 $(DOCS_VENV)
+	@echo "Installing docs dependencies..." && \
+	. $(ACTIVATE_DOCS_VENV) && \
+	pip install -r $(CURDIR)/docs/requirements-docs.txt && \
+	echo "Installing all TLT dependencies" && \
+	pip install --extra-index-url https://download.pytorch.org/whl/cpu .[pytorch,tensorflow]
+
+html: docs_venv
 	@echo "Building Sphinx documentation..."
 	@. $(ACTIVATE_DOCS_VENV) && $(MAKE) -C docs clean html
 
@@ -77,39 +137,52 @@ test_docs: html
 	@echo "Testing Sphinx documentation..."
 	@. $(ACTIVATE_DOCS_VENV) && $(MAKE) -C docs doctest
 
-tlt_notebook_venv: tlt_test_venv
-	@echo "Installing notebook dependencies..."
-	@. $(ACTIVATE_TEST_VENV) && pip install --extra-index-url https://download.pytorch.org/whl/cpu -r $(CURDIR)/notebooks/requirements.txt
+test_pytorch_notebooks: notebooks_venv
+	@. $(ACTIVATE_NOTEBOOKS_VENV) && \
+		pip install --extra-index-url https://download.pytorch.org/whl/cpu .[pytorch] && \
+		bash run_notebooks.sh pytorch
 
-test_notebook_custom: tlt_notebook_venv
+test_tensorflow_notebooks: notebooks_venv
+	@. $(ACTIVATE_NOTEBOOKS_VENV) && \
+		pip install --extra-index-url https://download.pytorch.org/whl/cpu .[tensorflow] && \
+		bash run_notebooks.sh tensorflow
+
+
+test_custom_notebooks: notebooks_venv
 	@echo "Testing Jupyter notebooks with custom datasets..."
-	@. $(ACTIVATE_TEST_VENV) && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_custom_dataset && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_pyt_text_classification/TLT_PYT_Text_Classification.ipynb remove_for_custom_dataset
+	@. $(ACTIVATE_NOTEBOOKS_VENV) && \
+		pip install --extra-index-url https://download.pytorch.org/whl/cpu .[pytorch,tensorflow] && \
+		bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
+		bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_pyt_text_classification/TLT_PYT_Text_Classification.ipynb remove_for_custom_dataset && \
+		bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_custom_dataset && \
+		bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_custom_dataset
 
-test_notebook_catalog: tlt_notebook_venv
+test_catalog_notebooks: notebooks_venv
 	@echo "Testing Jupyter notebooks with public catalog datasets..."
-	@. $(ACTIVATE_TEST_VENV) && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_tf_dataset && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_tv_dataset && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_tf_dataset && \
-	bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_pyt_text_classification/TLT_PYT_Text_Classification.ipynb remove_for_hf_dataset
+	@. $(ACTIVATE_NOTEBOOKS_VENV) && \
+		pip install --extra-index-url https://download.pytorch.org/whl/cpu .[pytorch,tensorflow] && \
+		bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb remove_for_tv_dataset && \
+		bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_pyt_text_classification/TLT_PYT_Text_Classification.ipynb remove_for_hf_dataset && \
+		bash run_notebooks.sh $(CURDIR)/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb remove_for_tf_dataset && \
+		bash run_notebooks.sh $(CURDIR)/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb remove_for_tf_dataset
 
-test_tf_notebook: tlt_notebook_venv
-	@. $(ACTIVATE_TEST_VENV) && bash run_notebooks.sh tensorflow
+release_venv:
+	@echo "Creating a virtualenv for to create the installer..."
+	@test -d $(RELEASE_VENV) || virtualenv -p python3 $(RELEASE_VENV)
+	@. $(ACTIVATE_RELEASE_VENV) && \
+		python setup.py bdist_wheel && \
+		mkdir $(LATEST_RELEASE) && \
+		mv build dist *.egg-info $(LATEST_RELEASE) && \
+		cp -rp $(LATEST_RELEASE) $(RELEASE_VENV)/latest
 
-test_pyt_notebook: tlt_notebook_venv
-	@. $(ACTIVATE_TEST_VENV) && bash run_notebooks.sh pytorch
+check_release: release_venv
+	@echo "Create and smoke test PyPi wheel..." && \
+		. $(ACTIVATE_RELEASE_VENV) && \
+		pip install twine && \
+		twine check $(RELEASE_VENV)/latest/dist/intel_transfer_learning_tool*.whl
 
-dist: tlt_docs_venv
-	@echo "Create binary wheel..."
-	@. $(ACTIVATE_DOCS_VENV) && python setup.py bdist_wheel
-
-check_dist: dist
-	@echo "Testing the wheel..."
-	@. $(ACTIVATE_DOCS_VENV) && \
-	pip install twine && \
-	python setup.py bdist_wheel && \
-	twine check dist/*
+# Only run this if absolutely sure to publish the wheel on PyPi
+# release:
+# 	@echo "Publish PyPi wheel..." && \
+# 		. $(ACTIVATE_RELEASE_VENV) && \
+# 		twine upload --verbose --repository-url https://upload.pypi.org/legacy/ $(RELEASE_VENV)/<RELEASE_DIR>/dist/<WHEEL_NAME_HERE>

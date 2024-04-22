@@ -58,7 +58,7 @@ def test_inc_config_timeout(timeout, valid):
             get_inc_config(exit_policy_timeout=timeout)
     else:
         config = get_inc_config(exit_policy_timeout=timeout)
-        assert config.timeout == timeout
+        assert config.tuning_criterion.timeout == timeout
 
 
 @pytest.mark.common
@@ -78,7 +78,7 @@ def test_inc_config_max_trials(max_trials, valid):
             get_inc_config(exit_policy_max_trials=max_trials)
     else:
         config = get_inc_config(exit_policy_max_trials=max_trials)
-        assert config.max_trials == max_trials
+        assert config.tuning_criterion.max_trials == max_trials
 
 
 @pytest.mark.common

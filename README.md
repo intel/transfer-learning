@@ -79,20 +79,27 @@ these additional CLI and API [Examples](examples/README.md).
 <!-- ExpandGetStarted-Start -->
 As described in the [Get Started Guide](GetStarted.md), once you have a Python 
 environment set up, you do a basic install of the Intel Transfer Learning
-Tool. Here are some examples of commands you will find in the [Get Started Guide](GetStarted.md):
+Tool. Note that the default installation includes PyTorch and not TensorFlow.
+Here are some examples of commands you will find in the [Get Started Guide](GetStarted.md):
 
 ```
 pip install intel-transfer-learning-tool
 ```
 
 Then you can use the Transfer Learning Tool CLI interface (tlt) to train a
-TensorFlow image classification model (resnet_v1_50), download and use an
+PyTorch image classification model (RenderedSST2), download and use an
 existing built-in dataset (tf_flowers), and save the trained model to
 `/tmp/output` using this one command:
 
 ```
-tlt train --framework tensorflow --model-name resnet_v1_50 --dataset-name tf_flowers \
+tlt train --framework pytorch --model-name efficientnet_b0 --dataset-name RenderedSST2 \
    --output-dir /tmp/output --dataset-dir /tmp/data
+```
+
+TensorFlow can be used by installing with the following command:
+
+```
+pip install intel-transfer-learning-tool[tensorflow]
 ```
 
 Use `tlt --help` to see the list of CLI commands.  More detailed help for each

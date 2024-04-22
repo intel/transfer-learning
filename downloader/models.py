@@ -56,6 +56,7 @@ class ModelDownloader():
         self._model_name = model_name
         self._model_dir = model_dir
         self._hf_model_class = hf_model_class
+        self._use_case = kwargs.get("use_case", None)
         self._type = ModelType.from_str(hub)
         self._args = kwargs
 
@@ -88,9 +89,12 @@ class ModelDownloader():
 
             if self._model_dir is not None:
                 os.environ['TORCH_HOME'] = self._model_dir
-
-            config_file = os.path.join(TLT_BASE_DIR, "models/configs/pytorch_hub_image_classification_models.json")
-            pytorch_hub_model_map = read_json_file(config_file)
+            if self._use_case is not None:
+                if self._use_case.lower().strip() in ["anomaly detection", "ad", "anomaly_detection"]:
+                    config_f = os.path.join(TLT_BASE_DIR, "models/configs/pytorch_hub_image_anomaly_detection_models.json")  # noqa: E501
+            else:
+                config_f = os.path.join(TLT_BASE_DIR, "models/configs/pytorch_hub_image_classification_models.json")
+            pytorch_hub_model_map = read_json_file(config_f)
             self._repo = pytorch_hub_model_map[self._model_name]["repo"]
 
             # Some models have pretrained=True by default, which error out if passed in load()

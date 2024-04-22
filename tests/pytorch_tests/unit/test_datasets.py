@@ -427,6 +427,14 @@ class TestImageClassificationDataset:
         assert tlt_dataset.test_loader is None
         assert tlt_dataset._validation_type == 'shuffle_split'
 
+    def test_get_batch(self, image_classification_data):
+        """
+        Checks that a batch can be retrieved
+        """
+        tlt_dataset, dataset_name, dataset_classes, splits = image_classification_data
+        x, y = tlt_dataset.get_batch()
+        assert len(x) == 8
+
 
 # Tests for Image Anomaly Detection datasets
 @pytest.mark.pytorch

@@ -31,6 +31,8 @@ from torchvision.models import resnet18, resnet50
 from torchvision.models import ResNet18_Weights, ResNet50_Weights
 from torchvision.transforms.functional import InterpolationMode
 
+device = "cpu" # "hpu" for Gaudi. Device will revert to cpu if Gaudi hardware or installs are not detected
+
 def get_dataset(img_dir, image_size, batch_size):
     dataset = dataset_factory.load_dataset(img_dir, 
                                     use_case='image_anomaly_detection', 
@@ -40,7 +42,7 @@ def get_dataset(img_dir, image_size, batch_size):
     return dataset
 
 def get_base_model(model_name):
-    return model_factory.get_model(model_name=model_name, framework="pytorch", use_case='anomaly_detection')
+    return model_factory.get_model(model_name=model_name, framework="pytorch", use_case='anomaly_detection', device=device)
 
 def train_simsiam(base_model, dataset, config):
     simsiam_config = config['simsiam']
@@ -60,16 +62,16 @@ def get_features(model,dataloader,model_config):
     pool = model_config['pool']
     images, labels = next(iter(dataloader))
     model = get_feature_extraction_model(model,layer_name)
-    outputs_inner = extract_features(model, images.to('cpu'), layer_name, pooling=['avg', pool])
-    data_mats_orig = torch.empty((outputs_inner.shape[1], len(dataloader.dataset))).to('cpu')
+    outputs_inner = extract_features(model, images.to(device), layer_name, pooling=['avg', pool])
+    data_mats_orig = torch.empty((outputs_inner.shape[1], len(dataloader.dataset))).to(device)
     gt = torch.zeros(len(dataloader.dataset))
     count=0
     with torch.no_grad():
         data_idx = 0
         for images, labels in tqdm(dataloader):
-            images, labels = images.to('cpu'), labels.to('cpu')
+            images, labels = images.to(device), labels.to(device)
             num_samples = images.shape[0]
-            outputs = extract_features(model, images.to('cpu'), layer_name, pooling=['avg', pool])
+            outputs = extract_features(model, images.to(device), layer_name, pooling=['avg', pool])
             oi = torch.squeeze(outputs)
             data_mats_orig[:, data_idx:data_idx + num_samples] = oi.transpose(1, 0)
             data_idx += num_samples

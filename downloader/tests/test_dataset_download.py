@@ -61,8 +61,7 @@ class TestDatasetDownload:
 
     @pytest.mark.integration
     @pytest.mark.parametrize('dataset_name,catalog,split,kwargs,size',
-                             [['tf_flowers', 'tfds', 'train', {}, 3670],
-                              ['CIFAR10', 'torchvision', 'train', {}, 50000],
+                             [['CIFAR10', 'torchvision', 'train', {}, 50000],
                               ['CIFAR10', 'torchvision', 'val', {}, 10000],
                               ['imdb', 'huggingface', 'train', {}, 25000],
                               ['glue', 'huggingface', 'test', {'subset': 'sst2'}, 1821]])
@@ -74,16 +73,35 @@ class TestDatasetDownload:
         data = downloader.download(split=split)
 
         # Check the type of the downloader and returned object
-        if catalog == 'tfds':
-            data = data[0]  # TFDS returns a list with the dataset in it
-            assert downloader._type == DatasetType.TENSORFLOW_DATASETS
-            assert isinstance(data, TF_Dataset)
-        elif catalog == 'torchvision':
+        if catalog == 'torchvision':
             assert downloader._type == DatasetType.TORCHVISION
             assert isinstance(data, TV_Dataset)
         elif catalog == 'huggingface':
             assert downloader._type == DatasetType.HUGGING_FACE
             assert isinstance(data, HF_Dataset)
+
+        # Verify the split size
+        assert len(data) == size
+
+        # Check that the directory is not empty
+        assert os.listdir(self._dataset_dir) is not None
+
+    @pytest.mark.integration
+    @pytest.mark.tensorflow
+    @pytest.mark.parametrize('dataset_name,catalog,split,kwargs,size',
+                             [['tf_flowers', 'tfds', 'train', {}, 3670]])
+    def test_catalog_download_tfds(self, dataset_name, catalog, split, kwargs, size):
+        """
+        Tests downloader for different dataset catalog types and splits
+        """
+        downloader = datasets.DataDownloader(dataset_name, dataset_dir=self._dataset_dir, catalog=catalog, **kwargs)
+        data = downloader.download(split=split)
+
+        # Check the type of the downloader and returned object
+        if catalog == 'tfds':
+            data = data[0]  # TFDS returns a list with the dataset in it
+            assert downloader._type == DatasetType.TENSORFLOW_DATASETS
+            assert isinstance(data, TF_Dataset)
 
         # Verify the split size
         assert len(data) == size

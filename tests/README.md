@@ -8,7 +8,7 @@ Then install the following dependencies:
 git clone https://github.com/IntelAI.transfer-learning.git
 cd transfer-learning
 
-# Run tests with make, or skip this step to run individually
+# Run all tests with make, or skip this step to run individually
 make test
 
 # Run only unittests with make
@@ -20,8 +20,11 @@ make integration
 # Create a virtual env or conda env for the test environment
 conda create --name tlt_dev_venv python=3.9
 
-# Install tlt for TensorFlow and/or PyTorch
+# Install tlt for PyTorch. Note that Pytorch is the default installation
 pip3 install .
+
+# Install tlt for Tensorflow. Note that Pytorch will already be installed by default
+pip3 install .[tensorflow]
 
 # Install the test requirements
 pip3 install -r tests/requirements-test.txt
@@ -52,17 +55,27 @@ The following custom markers have been defined in the transfer learning tests:
 
 To run only the TensorFlow tests run:
 ```
-PYTHONPATH=$(pwd)/tests py.test -s -m tensorflow
-```
-
-To run the TensorFlow tests and the common tests:
-```
-PYTHONPATH=$(pwd)/tests py.test -s -m "tensorflow or common"
+make tensorflow_test
 ```
 
 To run only the PyTorch tests run:
 ```
-PYTHONPATH=$(pwd)/tests py.test -s -m pytorch
+make pytorch_test
+```
+
+To run the TensorFlow tests and the common tests:
+```
+py.test -s -m "tensorflow or common"
+```
+
+To run only a specific directory or test file:
+```
+py.test -s -m tests/<directory or file path>
+```
+
+To run only pytorch test from a specific directory or file:
+```
+py.test -s -m "pytorch" tests/<directory or file path>
 ```
 
 > Note: After the tests have run, there will be downloaded data in `/tmp/data`
@@ -89,17 +102,17 @@ make test_notebook_custom
 
 To run the <b>Intel Transfer Learning Tool tutorial notebooks</b> using datasets from public catalogs:
 ```
-make test_notebook_catalog
+make test_catalog_notebooks
 ```
 
 To run all the <b>native PyTorch notebooks</b> using a test environment for PyTorch without Intel Transfer Learning Tool:
 ```
-make test_pyt_notebook
+make test_pytorch_notebooks
 ```
 
 To run all the <b>native TensorFlow notebooks</b> using a test environment for TensorFlow without Intel Transfer Learning Tool:
 ```
-make test_tf_notebook
+make test_tensorflow_notebooks
 ```
 
 To use the virtual environment of your choice and run a single notebook or multiple notebooks in the same directory:

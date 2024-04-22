@@ -38,6 +38,8 @@ There are workflow-specific hardware and software setup requirements depending o
 | ---------------------------- | ---------- |
 | Intel® 4th Gen Xeon® Scalable Performance processors| BF16 |
 | Intel® 1st, 2nd, 3rd, and 4th Gen Xeon® Scalable Performance processors| FP32 |
+| Intel® Gaudi® AI accelerator| float32, bfloat16 |
+| Intel® Gaudi® 2 AI accelerator| float32, bfloat16 |
 
 To execute the reference solution presented here, use CPU for fine tuning.
 
@@ -212,7 +214,7 @@ To implement this reference use case on a different or customized pre-training m
 For more information or to read about other relevant workflow examples, see these guides and software resources:
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
 - [Intel® Neural Compressor](https://github.com/intel/neural-compressor)
-- [Intel® Transfer Learning Tool](https://github.com/IntelAI/transfer-learning/tree/v0.6.0)
+- [Intel® Transfer Learning Tool](https://github.com/IntelAI/transfer-learning/tree/v0.7.0)
 
 ## Support
 If you have any questions with this workflow, want help with troubleshooting, want to report a bug or submit enhancement requests, please submit a GitHub issue.

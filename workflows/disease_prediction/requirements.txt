@@ -1,6 +1,6 @@
 Pillow==10.3.0
 PyYAML==6.0.1
-intel-tensorflow==2.12.0
-neural-compressor==2.1.1
-numpy==1.23.5
+intel-tensorflow==2.14.0
+neural-compressor==2.4.1
+numpy==1.24.3
 tensorflow-hub==0.15.0

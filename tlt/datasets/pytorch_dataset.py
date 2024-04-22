@@ -40,6 +40,12 @@ class TransformedSubset(Subset):
             x = self.transform(x)
         return x, y
 
+    def __getitems__(self, indices):
+        data = [self.dataset[self.indices[idx]] for idx in indices]
+        if self.transform:
+            data = [(self.transform(x), y) for x, y in data]
+        return data
+
 
 class PyTorchDataset(BaseDataset):
     """

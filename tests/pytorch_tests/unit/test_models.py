@@ -430,12 +430,12 @@ def test_pytorch_hf_text_classification_trainer_without_val_subset(mock_download
 
 @pytest.mark.pytorch
 @pytest.mark.parametrize('cpu_type,expected_bf16,enable_auto_mixed_precision',
-                         [['SPR', True, None],
+                         [['ABC', False, None],
+                          ['ABC', True, True],
                           ['CLX', False, None],
-                          ['ABC', False, None],
-                          ['SPR', False, False],
                           ['CLX', True, True],
-                          ['ABC', True, True]])
+                          ['SPR', False, False],
+                          ['SPR', True, None]])
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.optim.AdamW')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.Trainer')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.PlatformUtil')
@@ -466,12 +466,12 @@ def test_pytorch_tf_text_classification_trainer_mixed_precision(mock_downloader,
 
 @pytest.mark.pytorch
 @pytest.mark.parametrize('cpu_type,expected_bf16,enable_auto_mixed_precision',
-                         [['SPR', True, None],
+                         [['ABC', False, None],
+                          ['ABC', True, True],
                           ['CLX', False, None],
-                          ['ABC', False, None],
-                          ['SPR', False, False],
                           ['CLX', True, True],
-                          ['ABC', True, True]])
+                          ['SPR', False, False],
+                          ['SPR', True, None]])
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.max')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.argmax')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.nn.CrossEntropyLoss')
@@ -479,7 +479,7 @@ def test_pytorch_tf_text_classification_trainer_mixed_precision(mock_downloader,
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.get_scheduler')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.cpu.amp.autocast')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.torch.optim.AdamW')
-@patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ipex.optimize')
+@patch('intel_extension_for_pytorch.optimize')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.PlatformUtil')
 @patch('tlt.models.text_classification.pytorch_hf_text_classification_model.ModelDownloader')
 def test_pytorch_tf_text_classification_torch_mixed_precision(
@@ -569,3 +569,82 @@ def test_pytorch_tf_text_classification_invalid_mixed_precision_arg(mock_downloa
     with pytest.raises(TypeError):
         model.train(mock_dataset, output_dir="/tmp", use_trainer=True,
                     enable_auto_mixed_precision=auto_mixed_precision_arg)
+
+
+@pytest.mark.pytorch
+@pytest.mark.parametrize('cpu_type,expected_bf16,enable_auto_mixed_precision',
+                         [['ABC', False, None],
+                          ['ABC', True, True],
+                          ['CLX', False, None],
+                          ['CLX', True, True],
+                          ['SPR', False, False],
+                          ['SPR', True, None]])
+@patch('tlt.models.image_classification.torchvision_image_classification_model.torch.max')
+@patch('tlt.models.image_classification.torchvision_image_classification_model.torch.argmax')
+@patch('tlt.models.image_classification.torchvision_image_classification_model.torch.nn.CrossEntropyLoss')
+@patch('tlt.models.image_classification.torchvision_image_classification_model.torch.save')
+@patch('tlt.models.image_classification.torchvision_image_classification_model.torch.optim.lr_scheduler.ReduceLROnPlateau')  # noqa E501
+@patch('tlt.models.image_classification.torchvision_image_classification_model.torch.autocast')
+@patch('tlt.models.image_classification.torchvision_image_classification_model.torch.optim.Adam')
+@patch('intel_extension_for_pytorch.optimize')
+@patch('tlt.models.image_classification.torchvision_image_classification_model.PlatformUtil')
+@patch('tlt.models.image_classification.torchvision_image_classification_model.ModelDownloader')
+def test_pytorch_image_classification_torch_mixed_precision(
+        mock_downloader, mock_platform_util, mock_ipex_optimize, mock_optimizer, mock_autocast, mock_scheduler,
+        mock_save, mock_loss, mock_argmax, mock_max, cpu_type, expected_bf16, enable_auto_mixed_precision):
+    """
+    Tests PyTorch image classification using the torch libraries (use_trainer=False) to verify that the expected bf16
+    arg is being sent for each platform type when enable_auto_mixed_precision=None (it should be enabled for SPR, and
+    disabled for other platform types). The test also verifies that enable_auto_mixed_precision can be used to force a
+    certain bf16 setting, regardless of cpu type. Checks that ipex_optimize was passed the proper dtype, and that
+    the torch automatic mixed precision context when bf16 is expected to be enabled.
+    """
+    mock_platform_util().cpu_type = cpu_type
+
+    mock_model = MagicMock()
+    mock_downloader().download.return_value = mock_model
+
+    model = model_factory.get_model(model_name='efficientnet_b0', framework='pytorch')
+    model._loss().item.return_value = 0.0
+    mock_dataset = MagicMock()
+    mock_dataset.__class__ = TorchvisionImageClassificationDataset
+    mock_dataset.class_names = ['a', 'b', 'c']
+    mock_dataset.train_subset = [1, 2, 3]
+    mock_dataset.train_loader = [(torch.tensor([1]), torch.tensor([1]))]
+    mock_dataset.validation_loader = mock_dataset.train_loader
+    mock_dataset.validation_subset = [4, 5, 6]
+    mock_ipex_optimize.return_value = mock_model, mock_optimizer
+    mock_argmax.return_value = torch.tensor([1])
+    mock_max.return_value = 1, torch.tensor([1])
+
+    model.train(mock_dataset, output_dir="/tmp", enable_auto_mixed_precision=enable_auto_mixed_precision,
+                ipex_optimize=True, do_eval=False)
+
+    # Ensure that ipex.optimize was called with the proper dtype
+    expected_dtype = torch.bfloat16 if expected_bf16 else None
+    mock_ipex_optimize.assert_called_once_with(mock_model, optimizer=ANY, dtype=expected_dtype)
+
+    # Check that autocast was propery called during training
+    if expected_bf16:
+        mock_autocast.assert_called_with(device_type=model._device, dtype=torch.bfloat16)
+    else:
+        assert not mock_autocast.called
+
+    # We should have gotten to the end of the fit function where checkpoints are generated
+    assert mock_save.called
+
+    # Reset the autocast mock and verify that it gets called properly during evaluate()
+    mock_autocast.reset_mock()
+    model.evaluate(mock_dataset, enable_auto_mixed_precision=enable_auto_mixed_precision)
+    if expected_bf16:
+        mock_autocast.assert_called_with(device_type=model._device, dtype=torch.bfloat16)
+    else:
+        assert not mock_autocast.called
+
+    # Reset the autocast mock and verify that it gets called properly during predict()
+    mock_autocast.reset_mock()
+    model.predict(mock_dataset.validation_loader, enable_auto_mixed_precision=enable_auto_mixed_precision)
+    if expected_bf16:
+        mock_autocast.assert_called_with(device_type=model._device, dtype=torch.bfloat16)
+    else:
+        assert not mock_autocast.called
