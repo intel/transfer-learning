@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -13,10 +13,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -97,19 +100,23 @@
            <div itemprop="articleBody">
              
   <section id="tlt-models-image-classification-pytorch-hub-image-classification-model-pytorchhubimageclassificationmodel">
-<h1>tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel<a class="headerlink" href="#tlt-models-image-classification-pytorch-hub-image-classification-model-pytorchhubimageclassificationmodel" title="Link to this heading">¶</a></h1>
+<h1>tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel<a class="headerlink" href="#tlt-models-image-classification-pytorch-hub-image-classification-model-pytorchhubimageclassificationmodel" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlt.models.image_classification.pytorch_hub_image_classification_model.</span></span><span class="sig-name descname"><span class="pre">PyTorchHubImageClassificationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_classification/pytorch_hub_image_classification_model.html#PyTorchHubImageClassificationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlt.models.image_classification.pytorch_hub_image_classification_model.</span></span><span class="sig-name descname"><span class="pre">PyTorchHubImageClassificationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_classification/pytorch_hub_image_classification_model.html#PyTorchHubImageClassificationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class to represent a PyTorch Hub pretrained model for image classification</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_classification/pytorch_hub_image_classification_model.html#PyTorchHubImageClassificationModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/image_classification/pytorch_hub_image_classification_model.html#PyTorchHubImageClassificationModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class constructor</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.__init__" title="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(model_name, **kwargs)</p></td>
 <td><p>Class constructor</p></td>
@@ -120,7 +127,7 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanup_saved_objects_for_distributed</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code>(dataset[, use_test_set])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code>(dataset[, use_test_set, ...])</p></td>
 <td><p>Evaluate the accuracy of the model on a dataset.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code>(output_dir)</p></td>
@@ -133,7 +140,7 @@
 <td><p>Freezes the model's layer using a layer name :param layer_name: The layer name that will be frozen in the model :type layer_name: string</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_layers</span></code>([verbose])</p></td>
-<td><p>Lists all of the named modules (e.g. features, avgpool, classifier) and layers (ReLU, MaxPool2d, Dropout, Linear, etc) in a given PyTorch model.</p></td>
+<td><p>Lists all of the named modules (e.g.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_directory</span></code>(model_dir)</p></td>
 <td><p>Load a saved model from the model_dir path</p></td>
@@ -141,7 +148,7 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_graph</span></code>(output_dir[, overwrite_model])</p></td>
 <td><p>Performs FP32 graph optimization using the Intel Neural Compressor on the model and writes the inference-optimized model to the output_dir. Graph optimization includes converting variables to constants, removing training-only operations like checkpoint saving, stripping out parts of the graph that are never reached, removing debug operations like CheckNumerics, folding batch normalization ops into the pre-calculated weights, and fusing common operations into unified versions. :param output_dir: Writable output directory to save the optimized model :type output_dir: str :param overwrite_model: Specify whether or not to overwrite the output_dir, if it already exists                         (default: False) :type overwrite_model: bool.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(input_samples[, return_type])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(input_samples[, return_type, ...])</p></td>
 <td><p>Perform feed-forward inference and predict the classes of the input_samples.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.quantize.html#tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.quantize" title="tlt.models.image_classification.pytorch_hub_image_classification_model.PyTorchHubImageClassificationModel.quantize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantize</span></code></a>(output_dir, dataset[, config, ...])</p></td>
@@ -157,6 +164,10 @@
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">do_fine_tuning</span></code></p></td>
 <td><p>When True, the weights in all of the model's layers will be trainable.</p></td>
@@ -202,8 +213,8 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 

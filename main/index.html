@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -13,10 +13,13 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -80,12 +83,12 @@
            <div itemprop="articleBody">
              
   <section id="intel-transfer-learning-tool">
-<h1>Intel® Transfer Learning Tool<a class="headerlink" href="#intel-transfer-learning-tool" title="Link to this heading">¶</a></h1>
+<h1>Intel® Transfer Learning Tool<a class="headerlink" href="#intel-transfer-learning-tool" title="Permalink to this heading">¶</a></h1>
 <p>Transfer learning workflows use the knowledge learned by a pre-trained model on
 a large dataset to improve the performance of a related problem with a smaller
 dataset.</p>
 <section id="what-is-intel-transfer-learning-tool">
-<h2>What is Intel® Transfer Learning Tool<a class="headerlink" href="#what-is-intel-transfer-learning-tool" title="Link to this heading">¶</a></h2>
+<h2>What is Intel® Transfer Learning Tool<a class="headerlink" href="#what-is-intel-transfer-learning-tool" title="Permalink to this heading">¶</a></h2>
 <p>Intel® Transfer Learning Tool makes it easier and faster for you to
 create transfer learning workflows across a variety of AI use cases. Its
 open-source Python* library leverages public pretrained model hubs,
@@ -97,7 +100,7 @@ demonstrate its usage.</p>
 <p><strong>Features:</strong></p>
 <ul class="simple">
 <li><p>Supports PyTorch* and TensorFlow*</p></li>
-<li><p>Select from over <a class="reference internal" href="#Models.md"><span class="xref myst">100 computer vision and natural language processing models</span></a> from
+<li><p>Select from over <a class="reference internal" href="Models.html"><span class="doc std std-doc">100 computer vision and natural language processing models</span></a> from
 Torchvision, PyTorch Hub, TensorFlow Hub, Keras, and Hugging Face</p></li>
 <li><p>Use cases include:</p>
 <ul>
@@ -123,13 +126,13 @@ Torchvision, PyTorch Hub, TensorFlow Hub, Keras, and Hugging Face</p></li>
 </ul>
 </section>
 <section id="how-the-intel-transfer-learning-tool-works">
-<h2>How the Intel Transfer Learning Tool Works<a class="headerlink" href="#how-the-intel-transfer-learning-tool-works" title="Link to this heading">¶</a></h2>
+<h2>How the Intel Transfer Learning Tool Works<a class="headerlink" href="#how-the-intel-transfer-learning-tool-works" title="Permalink to this heading">¶</a></h2>
 <p>The Intel Transfer Learning Tool lets you train AI models with TensorFlow or
 PyTorch using either no-code command line interface (CLI) commands at a bash
 prompt, or low-code application programming interface (API) calls from a Python
 script.</p>
 <p>Use your own dataset or select an existing image or text dataset listed in the
-<a class="reference internal" href="#DATASETS.md"><span class="xref myst">public datasets</span></a> documentation. Construct your own CLI or API commands for training, evaluation,
+<a class="reference internal" href="DATASETS.html"><span class="doc std std-doc">public datasets</span></a> documentation. Construct your own CLI or API commands for training, evaluation,
 and optimization using the TensorFlow or PyTorch framework, and finally export
 your saved model optimized for inference on Intel CPUs.</p>
 <p>An overview of the Intel Transfer Learning Tool flow is shown in this
@@ -138,23 +141,23 @@ figure:</p>
 <a class="reference internal image-reference" href="_images/TLT-tool_flow.svg"><img alt="Intel Transfer Learning Tool Flow" src="_images/TLT-tool_flow.svg" width="600" /></a>
 </section>
 <section id="get-started">
-<h2>Get Started<a class="headerlink" href="#get-started" title="Link to this heading">¶</a></h2>
-<p>Check out the <a class="reference internal" href="#GetStarted.md"><span class="xref myst">Get Started Guide</span></a> which will walk you through the
+<h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this heading">¶</a></h2>
+<p>Check out the <a class="reference internal" href="GetStarted.html"><span class="doc std std-doc">Get Started Guide</span></a> which will walk you through the
 steps to check system requirements, install, and then run the tool with a couple of
 examples showing no-code CLI and low-code API approaches. After that, you can check out
-these additional CLI and API <a class="reference internal" href="#examples/README.md"><span class="xref myst">Examples</span></a>.</p>
+these additional CLI and API <a class="reference internal" href="examples/README.html"><span class="doc std std-doc">Examples</span></a>.</p>
 </section>
 </section>
 <section id="note-on-evaluation-and-bias">
-<h1>Note on Evaluation and Bias<a class="headerlink" href="#note-on-evaluation-and-bias" title="Link to this heading">¶</a></h1>
+<h1>Note on Evaluation and Bias<a class="headerlink" href="#note-on-evaluation-and-bias" title="Permalink to this heading">¶</a></h1>
 <p>Intel Transfer Learning Tool provides standard evaluation metrics such as accuracy and loss for validation/test/train sets. While important, it’s essential to acknowledge that these metrics may not explicitly capture biases. Users should be cautious and consider potential biases by analyzing disparities in the data and model prediction. Techniques such as confusion matrices, PR curves, ROC curves, local attribution-based and <code class="docutils literal notranslate"><span class="pre">gradCAM</span></code> explanations, can all be good indicators for bias. Clear documentation of model behavior and performance is also crucial for iterative bias mitigation. <a class="reference external" href="https://github.com/IntelAI/intel-xai-tools/tree/main">Intel® Explainable AI Tools</a> provides components that demonstrate the aformentioned techniques with <a class="reference external" href="https://github.com/IntelAI/intel-xai-tools/tree/main/explainer">Explainer</a>, a simple API providing post-hoc model distillation and visualization methods, as well as The <a class="reference external" href="https://github.com/IntelAI/intel-xai-tools/tree/main/model_card_gen">Model Card Generator</a> which provides an interactive HTML report that containing these workflows and demonstrations of model behavior.</p>
 </section>
 <section id="support">
-<h1>Support<a class="headerlink" href="#support" title="Link to this heading">¶</a></h1>
+<h1>Support<a class="headerlink" href="#support" title="Permalink to this heading">¶</a></h1>
 <p>The Intel Transfer Learning Tool team tracks bugs and enhancement requests using
 <a class="reference external" href="https://github.com/IntelAI/transfer-learning-tool/issues">GitHub issues</a>. Before submitting a
 suggestion or bug report, search the existing GitHub issues to see if your issue has already been reported.</p>
-<p>See <a class="reference internal" href="#Legal.md"><span class="xref myst">Legal Information</span></a> for Disclaimers, Trademark, and Licensing information.</p>
+<p>See <a class="reference internal" href="Legal.html"><span class="doc std std-doc">Legal Information</span></a> for Disclaimers, Trademark, and Licensing information.</p>
 </section>
 <div class="toctree-wrapper compound">
 </div>
@@ -169,8 +172,8 @@ suggestion or bug report, search the existing GitHub issues to see if your issue
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 

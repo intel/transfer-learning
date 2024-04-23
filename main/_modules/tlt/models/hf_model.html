@@ -12,10 +12,13 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -111,19 +114,14 @@
 <span class="kn">from</span> <span class="nn">tlt.utils.inc_utils</span> <span class="kn">import</span> <span class="n">get_inc_config</span>
 
 
-<div class="viewcode-block" id="HFModel">
-<a class="viewcode-back" href="../../../_autosummary/tlt.models.hf_model.HFModel.html#tlt.models.hf_model.HFModel">[docs]</a>
-<span class="k">class</span> <span class="nc">HFModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="HFModel"><a class="viewcode-back" href="../../../_autosummary/tlt.models.hf_model.HFModel.html#tlt.models.hf_model.HFModel">[docs]</a><span class="k">class</span> <span class="nc">HFModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class to represent a Hugging Face model</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="HFModel.__init__">
-<a class="viewcode-back" href="../../../_autosummary/tlt.models.hf_model.HFModel.html#tlt.models.hf_model.HFModel.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span><span class="p">):</span>
+<div class="viewcode-block" id="HFModel.__init__"><a class="viewcode-back" href="../../../_autosummary/tlt.models.hf_model.HFModel.html#tlt.models.hf_model.HFModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">use_case</span><span class="p">:</span> <span class="n">UseCaseType</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">use_case</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">{}</span></div>
-
 
     <span class="k">def</span> <span class="nf">_update_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">:</span>
@@ -235,7 +233,7 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;There was an error with quantization&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">benchmark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">saved_model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">warmup</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cores_per_instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">num_of_instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inter_num_of_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intra_num_of_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                  <span class="n">num_of_instance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inter_num_of_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intra_num_of_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use Intel Neural Compressor to benchmark the model with the dataset argument. The dataset&#39;s validation or test</span>
 <span class="sd">        subset will be used for benchmarking, if present. Otherwise, the full training dataset is used. The model to be</span>
@@ -247,7 +245,7 @@
 <span class="sd">            warmup (int): The number of iterations to perform before running performance tests, default is 10</span>
 <span class="sd">            iteration (int): The number of iterations to run performance tests, default is 100</span>
 <span class="sd">            cores_per_instance (int or None): The number of CPU cores to use per instance, default is None</span>
-<span class="sd">            num_of_instance (int or None): The number of instances to use for performance testing, default is None</span>
+<span class="sd">            num_of_instance (int): The number of instances to use for performance testing, default is 1</span>
 <span class="sd">            inter_num_of_threads (int or None): The number of threads to use for inter-thread operations, default is</span>
 <span class="sd">                                                None</span>
 <span class="sd">            intra_num_of_threads (int or None): The number of threads to use for intra-thread operations, default is</span>
@@ -294,7 +292,6 @@
             <span class="kn">from</span> <span class="nn">neural_compressor.utils.pytorch</span> <span class="kn">import</span> <span class="n">load</span>
             <span class="n">quantized_model</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">dataloader</span><span class="o">=</span><span class="n">eval_dataloader</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">quantized_model</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">b_dataloader</span><span class="o">=</span><span class="n">eval_dataloader</span><span class="p">)</span></div>
-
 </pre></div>
 
            </div>
@@ -304,8 +301,8 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 

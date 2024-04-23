@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -14,10 +14,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -82,10 +85,10 @@
            <div itemprop="articleBody">
              
   <section id="Remote-Sensing-Image-Scene-Classification-(Resisc)-using-TensorFlow-and-the-Intel®-Transfer-Learning-Tool-API">
-<h1>Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API<a class="headerlink" href="#Remote-Sensing-Image-Scene-Classification-(Resisc)-using-TensorFlow-and-the-Intel®-Transfer-Learning-Tool-API" title="Link to this heading">¶</a></h1>
+<h1>Remote Sensing Image Scene Classification (Resisc) using TensorFlow and the Intel® Transfer Learning Tool API<a class="headerlink" href="#Remote-Sensing-Image-Scene-Classification-(Resisc)-using-TensorFlow-and-the-Intel®-Transfer-Learning-Tool-API" title="Permalink to this heading">¶</a></h1>
 <p>This notebook facilitates implementation of remote sensing image scene classification using Transfer Learning Toolkit. It performs Multi-class scene classification on RESISC45 dataset. The workflow uses pretrained SOTA models ( RESNET V1.5) from TF hub and transfers the knowledge from a pretrained domain to a different custom domain achieving required accuracy.</p>
 <section id="1.-Import-dependencies-and-setup-parameters">
-<h2>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Link to this heading">¶</a></h2>
+<h2>1. Import dependencies and setup parameters<a class="headerlink" href="#1.-Import-dependencies-and-setup-parameters" title="Permalink to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -101,7 +104,7 @@
 <span class="kn">from</span> <span class="nn">tlt.models</span> <span class="kn">import</span> <span class="n">model_factory</span>
 <span class="kn">from</span> <span class="nn">tlt.utils.types</span> <span class="kn">import</span> <span class="n">FrameworkType</span><span class="p">,</span> <span class="n">UseCaseType</span>
 
-<span class="kn">from</span> <span class="nn">notebooks.plot_utils</span> <span class="kn">import</span> <span class="n">plot_curves</span>
+<span class="kn">from</span> <span class="nn">plot_utils</span> <span class="kn">import</span> <span class="n">plot_curves</span>
 
 <span class="c1"># Specify a directory for the dataset to be downloaded</span>
 <span class="n">dataset_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DATASET_DIR&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;DATASET_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> \
@@ -118,7 +121,7 @@
 </div>
 </section>
 <section id="2.-Get-the-model">
-<h2>2. Get the model<a class="headerlink" href="#2.-Get-the-model" title="Link to this heading">¶</a></h2>
+<h2>2. Get the model<a class="headerlink" href="#2.-Get-the-model" title="Permalink to this heading">¶</a></h2>
 <p>In this step, we call the Intel Transfer Learning Tool model factory to list supported TensorFlow image classification models. This is a list of pretrained models from TFHub that we tested with our API. Optionally, the verbose=True argument can be added to the print_supported_models function call to get more information about each model (such as the link to TFHub, image size, the original dataset, etc).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -130,7 +133,7 @@
 </div>
 </div>
 <section id="Option-A:-Load-a-model">
-<h3>Option A: Load a model<a class="headerlink" href="#Option-A:-Load-a-model" title="Link to this heading">¶</a></h3>
+<h3>Option A: Load a model<a class="headerlink" href="#Option-A:-Load-a-model" title="Permalink to this heading">¶</a></h3>
 <p>Next, use the model factory to get one of the models listed in the previous cell. The <code class="docutils literal notranslate"><span class="pre">get_model</span></code> function returns a model object that will later be used for training. By default, resnet_v1_50 is used for training.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -143,7 +146,7 @@
 </div>
 </section>
 <section id="Option-B:-Load-a-pretrained-checkpoint">
-<h3>Option B: Load a pretrained checkpoint<a class="headerlink" href="#Option-B:-Load-a-pretrained-checkpoint" title="Link to this heading">¶</a></h3>
+<h3>Option B: Load a pretrained checkpoint<a class="headerlink" href="#Option-B:-Load-a-pretrained-checkpoint" title="Permalink to this heading">¶</a></h3>
 <p>Optionally, to continue training using a pretrained checkpoint, the user can specify the path to folder containing <strong>saved_model.pb</strong>. The user can specify the path in <strong>model</strong> parameter.</p>
 <p><em>Note: The path is same as saved_model_dir</em></p>
 <div class="nbinput nblast docutils container">
@@ -160,7 +163,7 @@
 </section>
 </section>
 <section id="3.-Get-the-dataset">
-<h2>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Link to this heading">¶</a></h2>
+<h2>3. Get the dataset<a class="headerlink" href="#3.-Get-the-dataset" title="Permalink to this heading">¶</a></h2>
 <p>The dataset used for remote sensing domain is resisc45. More details are at the location : <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/resisc45">https://www.tensorflow.org/datasets/catalog/resisc45</a>. To download dataset follow the steps: 1. Download the rar file from <a class="reference external" href="https://onedrive.live.com/?authkey=%21AHHNaHIlzp%5FIXjs&amp;cid=5C5E061130630A68&amp;id=5C5E061130630A68%21107&amp;parId=5C5E061130630A68%21112&amp;action=locate">https://onedrive.live.com/?authkey=%21AHHNaHIlzp%5FIXjs&amp;cid=5C5E061130630A68&amp;id=5C5E061130630A68%21107&amp;parId=5C5E061130630A68%21112&amp;action=locate</a> 2. Unzip the folder 3. Set custom_dataset_path to point to resisc folder</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -180,7 +183,7 @@
 </div>
 </section>
 <section id="4.-Prepare-the-dataset">
-<h2>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Link to this heading">¶</a></h2>
+<h2>4. Prepare the dataset<a class="headerlink" href="#4.-Prepare-the-dataset" title="Permalink to this heading">¶</a></h2>
 <p>Once you have your dataset from Option A or Option B above, use the following cells to preprocess the dataset. We resize the images to match the selected models and batch the images, then split them into training and validation subsets. Data augmentation can be applied by specifying the augmentations to be applied in <strong>add_aug</strong> parameter. Supported augmentations are 1. hvflip - RandomHorizontalandVerticalFlip 2. hflip - RandomHorizontalFlip 3. vflip - RandomVerticalFlip 4. rotate - RandomRotate
 5. zoom - RandomZoom</p>
 <div class="nbinput nblast docutils container">
@@ -204,7 +207,7 @@
 </div>
 </section>
 <section id="5.-Transfer-Learning">
-<h2>5. Transfer Learning<a class="headerlink" href="#5.-Transfer-Learning" title="Link to this heading">¶</a></h2>
+<h2>5. Transfer Learning<a class="headerlink" href="#5.-Transfer-Learning" title="Permalink to this heading">¶</a></h2>
 <p>This step calls the model’s train function with the dataset that was just prepared. The training function will get the TFHub feature vector and add on a dense layer based on the number of classes in the dataset. The model is then compiled and trained based on the number of epochs specified in the argument. With the do_eval paramter set to True by default, this step will also show how the model can be evaluated and will return a list of metrics calculated from the dataset’s validation subset. ###
 Arguments #### Required - <strong>dataset</strong> (ImageClassificationDataset, required): Dataset to use when training the model - <strong>output_dir</strong> (str): Path to a writeable directory for checkpoint files - <strong>epochs</strong> (int): Number of epochs to train the model (default: 1) #### Optional - <strong>initial_checkpoints</strong> (str): Path to checkpoint weights to load. If the path provided is a directory, the latest checkpoint will be used. - <strong>early_stopping</strong> (bool): Enable early stopping if convergence is reached while
 training at the end of each epoch. (default: False) - <strong>lr_decay</strong> (bool): If lr_decay is True and do_eval is True, learning rate decay on the validation loss is applied at the end of each epoch. - <strong>enable_auto_mixed_precision</strong> (bool or None): Enable auto mixed precision for training. Mixed precision uses both 16-bit and 32-bit floating point types to make training run faster and use less memory. It is recommended to enable auto mixed precision training when running on platforms that support
@@ -231,7 +234,7 @@ increase accuracy when fine-tuning a TFHub model. The input should be a list of 
 </div>
 </section>
 <section id="6.-Evaluate">
-<h2>6. Evaluate<a class="headerlink" href="#6.-Evaluate" title="Link to this heading">¶</a></h2>
+<h2>6. Evaluate<a class="headerlink" href="#6.-Evaluate" title="Permalink to this heading">¶</a></h2>
 <p>The next step shows how the model can be evaluated. The model’s evaluate function returns a list of metrics calculated from the dataset’s validation subset.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -255,7 +258,7 @@ increase accuracy when fine-tuning a TFHub model. The input should be a list of 
 </div>
 </section>
 <section id="7.-Export">
-<h2>7. Export<a class="headerlink" href="#7.-Export" title="Link to this heading">¶</a></h2>
+<h2>7. Export<a class="headerlink" href="#7.-Export" title="Permalink to this heading">¶</a></h2>
 <p>Next, we can call the model export function to generate a saved_model.pb. The model is saved in a format that is ready to use with TensorFlow Serving. Each time the model is exported, a new numbered directory is created, which allows serving to pick up the latest model.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -267,7 +270,7 @@ increase accuracy when fine-tuning a TFHub model. The input should be a list of 
 </div>
 </section>
 <section id="8.-Inference">
-<h2>8. Inference<a class="headerlink" href="#8.-Inference" title="Link to this heading">¶</a></h2>
+<h2>8. Inference<a class="headerlink" href="#8.-Inference" title="Permalink to this heading">¶</a></h2>
 <p>To perform only Inference using a saved model, follow the steps below 1. Execute Step 2(b) to load a pretrained checkpoint with the appropriate model name. 2. Execute Steps 3 and 4 to load and prepare the dataset. 3. Continue with the steps below</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -302,7 +305,7 @@ increase accuracy when fine-tuning a TFHub model. The input should be a list of 
 </div>
 </section>
 <section id="Dataset-Citations">
-<h2>Dataset Citations<a class="headerlink" href="#Dataset-Citations" title="Link to this heading">¶</a></h2>
+<h2>Dataset Citations<a class="headerlink" href="#Dataset-Citations" title="Permalink to this heading">¶</a></h2>
 <p>&#64;article{Cheng_2017, title={Remote Sensing Image Scene Classification: Benchmark and State of the Art}, volume={105}, ISSN={1558-2256}, url={<a class="reference external" href="http://dx.doi.org/10.1109/JPROC.2017.2675998">http://dx.doi.org/10.1109/JPROC.2017.2675998</a>}, DOI={10.1109/jproc.2017.2675998}, number={10}, journal={Proceedings of the IEEE}, publisher={Institute of Electrical and Electronics Engineers (IEEE)}, author={Cheng, Gong and Han, Junwei and Lu, Xiaoqiang}, year={2017}, month={Oct}, pages={1865-1883} }</p>
 </section>
 </section>
@@ -315,8 +318,8 @@ increase accuracy when fine-tuning a TFHub model. The input should be a list of 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 

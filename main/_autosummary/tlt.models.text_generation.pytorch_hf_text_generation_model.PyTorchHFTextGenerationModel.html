@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -13,10 +13,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -97,20 +100,24 @@
            <div itemprop="articleBody">
              
   <section id="tlt-models-text-generation-pytorch-hf-text-generation-model-pytorchhftextgenerationmodel">
-<h1>tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel<a class="headerlink" href="#tlt-models-text-generation-pytorch-hf-text-generation-model-pytorchhftextgenerationmodel" title="Link to this heading">¶</a></h1>
+<h1>tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel<a class="headerlink" href="#tlt-models-text-generation-pytorch-hf-text-generation-model-pytorchhftextgenerationmodel" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlt.models.text_generation.pytorch_hf_text_generation_model.</span></span><span class="sig-name descname"><span class="pre">PyTorchHFTextGenerationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/text_generation/pytorch_hf_text_generation_model.html#PyTorchHFTextGenerationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tlt.models.text_generation.pytorch_hf_text_generation_model.</span></span><span class="sig-name descname"><span class="pre">PyTorchHFTextGenerationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/text_generation/pytorch_hf_text_generation_model.html#PyTorchHFTextGenerationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class to represent a PyTorch Hugging Face pretrained model that can be used for text generation
 fine tuning.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/text_generation/pytorch_hf_text_generation_model.html#PyTorchHFTextGenerationModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tlt/models/text_generation/pytorch_hf_text_generation_model.html#PyTorchHFTextGenerationModel.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class constructor</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.__init__" title="tlt.models.text_generation.pytorch_hf_text_generation_model.PyTorchHFTextGenerationModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(model_name[, model])</p></td>
 <td><p>Class constructor</p></td>
@@ -131,7 +138,7 @@ fine tuning.</p>
 <td><p>Generates text completions for the specified input samples.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_layers</span></code>([verbose])</p></td>
-<td><p>Lists all of the named modules (e.g. features, avgpool, classifier) and layers (ReLU, MaxPool2d, Dropout, Linear, etc) in a given PyTorch model.</p></td>
+<td><p>Lists all of the named modules (e.g.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_directory</span></code>(model_dir)</p></td>
 <td><p>Loads a saved pytorch model from the given model_dir directory.</p></td>
@@ -152,6 +159,10 @@ fine tuning.</p>
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">framework</span></code></p></td>
 <td><p>Framework with which the model is compatible</p></td>
@@ -185,8 +196,8 @@ fine tuning.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 

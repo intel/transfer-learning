@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Performance Comparison: Text Classification Transfer Learning with Hugging Face* and the Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -14,10 +14,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -82,7 +85,7 @@
            <div itemprop="articleBody">
              
   <section id="Performance-Comparison:-Text-Classification-Transfer-Learning-with-Hugging-Face*-and-the-Intel®-Transfer-Learning-Tool">
-<h1>Performance Comparison: Text Classification Transfer Learning with Hugging Face* and the Intel® Transfer Learning Tool<a class="headerlink" href="#Performance-Comparison:-Text-Classification-Transfer-Learning-with-Hugging-Face*-and-the-Intel®-Transfer-Learning-Tool" title="Link to this heading">¶</a></h1>
+<h1>Performance Comparison: Text Classification Transfer Learning with Hugging Face* and the Intel® Transfer Learning Tool<a class="headerlink" href="#Performance-Comparison:-Text-Classification-Transfer-Learning-with-Hugging-Face*-and-the-Intel®-Transfer-Learning-Tool" title="Permalink to this heading">¶</a></h1>
 <p>This notebook uses the Hugging Face Trainer to do transfer learning with a text classification model with PyTorch<em>. The model is trained, evaluated, and exported. The same sequence is also done using the Intel Transfer Learning Tool. The Intel Transfer Learning Tool has a flag to control whether the Hugging Face Trainer is used under the hood, or if just PyTorch libraries are used. Training and evaluation are run both ways, giving us three combinations to compare:</em> Using the Hugging Face
 Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer * Using the Intel Transfer Learning Tool with torch</p>
 <p>After all of the models have been trained and evaluated, charts are displayed to visually compare the training and evaluation metrics.</p>
@@ -141,7 +144,7 @@ Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer *
 </div>
 </div>
 <section id="1.-Display-Platform-Information">
-<h2>1. Display Platform Information<a class="headerlink" href="#1.-Display-Platform-Information" title="Link to this heading">¶</a></h2>
+<h2>1. Display Platform Information<a class="headerlink" href="#1.-Display-Platform-Information" title="Permalink to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -181,9 +184,9 @@ Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer *
 </div>
 </section>
 <section id="2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation">
-<h2>2. Select a model and define parameters to use during training and evaluation<a class="headerlink" href="#2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation" title="Link to this heading">¶</a></h2>
+<h2>2. Select a model and define parameters to use during training and evaluation<a class="headerlink" href="#2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation" title="Permalink to this heading">¶</a></h2>
 <section id="Select-a-model">
-<h3>Select a model<a class="headerlink" href="#Select-a-model" title="Link to this heading">¶</a></h3>
+<h3>Select a model<a class="headerlink" href="#Select-a-model" title="Permalink to this heading">¶</a></h3>
 <p>See the list of supported PyTorch text classification models from Hugging Face in the Intel Transfer Learning Tool.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -217,7 +220,7 @@ Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer *
 </div>
 </section>
 <section id="Select-a-dataset">
-<h3>Select a dataset<a class="headerlink" href="#Select-a-dataset" title="Link to this heading">¶</a></h3>
+<h3>Select a dataset<a class="headerlink" href="#Select-a-dataset" title="Permalink to this heading">¶</a></h3>
 <p>For these experiments, we will be using text classification datasets from the <a class="reference external" href="https://huggingface.co/datasets?task_categories=task_categories:text-classification&amp;sort=downloads">Hugging Face Datasets catalog</a>. Specify the name of the dataset to use with the <code class="docutils literal notranslate"><span class="pre">dataset_name</span></code> variable in the next cell.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -229,7 +232,7 @@ Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer *
 </div>
 </section>
 <section id="Define-parameters">
-<h3>Define parameters<a class="headerlink" href="#Define-parameters" title="Link to this heading">¶</a></h3>
+<h3>Define parameters<a class="headerlink" href="#Define-parameters" title="Permalink to this heading">¶</a></h3>
 <p>For consistency between the model training experiments using Hugging Face and the Intel Transfer Learning Tool, the next cell defines parameters that will be used by both methods.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -312,11 +315,11 @@ Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer *
 </section>
 </section>
 <section id="3.-Train-and-evaluate-the-models">
-<h2>3. Train and evaluate the models<a class="headerlink" href="#3.-Train-and-evaluate-the-models" title="Link to this heading">¶</a></h2>
+<h2>3. Train and evaluate the models<a class="headerlink" href="#3.-Train-and-evaluate-the-models" title="Permalink to this heading">¶</a></h2>
 <p>In this section, we will compare the time that it takes to fine tune the text classification model using the dataset that was selected in the previous section.</p>
 <p>The fine tuning will be done in two different ways: * Using the Hugging Face python libraries * Using the Intel Transfer Learning Tool</p>
 <section id="Fine-tuning-using-the-Hugging-Face-libraries">
-<h3>Fine tuning using the Hugging Face libraries<a class="headerlink" href="#Fine-tuning-using-the-Hugging-Face-libraries" title="Link to this heading">¶</a></h3>
+<h3>Fine tuning using the Hugging Face libraries<a class="headerlink" href="#Fine-tuning-using-the-Hugging-Face-libraries" title="Permalink to this heading">¶</a></h3>
 <p>First, we download and prepare the dataset.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -454,7 +457,7 @@ Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer *
 </div>
 </section>
 <section id="Using-the-Intel-Transfer-Learning-tool-API">
-<h3>Using the Intel Transfer Learning tool API<a class="headerlink" href="#Using-the-Intel-Transfer-Learning-tool-API" title="Link to this heading">¶</a></h3>
+<h3>Using the Intel Transfer Learning tool API<a class="headerlink" href="#Using-the-Intel-Transfer-Learning-tool-API" title="Permalink to this heading">¶</a></h3>
 <p>Next, we train the same model using the same parameters using the Intel Transfer Learning Tool. The Intel Transfer Learning Tool training method has an argument called <code class="docutils literal notranslate"><span class="pre">use_trainer</span></code> to determine if the Hugging Face Trainer will be used. If <code class="docutils literal notranslate"><span class="pre">use_trainer=False</span></code>, the torch libraries will be used to train the model. The next section will do the training with and without the Hugging Face Trainer, so that we can gather metrics both ways. After the model is trained, it is evaluted. Again, we save
 the training and evaluation metrics to lists.</p>
 <div class="nbinput nblast docutils container">
@@ -534,7 +537,7 @@ the training and evaluation metrics to lists.</p>
 </section>
 </section>
 <section id="4.-Compare-metrics">
-<h2>4. Compare metrics<a class="headerlink" href="#4.-Compare-metrics" title="Link to this heading">¶</a></h2>
+<h2>4. Compare metrics<a class="headerlink" href="#4.-Compare-metrics" title="Permalink to this heading">¶</a></h2>
 <p>This section compares metrics for training and evaluating the model for the following experiments: * Using the Hugging Face Trainer * Using the Intel Transfer Learning Tool with the Hugging Face Trainer * Using the Intel Transfer Learning Tool with torch</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -568,7 +571,7 @@ the training and evaluation metrics to lists.</p>
 </div>
 </div>
 <section id="Training-metrics">
-<h3>Training metrics<a class="headerlink" href="#Training-metrics" title="Link to this heading">¶</a></h3>
+<h3>Training metrics<a class="headerlink" href="#Training-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Generate charts to compare the time that it took to train the model in each experiment (lower is better) and the thoughput (higher is better).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -627,7 +630,7 @@ the training and evaluation metrics to lists.</p>
 </div>
 </section>
 <section id="Evaluation-Metrics">
-<h3>Evaluation Metrics<a class="headerlink" href="#Evaluation-Metrics" title="Link to this heading">¶</a></h3>
+<h3>Evaluation Metrics<a class="headerlink" href="#Evaluation-Metrics" title="Permalink to this heading">¶</a></h3>
 <p>Next, we generate charts to compare the evaluation metrics for the same three experiments that were used for training the model. We have a charts with the validation accuracy, total evaluation time (lower is better), and evaluation throughput (higher is better).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -706,7 +709,7 @@ the training and evaluation metrics to lists.</p>
 </section>
 </section>
 <section id="Next-Steps">
-<h2>Next Steps<a class="headerlink" href="#Next-Steps" title="Link to this heading">¶</a></h2>
+<h2>Next Steps<a class="headerlink" href="#Next-Steps" title="Permalink to this heading">¶</a></h2>
 <p>This concludes our performance comparison using a Hugging Face model with the Hugging Face <code class="docutils literal notranslate"><span class="pre">Trainer</span></code> and the Intel Transfer Learning Tool. All of the models trained during these experiments have been saved to your output directory. Any of these can be loaded back to perform further experiments.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -723,7 +726,7 @@ the training and evaluation metrics to lists.</p>
 </div>
 </section>
 <section id="Citations">
-<h2>Citations<a class="headerlink" href="#Citations" title="Link to this heading">¶</a></h2>
+<h2>Citations<a class="headerlink" href="#Citations" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@misc{devlin2019bert,
       title={BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding},
       author={Jacob Devlin and Ming-Wei Chang and Kenton Lee and Kristina Toutanova},
@@ -758,8 +761,8 @@ the training and evaluation metrics to lists.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 

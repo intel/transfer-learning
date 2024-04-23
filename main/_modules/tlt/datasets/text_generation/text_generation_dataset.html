@@ -12,10 +12,13 @@
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -106,17 +109,12 @@
 <span class="kn">from</span> <span class="nn">tlt.datasets.dataset</span> <span class="kn">import</span> <span class="n">BaseDataset</span>
 
 
-<div class="viewcode-block" id="TextGenerationDataset">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.text_generation.text_generation_dataset.TextGenerationDataset.html#tlt.datasets.text_generation.text_generation_dataset.TextGenerationDataset">[docs]</a>
-<span class="k">class</span> <span class="nc">TextGenerationDataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="TextGenerationDataset"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.text_generation.text_generation_dataset.TextGenerationDataset.html#tlt.datasets.text_generation.text_generation_dataset.TextGenerationDataset">[docs]</a><span class="k">class</span> <span class="nc">TextGenerationDataset</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for a text generation dataset</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="TextGenerationDataset.__init__">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.text_generation.text_generation_dataset.TextGenerationDataset.html#tlt.datasets.text_generation.text_generation_dataset.TextGenerationDataset.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">dataset_catalog</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="TextGenerationDataset.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.text_generation.text_generation_dataset.TextGenerationDataset.html#tlt.datasets.text_generation.text_generation_dataset.TextGenerationDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">dataset_catalog</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="n">BaseDataset</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">dataset_catalog</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_convert_to_prompts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompt_dict</span><span class="p">,</span> <span class="n">dataset_schema</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -240,7 +238,6 @@
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_data_loaders</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tokenized Dataset:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span></div>
-
 </pre></div>
 
            </div>
@@ -250,8 +247,8 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 

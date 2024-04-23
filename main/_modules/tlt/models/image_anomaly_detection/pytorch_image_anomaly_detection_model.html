@@ -12,10 +12,13 @@
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -127,7 +130,14 @@
 <span class="kn">from</span> <span class="nn">tlt.models.image_anomaly_detection.cutpaste.cutpaste</span> <span class="kn">import</span> <span class="n">CutPasteNormal</span><span class="p">,</span> \
     <span class="n">CutPasteScar</span><span class="p">,</span> <span class="n">CutPaste3Way</span><span class="p">,</span> <span class="n">CutPasteUnion</span>
 
-<span class="kn">import</span> <span class="nn">intel_extension_for_pytorch</span> <span class="k">as</span> <span class="nn">ipex</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">habana_import_error</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="kn">import</span> <span class="nn">habana_frameworks.torch.core</span> <span class="k">as</span> <span class="nn">htcore</span>
+    <span class="n">is_hpu_available</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">is_hpu_available</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">habana_import_error</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">extract_features</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">pooling</span><span class="p">):</span>
@@ -192,22 +202,19 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            PCA components responsible for the top (threshold)% of the features&#39; variability</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="c1"># Converting features to cpu just in case hpu is used, hpu tensors cannot use numpy()</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
     <span class="n">principal_components</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span>
     <span class="n">pca_mats</span> <span class="o">=</span> <span class="n">principal_components</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pca_mats</span>
 
 
-<div class="viewcode-block" id="PyTorchImageAnomalyDetectionModel">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.html#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel">[docs]</a>
-<span class="k">class</span> <span class="nc">PyTorchImageAnomalyDetectionModel</span><span class="p">(</span><span class="n">PyTorchImageClassificationModel</span><span class="p">):</span>
+<div class="viewcode-block" id="PyTorchImageAnomalyDetectionModel"><a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.html#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel">[docs]</a><span class="k">class</span> <span class="nc">PyTorchImageAnomalyDetectionModel</span><span class="p">(</span><span class="n">PyTorchImageClassificationModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to represent a PyTorch model for image classification</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PyTorchImageAnomalyDetectionModel.__init__">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.html#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PyTorchImageAnomalyDetectionModel.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.html#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class constructor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -219,11 +226,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_pooling</span> <span class="o">=</span> <span class="s1">&#39;avg&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kernel_size</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hub</span> <span class="o">=</span> <span class="s1">&#39;torchvision&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_enable_auto_mixed_precision</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;device&quot;</span><span class="p">,</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
 
         <span class="c1"># Store the dataset type that this model type can use for Intel Neural Compressor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_inc_compatible_dataset</span> <span class="o">=</span> <span class="p">(</span><span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_check_train_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">,</span> <span class="n">pooling</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">pca_threshold</span><span class="p">):</span>
         <span class="n">verify_directory</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
@@ -240,14 +248,17 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pca_threshold</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pca_threshold</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">pca_threshold</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The pca_threshold must be a float between 0 and 1  but found </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pca_threshold</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">load_checkpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load_checkpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load checkpoints from the given checkpoint directory based on feature extractor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">downloader</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="s1">&#39;torchvision&#39;</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hub</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">hub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub</span>
+
+        <span class="n">downloader</span> <span class="o">=</span> <span class="n">ModelDownloader</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="n">hub</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">net</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
 
-        <span class="n">ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">))</span>
+        <span class="n">ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">))</span>
         <span class="n">state_dict</span> <span class="o">=</span> <span class="n">ckpt</span><span class="p">[</span><span class="s1">&#39;state_dict&#39;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">feature_extractor</span> <span class="o">==</span> <span class="s1">&#39;simsiam&#39;</span><span class="p">:</span>
@@ -289,7 +300,8 @@
 
     <span class="k">def</span> <span class="nf">train_simsiam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">feature_dim</span><span class="p">,</span>
                       <span class="n">pred_dim</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+                      <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">,</span>
+                      <span class="n">hub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Trains a SimSiam model using the specified dataset.</span>
 
@@ -315,6 +327,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">epochs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simsiam</span> <span class="o">=</span> <span class="kc">True</span>
 
+        <span class="k">if</span> <span class="n">hub</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">hub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub</span>
+
         <span class="n">dataset</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_simsiam_transform</span>
         <span class="n">dataloader</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_train_loader</span>
 
@@ -323,12 +338,11 @@
         <span class="k">if</span> <span class="n">initial_checkpoints</span><span class="p">:</span>
             <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">SimSiam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">feature_dim</span><span class="p">,</span> <span class="n">pred_dim</span><span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
         <span class="n">init_lr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LR</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">/</span> <span class="mi">256</span>
 
-        <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+        <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
 
         <span class="n">optim_params</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="s1">&#39;fix_lr&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
                         <span class="p">{</span><span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predictor</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="s1">&#39;fix_lr&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}]</span>
@@ -341,7 +355,13 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fine-tuning Simsiam Model on &quot;</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="s2">&quot;epochs using &quot;</span><span class="p">,</span> <span class="n">num_images</span><span class="p">,</span> <span class="s2">&quot; training images&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="n">ipex_optimize</span><span class="p">:</span>
+            <span class="c1"># Gaudi is not compatible with IPEX</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False&quot;</span><span class="p">)</span>
+            <span class="n">ipex_optimize</span> <span class="o">=</span> <span class="kc">False</span>
+
         <span class="k">if</span> <span class="n">ipex_optimize</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">intel_extension_for_pytorch</span> <span class="k">as</span> <span class="nn">ipex</span>
             <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">ipex</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
                                              <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span> <span class="k">if</span> <span class="n">precision</span> <span class="o">==</span> <span class="s1">&#39;bfloat16&#39;</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -354,7 +374,7 @@
         <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">):</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">adjust_learning_rate</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">init_lr</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">)</span>
 
-            <span class="n">curr_loss</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_fit_simsiam</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
+            <span class="n">curr_loss</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_fit_simsiam</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">generate_checkpoints</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">curr_loss</span> <span class="o">&lt;</span> <span class="n">best_least_Loss</span><span class="p">):</span>
                     <span class="n">best_least_Loss</span> <span class="o">=</span> <span class="n">curr_loss</span>
@@ -381,14 +401,15 @@
 
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No. Of Epochs=&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Batch Size =&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size_ss</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_checkpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span>
-                                                   <span class="n">file_name_least_loss</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="s1">&#39;simsiam&#39;</span><span class="p">)</span>
+                                                   <span class="n">file_name_least_loss</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="s1">&#39;simsiam&#39;</span><span class="p">,</span>
+                                                   <span class="n">hub</span><span class="o">=</span><span class="n">hub</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
 
     <span class="k">def</span> <span class="nf">train_cutpaste</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">freeze_resnet</span><span class="p">,</span>
                        <span class="n">head_layer</span><span class="p">,</span> <span class="n">cutpaste_type</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+                       <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">,</span>
+                       <span class="n">hub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Trains a CutPaste model using the specified dataset.</span>
 
@@ -423,6 +444,9 @@
         <span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_checkpoints&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">valid_model_name</span><span class="p">))</span>
         <span class="n">verify_directory</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">hub</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">hub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hub</span>
+
         <span class="k">if</span> <span class="n">initial_checkpoints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&gt; creating CUT-PASTE feature extractor with the backbone of&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">))</span>
 
@@ -431,8 +455,7 @@
             <span class="n">num_classes</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">variant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">CutPaste3Way</span> <span class="k">else</span> <span class="mi">3</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">ProjectionNet</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                         <span class="n">head_layers</span><span class="o">=</span><span class="n">head_layers</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="n">num_classes</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
-
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">freeze_resnet</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">freeze_resnet</span><span class="p">()</span>
 
@@ -456,7 +479,13 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fine-tuning CUT-PASTE Model on &quot;</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="s2">&quot;epochs using &quot;</span><span class="p">,</span> <span class="n">num_images</span><span class="p">,</span> <span class="s2">&quot; training images&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
 
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="n">ipex_optimize</span><span class="p">:</span>
+                <span class="c1"># Gaudi is not compatible with IPEX</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False&quot;</span><span class="p">)</span>
+                <span class="n">ipex_optimize</span> <span class="o">=</span> <span class="kc">False</span>
+
             <span class="k">if</span> <span class="n">ipex_optimize</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">intel_extension_for_pytorch</span> <span class="k">as</span> <span class="nn">ipex</span>
                 <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">ipex</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
                                                  <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span> <span class="k">if</span> <span class="n">precision</span> <span class="o">==</span> <span class="s1">&#39;bfloat16&#39;</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -465,7 +494,7 @@
             <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
                 <span class="n">epoch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">step</span> <span class="o">/</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="n">curr_loss</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_fit_cutpaste</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span>
-                                                <span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">freeze_resnet</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
+                                                <span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">freeze_resnet</span><span class="p">,</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">generate_checkpoints</span><span class="p">:</span>
                     <span class="k">if</span> <span class="p">(</span><span class="n">curr_loss</span> <span class="o">&lt;</span> <span class="n">best_least_Loss</span><span class="p">):</span>
                         <span class="n">best_least_Loss</span> <span class="o">=</span> <span class="n">curr_loss</span>
@@ -490,9 +519,9 @@
                             <span class="s1">&#39;state_dict&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
                         <span class="p">},</span> <span class="n">is_best</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">file_name_least_loss</span><span class="p">,</span>
                             <span class="n">loss</span><span class="o">=</span><span class="n">curr_loss</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="o">=</span><span class="n">checkpoint_dir</span><span class="p">)</span>
-
             <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_checkpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span>
-                                                       <span class="n">file_name_least_loss</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="s1">&#39;cutpaste&#39;</span><span class="p">)</span>
+                                                       <span class="n">file_name_least_loss</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="s1">&#39;cutpaste&#39;</span><span class="p">,</span>
+                                                       <span class="n">hub</span><span class="o">=</span><span class="n">hub</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">initial_checkpoints</span><span class="p">):</span>
@@ -502,17 +531,16 @@
                     <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_checkpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span>
-                                                       <span class="n">model_path</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="s1">&#39;cutpaste&#39;</span><span class="p">)</span>
+                                                       <span class="n">model_path</span><span class="p">,</span> <span class="n">feature_extractor</span><span class="o">=</span><span class="s1">&#39;cutpaste&#39;</span><span class="p">,</span>
+                                                       <span class="n">hub</span><span class="o">=</span><span class="n">hub</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
 
-<div class="viewcode-block" id="PyTorchImageAnomalyDetectionModel.train">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train.html#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train">[docs]</a>
-    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<div class="viewcode-block" id="PyTorchImageAnomalyDetectionModel.train"><a class="viewcode-back" href="../../../../_autosummary/tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train.html#tlt.models.image_anomaly_detection.pytorch_image_anomaly_detection_model.PyTorchImageAnomalyDetectionModel.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
               <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">feature_dim</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">pred_dim</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
               <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pooling</span><span class="o">=</span><span class="s1">&#39;avg&#39;</span><span class="p">,</span>
               <span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pca_threshold</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">simsiam</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cutpaste</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cutpaste_type</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
               <span class="n">freeze_resnet</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">head_layer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="s1">&#39;sgd&#39;</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="s1">&#39;layer3&#39;</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-              <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+              <span class="n">enable_auto_mixed_precision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Trains the model using the specified image anomaly detection dataset.</span>
 
@@ -547,12 +575,25 @@
 <span class="sd">                    enable_auto_mixed_precision is set to None, auto mixed precision will be automatically enabled when</span>
 <span class="sd">                    running with Intel fourth generation Xeon processors, and disabled for other platforms. Defaults to</span>
 <span class="sd">                    None.</span>
+<span class="sd">                device (str): Enter &quot;cpu&quot; or &quot;hpu&quot; to specify which hardware device to run training on.</span>
+<span class="sd">                    If device=&quot;hpu&quot; is specified, but no HPU hardware or installs are detected,</span>
+<span class="sd">                    CPU will be used. (default: &quot;cpu&quot;)</span>
 
 <span class="sd">            Returns:</span>
 <span class="sd">                Fitted principal components and PyTorch feature extraction model</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_train_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">,</span> <span class="n">pooling</span><span class="p">,</span>
                                  <span class="n">kernel_size</span><span class="p">,</span> <span class="n">pca_threshold</span><span class="p">)</span>
+
+        <span class="c1"># Only change the device if one is passed in</span>
+        <span class="k">if</span> <span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">habana_import_error</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+        <span class="k">elif</span> <span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="k">elif</span> <span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;cpu&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pooling</span> <span class="o">=</span> <span class="n">pooling</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kernel_size</span> <span class="o">=</span> <span class="n">kernel_size</span>
@@ -561,6 +602,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simsiam</span> <span class="o">=</span> <span class="n">simsiam</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutpaste</span> <span class="o">=</span> <span class="n">cutpaste</span>
+
+        <span class="c1"># If No device is passed in, but model was initialized with hpu, must check if hpu is available</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">habana_import_error</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="n">ipex_optimize</span><span class="p">:</span>
+            <span class="c1"># Gaudi is not compatible with IPEX</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Note: IPEX is not compatible with Gaudi, setting ipex_optimize=False&quot;</span><span class="p">)</span>
+            <span class="n">ipex_optimize</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">enable_auto_mixed_precision</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -577,16 +629,17 @@
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_simsiam</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">feature_dim</span><span class="p">,</span>
                                        <span class="n">pred_dim</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">,</span>
                                        <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="n">ipex_optimize</span><span class="p">,</span>
-                                       <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+                                       <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_hub</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutpaste</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_cutpaste</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">freeze_resnet</span><span class="p">,</span>
                                         <span class="n">head_layer</span><span class="p">,</span> <span class="n">cutpaste_type</span><span class="p">,</span> <span class="n">initial_checkpoints</span><span class="p">,</span>
                                         <span class="n">generate_checkpoints</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ipex_optimize</span><span class="o">=</span><span class="n">ipex_optimize</span><span class="p">,</span>
-                                        <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+                                        <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">,</span> <span class="n">hub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_hub</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_pretrained_model</span><span class="p">()</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading &#39;</span><span class="si">{}</span><span class="s2">&#39; model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">))</span>
 
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">get_feature_extraction_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">)</span>
         <span class="n">dataset</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">_train_transform</span>
         <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_batch</span><span class="p">()</span>
@@ -612,8 +665,8 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span><span class="p">,</span> <span class="n">model</span></div>
 
-
-    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">,</span> <span class="n">pca_mats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">PyTorchCustomImageAnomalyDetectionDataset</span><span class="p">,</span> <span class="n">pca_mats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_test_set</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluate the accuracy of the model on a dataset.</span>
 <span class="sd">        If there is a validation set, evaluation will be done on it (by default) or on the test set</span>
@@ -628,11 +681,31 @@
 <span class="sd">                                       calculated PCA will be used</span>
 <span class="sd">            use_test_set (bool): If set to True, evaluation is done on test set else on validation</span>
 <span class="sd">                                 set if available</span>
+<span class="sd">            device (str): Enter &quot;cpu&quot; or &quot;hpu&quot; to specify which hardware device to run training on.</span>
+<span class="sd">                    If device=&quot;hpu&quot; is specified, but no HPU hardware or installs are detected,</span>
+<span class="sd">                    CPU will be used. (default: &quot;cpu&quot;)</span>
+
 
 <span class="sd">        Returns:</span>
 <span class="sd">            threshold : Computed threshold for prediction</span>
 <span class="sd">            auc_roc_binary : AUROC score</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Only change the device if one is passed in</span>
+        <span class="k">if</span> <span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">habana_import_error</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+        <span class="k">elif</span> <span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="k">elif</span> <span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;cpu&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span>
+
+        <span class="c1"># If No device is passed in, but model was initialized with hpu, must check if hpu is available</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">habana_import_error</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+
         <span class="k">if</span> <span class="n">pca_mats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either pass in the pca_mats to use or use the train() method to generate them.&quot;</span><span class="p">)</span>
@@ -661,20 +734,22 @@
             <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">data_length</span><span class="p">)</span>
             <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">eval_loader</span><span class="p">)):</span>
-                <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">)</span>
+                <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">,</span> <span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">)</span>
                 <span class="n">num_im</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">outputs</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_name</span><span class="p">,</span>
                                            <span class="n">pooling</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pooling</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kernel_size</span><span class="p">])</span>
                 <span class="n">feature_shapes</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">shape</span>
                 <span class="n">oi</span> <span class="o">=</span> <span class="n">outputs</span>
-                <span class="n">oi_or</span> <span class="o">=</span> <span class="n">oi</span>
-                <span class="n">oi_j</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">oi</span><span class="p">)</span>
+                <span class="n">oi_or</span> <span class="o">=</span> <span class="n">oi</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+                <span class="n">oi_j</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">oi</span><span class="o">.</span><span class="n">cpu</span><span class="p">())</span>
                 <span class="n">oi_reconstructed</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">oi_j</span><span class="p">)</span>
                 <span class="n">fre</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">oi_or</span> <span class="o">-</span> <span class="n">oi_reconstructed</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">feature_shapes</span><span class="p">)</span>
                 <span class="n">fre_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fre</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># NxCxHxW --&gt; NxHxW</span>
                 <span class="n">scores</span><span class="p">[</span><span class="n">count</span><span class="p">:</span> <span class="n">count</span> <span class="o">+</span> <span class="n">num_im</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">fre_score</span>
                 <span class="n">gt</span><span class="p">[</span><span class="n">count</span><span class="p">:</span><span class="n">count</span> <span class="o">+</span> <span class="n">num_im</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
                 <span class="n">count</span> <span class="o">+=</span> <span class="n">num_im</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+                    <span class="n">htcore</span><span class="o">.</span><span class="n">mark_step</span><span class="p">()</span>
 
             <span class="n">gt</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 
@@ -687,7 +762,7 @@
 
         <span class="k">return</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">auc_roc_binary</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_samples</span><span class="p">,</span> <span class="n">pca_mats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;scores&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_samples</span><span class="p">,</span> <span class="n">pca_mats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;scores&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform inference and predict the class of the input_samples.</span>
 
@@ -700,10 +775,29 @@
 <span class="sd">                               the highest scoring class based on a user-provided threshold (default: &#39;scores&#39;)</span>
 <span class="sd">            threshold (numerical): Optional; When using return_type &quot;class&quot; this is the threshold for determining</span>
 <span class="sd">                                   whether a score counts as an anomaly or not</span>
+<span class="sd">            device (str): Enter &quot;cpu&quot; or &quot;hpu&quot; to specify which hardware device to run training on.</span>
+<span class="sd">                    If device=&quot;hpu&quot; is specified, but no HPU hardware or installs are detected,</span>
+<span class="sd">                    CPU will be used. (default: &quot;cpu&quot;)</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of predictions (&#39;good&#39; or &#39;bad&#39;) or raw score vector</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Only change the device if one is passed in</span>
+        <span class="k">if</span> <span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">habana_import_error</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+        <span class="k">elif</span> <span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="k">elif</span> <span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;cpu&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">device</span>
+
+        <span class="c1"># If No device is passed in, but model was initialized with hpu, must check if hpu is available</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Gaudi HPUs were found or required device drivers are not installed. Running on CPUs&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">habana_import_error</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+
         <span class="k">if</span> <span class="n">pca_mats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either pass in the pca_mats to use or use the train() method to generate them.&quot;</span><span class="p">)</span>
@@ -717,19 +811,21 @@
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
             <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_samples</span><span class="p">))</span>
             <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">input_samples</span> <span class="o">=</span> <span class="n">input_samples</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">)</span>
+            <span class="n">input_samples</span> <span class="o">=</span> <span class="n">input_samples</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_device</span><span class="p">,</span> <span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">)</span>
             <span class="n">num_im</span> <span class="o">=</span> <span class="n">input_samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">outputs</span> <span class="o">=</span> <span class="n">extract_features</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_name</span><span class="p">,</span>
                                        <span class="n">pooling</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pooling</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kernel_size</span><span class="p">])</span>
             <span class="n">feature_shapes</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">shape</span>
             <span class="n">oi</span> <span class="o">=</span> <span class="n">outputs</span>
-            <span class="n">oi_or</span> <span class="o">=</span> <span class="n">oi</span>
-            <span class="n">oi_j</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">oi</span><span class="p">)</span>
+            <span class="n">oi_or</span> <span class="o">=</span> <span class="n">oi</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+            <span class="n">oi_j</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">oi</span><span class="o">.</span><span class="n">cpu</span><span class="p">())</span>
             <span class="n">oi_reconstructed</span> <span class="o">=</span> <span class="n">pca_mats</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">oi_j</span><span class="p">)</span>
             <span class="n">fre</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">oi_or</span> <span class="o">-</span> <span class="n">oi_reconstructed</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">feature_shapes</span><span class="p">)</span>
             <span class="n">fre_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fre</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># NxCxHxW --&gt; NxHxW</span>
             <span class="n">scores</span><span class="p">[</span><span class="n">count</span><span class="p">:</span> <span class="n">count</span> <span class="o">+</span> <span class="n">num_im</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">fre_score</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="n">num_im</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device</span> <span class="o">==</span> <span class="s2">&quot;hpu&quot;</span> <span class="ow">and</span> <span class="n">is_hpu_available</span><span class="p">:</span>
+                <span class="n">htcore</span><span class="o">.</span><span class="n">mark_step</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">return_type</span> <span class="o">==</span> <span class="s1">&#39;scores&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">scores</span>
@@ -775,7 +871,6 @@
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">pca_file_name</span><span class="p">):</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pca_file_name</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pca_file</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pca_mats</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pca_file</span><span class="p">)</span>  <span class="c1"># nosec B301</span></div>
-
 </pre></div>
 
            </div>
@@ -785,8 +880,8 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 

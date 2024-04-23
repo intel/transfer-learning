@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Performance Comparison: Image Classification Transfer Learning with TensorFlow and the Intel® Transfer Learning Tool &mdash; Intel® Transfer Learning Tool 0.2.0 documentation</title>
@@ -14,10 +14,13 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -82,7 +85,7 @@
            <div itemprop="articleBody">
              
   <section id="Performance-Comparison:-Image-Classification-Transfer-Learning-with-TensorFlow-and-the-Intel®-Transfer-Learning-Tool">
-<h1>Performance Comparison: Image Classification Transfer Learning with TensorFlow and the Intel® Transfer Learning Tool<a class="headerlink" href="#Performance-Comparison:-Image-Classification-Transfer-Learning-with-TensorFlow-and-the-Intel®-Transfer-Learning-Tool" title="Link to this heading">¶</a></h1>
+<h1>Performance Comparison: Image Classification Transfer Learning with TensorFlow and the Intel® Transfer Learning Tool<a class="headerlink" href="#Performance-Comparison:-Image-Classification-Transfer-Learning-with-TensorFlow-and-the-Intel®-Transfer-Learning-Tool" title="Permalink to this heading">¶</a></h1>
 <p>This notebook uses the TensorFlow libraries to do transfer learning with an image classification model. The model is exported, evaluated, and used to generate predictions. The same sequence is also done using the Intel Transfer Learning Tool. The Intel Transfer Learning Tool is also used to optimize and quantized the trained model.</p>
 <p>Graphs are generated to visually compare: * Training metrics (time per epoch, accuracy by epoch, loss by epoch) * Evaluation metrics (time to evaluate the validation dataset, accuracy using the validation data) * Prediction time for a single batch * Latency and throughput for the trained models, quantized model, and the optimized model.</p>
 <p>The notebook has variables to allow controlling parameters such as the model name, dataset, the number of training epochs, and the batch size(s).</p>
@@ -157,7 +160,7 @@
 </div>
 </div>
 <section id="1.-Display-Platform-Information">
-<h2>1. Display Platform Information<a class="headerlink" href="#1.-Display-Platform-Information" title="Link to this heading">¶</a></h2>
+<h2>1. Display Platform Information<a class="headerlink" href="#1.-Display-Platform-Information" title="Permalink to this heading">¶</a></h2>
 <p>Use the <code class="docutils literal notranslate"><span class="pre">CPUInfo</span></code> and <code class="docutils literal notranslate"><span class="pre">PlatformUtil</span></code> classes in the get and display information about the platform and TensorFlow version.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -208,9 +211,9 @@
 </div>
 </section>
 <section id="2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation">
-<h2>2. Select a model and define parameters to use during training and evaluation<a class="headerlink" href="#2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation" title="Link to this heading">¶</a></h2>
+<h2>2. Select a model and define parameters to use during training and evaluation<a class="headerlink" href="#2.-Select-a-model-and-define-parameters-to-use-during-training-and-evaluation" title="Permalink to this heading">¶</a></h2>
 <section id="Select-a-model">
-<h3>Select a model<a class="headerlink" href="#Select-a-model" title="Link to this heading">¶</a></h3>
+<h3>Select a model<a class="headerlink" href="#Select-a-model" title="Permalink to this heading">¶</a></h3>
 <p>See the list of supported image classification models from TensorFlow Hub in the Intel Transfer Learning Tool.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -257,7 +260,7 @@
 </div>
 </section>
 <section id="Select-a-dataset">
-<h3>Select a dataset<a class="headerlink" href="#Select-a-dataset" title="Link to this heading">¶</a></h3>
+<h3>Select a dataset<a class="headerlink" href="#Select-a-dataset" title="Permalink to this heading">¶</a></h3>
 <p>By default, the notebook will use the <a class="reference external" href="https://www.tensorflow.org/datasets/catalog/tf_flowers">TensorFlow Flowers dataset</a>, which has flower images that belong to 5 categories.</p>
 <p>To use your own dataset, set the <code class="docutils literal notranslate"><span class="pre">dataset_subdir</span></code> variable to the dataset path. The dataset directory is expected to have folders of images for each class, where the name of the folder will be used as the class name.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dataset_dir
@@ -302,7 +305,7 @@
 </div>
 </section>
 <section id="Define-parameters">
-<h3>Define parameters<a class="headerlink" href="#Define-parameters" title="Link to this heading">¶</a></h3>
+<h3>Define parameters<a class="headerlink" href="#Define-parameters" title="Permalink to this heading">¶</a></h3>
 <p>For consistency between the model training using the TensorFlow framework API and the model training using the Intel Transfer Learning Tool API, the next cell defines parameters that will be used by both methods.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -395,11 +398,11 @@
 </section>
 </section>
 <section id="3.-Compare-the-training-time-for-transfer-learning">
-<h2>3. Compare the training time for transfer learning<a class="headerlink" href="#3.-Compare-the-training-time-for-transfer-learning" title="Link to this heading">¶</a></h2>
+<h2>3. Compare the training time for transfer learning<a class="headerlink" href="#3.-Compare-the-training-time-for-transfer-learning" title="Permalink to this heading">¶</a></h2>
 <p>In this section, we will compare the time it takes to retrain the image classification model using the dataset that was selected in the previous section.</p>
 <p>The training will be done in two different ways to compare: * Transfer learning using the TensorFlow framework and TF Hub libraries * Transfer learning using the Intel Transfer Learning Tool API</p>
 <section id="Transfer-learning-using-the-TensorFlow-framework-and-TF-Hub-libraries">
-<h3>Transfer learning using the TensorFlow framework and TF Hub libraries<a class="headerlink" href="#Transfer-learning-using-the-TensorFlow-framework-and-TF-Hub-libraries" title="Link to this heading">¶</a></h3>
+<h3>Transfer learning using the TensorFlow framework and TF Hub libraries<a class="headerlink" href="#Transfer-learning-using-the-TensorFlow-framework-and-TF-Hub-libraries" title="Permalink to this heading">¶</a></h3>
 <p>This section goes through using the TensorFlow framework and TF Hub libraries to retrain the model using the selected dataset.</p>
 <p>First, the dataset is loaded in, which allows us to determine the number of classes in the dataset. The original ImageNet dataset that the image classification model was trained on has 1000 classes. To do transfer learning using the new dataset, we will get the feature vector from TF Hub and then add on a classification layer that matches the number of classes in the new dataset.</p>
 <p>If multiple batch sizes were set in the <code class="docutils literal notranslate"><span class="pre">batch_size_list</span></code>, training will be run for each batch size.</p>
@@ -527,7 +530,7 @@
 </div>
 </section>
 <section id="Transfer-learning-using-the-Intel-Transfer-Learning-Tool-API">
-<h3>Transfer learning using the Intel Transfer Learning Tool API<a class="headerlink" href="#Transfer-learning-using-the-Intel-Transfer-Learning-Tool-API" title="Link to this heading">¶</a></h3>
+<h3>Transfer learning using the Intel Transfer Learning Tool API<a class="headerlink" href="#Transfer-learning-using-the-Intel-Transfer-Learning-Tool-API" title="Permalink to this heading">¶</a></h3>
 <p>This section uses the Intel Transfer Learning Tool API to retrain the model using the selected dataset. This API simplifies the transfer learning process, so there are less lines of code compared to directly using the TensorFlow and TensorFlow Hub libraries.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -596,7 +599,7 @@
 </div>
 </section>
 <section id="Optimize-the-model-using-the-Intel-Transfer-Learning-Tool-API">
-<h3>Optimize the model using the Intel Transfer Learning Tool API<a class="headerlink" href="#Optimize-the-model-using-the-Intel-Transfer-Learning-Tool-API" title="Link to this heading">¶</a></h3>
+<h3>Optimize the model using the Intel Transfer Learning Tool API<a class="headerlink" href="#Optimize-the-model-using-the-Intel-Transfer-Learning-Tool-API" title="Permalink to this heading">¶</a></h3>
 <p>After training, the Intel Transfer Learning Tool can optimize the model to improve inference performance. This is done using the <a class="reference external" href="https://github.com/intel/neural-compressor">Intel® Neural Compressor</a> quantizing the model or optimizing the full precision model.</p>
 <p>First, we setup a configuration file that with parameters that will be used by the Intel Neural Compressor for quantization.</p>
 <div class="nbinput nblast docutils container">
@@ -658,7 +661,7 @@
 </div>
 </section>
 <section id="Compare-training-times">
-<h3>Compare training times<a class="headerlink" href="#Compare-training-times" title="Link to this heading">¶</a></h3>
+<h3>Compare training times<a class="headerlink" href="#Compare-training-times" title="Permalink to this heading">¶</a></h3>
 <p>The table below compares the time it took to train each epoch (in seconds) using the TensorFlow framework libraries directly versus the Intel Transfer Learning Tool API.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -752,10 +755,10 @@
 </section>
 </section>
 <section id="4.-Evaluate-and-predict">
-<h2>4. Evaluate and predict<a class="headerlink" href="#4.-Evaluate-and-predict" title="Link to this heading">¶</a></h2>
+<h2>4. Evaluate and predict<a class="headerlink" href="#4.-Evaluate-and-predict" title="Permalink to this heading">¶</a></h2>
 <p>This section calls evaluation and prediction methods for the models trained using the TensorFlow libraries and the Intel Transfer Learning Tool.</p>
 <section id="Evaluate-the-models-using-the-validation-data">
-<h3>Evaluate the models using the validation data<a class="headerlink" href="#Evaluate-the-models-using-the-validation-data" title="Link to this heading">¶</a></h3>
+<h3>Evaluate the models using the validation data<a class="headerlink" href="#Evaluate-the-models-using-the-validation-data" title="Permalink to this heading">¶</a></h3>
 <p>First, evaluate the models trained using the TensorFlow libraries.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -860,7 +863,7 @@
 </div>
 </section>
 <section id="Predict-using-a-batch-of-images">
-<h3>Predict using a batch of images<a class="headerlink" href="#Predict-using-a-batch-of-images" title="Link to this heading">¶</a></h3>
+<h3>Predict using a batch of images<a class="headerlink" href="#Predict-using-a-batch-of-images" title="Permalink to this heading">¶</a></h3>
 <p>Use the TensorFlow libaries to get a batch of images and predict using the trained models.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -932,7 +935,7 @@
 </div>
 </section>
 <section id="Check-performance-using-the-Intel®-Neural-Compressor">
-<h3>Check performance using the Intel® Neural Compressor<a class="headerlink" href="#Check-performance-using-the-Intel®-Neural-Compressor" title="Link to this heading">¶</a></h3>
+<h3>Check performance using the Intel® Neural Compressor<a class="headerlink" href="#Check-performance-using-the-Intel®-Neural-Compressor" title="Permalink to this heading">¶</a></h3>
 <p>Use the <a class="reference external" href="https://github.com/intel/neural-compressor/tree/master">Intel Neural Compressor</a> to determine the performance of the exported models.</p>
 <p>We will compare: * The original model that was trained using the TensorFlow and TF Hub libaries * The model trained using the Intel Transfer Learning Tool * The model trained and quantized using the Intel Transfer Learning Tool * The model trained and optimized using the Intel Transfer Learning Tool</p>
 <div class="nbinput nblast docutils container">
@@ -1139,8 +1142,8 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 

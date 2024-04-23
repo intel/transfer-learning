@@ -12,10 +12,13 @@
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../../_static/documentation_options.js?v=938c9ccc"></script>
-        <script src="../../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../../../_static/tlt-custom.js?v=c75969d3"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../../_static/tlt-custom.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -106,9 +109,7 @@
 <span class="kn">from</span> <span class="nn">tlt.datasets.image_classification.image_classification_dataset</span> <span class="kn">import</span> <span class="n">ImageClassificationDataset</span>
 
 
-<div class="viewcode-block" id="PyTorchCustomImageClassificationDataset">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.html#tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset">[docs]</a>
-<span class="k">class</span> <span class="nc">PyTorchCustomImageClassificationDataset</span><span class="p">(</span><span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">PyTorchDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="PyTorchCustomImageClassificationDataset"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.html#tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset">[docs]</a><span class="k">class</span> <span class="nc">PyTorchCustomImageClassificationDataset</span><span class="p">(</span><span class="n">ImageClassificationDataset</span><span class="p">,</span> <span class="n">PyTorchDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A custom image classification dataset that can be used with PyTorch models. Note that the</span>
 <span class="sd">    directory of images is expected to be organized with subfolders for each image class. Each subfolder should</span>
@@ -153,9 +154,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PyTorchCustomImageClassificationDataset.__init__">
-<a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.html#tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="PyTorchCustomImageClassificationDataset.__init__"><a class="viewcode-back" href="../../../../_autosummary/tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.html#tlt.datasets.image_classification.pytorch_custom_image_classification_dataset.PyTorchCustomImageClassificationDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shuffle_files</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class constructor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -219,7 +218,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_class_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">classes</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ConcatDataset</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">])</span></div>
 
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">class_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -242,7 +240,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">TransformedSubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)),</span> <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span></div>
-
 </pre></div>
 
            </div>
@@ -252,8 +249,8 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022-2023, Intel Corporation.
-      <span class="lastupdated">Last updated on Oct 19, 2023.
+    <p>&#169; Copyright 2022-2024, Intel Corporation.
+      <span class="lastupdated">Last updated on Apr 22, 2024.
       </span></p>
   </div>
 
