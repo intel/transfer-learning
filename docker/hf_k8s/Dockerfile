@@ -35,30 +35,28 @@ SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends --fix-missing \
-    ca-certificates \
     google-perftools \
-    libgl1 \
     libjemalloc2 \
     libomp-dev \
     numactl
 
 RUN python -m pip install --no-cache-dir \
+    'SentencePiece==0.2.0' \
+    'accelerate==0.28.0' \
+    'datasets==2.19.0' \
+    'einops==0.7.0' \
+    'evaluate==0.4.1' \
     'mkl-include==2023.2.0' \
     'mkl==2023.2.0' \
+    'nltk==3.8.1' \
+    'onnxruntime-extensions==0.10.1' \
+    'onnxruntime==1.17.3' \
+    'peft==0.10.0' \
     'protobuf==4.24.4' \
-    SentencePiece \
-    accelerate==0.28.0 \
-    datasets \
-    einops \
-    evaluate \
-    nltk \
-    onnxruntime \
-    onnxruntime-extensions \
-    peft \
-    psutil \
-    py-cpuinfo \
-    rouge_score \
-    tokenizers
+    'psutil==5.9.5' \
+    'py-cpuinfo==9.0.0' \
+    'rouge_score==0.1.2' \
+    'tokenizers==0.19.1'
 
 # Install OpenSSH for MPI to communicate between containers
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
@@ -81,6 +79,7 @@ COPY scripts /workspace/scripts/
 COPY generate_ssh_keys.sh /workspace/generate_ssh_keys.sh
 
 RUN cat /workspace/generate_ssh_keys.sh >> ${HOME}/.bash_profile && \
+    sed -i 's#source /inc/bin/activate##g' ${HOME}/.bashrc && \
     cat /workspace/generate_ssh_keys.sh >> ${HOME}/.bashrc
 
 ENV BASH_ENV=${HOME}/.bash_profile
@@ -88,4 +87,3 @@ ENV BASH_ENV=${HOME}/.bash_profile
 # Set CCL env vars
 ENV PATH="/usr/local/lib/${PYTHON}${PYTHON_VER}/dist-packages/oneccl_bindings_for_pytorch/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/lib/${PYTHON}${PYTHON_VER}/dist-packages/oneccl_bindings_for_pytorch/lib:${LD_LIBRARY_PATH}"
-
