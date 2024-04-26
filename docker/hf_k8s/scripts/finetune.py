@@ -18,19 +18,18 @@
 
 
 import datasets
+import importlib
 import logging
 import math
 import os
 import sys
+import torch
 import transformers
 import copy
 
 from dataclasses import dataclass, field
 from datasets import load_dataset
 from datetime import datetime
-from neural_compressor import benchmark, quantization
-from neural_compressor.config import BenchmarkConfig, PostTrainingQuantConfig
-from neural_compressor.utils.pytorch import load
 from peft import (
     LoraConfig,
     PeftModel,
@@ -99,6 +98,10 @@ class ModelArguments:
         default=None,
         metadata={"help": "Where do you want to store the pretrained models downloaded from huggingface.co"},
     )
+    token: Optional[str] = field(
+        default=None,
+        metadata={"help": "auth token for private models"},
+    )
     use_fast_tokenizer: bool = field(
         default=True,
         metadata={"help": "Whether to use one of the fast tokenizer (backed by the tokenizers library) or not."},
@@ -111,7 +114,95 @@ class ModelArguments:
         default=False,
         metadata={
             "help": "Will use the token generated when running `transformers-cli login` (necessary to use this script "
-            "with private models)."
+                    "with private models)."
+        },
+    )
+    use_gaudi: bool = field(
+        default=False,
+        metadata={"help": "Fine tune using Intel Gaudi accelerators."},
+    )
+    use_auth_token: bool = field(
+        default=False,
+        metadata={
+            "help": "The `use_auth_token` argument is deprecated and will be removed in v4.34. Please use `token` "
+                    "instead."
+        },
+    )
+    trust_remote_code: bool = field(
+        default=False,
+        metadata={
+            "help": "should enable when using custom model architecture that is not yet part of the Hugging Face "
+                    "transformers package like MPT)."
+        },
+    )
+    use_cache: bool = field(
+        default=True,
+        metadata={
+            "help": (
+                "Whether or not the model should return the last key/values attentions (not used by all models)."
+                "Only relevant if `config.is_decoder=True`."
+            )
+        },
+    )
+    low_cpu_mem_usage: bool = field(
+        default=False,
+        metadata={
+            "help": (
+                "It is an option to create the model as an empty shell, then only materialize its parameters when the "
+                "pretrained weights are loaded. When set to True, it will benefit LLM loading time and RAM consumption."
+            )
+        },
+    )
+    attn_softmax_bf16: bool = field(
+        default=False,
+        metadata={
+            "help": (
+                "Whether to run attention softmax layer in bf16 precision for fine-tuning. The current support is "
+                "limited to Llama only.",
+            )
+        },
+    )
+    use_flash_attention: bool = field(
+        default=False,
+        metadata={
+            "help": (
+                "Whether to use Habana flash attention for fine-tuning. The current support is limited to Llama only.",
+            )
+        },
+    )
+    flash_attention_recompute: bool = field(
+        default=False,
+        metadata={
+            "help": (
+                "Whether to enable recompute in Habana flash attention for fine-tuning."
+                " It is applicable only when use_flash_attention is True.",
+            )
+        },
+    )
+    flash_attention_causal_mask: bool = field(
+        default=False,
+        metadata={
+            "help": (
+                "Whether to enable causal mask in Habana flash attention for fine-tuning."
+                " It is applicable only when use_flash_attention is True.",
+            )
+        },
+    )
+    use_fused_rope: bool = field(
+        default=True,
+        metadata={
+            "help": (
+                "Whether to use Habana fused-rope for fine-tuning. The current support is limited to Llama only.",
+            )
+        },
+    )
+    load_meta_device: bool = field(
+        default=False,
+        metadata={
+            "help": (
+                "It is an option to load the model to the device instead of the host, so it can reduce the host RAM "
+                "usage. https://huggingface.co/blog/accelerate-large-models"
+            )
         },
     )
 
@@ -352,7 +443,6 @@ CHAT_PROMPT_DICT = {
     ),
 }
 
-
 # Prompt dictionary without output used for chat models
 CHAT_PROMPT_DICT2 = {
     "prompt_with_input": (
@@ -406,22 +496,40 @@ def create_system_turn(examples, prompt_dict):
     return prompts
 
 
+def is_optimum_habana_available():
+    """
+    Check for optimum-habana and return False if the library is not found.
+    """
+    if importlib.util.find_spec('optimum'):
+        return importlib.util.find_spec('optimum.habana') is not None
+    return False
+
+
 def main():
     start_time = datetime.now()
+
+    script_args = (ModelArguments, DataArguments, FinetuneArguments, QuantizationArguments, BenchmarkArguments)
+
+    # If optimum-habana is available, use GaudiTrainingArguments. Otherwise, use Transformers TrainingArguments
+    if is_optimum_habana_available():
+        from optimum.habana import GaudiTrainingArguments
+        script_args += (GaudiTrainingArguments,)
+    else:
+        script_args += (TrainingArguments,)
 
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
-    parser = HfArgumentParser((ModelArguments, DataArguments, TrainingArguments, FinetuneArguments,
-                               QuantizationArguments, BenchmarkArguments))
+    parser = HfArgumentParser(script_args)
+
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.
-        model_args, data_args, training_args, finetune_args, quant_args, benchmark_args = parser.parse_json_file(
+        model_args, data_args, finetune_args, quant_args, benchmark_args, training_args = parser.parse_json_file(
             json_file=os.path.abspath(sys.argv[1]))
     else:
         # model_args, data_args, training_args, finetune_args = parser.parse_args_into_dataclasses()
-        model_args, data_args, training_args, finetune_args, quant_args, benchmark_args, optim_args = \
+        model_args, data_args, finetune_args, quant_args, benchmark_args, training_args, optim_args = \
             parser.parse_args_into_dataclasses(return_remaining_strings=True)
 
     # Setup logging
@@ -457,6 +565,9 @@ def main():
         "cache_dir": model_args.cache_dir,
         "revision": model_args.model_revision,
         "use_auth_token": True if model_args.use_auth_token else None,
+        "trust_remote_code": True if model_args.trust_remote_code else None,
+        "use_cache": False if training_args.gradient_checkpointing else model_args.use_cache,
+        "token": model_args.token,
     }
     if model_args.config_name:
         config = AutoConfig.from_pretrained(model_args.config_name, **config_kwargs)
@@ -472,6 +583,7 @@ def main():
         "use_auth_token": True if model_args.use_auth_token else None,
         "add_bos_token": False,
         "add_eos_token": False,
+        "token": model_args.token,
     }
     if model_args.tokenizer_name:
         tokenizer = AutoTokenizer.from_pretrained(model_args.tokenizer_name, **tokenizer_kwargs)
@@ -532,11 +644,14 @@ def main():
             **dataset_args,
         )
 
+    dataset_keys = ["train"]
+
     # If no test data is there, validation_split_percentage will be used to divide the dataset.
     if "test" not in raw_datasets.keys() and training_args.do_eval:
         logger.info("Original dataset length: {}".format(len(raw_datasets["train"])))
         raw_datasets["train"] = raw_datasets["train"].shuffle(seed=data_args.dataset_seed)
         raw_datasets = raw_datasets["train"].train_test_split(test_size=data_args.validation_split_percentage)
+        dataset_keys += ["test"]
         logger.info("Validation split percentage: {}".format(data_args.validation_split_percentage))
         logger.info("Train split length: {}".format(len(raw_datasets["train"])))
         logger.info("Test split length: {}".format(len(raw_datasets["test"])))
@@ -616,8 +731,10 @@ def main():
                                  for i in range(len(concatenated_data) // max_seq_length)]
                 concatenated_dataset[column] = reshaped_data
             return datasets.Dataset.from_dict(concatenated_dataset)
-        tokenized_datasets_ = tokenized_datasets["train"].remove_columns(["prompts", "system_prompts"])
-        tokenized_datasets["train"] = concatenate_data(tokenized_datasets_, data_args.max_seq_length)
+
+        for key in dataset_keys:
+            tokenized_datasets_ = tokenized_datasets[key].remove_columns(["prompts", "system_prompts"])
+            tokenized_datasets[key] = concatenate_data(tokenized_datasets_, data_args.max_seq_length)
 
     if training_args.do_train:
         if "train" not in tokenized_datasets:
@@ -642,6 +759,7 @@ def main():
 
     # Load model
     if model_args.model_name_or_path:
+        model_dtype = torch.bfloat16 if training_args.bf16 else None
         model = AutoModelForCausalLM.from_pretrained(
             model_args.model_name_or_path,
             from_tf=bool(".ckpt" in model_args.model_name_or_path),
@@ -649,6 +767,11 @@ def main():
             cache_dir=model_args.cache_dir,
             revision=model_args.model_revision,
             use_auth_token=True if model_args.use_auth_token else None,
+            trust_remote_code=True if model_args.trust_remote_code else None,
+            torch_dtype=model_dtype,
+            low_cpu_mem_usage=model_args.low_cpu_mem_usage,
+            device_map=training_args.device.type if model_args.load_meta_device else None,
+            token=model_args.token,
         )
         model.generation_config.pad_token_id = 0
         model.generation_config.bos_token_id = 1
@@ -681,14 +804,32 @@ def main():
             model.print_trainable_parameters()
 
         # Initialize our Trainer
-        trainer = Trainer(
-            model=model,
-            args=training_args,
-            train_dataset=train_dataset if training_args.do_train else None,
-            eval_dataset=eval_dataset if training_args.do_eval else None,
-            tokenizer=tokenizer,
-            data_collator=data_collator,
-        )
+        if is_optimum_habana_available():
+            from optimum.habana import GaudiConfig, GaudiTrainer
+
+            gaudi_config = GaudiConfig()
+            gaudi_config.use_fused_adam = True
+            gaudi_config.use_fused_clip_norm = True
+
+            trainer = GaudiTrainer(
+                model=model,
+                args=training_args,
+                gaudi_config=gaudi_config,
+                train_dataset=train_dataset if training_args.do_train else None,
+                eval_dataset=eval_dataset if training_args.do_eval else None,
+                tokenizer=tokenizer,
+                data_collator=data_collator,
+            )
+        else:
+            trainer = Trainer(
+                model=model,
+                args=training_args,
+                train_dataset=train_dataset if training_args.do_train else None,
+                eval_dataset=eval_dataset if training_args.do_eval else None,
+                tokenizer=tokenizer,
+                data_collator=data_collator,
+            )
+
         trainer.add_callback(CustomPrinterCallback)
 
         training_start = datetime.now()
@@ -720,7 +861,13 @@ def main():
         # Get and log evaluation metrics
         max_eval_samples = data_args.max_eval_samples if data_args.max_eval_samples is not None else len(eval_dataset)
         eval_metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
-        eval_metrics["perplexity"] = math.exp(eval_metrics["eval_loss"])
+
+        try:
+            perplexity = math.exp(eval_metrics["eval_loss"])
+        except OverflowError:
+            perplexity = float("inf")
+        eval_metrics["perplexity"] = perplexity
+
         trainer.log_metrics("eval", eval_metrics)
         trainer.save_metrics("eval", eval_metrics)
 
@@ -737,6 +884,9 @@ def main():
                                              for_calib=True)
 
             if benchmark_args.do_benchmark:
+                from neural_compressor import benchmark
+                from neural_compressor.config import BenchmarkConfig
+
                 os.environ['NC_ENV_CONF'] = 'True'
                 if benchmark_args.benchmark_cores_per_instance == -1:
                     benchmark_args.benchmark_cores_per_instance = None
@@ -762,6 +912,8 @@ def main():
         # Post training quantization
         if quant_args.do_quantize:
             logger.info("Post training quantization")
+            from neural_compressor import quantization
+            from neural_compressor.config import PostTrainingQuantConfig
 
             # Currently this script only supports weight only quantization
             quant_config = PostTrainingQuantConfig(
@@ -790,6 +942,8 @@ def main():
         int8_latency = int8_throughput = None
         if benchmark_args.do_benchmark and quant_args.quantize_output_dir is not None and \
                 os.path.exists(quant_args.quantize_output_dir) and len(os.listdir(quant_args.quantize_output_dir)) > 0:
+            from neural_compressor.utils.pytorch import load
+
             # Load the quantized model using INC
             kwargs = {'weight_only': True}
             reloaded_quantized_model = load(quant_args.quantize_output_dir, model, dataloader=calib_dataloader,
