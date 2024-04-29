@@ -117,10 +117,6 @@ class ModelArguments:
                     "with private models)."
         },
     )
-    use_gaudi: bool = field(
-        default=False,
-        metadata={"help": "Fine tune using Intel Gaudi accelerators."},
-    )
     use_auth_token: bool = field(
         default=False,
         metadata={
