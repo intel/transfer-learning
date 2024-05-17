@@ -16,7 +16,7 @@
 
 
 metadata:
-  name: llama2-gaudi-finetuning
+  name: llama2-gaudi-multicard
   namespace: kubeflow
 
 secret:
@@ -25,7 +25,7 @@ secret:
 image:
   name:  # Specify the image name that was pushed to docker hub or copied to the nodes
   tag:  # Specify the image tag that was pushed to docker hub or copied to the nodes
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 securityContext:
   runAsUser:
@@ -36,19 +36,21 @@ securityContext:
 
 distributed:
   script: /workspace/scripts/finetune.py
-  modelNameOrPath: meta-llama/Llama-2-7b-chat-hf
+  modelNameOrPath: meta-llama/Llama-2-7b-hf
   logLevel: info
 
   doTrain: True
   doEval: True
 
   train:
-    datasetName: # Name of the Hugging Face dataset to use. Leave blank if using a data file
-    dataFile: /tmp/pvc-mount/dataset/financial-alpaca.json
+    useMpi: false
+    useDeepSpeed: false
+    datasetName: medalpaca/medical_meadow_medical_flashcards  # Name of the Hugging Face dataset to use. Leave blank if using a data file
+    dataFile:
     datasetConcatenation: True
     promptWithInput: Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
     promptWithoutInput: Below is an instruction that describes a task. Write a response that appropriately completes the request.
-    perDeviceBatchSize: 8
+    perDeviceBatchSize: 12
     epochs: 3
     maxSteps: -1
     maxGradNorm: 0.3
@@ -57,7 +59,7 @@ distributed:
     lrSchedularType: "constant"
     useFastTokenizer: False
     outputDir: /tmp/pvc-mount/output/saved_model
-    loggingSteps: 10
+    loggingSteps: 1020
     saveTotalLimit: 2
     evaluationStrategy: "no"
     saveStrategy: "no"
@@ -79,7 +81,7 @@ distributed:
     validationSplitPercentage: 0.20
 
 envVars:
-  ldPreload: /usr/lib/x86_64-linux-gnu/libtcmalloc.so.4.5.9:/usr/local/lib/libiomp5.so
+  ldPreload:
   logLevel: INFO
   transformersCache: /tmp/pvc-mount/transformers_cache
   hfDatasetsCache: /tmp/pvc-mount/hf_dataset_cache
@@ -92,7 +94,7 @@ envVars:
 
 # Resources allocated to each worker
 resources:
-  hpu: 1
+  hpu: 8
   memoryRequest: 409Gi
   memoryLimit: 409Gi
   nodeSelectorLabel:

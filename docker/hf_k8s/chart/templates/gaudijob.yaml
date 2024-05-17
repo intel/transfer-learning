@@ -34,15 +34,30 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - python
+            {{- if gt (int .Values.resources.hpu) 1 }}
+            - /workspace/optimum-habana/examples/gaudi_spawn.py
+            - --world_size
+            - "{{ .Values.resources.hpu }}"
+            {{- if .Values.distributed.train.useMpi }}
+            - --use_mpi
+            {{- end }}
+            {{- if .Values.distributed.train.useDeepSpeed }}
+            - --use_deepspeed
+            {{- end }}
+            {{- end }}
             - {{ .Values.distributed.script }}
             - --model_name_or_path
             - "{{ .Values.distributed.modelNameOrPath }}"
+            {{- if .Values.distributed.train.datasetName }}
             - --dataset_name
             - "{{ .Values.distributed.train.datasetName }}"
+            {{- end }}
             - --dataset_cache_directory
             - "{{ .Values.envVars.hfDatasetsCache }}"
+            {{- if .Values.distributed.train.dataFile }}
             - --train_file
             - "{{ .Values.distributed.train.dataFile }}"
+            {{- end }}
             - --dataset_concatenation
             - "{{ .Values.distributed.train.datasetConcatenation }}"
             - --evaluation_strategy
@@ -113,9 +128,6 @@ spec:
             - "{{ .Values.distributed.train.useLazyMode }}"
             - --throughput_warmup_steps
             - "{{ .Values.distributed.train.throughputWarmupSteps }}"
-            - --token
-            - "{{ .Values.distributed.train.Token }}"
-
           env:
           {{- if .Values.envVars.ldPreload }}
           - name: LD_PRELOAD
@@ -158,10 +170,10 @@ spec:
             value: "{{ .Values.envVars.logLevel }}"
           {{- end }}
           resources:
-            {{- if or .Values.resources.hpuLimit .Values.resources.memoryLimit .Values.resources.hugePages2Mi}}
+            {{- if or .Values.resources.hpu .Values.resources.memoryLimit .Values.resources.hugePages2Mi }}
             limits:
-              {{- if .Values.resources.hpuLimit }}
-              habana.ai/gaudi: {{ .Values.resources.hpuLimit }}
+              {{- if .Values.resources.hpu }}
+              habana.ai/gaudi: {{ .Values.resources.hpu }}
               {{- end }}
               {{- if .Values.resources.memoryLimit }}
               memory: {{ .Values.resources.memoryLimit }}
@@ -170,10 +182,10 @@ spec:
               hugepages-2Mi: {{ .Values.resources.hugePages2Mi }}
               {{- end }}
             {{- end }}
-            {{- if or .Values.resources.hpuLimit .Values.resources.memoryLimit .Values.resources.hugePages2Mi}}
+            {{- if or .Values.resources.hpu .Values.resources.memoryLimit .Values.resources.hugePages2Mi }}
             requests:
-              {{- if .Values.resources.hpuRequest }}
-              habana.ai/gaudi: {{ .Values.resources.hpuRequest }}
+              {{- if .Values.resources.hpu }}
+              habana.ai/gaudi: {{ .Values.resources.hpu }}
               {{- end }}
               {{- if .Values.resources.memoryRequest }}
               memory: {{ .Values.resources.memoryRequest }}
