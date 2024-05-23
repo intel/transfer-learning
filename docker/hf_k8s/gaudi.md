@@ -75,6 +75,28 @@ b. If you don't have a container registry, use the commands below to save the co
 
 > Note: The `<image name>:<tag>` that was pushed needs to be specified in the Helm chart values file.
 
+## Setting up the Gaudi Device Plugin
+With a Gaudi device deployed in the Kubernetes cluster, this plugin will enable the registration of that device for use. The daemonset can be deployed using the following .yaml file from the [Intel Gaudi Docs](https://docs.habana.ai/en/latest/Orchestration/Gaudi_Kubernetes/Device_Plugin_for_Kubernetes.html). Be sure to refer to the Intel Gaudi Docs for more details if need be.
+
+Deployment
+
+```
+kubectl create -f https://vault.habana.ai/artifactory/docker-k8s-device-plugin/habana-k8s-device-plugin.yaml
+```
+
+Checking Deployment
+```
+kubectl get pods -n habana-system
+```
+
+Sample Output:
+```
+NAME                                      READY    STATUS             RESTARTS           AGE
+habanalabs-device-plugin-daemonset-#xxxx   1/1     Running            0                  1s
+...
+```
+Once this is running, the Kubernetes job will know to look for a Gaudi device for usage in the job.
+
 ## Running the fine tuning job on the Kubernetes cluster
 
 There are two Helm values files that are setup to run LLM fine tuning with Gaudi:
