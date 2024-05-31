@@ -15,6 +15,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+{{- if ne .Values.distributed.train.useHabana true}}
 apiVersion: "kubeflow.org/v1"
 kind: PyTorchJob
 metadata:
@@ -228,3 +229,4 @@ spec:
             secret:
               secretName: {{ .Values.metadata.name }}-secret
           {{- end }}
+{{- end }}

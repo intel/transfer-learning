@@ -5,7 +5,7 @@ Then install the following dependencies:
 
 ```
 # Clone this repo, if you don't already have it
-git clone https://github.com/IntelAI.transfer-learning.git
+git clone https://github.com/Intel.transfer-learning.git
 cd transfer-learning
 
 # Run all tests with make, or skip this step to run individually

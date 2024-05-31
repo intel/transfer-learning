@@ -54,13 +54,13 @@ Linux OS (Ubuntu 22.04) is used to validate this reference solution. Make sure t
 
 ## How It Works?
 
-The Vision reference Implementation component uses [Intel Transfer Learning Toolkit based vision workload](https://github.com/IntelAI/transfer-learning), which is optimized for image fine-tuning and inference. This workload uses Tensorflowhub's ResNet-50 model to fine-tune a new convolutional neural network model with subtracted CESM image dataset. The images are preprocessed by using domain expert-defined segmented regions to reduce redundancies during training.
+The Vision reference Implementation component uses [Intel Transfer Learning Toolkit based vision workload](https://github.com/Intel/transfer-learning), which is optimized for image fine-tuning and inference. This workload uses Tensorflowhub's ResNet-50 model to fine-tune a new convolutional neural network model with subtracted CESM image dataset. The images are preprocessed by using domain expert-defined segmented regions to reduce redundancies during training.
 
 ## Get Started
 
 ### Download the repository
 
-git clone https://github.com/IntelAI/transfer-learning.git vision_workflow
+git clone https://github.com/Intel/transfer-learning.git vision_workflow
 cd vision_workflow/workflows/disease_prediction
 
 
@@ -214,7 +214,7 @@ To implement this reference use case on a different or customized pre-training m
 For more information or to read about other relevant workflow examples, see these guides and software resources:
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
 - [Intel® Neural Compressor](https://github.com/intel/neural-compressor)
-- [Intel® Transfer Learning Tool](https://github.com/IntelAI/transfer-learning/tree/v0.7.0)
+- [Intel® Transfer Learning Tool](https://github.com/Intel/transfer-learning/tree/v0.7.0)
 
 ## Support
 If you have any questions with this workflow, want help with troubleshooting, want to report a bug or submit enhancement requests, please submit a GitHub issue.

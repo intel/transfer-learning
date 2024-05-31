@@ -16,7 +16,7 @@ Software Requirements:
 2. Clone the GitHub repo if you haven't done this in step 1
 
    ```
-   git clone https://github.com/IntelAI/transfer-learning.git
+   git clone https://github.com/Intel/transfer-learning.git
    cd transfer-learning 
    ```
 

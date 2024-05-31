@@ -22,27 +22,27 @@ Intel Transfer Learning Tool API Tutorial Notebooks
 .. |imageClassPyTorch| image:: /images/Jupyter_logo.svg
              :alt: Jupyter notebook .ipynb file
              :height: 35
-.. _imageClassPyTorch: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb
+.. _imageClassPyTorch: https://github.com/Intel/transfer-learning/blob/main/notebooks/image_classification/tlt_api_pyt_image_classification/TLT_PyTorch_Image_Classification_Transfer_Learning.ipynb
 
 .. |imageClassTensorFlow| image:: /images/Jupyter_logo.svg
              :alt: Jupyter notebook .ipynb file
              :height: 35
-.. _imageClassTensorflow: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb
+.. _imageClassTensorflow: https://github.com/Intel/transfer-learning/blob/main/notebooks/image_classification/tlt_api_tf_image_classification/TLT_TF_Image_Classification_Transfer_Learning.ipynb
 
 .. |textClassPyTorch| image:: /images/Jupyter_logo.svg
              :alt: Jupyter notebook .ipynb file
              :height: 35
-.. _textClassPyTorch: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/text_classification/tlt_api_pyt_text_classification/TLT_PYT_Text_Classification.ipynb
+.. _textClassPyTorch: https://github.com/Intel/transfer-learning/blob/main/notebooks/text_classification/tlt_api_pyt_text_classification/TLT_PYT_Text_Classification.ipynb
 
 .. |textClassTensorFlow| image:: /images/Jupyter_logo.svg
              :alt: Jupyter notebook .ipynb file
              :height: 35
-.. _textClassTensorflow: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb
+.. _textClassTensorflow: https://github.com/Intel/transfer-learning/blob/main/notebooks/text_classification/tlt_api_tf_text_classification/TLT_TF_Text_Classification.ipynb
 
 .. |imageAnomalyPyTorch| image:: /images/Jupyter_logo.svg
              :alt: Jupyter notebook .ipynb file
              :height: 35
-.. _imageAnomalyPyTorch: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/image_anomaly_detection/tlt_api_pyt_anomaly_detection/Anomaly_Detection.ipynb
+.. _imageAnomalyPyTorch: https://github.com/Intel/transfer-learning/blob/main/notebooks/image_anomaly_detection/tlt_api_pyt_anomaly_detection/Anomaly_Detection.ipynb
 
 .. csv-table::
    :header: "Notebook Title", ".ipynb Link", "Use Case", "Framework"
@@ -60,12 +60,12 @@ Intel Transfer Learning Tool API End-to-End Pipelines
 .. |imageClassMedical| image:: /images/Jupyter_logo.svg
              :alt: Jupyter notebook .ipynb file
              :height: 35
-.. _imageClassMedical: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/e2e_workflows/Medical_Imaging_Classification.ipynb
+.. _imageClassMedical: https://github.com/Intel/transfer-learning/blob/main/notebooks/e2e_workflows/Medical_Imaging_Classification.ipynb
 
 .. |imageClassRemote| image:: /images/Jupyter_logo.svg
              :alt: Jupyter notebook .ipynb file
              :height: 35
-.. _imageClassRemote: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/e2e_workflows/Remote_Sensing_Image_Scene_Classification.ipynb
+.. _imageClassRemote: https://github.com/Intel/transfer-learning/blob/main/notebooks/e2e_workflows/Remote_Sensing_Image_Scene_Classification.ipynb
 
 
 .. csv-table::
@@ -81,12 +81,12 @@ Intel Transfer Learning Tool Performance Comparison
 .. |imageClassTFPerf| image:: /images/Jupyter_logo.svg
              :alt: Jupyter notebook .ipynb file
              :height: 35
-.. _imageClassTFPerf: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/performance/tf_image_classification_performance.ipynb
+.. _imageClassTFPerf: https://github.com/Intel/transfer-learning/blob/main/notebooks/performance/tf_image_classification_performance.ipynb
 
 .. |textClassHFPerf| image:: /images/Jupyter_logo.svg
              :alt: Jupyter notebook .ipynb file
              :height: 35
-.. _textClassHFPerf: https://github.com/IntelAI/transfer-learning/blob/main/notebooks/performance/hf_text_classification_performance.ipynb
+.. _textClassHFPerf: https://github.com/Intel/transfer-learning/blob/main/notebooks/performance/hf_text_classification_performance.ipynb
 
 .. csv-table::
    :header: "Notebook Title", ".ipynb Link", "Use Case", "Framework"

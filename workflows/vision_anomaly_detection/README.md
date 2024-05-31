@@ -16,7 +16,7 @@ This workflow is a fine-tuning module under the [Visual Quality Inspection refer
 - [Support](#support)
 
 ## Technical Overview
-This repository provides a layer within the higher level Visual Quality Inspection reference kit and supports the following using [Intel® Transfer Learning Tool](https://github.com/IntelAI/transfer-learning):
+This repository provides a layer within the higher level Visual Quality Inspection reference kit and supports the following using [Intel® Transfer Learning Tool](https://github.com/Intel/transfer-learning):
 - Fine-tuning and inference on custom dataset
 - Implementation for different feature extractors based on:
   - Pre-trained model (without fine-tuning)
@@ -87,7 +87,7 @@ It contains the workflow code:
 ```
 export $WORKSPACE=/<workdir/path>
 cd $WORKSPACE
-git clone https://github.com/IntelAI/transfer-learning.git
+git clone https://github.com/Intel/transfer-learning.git
 cd transfer-learning/workflows/vision_anomaly_detection
 ```
 
@@ -124,7 +124,7 @@ Ensure you have completed steps in the [Get Started Section](#get-started).
 Build or Pull the provided docker image.
 
 ```bash
-git clone https://github.com/IntelAI/models -b r2.11 intel-models
+git clone https://github.com/Intel/models -b r2.11 intel-models
 cd docker
 docker compose build
 cd ..
@@ -244,7 +244,7 @@ pip install -r requirements.txt
 
 Download the mvtec dataset using Intel Model Zoo dataset download API
 ```
-git clone https://github.com/IntelAI/models.git $WORKSPACE/models
+git clone https://github.com/Intel/models.git $WORKSPACE/models
 cd $WORKSPACE/models/datasets/dataset_api/
 ```
 
@@ -280,8 +280,8 @@ python src/vision_anomaly_wrapper.py --config_file config/config.yaml
 
 ## Learn More
 For more information or to read about other relevant workflow examples, see these guides and software resources:
-- [Intel® Transfer Learning Tool](https://github.com/IntelAI/transfer-learning)
-- [Anomaly Detection fine-tuning workflow using SimSiam and CutPaste techniques](https://github.com/IntelAI/transfer-learning/tree/main/workflows/vision_anomaly_detection)
+- [Intel® Transfer Learning Tool](https://github.com/Intel/transfer-learning)
+- [Anomaly Detection fine-tuning workflow using SimSiam and CutPaste techniques](https://github.com/Intel/transfer-learning/tree/main/workflows/vision_anomaly_detection)
 - [Intel® AI Analytics Toolkit (AI Kit)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ai-analytics-toolkit.html)
 - [Intel® Extension for PyTorch](https://intel.github.io/intel-extension-for-pytorch/)
 - [Intel® Extension for Scikit-learn](https://www.intel.com/content/www/us/en/developer/tools/oneapi/scikit-learn.html#gs.x609e4)
