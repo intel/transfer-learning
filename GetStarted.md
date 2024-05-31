@@ -75,7 +75,7 @@ approaches.
       Clone the repo:
 
       ```
-      git clone https://github.com/IntelAI/transfer-learning.git
+      git clone https://github.com/Intel/transfer-learning.git
       cd transfer-learning
       ```
 

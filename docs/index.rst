@@ -19,5 +19,5 @@
    Supported Models <Models>
    Legal
    genindex
-   GitHub Repository <https://github.com/IntelAI/transfer-learning-tool>
+   GitHub Repository <https://github.com/Intel/transfer-learning-tool>
 
