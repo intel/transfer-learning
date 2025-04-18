@@ -30,7 +30,7 @@ tensorflow-addons==0.21.0
 tensorflow-datasets==4.9.2; python_version=='3.8'
 tensorflow-datasets==4.9.3; python_version>'3.8'
 tensorflow-hub==0.15.0
-torch==2.2.0
+torch==2.6.0
 torchvision==0.17.0
 transformers==4.38.0
 urllib3==2.2.2
