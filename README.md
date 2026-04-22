@@ -1,3 +1,12 @@
+## THIS PROJECT IS ARCHIVED 
+
+Intel will not provide or guarantee development of or support for this project, including but not limited to, maintenance, bug fixes, new releases or updates. 
+
+Patches to this project are no longer accepted by Intel.   
+
+This project has been identified as having known security issues. 
+
+Contact: webadmin@linux.intel.com
 *Note: You may find it easier to read about Intel Transfer Learning tool, follow the Get
 Started guide, and browse the API material from our published documentation site
 https://intel.github.io/transfer-learning.*
